@@ -24,23 +24,36 @@ import notificationsRoutes from './routes/notifications.js';
 const app = express();
 const PORT = process.env.PORT || 5000;
 
+// Serve static frontend assets from client/dist and fallback dist
+const clientDistPath = path.resolve(process.cwd(), 'client/dist');
+const rootDistPath = path.resolve(process.cwd(), 'dist');
+
+app.use('/assets', express.static(path.join(clientDistPath, 'assets'), {
+  maxAge: '1y',
+  immutable: true,
+}));
+app.use(express.static(clientDistPath));
+app.use(express.static(rootDistPath));
+
 // Middleware
 app.use(cors({
   origin: (origin, callback) => {
     const allowedOrigins = [
       'http://localhost:3000',
       'http://127.0.0.1:3000',
+      'http://localhost:5000',
+      'http://127.0.0.1:5000',
     ];
 
     if (
       !origin ||
       allowedOrigins.includes(origin) ||
-      process.env.FRONTEND_URL === origin ||
-      (process.env.FRONTEND_URL && process.env.FRONTEND_URL.split(',').map(u => u.trim()).includes(origin))
+      (process.env.FRONTEND_URL && (process.env.FRONTEND_URL === origin || process.env.FRONTEND_URL.split(',').map(u => u.trim()).includes(origin))) ||
+      (origin && (origin.endsWith('.onrender.com') || origin.endsWith('.vercel.app') || origin.includes('localhost') || origin.includes('127.0.0.1')))
     ) {
       callback(null, true);
     } else {
-      callback(new Error('Not allowed by CORS'));
+      callback(null, false);
     }
   },
   credentials: true,
@@ -76,13 +89,6 @@ app.get('/api/health', (_req, res) => {
     timestamp: new Date().toISOString(),
   });
 });
-
-// Serve frontend static build in production (from client/dist or fallback dist)
-const clientDistPath = path.resolve(process.cwd(), 'client/dist');
-const rootDistPath = path.resolve(process.cwd(), 'dist');
-
-app.use(express.static(clientDistPath));
-app.use(express.static(rootDistPath));
 
 // SPA fallback for frontend client routing (e.g. /, /login, /dashboard)
 app.get('*', (req: Request, res: Response, next: NextFunction) => {
