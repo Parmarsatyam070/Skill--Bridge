@@ -1,172 +1,837 @@
-# SkillBridge — Academia-Industry Collaboration Platform 🌉
+# SkillBridge — Academia–Industry Collaboration Platform 🌉
 
-SkillBridge is a production-grade web platform engineered to close the skill gap between academic learning and industry demand. Built for the Smart India Hackathon (SIH) problem statement, it creates an authoritative, single-source-of-truth ecosystem connecting **Students**, **Industry Recruiters**, **Academicians**, and **Institution Admins**.
+SkillBridge is a full-stack web platform designed to bridge the gap between **academic learning and industry requirements**. It connects students, recruiters, academicians, and institutions through skill assessment, personalized learning, career opportunities, AI assistance, and verified portfolios.
 
----
-
-## 🎨 Dual Coordinated Design System
-
-SkillBridge features two meticulously calibrated design palettes:
-
-### 1. Campus Palette (Public & Marketing Pages)
-*Evokes academia, trust, prestige, and open opportunity.*
-- **Paper:** `#FBFAF7` (warm cream background)
-- **Ink:** `#181B22` / **Ink Muted:** `#5B6270`
-- **Campus Blue:** `#2B4C7E` (academic identity)
-- **Industry Amber:** `#E8963C` (industry identity)
-- **Bridge Teal:** `#2F8C82` (platform matching identity & primary CTA)
-- **Line:** `#E4E1D9` (subtle border rules)
-
-### 2. Console Palette (Authenticated Dashboards)
-*Evokes high-density precision, code workspace clarity, and data density.*
-- **Console BG:** `#12141C` (deep obsidian canvas)
-- **Console Panel:** `#1B1E29` / **Panel Raised:** `#242836`
-- **Console Border:** `#2E3241` / **Console Text:** `#EDEFF3`
-- **Status Green:** `#4CC38A` / **Status Amber:** `#F0A94E` / **Status Red:** `#E5637C`
-
-### Signature Element: "Bridge Line"
-An animated SVG connector linking verified student skill nodes to industry opportunity requirements. It is rendered **only on genuine matches** (never as generic decorative noise) and dynamically changes color based on the match tier.
+Built as a **Smart India Hackathon (SIH)** project.
 
 ---
 
-## 🧮 Authoritative Server-Side Matching Engine
+## 🚀 Key Features
 
-Match percentages are **never recomputed independently on the client**. The client queries `GET /api/students/:id/matches`, which executes the standardized vector distance formula:
+### 🎓 Student Career Platform
 
-$$\text{Score} = \text{round}\left( \max\left(0, \min\left(100, \left(\frac{\sum w_i \cdot \min(1.0, \frac{s_i}{m_i})}{\sum w_i}\right) \times 100 - \min(10, \text{missingCount} \times 2.5)\right)\right)\right)$$
+* Personalized student dashboard
+* Skill profile and skill-gap analysis
+* Dynamic skill radar visualization
+* Domain-specific assessments
+* Daily mandatory practice system
+* Learning streak tracking
+* Accredited course recommendations
+* Internship discovery and applications
+* Career roadmap
+* Resume builder and PDF export
+* Verified digital portfolio
+* Portfolio contact/inbox system
+* AI-powered career assistance
 
-Where:
-- $w_i$: Weight assigned by recruiter to skill $i$ ($1$ to $5$)
-- $s_i$: Student's verified score in skill $i$ ($0$ to $100$)
-- $m_i$: Minimum required benchmark score for skill $i$ ($0$ to $100$)
-- $\text{missingCount}$: Number of required skills completely absent from the student profile
+### 🏢 Industry / Recruiter Workspace
 
-### Live Score Invalidation Loop:
-When a student completes an accredited course on `/courses`, the server updates `StudentSkillScore` and increments skill points. React Query invalidates `['studentMatches']` and `['studentProfile']`, immediately updating all radar charts and match badges across the entire platform in real-time.
+* Recruiter dashboard
+* Create internship/job opportunities
+* Define required skills
+* Assign skill importance/weights
+* Automatically rank candidates
+* Candidate match percentages
+* Applicant management workflow
+* View candidate skill profiles
 
----
+### 👨‍🏫 Academician Workspace
 
-## 👥 4 Role Workspaces & Demo Credentials
+* Academician dashboard
+* Academic-industry opportunities
+* Faculty development programs
+* Research opportunities
+* Industry collaboration support
 
-All accounts are pre-seeded with password: `password123`. Instant **1-Click Quick Demo Login Switchers** are available on `/login` and the Console Topbar.
+### 🏫 Institution Admin Workspace
 
-| Persona | Role | Email | Password | Key Capabilities |
-|---|---|---|---|---|
-| **Aarav Sharma** | Student | `student@skillbridge.edu` | `password123` | Radar Chart, Domain Assessment, Bridge Line Internships, Accredited Courses, AI Resume Builder (PDF export), Public Portfolio (`/portfolio/:id`) |
-| **TechCorp India** | Industry | `recruiter@techcorp.com` | `password123` | Job Requisition Builder with Skill Weights (1–5x), Ranked Candidate Pool, Applicant Status Workflow |
-| **Dr. Priya Menon** | Academician | `faculty@dtu.ac.in` | `password123` | AICTE Faculty Development Programs (FDPs), Joint Industry Research Grants, Sabbatical Residencies |
-| **Prof. Rajesh Gupta** | Institution Admin | `admin@dtu.ac.in` | `password123` | Batch Skill Heatmap, Placement Readiness Index, Curriculum Gap Alerts, Syllabus Board Recommendations |
-
----
-
-## 🤝 Accredited Learning Partners & Deep Linking
-
-Real, publicly listed course offerings with skill point accelerators are seeded from:
-- **NPTEL (National Programme on Technology Enhanced Learning)**
-- **SWAYAM (Ministry of Education)**
-- **HCL TechBee & GUVI**
-- **Coursera & upGrad**
-
-Outbound transparent deep links (`<ExternalApplyButton />`) are integrated for **Internshala**, **AICTE Internship Enterprise Portal**, **LinkedIn Jobs**, and **HCL Careers**.
-
----
-
-## 🤖 Bridge Bot AI Assistant
-
-A persistent, collapsible drawer available across all Console pages equipped with autonomous database tools:
-- `get_skill_gaps`: Analyzes student skill scores vs target domain benchmarks.
-- `recommend_courses`: Queries accredited partner courses mapped to deficit skills.
-- `explain_match_score`: Explains why a candidate received a specific match percentage.
-- `draft_application_note`: Tailors personalized cover notes using verified strengths.
-- `navigate_to`: Context-aware deep linking.
+* Institution dashboard
+* Student skill analytics
+* Batch skill heatmaps
+* Placement readiness insights
+* Curriculum gap identification
+* Skill-demand analysis
 
 ---
 
-## 🚀 Quickstart & Setup Guide
+# 🤖 Bridge Bot — AI Career Assistant
 
-### Prerequisites
-- **Node.js**: v18.0.0 or higher
-- **npm**: v9.0.0 or higher
+SkillBridge includes a context-aware AI assistant called **Bridge Bot**.
 
-### 1. Installation
+The assistant can:
+
+* Identify student skill gaps
+* Recommend relevant courses
+* Explain internship/job match scores
+* Draft application notes
+* Provide career guidance
+* Navigate users to relevant platform sections
+* Answer questions using the student's verified profile data
+
+### AI Tools
+
+| Tool                     | Purpose                                                 |
+| ------------------------ | ------------------------------------------------------- |
+| `get_skill_gaps`         | Finds gaps between current skills and domain benchmarks |
+| `recommend_courses`      | Recommends courses for missing skills                   |
+| `explain_match_score`    | Explains candidate-job compatibility                    |
+| `draft_application_note` | Creates personalized application notes                  |
+| `navigate_to`            | Provides context-aware navigation                       |
+
+The platform also contains an offline intelligent engine so core functionality can work without an external AI API.
+
+---
+
+# 📊 Skill Matching Engine
+
+SkillBridge uses a **server-side authoritative matching algorithm** to calculate candidate-job compatibility.
+
+The score considers:
+
+* Student skill score
+* Required benchmark
+* Recruiter-defined skill weight
+* Missing required skills
+
+### Matching Formula
+
+```text
+Score =
+round(
+  max(
+    0,
+    min(
+      100,
+      (
+        weighted skill fulfillment
+        - missing skill penalty
+      )
+    )
+  )
+)
+```
+
+More specifically:
+
+```text
+weightedFulfillment =
+Σ(weight × min(1, studentScore / requiredScore))
+÷ Σ(weight)
+
+missingSkillPenalty =
+min(10, missingSkillCount × 2.5)
+
+finalScore =
+round(
+  max(
+    0,
+    min(
+      100,
+      weightedFulfillment × 100 - missingSkillPenalty
+    )
+  )
+)
+```
+
+### Match Tiers
+
+|  Score | Tier      |
+| -----: | --------- |
+| 80–100 | 🟢 High   |
+|  50–79 | 🟡 Medium |
+|   0–49 | 🔴 Low    |
+
+All matching calculations are performed on the **server**, preventing inconsistent client-side calculations.
+
+---
+
+# 📈 Dynamic Skill Radar
+
+Student skill scores are continuously updated based on:
+
+* Assessment performance
+* Practice-set results
+* Course completion
+* Skill improvement
+* Inactivity
+
+High assessment accuracy increases the corresponding skill score, while prolonged inactivity can introduce a mild decay.
+
+This allows the student's skill radar to represent a more dynamic view of current readiness.
+
+---
+
+# 🔥 Daily Practice & Streak System
+
+SkillBridge uses a gated streak mechanism.
+
+A user does **not** increase their streak simply by logging into the platform.
+
+Instead:
+
+```text
+Login
+  ↓
+Daily Practice
+  ↓
+Submit Practice Set
+  ↓
+Record Completion
+  ↓
+Update Streak
+```
+
+This makes the streak represent actual learning activity rather than application usage.
+
+---
+
+# 🌐 Supported Career Domains
+
+SkillBridge currently supports five major career domains:
+
+1. **Full-Stack Web**
+2. **AI / Data Science**
+3. **Cloud / DevOps**
+4. **UI/UX Product Design**
+5. **Embedded / IoT**
+
+Each domain has its own:
+
+* Skills
+* Benchmarks
+* Questions
+* Practice sets
+* Learning resources
+* Career requirements
+
+---
+
+# 🧠 Assessment System
+
+The assessment engine supports multiple question types:
+
+### Multiple Choice Questions
+
+Standard MCQs with:
+
+* Multiple options
+* Correct answer
+* Explanation
+* Skill mapping
+
+### Written Questions
+
+Written responses can be evaluated against an expected answer rubric.
+
+### Coding Questions
+
+Coding assessments support:
+
+* Starter code
+* Test cases
+* Hidden test cases
+* Constraints
+* Input format
+* Output format
+* Automated evaluation
+
+---
+
+# 📚 Learning & Course System
+
+Courses are mapped directly to platform skills.
+
+Completing a course can increase the student's corresponding skill score.
+
+Example:
+
+```text
+Complete React Course
+        ↓
+React skill points increase
+        ↓
+Skill Radar updates
+        ↓
+Job Match Score recalculates
+        ↓
+New opportunities may become available
+```
+
+Course providers can include platforms such as:
+
+* NPTEL
+* SWAYAM
+* HCL TechBee
+* GUVI
+* Coursera
+* upGrad
+
+External course links are provided transparently through the platform.
+
+---
+
+# 💼 Internship Matching
+
+Recruiters can create opportunities containing:
+
+* Job title
+* Description
+* Required skills
+* Skill weights
+* Minimum skill scores
+* Stipend
+* Location
+* Work mode
+* Opportunity status
+
+Students can then receive personalized matching based on their verified skill profile.
+
+Supported work modes include:
+
+```text
+REMOTE
+HYBRID
+ON_SITE
+```
+
+---
+
+# 🧑‍💻 Portfolio Builder
+
+SkillBridge provides a verified public portfolio system.
+
+Students can create portfolios containing:
+
+* Professional headline
+* About section
+* Skills
+* Projects
+* Services
+* Achievements
+* Education
+* Experience
+* Contact information
+
+Each portfolio can be published through a public URL/slug.
+
+The public portfolio also supports:
+
+* Recruiter contact messages
+* Public AI assistant
+* Project showcase
+* Professional information
+* Print-friendly presentation
+
+---
+
+# 📄 Resume Builder
+
+The platform includes a career-focused resume builder supporting:
+
+* Education
+* Experience
+* Projects
+* Skills
+* Achievements
+* Certifications
+* Responsibilities
+* Social profiles
+
+Resume content can be generated/improved using the platform's AI services.
+
+The final resume can be exported as a PDF.
+
+---
+
+# 🎨 Design System
+
+SkillBridge uses two coordinated design systems.
+
+## Campus Palette
+
+Used for public and marketing pages.
+
+Designed to communicate:
+
+* Academia
+* Trust
+* Professionalism
+* Opportunity
+
+## Console Palette
+
+Used for authenticated dashboards.
+
+Designed around:
+
+* Dark workspace interfaces
+* High information density
+* Developer-console aesthetics
+* Data visualization
+
+### Signature UI Element
+
+**Bridge Line**
+
+An animated connector representing a genuine relationship between:
+
+```text
+Student Skill
+      ↕
+Industry Requirement
+```
+
+It is used to visually communicate meaningful skill-to-opportunity matches.
+
+---
+
+# 🛠️ Tech Stack
+
+## Frontend
+
+* React 18
+* TypeScript
+* Vite
+* React Router
+* TanStack React Query
+* Tailwind CSS
+* Recharts
+* Lucide React
+
+## Backend
+
+* Node.js
+* Express.js
+* TypeScript
+* JWT Authentication
+* bcryptjs
+* Zod
+* Multer
+* Express Rate Limit
+
+## Database
+
+* SQLite
+* Prisma ORM
+
+## Testing
+
+* Vitest
+
+## Other Technologies
+
+* jsPDF
+* dotenv
+* Concurrently
+* PostCSS
+* Autoprefixer
+
+---
+
+# 🏗️ Project Architecture
+
+```text
+SkillBridge/
+│
+├── client/
+│   └── src/
+│       ├── components/
+│       │   ├── BridgeBotWidget.tsx
+│       │   ├── BridgeLine.tsx
+│       │   ├── CareerRoadmap.tsx
+│       │   ├── CodingSandbox.tsx
+│       │   ├── ConsoleLayout.tsx
+│       │   ├── DailyPracticeBanner.tsx
+│       │   ├── MatchBadge.tsx
+│       │   ├── SkillRadarCard.tsx
+│       │   └── RoleGate.tsx
+│       │
+│       ├── context/
+│       │   └── AuthContext.tsx
+│       │
+│       ├── pages/
+│       │   ├── student/
+│       │   ├── industry/
+│       │   ├── academician/
+│       │   ├── institution/
+│       │   ├── portfolio/
+│       │   └── resumes/
+│       │
+│       ├── App.tsx
+│       └── index.css
+│
+├── server/
+│   └── src/
+│       ├── config/
+│       │   └── prisma.ts
+│       │
+│       ├── middleware/
+│       │   └── auth.ts
+│       │
+│       ├── routes/
+│       │   ├── academic.ts
+│       │   ├── ai.ts
+│       │   ├── applications.ts
+│       │   ├── assessments.ts
+│       │   ├── auth.ts
+│       │   ├── courses.ts
+│       │   ├── institutions.ts
+│       │   ├── internships.ts
+│       │   ├── notifications.ts
+│       │   ├── portfolios.ts
+│       │   ├── resources.ts
+│       │   ├── resumes.ts
+│       │   └── students.ts
+│       │
+│       ├── services/
+│       │   ├── aiAssistant.ts
+│       │   ├── assessmentService.ts
+│       │   ├── codeRunnerService.ts
+│       │   ├── learningResourceService.ts
+│       │   ├── matchingEngine.ts
+│       │   ├── notificationService.ts
+│       │   ├── portfolioService.ts
+│       │   ├── resumeService.ts
+│       │   ├── skillEngine.ts
+│       │   ├── streakService.ts
+│       │   └── tokenService.ts
+│       │
+│       └── index.ts
+│
+├── prisma/
+│   ├── schema.prisma
+│   └── seed.ts
+│
+├── shared/
+│   ├── types.ts
+│   └── validation.ts
+│
+├── tests/
+│   ├── apiFlows.test.ts
+│   ├── assessmentSystem.test.ts
+│   ├── auth.test.ts
+│   ├── dailyPracticeAndRadarDecay.test.ts
+│   ├── domainFlows.test.ts
+│   ├── matchingEngine.test.ts
+│   └── portfolioBuilder.test.ts
+│
+├── package.json
+├── tsconfig.json
+├── tsconfig.server.json
+├── vite.config.ts
+└── README.md
+```
+
+---
+
+# 🔐 Security
+
+SkillBridge implements several security mechanisms:
+
+* Password hashing using bcrypt
+* JWT access tokens
+* JWT refresh tokens
+* Role-Based Access Control
+* Authentication middleware
+* Request validation using Zod
+* Authentication rate limiting
+* Protected API routes
+* Environment-based configuration
+
+### Important
+
+Never commit your real `.env` file or API keys to GitHub.
+
+Use:
+
+```text
+.env.example
+```
+
+as the template for environment configuration.
+
+---
+
+# ⚙️ Installation & Setup
+
+## Prerequisites
+
+Make sure you have:
+
+* Node.js 18+
+* npm 9+
+* Git
+
+Check versions:
+
+```bash
+node --version
+npm --version
+git --version
+```
+
+---
+
+## 1. Clone the Repository
+
+```bash
+git clone <YOUR_GITHUB_REPOSITORY_URL>
+```
+
+Move into the project:
+
+```bash
+cd sih-project
+```
+
+---
+
+## 2. Install Dependencies
+
 ```bash
 npm install
 ```
 
-### 2. Database Migration & Seeding
+---
+
+## 3. Configure Environment Variables
+
+Create a `.env` file:
+
 ```bash
-# Push Prisma schema to local SQLite database
+copy .env.example .env
+```
+
+For macOS/Linux:
+
+```bash
+cp .env.example .env
+```
+
+Configure the required values in `.env`.
+
+Example:
+
+```env
+DATABASE_URL="file:./dev.db"
+PORT=5000
+JWT_SECRET="your_access_secret"
+JWT_REFRESH_SECRET="your_refresh_secret"
+NODE_ENV="development"
+```
+
+Optional AI configuration:
+
+```env
+GEMINI_API_KEY=""
+OPENAI_API_KEY=""
+```
+
+---
+
+# 🗄️ Database Setup
+
+Generate Prisma Client:
+
+```bash
+npx prisma generate
+```
+
+Create/update the SQLite database:
+
+```bash
 npx prisma db push
-
-# Seed 5 domain benchmarks, 23 skills, 5 content partners, 4 personas, 6 internships, and assessments
-npx tsx prisma/seed.ts
 ```
 
-### 3. Run Automated Vitest Test Suite
+Seed the database:
+
 ```bash
-npm test
+npm run db:seed
 ```
-*Executes 12 unit and integration tests verifying password hashing, JWT RBAC, authoritative matching vector calculations, derived portfolios, and AI tool execution.*
 
-### 4. Launch Development Server
+The seed process creates the initial:
+
+* Domains
+* Skills
+* Skill benchmarks
+* Questions
+* Practice sets
+* Courses
+* Users
+* Internships
+* Learning resources
+* Demo data
+
+---
+
+# ▶️ Run the Application
+
+Start both frontend and backend:
+
 ```bash
 npm run dev
 ```
-- **Client Application:** `http://localhost:3000`
-- **Server API Gateway:** `http://localhost:5000`
 
----
+The application will run at:
 
-## 📂 Project Architecture
+```text
+Frontend:
+http://localhost:3000
 
-```
-├── client/
-│   ├── src/
-│   │   ├── components/
-│   │   │   ├── BridgeLine.tsx        # Signature animated SVG match connector
-│   │   │   ├── BridgeBotWidget.tsx   # Persistent AI Assistant drawer
-│   │   │   ├── SkillRadarCard.tsx    # Recharts radar comparison
-│   │   │   ├── MatchBadge.tsx        # IBM Plex Mono tabular percentage pill
-│   │   │   ├── CareerRoadmap.tsx     # 2-Year Plan infographic roadmap
-│   │   │   ├── ExternalApplyButton.tsx# Deep-link partner buttons
-│   │   │   ├── ConsoleLayout.tsx     # Dark authenticated workspace
-│   │   │   ├── PublicNavbar.tsx      # Campus theme header
-│   │   │   └── RoleGate.tsx          # Role-based route guard
-│   │   ├── pages/
-│   │   │   ├── LandingPage.tsx       # Marketing page with interactive match simulator
-│   │   │   ├── LoginPage.tsx         # Role-aware login with 1-click demo switcher
-│   │   │   ├── RegisterPage.tsx      # 4-Persona card selector & tailored forms
-│   │   │   ├── PublicPortfolioPage.tsx# Print-friendly verified digital portfolio
-│   │   │   ├── student/              # Dashboard, Skill Profile, Assessment, Internships, Courses, Resume Builder
-│   │   │   ├── industry/             # Recruiter Dashboard, Post Job, Ranked Applicants
-│   │   │   ├── academician/          # Faculty Dashboard, Post Opportunities
-│   │   │   └── institution/          # Heatmap, Readiness Index, Curriculum Gap Signals
-│   │   ├── App.tsx                   # Central router
-│   │   └── index.css                 # Custom CSS variables, tokens, print styles
-├── server/
-│   ├── src/
-│   │   ├── config/prisma.ts          # Relational ORM client
-│   │   ├── services/
-│   │   │   ├── matchingEngine.ts     # Authoritative vector matching algorithm
-│   │   │   ├── skillEngine.ts        # Course completion bump & portfolio generator
-│   │   │   ├── tokenService.ts       # JWT access/refresh token signing
-│   │   │   ├── aiAssistant.ts        # Bridge Bot database tool execution
-│   │   │   └── resumeService.ts      # AI resume bullet builder & jsPDF export
-│   │   ├── routes/                   # auth, students, courses, internships, applications, resumes, institutions, ai
-│   │   └── index.ts                  # Express server entry point
-├── shared/
-│   ├── types.ts                      # Universal TypeScript interfaces
-│   └── validation.ts                 # Strict Zod schemas
-└── tests/                            # Vitest unit & integration test suites
+Backend:
+http://localhost:5000
 ```
 
----
-
-## 🛡️ Security, Reliability & Production Standards
-- **Strict Input Validation**: Every request payload is parsed and validated using Zod.
-- **Authentication**: Bcrypt password hashing (salt rounds 10), dual JWT access and refresh tokens, and strict Role-Based Access Control (RBAC) middleware.
-- **Rate Limiting**: Express rate limiters protect authentication endpoints against brute force attacks.
-- **Print Styles**: The public portfolio includes dedicated `@media print` rules for clean, single-page CV printing and PDF saving.
+The Vite development server proxies API requests to the Express backend.
 
 ---
-Built with pride for academia-industry convergence.
+
+# 🧪 Testing
+
+Run the complete test suite:
+
+```bash
+npm test
+```
+
+The tests cover areas including:
+
+* Authentication
+* Authorization
+* API flows
+* Daily practice
+* Streak logic
+* Skill radar updates
+* Skill decay
+* Matching engine
+* Domain-specific intelligence
+* Portfolio builder
+* AI assistant functionality
+
+---
+
+# 🏭 Production Build
+
+Build both frontend and backend:
+
+```bash
+npm run build
+```
+
+Start the production server:
+
+```bash
+npm start
+```
+
+---
+
+# 👥 User Roles
+
+SkillBridge supports four major user roles.
+
+| Role              | Purpose                                                 |
+| ----------------- | ------------------------------------------------------- |
+| STUDENT           | Build skills, learn, apply for opportunities            |
+| INDUSTRY          | Create opportunities and find candidates                |
+| ACADEMICIAN       | Participate in academic-industry collaboration          |
+| INSTITUTION_ADMIN | Analyze institution-level skill and placement readiness |
+
+---
+
+# 🔄 Core Platform Flow
+
+```text
+                    ┌────────────────────┐
+                    │      Student       │
+                    └─────────┬──────────┘
+                              │
+                              ▼
+                    ┌────────────────────┐
+                    │ Skill Assessment   │
+                    └─────────┬──────────┘
+                              │
+                              ▼
+                    ┌────────────────────┐
+                    │   Skill Radar      │
+                    │   & Skill Gaps     │
+                    └─────────┬──────────┘
+                              │
+                  ┌───────────┴───────────┐
+                  ▼                       ▼
+        ┌─────────────────┐     ┌─────────────────┐
+        │ Recommended     │     │ Career /        │
+        │ Courses         │     │ Internships     │
+        └────────┬────────┘     └────────┬────────┘
+                 │                       │
+                 ▼                       ▼
+        ┌─────────────────┐     ┌─────────────────┐
+        │ Skill Score     │     │ Matching Engine │
+        │ Improvement     │────▶│                │
+        └─────────────────┘     └────────┬────────┘
+                                         │
+                                         ▼
+                                ┌─────────────────┐
+                                │ Recruiter /     │
+                                │ Industry        │
+                                └─────────────────┘
+```
+
+---
+
+# 📌 Why SkillBridge?
+
+Traditional education platforms generally focus on completing courses, while recruitment platforms focus on vacancies.
+
+SkillBridge connects these two worlds.
+
+```text
+Academic Learning
+       ↓
+Skill Assessment
+       ↓
+Verified Skill Profile
+       ↓
+Skill Gap Identification
+       ↓
+Personalized Learning
+       ↓
+Improved Skills
+       ↓
+Industry Matching
+       ↓
+Career Opportunity
+```
+
+This creates a continuous **Learn → Measure → Improve → Match → Apply** ecosystem.
+
+---
+
+# 🎯 Smart India Hackathon Relevance
+
+SkillBridge addresses the academia-industry skill gap by providing a unified platform for:
+
+* Student skill development
+* Industry-aligned benchmarks
+* Personalized learning
+* Internship matching
+* Recruiter candidate discovery
+* Institutional analytics
+* Academic-industry collaboration
+* AI-powered career guidance
+
+The platform aims to make student readiness **measurable, actionable, and connected to real industry requirements**.
+
+---
+
+# 📄 License
+
+This project was developed as part of a Smart India Hackathon project.
+
+---
+
+## 🌉 SkillBridge
+
+**Learn. Measure. Improve. Connect.**
+
+Bridging the gap between **academia and industry**, one skill at a time.
