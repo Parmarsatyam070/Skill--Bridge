@@ -1,0 +1,81 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    font-family: 'Inter', sans-serif;
+  }
+
+  /* Custom Focus Ring for Console Accessibility */
+  .dark :focus-visible,
+  .console-focus:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px #12141C, 0 0 0 4px #2F8C82;
+  }
+
+  /* Custom Scrollbar for dense Console dashboards */
+  ::-webkit-scrollbar {
+    width: 6px;
+    height: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    background: #12141C;
+  }
+  ::-webkit-scrollbar-thumb {
+    background: #2E3241;
+    border-radius: 3px;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    background: #5B6270;
+  }
+}
+
+/* Print CSS for shareable student portfolio */
+@media print {
+  body {
+    background: #FFFFFF !important;
+    color: #181B22 !important;
+  }
+  .no-print {
+    display: none !important;
+  }
+  .print-only {
+    display: block !important;
+  }
+  .print-page {
+    box-shadow: none !important;
+    border: none !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+  }
+}
+
+/* Bridge Line Animated SVG */
+.bridge-line-path {
+  stroke-dasharray: 8 6;
+  animation: bridgeFlow 25s linear infinite;
+}
+
+.bridge-line-solid {
+  stroke-dasharray: 600;
+  stroke-dashoffset: 600;
+  animation: bridgeDrawSolid 0.8s ease-out forwards;
+}
+
+@keyframes bridgeFlow {
+  from {
+    stroke-dashoffset: 500;
+  }
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes bridgeDrawSolid {
+  to {
+    stroke-dashoffset: 0;
+  }
+}

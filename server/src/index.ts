@@ -1,0 +1,77 @@
+import express, { Request, Response, NextFunction } from 'express';
+import cors from 'cors';
+import cookieParser from 'cookie-parser';
+import path from 'path';
+import dotenv from 'dotenv';
+
+dotenv.config();
+
+import authRoutes from './routes/auth.js';
+import studentsRoutes from './routes/students.js';
+import coursesRoutes from './routes/courses.js';
+import internshipsRoutes from './routes/internships.js';
+import applicationsRoutes from './routes/applications.js';
+import resumesRoutes from './routes/resumes.js';
+import academicRoutes from './routes/academic.js';
+import institutionsRoutes from './routes/institutions.js';
+import aiRoutes from './routes/ai.js';
+import portfoliosRoutes from './routes/portfolios.js';
+import assessmentsRoutes from './routes/assessments.js';
+import resourcesRoutes from './routes/resources.js';
+import notificationsRoutes from './routes/notifications.js';
+
+const app = express();
+const PORT = process.env.PORT || 5000;
+
+// Middleware
+app.use(cors({
+  origin: ['http://localhost:3000', 'http://127.0.0.1:3000'],
+  credentials: true,
+}));
+app.use(cookieParser());
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Serve static uploads
+const uploadsDir = path.join(process.cwd(), 'uploads');
+app.use('/uploads', express.static(uploadsDir));
+
+// API Routes
+app.use('/api/auth', authRoutes);
+app.use('/api/students', studentsRoutes);
+app.use('/api/courses', coursesRoutes);
+app.use('/api/internships', internshipsRoutes);
+app.use('/api/applications', applicationsRoutes);
+app.use('/api/resumes', resumesRoutes);
+app.use('/api/academic-opportunities', academicRoutes);
+app.use('/api/institutions', institutionsRoutes);
+app.use('/api/ai', aiRoutes);
+app.use('/api/portfolios', portfoliosRoutes);
+app.use('/api/assessments', assessmentsRoutes);
+app.use('/api/resources', resourcesRoutes);
+app.use('/api/notifications', notificationsRoutes);
+
+// Health check endpoint
+app.get('/api/health', (_req, res) => {
+  res.json({
+    status: 'ok',
+    service: 'SkillBridge Backend API',
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// Global Error Handler
+app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
+  console.error('Unhandled server error:', err);
+  const status = err.status || 500;
+  res.status(status).json({
+    error: {
+      code: err.code || 'INTERNAL_SERVER_ERROR',
+      message: err.message || 'An unexpected error occurred.',
+    }
+  });
+});
+
+app.listen(PORT, () => {
+  console.log(`🚀 SkillBridge Backend API server running on http://localhost:${PORT}`);
+});

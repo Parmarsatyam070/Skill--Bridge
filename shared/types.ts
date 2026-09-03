@@ -1,0 +1,749 @@
+export type Role = 'STUDENT' | 'INDUSTRY' | 'ACADEMICIAN' | 'INSTITUTION_ADMIN';
+
+export type WorkMode = 'REMOTE' | 'HYBRID' | 'ON_SITE';
+export type JobStatus = 'OPEN' | 'CLOSED' | 'DRAFT';
+export type ApplicationStatus = 'applied' | 'under_review' | 'shortlisted' | 'rejected';
+export type EnrollmentStatus = 'enrolled' | 'completed';
+export type AcademicOpportunityType = 'fdp' | 'research' | 'industrial_training';
+export type SkillCategory = 'technical' | 'soft' | 'core';
+
+export interface UserSession {
+  id: string;
+  email: string;
+  phone?: string;
+  phoneVerified?: boolean;
+  name: string;
+  role: Role;
+  avatarUrl?: string;
+  currentStreak?: number;
+  longestStreak?: number;
+  lastActiveDate?: string;
+  studentProfile?: {
+    id: string;
+    institution: string;
+    targetDomain: string;
+    cgpa?: number;
+    bio?: string;
+    gradYear?: number;
+    resumeUrl?: string;
+    githubUsername?: string;
+    linkedinUrl?: string;
+    headline?: string;
+    location?: string;
+    resumeFileName?: string;
+    experiencesJson?: string;
+    educationsJson?: string;
+    projectsJson?: string;
+    certificatesJson?: string;
+    responsibilitiesJson?: string;
+    achievementsJson?: string;
+    socialsJson?: string;
+    customSkillsJson?: string;
+  };
+  industryProfile?: {
+    id: string;
+    companyName: string;
+    website?: string;
+    industrySector: string;
+    verified: boolean;
+  };
+  academicianProfile?: {
+    id: string;
+    institution: string;
+    department: string;
+    designation: string;
+  };
+  institutionProfile?: {
+    id: string;
+    institutionName: string;
+    adminDesignation: string;
+  };
+}
+
+export interface ActivityLog {
+  id: string;
+  userId: string;
+  date: string;
+  loggedInAt: string;
+}
+
+export interface StreakData {
+  currentStreak: number;
+  longestStreak: number;
+  lastActiveDate?: string;
+  activeToday: boolean;
+  streakMilestones: {
+    days: number;
+    bonusPoints: number;
+    achieved: boolean;
+  }[];
+}
+
+export interface Skill {
+  id: string;
+  name: string;
+  category: SkillCategory;
+  description?: string;
+}
+
+export interface SkillBenchmark {
+  id: string;
+  domain: string;
+  skillId: string;
+  skillName: string;
+  benchmarkScore: number;
+}
+
+export interface ScoreHistoryEntry {
+  date: string;
+  score: number;
+  attemptId?: string;
+  delta?: number;
+}
+
+export interface StudentSkillScore {
+  id?: string;
+  studentId: string;
+  skillId: string;
+  skillName: string;
+  category?: SkillCategory;
+  score: number;
+  lastAttemptDate?: string;
+  scoreHistory?: ScoreHistoryEntry[];
+  inactivityDecayPct?: number;
+  decayDaysCount?: number;
+  delta?: number; // e.g. +6 or -4
+  updatedAt?: string;
+}
+
+export interface RequiredSkill {
+  skillId: string;
+  skillName?: string;
+  weight: number; // 1 to 5
+  minScore: number; // 0 to 100
+}
+
+export interface SkillCovered {
+  skillId: string;
+  skillName?: string;
+  pointsGain: number; // points gained on completion (e.g., +15)
+}
+
+export interface CourseProvider {
+  id: string;
+  name: string;
+  logoUrl?: string;
+  baseUrl: string;
+  isVerified: boolean;
+}
+
+export interface Course {
+  id: string;
+  providerId: string;
+  provider?: CourseProvider;
+  title: string;
+  description: string;
+  skillsCovered: SkillCovered[];
+  externalUrl: string;
+  duration: string;
+  level: 'Beginner' | 'Intermediate' | 'Advanced';
+  enrolled?: boolean;
+  completed?: boolean;
+  enrollmentId?: string;
+}
+
+export interface Internship {
+  id: string;
+  industryId: string;
+  companyName?: string;
+  companyLogo?: string;
+  title: string;
+  description: string;
+  requiredSkills: RequiredSkill[];
+  stipend: string;
+  location: string;
+  workMode: WorkMode;
+  status: JobStatus;
+  postedAt: string;
+  applied?: boolean;
+  matchScore?: number;
+  matchTier?: 'high' | 'medium' | 'low';
+}
+
+export interface Application {
+  id: string;
+  studentId: string;
+  studentName?: string;
+  studentEmail?: string;
+  studentInstitution?: string;
+  studentTargetDomain?: string;
+  internshipId: string;
+  internshipTitle?: string;
+  companyName?: string;
+  status: ApplicationStatus;
+  matchScoreAtApply: number;
+  currentMatchScore?: number;
+  coverNote?: string;
+  resumeId?: string;
+  resumeUrl?: string;
+  appliedAt: string;
+}
+
+export interface MatchBreakdown {
+  internshipId: string;
+  internshipTitle: string;
+  companyName: string;
+  overallScore: number; // 0 - 100
+  tier: 'high' | 'medium' | 'low'; // >=80% high, 50-79% medium, <50% low
+  matchedSkills: {
+    skillId: string;
+    skillName: string;
+    studentScore: number;
+    requiredScore: number;
+    weight: number;
+    contribution: number;
+    isMet: boolean;
+  }[];
+  strengths: string[];
+  missingSkills: {
+    skillId: string;
+    skillName: string;
+    gap: number;
+    recommendedCourses: {
+      courseId: string;
+      title: string;
+      providerName: string;
+      externalUrl: string;
+      pointsGain: number;
+    }[];
+  }[];
+}
+
+export interface ActivityHeatmapResponse {
+  year: number;
+  totalSubmissions: number;
+  currentStreak: number;
+  longestStreak: number;
+  activeRate: string;
+  logs: { date: string; count: number; level: 0 | 1 | 2 | 3 | 4 }[];
+}
+
+export interface ResumeDocument {
+  id: string;
+  studentId: string;
+  type: 'AI_GENERATED' | 'BUILT' | 'UPLOADED';
+  title: string;
+  templateId?: string;
+  fileUrl?: string;
+  fileSize?: string;
+  isPrimary: boolean;
+  content: {
+    fullName: string;
+    headline?: string;
+    email: string;
+    phone?: string;
+    location?: string;
+    avatarUrl?: string;
+    summary?: string;
+    skills: string[];
+    educations: {
+      id?: string;
+      degree: string;
+      institution: string;
+      duration: string;
+      score?: string;
+    }[];
+    experiences: {
+      id?: string;
+      title: string;
+      company: string;
+      location?: string;
+      duration: string;
+      description: string;
+    }[];
+    responsibilities?: {
+      id?: string;
+      title: string;
+      org?: string;
+      description: string;
+    }[];
+    projects: {
+      id?: string;
+      title: string;
+      description: string;
+      techStack?: string[] | string;
+      demoUrl?: string;
+      githubUrl?: string;
+    }[];
+    socials?: {
+      linkedin?: string;
+      github?: string;
+      website?: string;
+      twitter?: string;
+    };
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface ResumeData {
+  id: string;
+  studentId: string;
+  type: 'AI_GENERATED' | 'BUILT' | 'UPLOADED';
+  title: string;
+  templateId?: string;
+  fileUrl?: string;
+  fileSize?: string;
+  isPrimary?: boolean;
+  contentJson?: any;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface Question {
+  id: string;
+  domain: string;
+  skillId: string;
+  skillName?: string;
+  type: 'technical' | 'soft';
+  prompt: string;
+  options: { id: string; text: string; isCorrect: boolean }[];
+  weight: number;
+}
+
+export interface DomainSkillReqItem {
+  skillId: string;
+  skillName: string;
+  category: SkillCategory;
+  benchmarkScore: number;
+  displayOrder: number;
+}
+
+export interface DomainCatalogItem {
+  id: string;
+  name: string;
+  slug: string;
+  description: string;
+  avgSalaryINR: number;
+  avgSalaryDisplay: string; // e.g. "₹13.8 LPA"
+  icon: string;
+  skills: DomainSkillReqItem[];
+}
+
+export interface StudentDomainInfo {
+  id: string;
+  domainId: string;
+  domainName: string;
+  isPrimary: boolean;
+  addedAt: string;
+}
+
+export interface DomainRecommendation {
+  domainId: string;
+  domainName: string;
+  slug: string;
+  description: string;
+  avgSalaryINR: number;
+  avgSalaryDisplay: string;
+  icon: string;
+  skillOverlapPercentage: number; // 0 - 100
+  overlappingSkillsCount: number;
+  totalRequiredSkills: number;
+  overlappingSkills: { skillId: string; skillName: string; currentScore: number }[];
+  missingSkills: { skillId: string; skillName: string; benchmarkScore: number }[];
+  weightedScore: number; // 0 - 100
+  readinessTier: 'High Readiness' | 'Moderate Gap' | 'Exploratory';
+}
+
+export interface RoadmapMilestoneAction {
+  text: string;
+  link?: string;
+  isDone?: boolean;
+}
+
+export interface RoadmapMilestone {
+  id: string;
+  phase: string;
+  timeframe: string;
+  title: string;
+  description: string;
+  status: 'completed' | 'current' | 'upcoming';
+  accentColor: 'campus-blue' | 'bridge-teal' | 'industry-amber';
+  actions: RoadmapMilestoneAction[];
+  recommendedCourses?: {
+    id: string;
+    title: string;
+    provider: string;
+    duration: string;
+    pointsGain: number;
+    externalUrl: string;
+  }[];
+}
+
+export interface RoadmapResponse {
+  domain: string;
+  studentGapsCount: number;
+  targetRole?: string;
+  projectedSalaryRange?: string;
+  readinessScore?: number;
+  milestones: RoadmapMilestone[];
+}
+
+export type PortfolioTheme = 'teal_dark' | 'slate_clean' | 'indigo_creative' | 'cyber_amber';
+
+export interface PortfolioServiceCard {
+  icon: string;
+  title: string;
+  description: string;
+}
+
+export interface PortfolioProjectItem {
+  id: string;
+  title: string;
+  description: string;
+  tags: string[];
+  thumbnail?: string;
+  githubUrl?: string;
+  demoUrl?: string;
+}
+
+export interface PortfolioStatItem {
+  label: string;
+  value: string;
+  subtext?: string;
+}
+
+export interface PortfolioWebsiteData {
+  id: string;
+  studentId: string;
+  slug: string;
+  status: 'DRAFT' | 'PUBLISHED';
+  theme: PortfolioTheme;
+  enableBot: boolean;
+  headline: string;
+  subheadline: string;
+  heroCtaText: string;
+  heroCtaLink: string;
+  heroImageUrl?: string;
+  services: PortfolioServiceCard[];
+  projects: PortfolioProjectItem[];
+  aboutBio: string;
+  aboutImageUrl?: string;
+  skills: string[];
+  stats: PortfolioStatItem[];
+  contactEmail?: string;
+  socials: {
+    github?: string;
+    linkedin?: string;
+    twitter?: string;
+    website?: string;
+    email?: string;
+  };
+  sectionsOrder: string[]; // ['hero', 'services', 'projects', 'about', 'stats', 'contact', 'footer']
+  sectionsVisibility: {
+    hero: boolean;
+    services: boolean;
+    projects: boolean;
+    about: boolean;
+    stats: boolean;
+    contact: boolean;
+    footer: boolean;
+  };
+  studentName?: string;
+  studentInstitution?: string;
+  studentDomain?: string;
+  student?: {
+    id: string;
+    targetDomain: string;
+    collegeName: string;
+    institution?: string;
+    headline?: string;
+    bio?: string;
+    user?: {
+      name: string;
+      email: string;
+      avatarUrl?: string;
+    };
+  };
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface PortfolioMessageData {
+  id: string;
+  portfolioId: string;
+  senderName: string;
+  senderEmail: string;
+  message: string;
+  read: boolean;
+  createdAt: string;
+}
+
+export type PracticeSetCategory = 'domain' | 'aptitude_quant' | 'aptitude_english_reading' | 'aptitude_english_listening';
+
+export interface PracticeSetData {
+  id: string;
+  domainId?: string;
+  domainName: string;
+  type: PracticeSetCategory;
+  title: string;
+  description: string;
+  timeLimitMinutes: number;
+  passingScorePct: number;
+  difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
+  displayOrder: number;
+  questionCount: number;
+  previousBestScore?: number;
+  previousBestAttempt?: {
+    score: number;
+    passed: boolean;
+    submittedAt: string;
+  } | null;
+}
+
+export interface ListeningPassageData {
+  id: string;
+  title: string;
+  audioUrl?: string;
+  audioText: string;
+  transcript: string;
+  durationSeconds: number;
+}
+
+export interface TestCaseData {
+  id: string;
+  input: string;
+  expectedOutput: string;
+  isHidden?: boolean;
+  explanation?: string;
+}
+
+export interface ExternalPlatformLink {
+  platform: 'LeetCode' | 'GeeksforGeeks';
+  topic: string;
+  url: string;
+}
+
+export interface CodeExecutionResult {
+  passed: boolean;
+  totalTestCases: number;
+  passedTestCases: number;
+  failedTestCases?: number;
+  executionTimeMs: number;
+  stdout?: string;
+  logs?: string[];
+  error?: string;
+  testCaseResults: {
+    id: string;
+    passed: boolean;
+    input: string;
+    expectedOutput: string;
+    actualOutput: string;
+    executionTimeMs: number;
+    error?: string;
+    isHidden?: boolean;
+  }[];
+}
+
+export interface AssessmentQuestionData {
+  id: string;
+  domain: string;
+  skillId: string;
+  type: 'technical' | 'soft' | 'aptitude';
+  questionType: 'mcq' | 'written' | 'coding';
+  prompt: string;
+  options: { id: string; text: string }[];
+  weight: number;
+  practiceSetId?: string;
+  listeningPassageId?: string;
+  listeningPassage?: ListeningPassageData | null;
+  passageText?: string;
+  explanation?: string;
+  starterCode?: string;
+  testCases?: TestCaseData[];
+  constraints?: string;
+  inputFormat?: string;
+  outputFormat?: string;
+  externalLinks?: ExternalPlatformLink[];
+}
+
+export interface DailyPracticeStatus {
+  completedToday: boolean;
+  lastSubmittedAt: string | null;
+  currentStreak: number;
+  longestStreak: number;
+  streakActive: boolean;
+  recommendedSet: {
+    id: string;
+    title: string;
+    domainName: string;
+    type: PracticeSetCategory;
+    difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
+    timeLimitMinutes: number;
+    questionCount: number;
+    reason: string;
+  } | null;
+}
+
+export interface InAppNotification {
+  id: string;
+  userId: string;
+  title: string;
+  message: string;
+  type: 'DAILY_PRACTICE' | 'MATCH_ALERT' | 'SKILL_UPDATE' | 'SYSTEM';
+  link?: string;
+  read: boolean;
+  createdAt: string;
+}
+
+export type LearningResourceType = 'website' | 'app' | 'youtube_channel' | 'youtube_playlist' | 'course';
+
+export interface LearningResource {
+  id: string;
+  skillId?: string;
+  topicTag: string;
+  domain?: string;
+  type: LearningResourceType;
+  title: string;
+  url: string;
+  provider: string;
+  description: string;
+  isFree: boolean;
+  rating?: number;
+  thumbnailUrl?: string;
+  displayOrder?: number;
+  createdAt?: string;
+}
+
+export interface AssessmentStartResponse {
+  attemptId: string;
+  practiceSet: PracticeSetData;
+  timeLimitMinutes: number;
+  questions: AssessmentQuestionData[];
+  previousBestScore?: number;
+}
+
+export interface AssessmentSubmitResult {
+  attemptId: string;
+  practiceSetId: string;
+  practiceSetTitle: string;
+  score: number;
+  scorePct?: number; // Alias for UI
+  passed: boolean;
+  passingScorePct: number;
+  timeSpentSeconds: number;
+  totalPointsEarned?: number;
+  maxPossiblePoints?: number;
+  evaluatedCount: number;
+  correctMcqCount: number;
+  totalMcqCount: number;
+  writtenCount: number;
+  codingCount?: number;
+  practiceSet?: PracticeSetData;
+  updatedSkills?: { skillId: string; score: number; skillName: string }[];
+  skillDeltas?: {
+    skillId: string;
+    skillName: string;
+    previousScore: number;
+    newScore: number;
+    delta: number;
+    decayDaysCount?: number;
+    inactivityDecayPct?: number;
+  }[];
+  questionResults: {
+    questionId: string;
+    prompt: string;
+    questionType: 'mcq' | 'written' | 'coding';
+    userAnswer: string;
+    correctAnswerText?: string;
+    isCorrect?: boolean;
+    score: number;
+    pointsAwarded?: number;
+    maxScore: number;
+    maxPoints?: number;
+    aiFeedback?: string;
+    feedback?: string;
+    explanation?: string;
+    codeResult?: CodeExecutionResult;
+    externalLinks?: ExternalPlatformLink[];
+  }[];
+  questionBreakdown?: {
+    questionId: string;
+    prompt: string;
+    questionType: 'mcq' | 'written' | 'coding';
+    userAnswer: string;
+    correctAnswerText?: string;
+    isCorrect?: boolean;
+    score: number;
+    pointsAwarded: number;
+    maxScore: number;
+    maxPoints: number;
+    aiFeedback?: string;
+    feedback?: string;
+    explanation?: string;
+    codeResult?: CodeExecutionResult;
+    externalLinks?: ExternalPlatformLink[];
+  }[];
+}
+
+export interface HistoricalAttemptItem {
+  id: string;
+  practiceSetId: string;
+  practiceSetTitle: string;
+  domainName: string;
+  type: PracticeSetCategory;
+  difficulty: 'Beginner' | 'Intermediate' | 'Advanced';
+  score: number;
+  passed: boolean;
+  passingScorePct: number;
+  timeSpentSeconds: number;
+  timeLimitMinutes: number;
+  startedAt: string;
+  submittedAt: string;
+  isBestScore: boolean;
+  totalQuestions: number;
+  strongSkills: string[];
+  weakSkills: string[];
+}
+
+export interface ReportCardSummaryData {
+  totalAttempts: number;
+  passedAttempts: number;
+  passRate: number; // e.g. 75.0
+  averageScore: number; // e.g. 82.5
+  performanceTrend: 'improving' | 'steady' | 'declining' | 'neutral';
+  attempts: HistoricalAttemptItem[];
+}
+
+export interface HistoricalAttemptDetail {
+  id: string;
+  practiceSetId: string;
+  practiceSetTitle: string;
+  domainName: string;
+  type: PracticeSetCategory;
+  difficulty: string;
+  score: number;
+  passed: boolean;
+  passingScorePct: number;
+  timeSpentSeconds: number;
+  timeLimitMinutes: number;
+  submittedAt: string;
+  skillBreakdown: { skillId: string; skillName: string; scoreDelta: number }[];
+  questionResults: {
+    questionId: string;
+    prompt: string;
+    questionType: 'mcq' | 'written' | 'coding';
+    userAnswer: string;
+    correctAnswerText?: string;
+    isCorrect?: boolean;
+    score: number;
+    maxScore: number;
+    aiFeedback?: string;
+    explanation?: string;
+    codeResult?: CodeExecutionResult;
+    externalLinks?: ExternalPlatformLink[];
+  }[];
+}
+
+
+

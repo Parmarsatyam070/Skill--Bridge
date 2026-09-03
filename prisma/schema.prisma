@@ -1,0 +1,441 @@
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model User {
+  id           String    @id @default(uuid())
+  email        String    @unique
+  phone        String?   @unique
+  phoneVerified Boolean  @default(false)
+  passwordHash String
+  name         String
+  role         String    // STUDENT | INDUSTRY | ACADEMICIAN | INSTITUTION_ADMIN
+  avatarUrl    String?
+  currentStreak Int      @default(0)
+  longestStreak Int      @default(0)
+  lastActiveDate String? // YYYY-MM-DD
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  studentProfile     StudentProfile?
+  industryProfile    IndustryProfile?
+  academicianProfile AcademicianProfile?
+  institutionProfile InstitutionProfile?
+  resetTokens        PasswordResetToken[]
+  integrations       ExternalIntegration[]
+  activityLogs       ActivityLog[]
+  notifications      InAppNotification[]
+}
+
+model StudentProfile {
+  id             String   @id @default(uuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  institution    String
+  targetDomain   String
+  cgpa           Float?
+  bio            String?
+  gradYear       Int?
+  resumeUrl      String?
+  githubUsername String?
+  linkedinUrl    String?
+  headline       String?
+  location       String?
+  resumeFileName String?
+  experiencesJson String?      // JSON array of experiences
+  educationsJson  String?      // JSON array of educations
+  projectsJson    String?      // JSON array of projects
+  certificatesJson String?    // JSON array of certificates
+  responsibilitiesJson String? // JSON array of responsibilities
+  achievementsJson String?     // JSON array of achievements
+  socialsJson     String?      // JSON object of socials
+  customSkillsJson String?     // JSON array of custom added skills
+
+  skillScores    StudentSkillScore[]
+  domains        StudentDomain[]
+  applications   Application[]
+  enrollments    Enrollment[]
+  resumes        Resume[]
+  portfolioWebsite PortfolioWebsite?
+  assessmentAttempts AssessmentAttempt[]
+}
+
+model Domain {
+  id           String                   @id @default(uuid())
+  name         String                   @unique // e.g. "Full-Stack Web", "AI/Data Science", "Cloud/DevOps", "UI/UX Product Design", "Embedded/IoT"
+  slug         String                   @unique
+  description  String
+  avgSalaryINR Int                      // e.g. 1150000 (₹11.5 LPA)
+  icon         String?                  // e.g. "Code", "Brain", "Cloud", "Palette", "Cpu"
+  requirements DomainSkillRequirement[]
+  students     StudentDomain[]
+}
+
+model DomainSkillRequirement {
+  id             String @id @default(uuid())
+  domainId       String
+  domain         Domain @relation(fields: [domainId], references: [id], onDelete: Cascade)
+  skillId        String
+  skill          Skill  @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  benchmarkScore Float  // 0 - 100 benchmark standard
+  displayOrder   Int    @default(0)
+
+  @@unique([domainId, skillId])
+}
+
+model StudentDomain {
+  id          String         @id @default(uuid())
+  studentId   String
+  student     StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  domainId    String
+  domain      Domain         @relation(fields: [domainId], references: [id], onDelete: Cascade)
+  isPrimary   Boolean        @default(false)
+  addedAt     DateTime       @default(now())
+
+  @@unique([studentId, domainId])
+}
+
+model IndustryProfile {
+  id             String   @id @default(uuid())
+  userId         String   @unique
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  companyName    String
+  website        String?
+  companySize    String?
+  industrySector String
+  verified       Boolean  @default(false)
+
+  internships    Internship[]
+}
+
+model AcademicianProfile {
+  id          String @id @default(uuid())
+  userId      String @unique
+  user        User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  institution String
+  department  String
+  designation String
+}
+
+model InstitutionProfile {
+  id               String @id @default(uuid())
+  userId           String @unique
+  user             User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  institutionName  String
+  adminDesignation String
+}
+
+model PasswordResetToken {
+  id        String    @id @default(uuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String    @unique
+  phone     String?
+  otpCode   String?
+  type      String    @default("EMAIL") // EMAIL | PHONE_OTP
+  expiresAt DateTime
+  usedAt    DateTime?
+  createdAt DateTime  @default(now())
+}
+
+model ActivityLog {
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  date       String   // Format: YYYY-MM-DD
+  count      Int      @default(1)
+  loggedInAt DateTime @default(now())
+
+  @@unique([userId, date])
+}
+
+model Skill {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  category    String   // technical | soft | core
+  description String?
+
+  benchmarks         SkillBenchmark[]
+  scores             StudentSkillScore[]
+  domainRequirements DomainSkillRequirement[]
+}
+
+model SkillBenchmark {
+  id             String @id @default(uuid())
+  domain         String
+  skillId        String
+  skill          Skill  @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  benchmarkScore Float  // 0 - 100 benchmark standard
+  displayOrder   Int    @default(0)
+
+  @@unique([domain, skillId])
+}
+
+model StudentSkillScore {
+  id                 String         @id @default(uuid())
+  studentId          String
+  student            StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  skillId            String
+  skill              Skill          @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  score              Float          // 0 - 100 current score
+  lastAttemptDate    DateTime?      // Last attempt date evaluating this skill
+  scoreHistoryJson   String?        // JSON array of [{ date, score, attemptId, delta }]
+  inactivityDecayPct Float          @default(0.0) // Mild decay percentage applied if inactive > 30 days
+  decayDaysCount     Int            @default(0)   // Days since last attempt
+  updatedAt          DateTime       @updatedAt
+
+  @@unique([studentId, skillId])
+}
+
+model Question {
+  id                  String            @id @default(uuid())
+  domain              String
+  skillId             String
+  type                String            // technical | soft | aptitude
+  questionType        String            @default("mcq") // mcq | written | coding
+  prompt              String
+  optionsJson         String            // JSON array of options [{id, text, isCorrect}]
+  weight              Float             @default(1.0)
+  practiceSetId       String?
+  practiceSet         PracticeSet?      @relation(fields: [practiceSetId], references: [id], onDelete: Cascade)
+  listeningPassageId  String?
+  listeningPassage    ListeningPassage? @relation(fields: [listeningPassageId], references: [id], onDelete: Cascade)
+  passageText         String?           // For reading comprehension passages
+  expectedAnswerRubric String?          // For AI rubric scoring of written answers
+  explanation         String?           // Explanation shown after grading
+  starterCode         String?           // Default code template for coding questions
+  testCasesJson       String?           // JSON array of [{ id, input, expectedOutput, isHidden, explanation }]
+  constraints         String?           // Constraints text e.g. 1 <= n <= 10^5
+  inputFormat         String?           // Description of input format
+  outputFormat        String?           // Description of output format
+  externalLinksJson   String?           // JSON array of outbound links [{ platform, topic, url }]
+}
+
+model CourseProvider {
+  id         String   @id @default(uuid())
+  name       String   @unique
+  logoUrl    String?
+  baseUrl    String
+  isVerified Boolean  @default(true)
+
+  courses    Course[]
+}
+
+model Course {
+  id                String         @id @default(uuid())
+  providerId        String
+  provider          CourseProvider @relation(fields: [providerId], references: [id], onDelete: Cascade)
+  title             String
+  description       String
+  skillsCoveredJson String         // JSON array of [{skillId, pointsGain}]
+  externalUrl       String
+  duration          String
+  level             String         // Beginner | Intermediate | Advanced
+  createdAt         DateTime       @default(now())
+
+  enrollments       Enrollment[]
+}
+
+model Enrollment {
+  id          String         @id @default(uuid())
+  studentId   String
+  student     StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  courseId    String
+  course      Course         @relation(fields: [courseId], references: [id], onDelete: Cascade)
+  status      String         // enrolled | completed
+  enrolledAt  DateTime       @default(now())
+  completedAt DateTime?
+
+  @@unique([studentId, courseId])
+}
+
+model Internship {
+  id                 String          @id @default(uuid())
+  industryId         String
+  industry           IndustryProfile @relation(fields: [industryId], references: [id], onDelete: Cascade)
+  title              String
+  description        String
+  requiredSkillsJson String          // JSON array of [{skillId, weight, minScore}]
+  stipend            String
+  location           String
+  workMode           String          // REMOTE | HYBRID | ON_SITE
+  status             String          @default("OPEN") // OPEN | CLOSED | DRAFT
+  postedAt           DateTime        @default(now())
+
+  applications       Application[]
+}
+
+model Application {
+  id                 String          @id @default(uuid())
+  studentId          String
+  student            StudentProfile  @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  internshipId       String
+  internship         Internship      @relation(fields: [internshipId], references: [id], onDelete: Cascade)
+  resumeId           String?
+  resume             Resume?         @relation(fields: [resumeId], references: [id], onDelete: SetNull)
+  status             String          @default("applied") // applied | under_review | shortlisted | rejected
+  matchScoreAtApply  Float
+  coverNote          String?
+  appliedAt          DateTime        @default(now())
+}
+
+model Resume {
+  id           String         @id @default(uuid())
+  studentId    String
+  student      StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  type         String         // AI_GENERATED | BUILT | UPLOADED
+  title        String
+  templateId   String?        // modern_clean | technical_ats | classic_academic | executive_pro | compact_engineer
+  fileUrl      String?
+  fileSize     String?
+  isPrimary    Boolean        @default(false)
+  contentJson  String?        // Structured resume data
+  createdAt    DateTime       @default(now())
+  updatedAt    DateTime       @updatedAt
+
+  applications Application[]
+}
+
+model AcademicOpportunity {
+  id          String   @id @default(uuid())
+  type        String   // fdp | research | industrial_training
+  title       String
+  description String
+  postedBy    String
+  deadline    String?
+  status      String   @default("OPEN")
+  createdAt   DateTime @default(now())
+}
+
+model ExternalIntegration {
+  id              String   @id @default(uuid())
+  userId          String
+  user            User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  platform        String   // GITHUB | LINKEDIN
+  profileDataJson String
+  connectedAt     DateTime @default(now())
+
+  @@unique([userId, platform])
+}
+
+model PortfolioWebsite {
+  id                     String            @id @default(uuid())
+  studentId              String            @unique
+  student                StudentProfile    @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  slug                   String            @unique
+  status                 String            @default("DRAFT") // DRAFT | PUBLISHED
+  theme                  String            @default("teal_dark") // teal_dark | slate_clean | indigo_creative | cyber_amber
+  enableBot              Boolean           @default(true)
+  headline               String?
+  subheadline            String?
+  heroCtaText            String?           @default("View My Projects")
+  heroCtaLink            String?           @default("#projects")
+  heroImageUrl           String?
+  servicesJson           String?           // JSON array of 3 cards: [{ icon, title, description }]
+  projectsJson           String?           // JSON array of [{ id, title, description, tags: string[], thumbnail, githubUrl, demoUrl }]
+  aboutBio               String?
+  aboutImageUrl          String?
+  skillsJson             String?           // JSON array of skill badge names/categories
+  statsJson              String?           // JSON array of [{ label, value, subtext }]
+  contactEmail           String?
+  socialsJson            String?           // JSON object: { github, linkedin, twitter, website, email }
+  sectionsOrderJson      String?           // JSON array: ['hero', 'services', 'projects', 'about', 'stats', 'contact', 'footer']
+  sectionsVisibilityJson String?           // JSON object: { hero: true, services: true, projects: true, about: true, stats: true, contact: true, footer: true }
+  aiWizardConfigJson     String?           // JSON wizard parameters used during generation
+  createdAt              DateTime          @default(now())
+  updatedAt              DateTime          @updatedAt
+
+  messages               PortfolioMessage[]
+}
+
+model PortfolioMessage {
+  id          String           @id @default(uuid())
+  portfolioId String
+  portfolio   PortfolioWebsite @relation(fields: [portfolioId], references: [id], onDelete: Cascade)
+  senderName  String
+  senderEmail String
+  message     String
+  read        Boolean          @default(false)
+  createdAt   DateTime         @default(now())
+}
+
+model PracticeSet {
+  id               String              @id @default(uuid())
+  domainId         String?
+  domainName       String              // e.g. "Full-Stack Web", "AI/Data Science", "Aptitude - Quantitative", "Aptitude - English Reading", "Aptitude - English Listening"
+  type             String              // domain | aptitude_quant | aptitude_english_reading | aptitude_english_listening
+  title            String              // e.g. "Practice Set 1: Core Fundamentals"
+  description      String
+  timeLimitMinutes Int                 @default(15)
+  passingScorePct  Float               @default(60.0)
+  difficulty       String              @default("Intermediate") // Beginner | Intermediate | Advanced
+  displayOrder     Int                 @default(1)
+  createdAt        DateTime            @default(now())
+
+  questions        Question[]
+  attempts         AssessmentAttempt[]
+}
+
+model ListeningPassage {
+  id              String     @id @default(uuid())
+  title           String
+  audioUrl        String?
+  audioText       String     // Text read aloud via audio synthesis / Web Speech engine
+  transcript      String     // Complete transcript for review
+  durationSeconds Int        @default(60)
+
+  questions       Question[]
+}
+
+model AssessmentAttempt {
+  id                  String      @id @default(uuid())
+  studentId           String
+  student             StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  practiceSetId       String
+  practiceSet         PracticeSet @relation(fields: [practiceSetId], references: [id], onDelete: Cascade)
+  startedAt           DateTime    @default(now())
+  submittedAt         DateTime?
+  timeSpentSeconds    Int         @default(0)
+  score               Float       @default(0) // 0 - 100
+  passed              Boolean     @default(false)
+  answersJson         String      // Record<questionId, answerValue>
+  aiGradingNotesJson  String?     // Detailed grading notes / feedback
+  skillBreakdownJson  String?     // JSON of skill updates
+
+  @@index([studentId, practiceSetId])
+}
+
+model InAppNotification {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  message   String
+  type      String   @default("DAILY_PRACTICE") // DAILY_PRACTICE | MATCH_ALERT | SKILL_UPDATE | SYSTEM
+  link      String?  // Deep link URL e.g. /assessment?setId=...
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model LearningResource {
+  id           String   @id @default(uuid())
+  skillId      String?  // Associated Skill ID if specific e.g. skill-react
+  topicTag     String   // Topic tag e.g. "DSA", "Dynamic Programming", "React", "TypeScript", "System Design"
+  domain       String?  // Relevant domain e.g. "Full-Stack Web", "AI/Data Science", "Cloud/DevOps", "UI/UX Product Design"
+  type         String   // website | app | youtube_channel | youtube_playlist | course
+  title        String
+  url          String
+  provider     String   // e.g. "NeetCode", "freeCodeCamp", "takeUforward", "MDN Web Docs", "StatQuest", "TechWorld with Nana"
+  description  String
+  isFree       Boolean  @default(true)
+  rating       Float?   @default(4.9)
+  thumbnailUrl String?
+  displayOrder Int      @default(0)
+  createdAt    DateTime @default(now())
+}
+
