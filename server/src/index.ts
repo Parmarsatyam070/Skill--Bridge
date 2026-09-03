@@ -2,6 +2,7 @@ import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import path from 'path';
+import fs from 'fs';
 import dotenv from 'dotenv';
 
 dotenv.config();
@@ -74,6 +75,37 @@ app.get('/api/health', (_req, res) => {
     service: 'SkillBridge Backend API',
     timestamp: new Date().toISOString(),
   });
+});
+
+// Serve frontend static build in production (from client/dist or fallback dist)
+const clientDistPath = path.resolve(process.cwd(), 'client/dist');
+const rootDistPath = path.resolve(process.cwd(), 'dist');
+const staticDir = fs.existsSync(path.join(clientDistPath, 'index.html'))
+  ? clientDistPath
+  : rootDistPath;
+
+if (fs.existsSync(staticDir)) {
+  app.use(express.static(staticDir));
+}
+
+// SPA fallback for frontend client routing (e.g. /, /login, /dashboard)
+app.get('*', (req: Request, res: Response, next: NextFunction) => {
+  // Do not intercept API or uploads routes
+  if (req.path.startsWith('/api') || req.path.startsWith('/uploads')) {
+    return res.status(404).json({
+      error: {
+        code: 'NOT_FOUND',
+        message: `API endpoint ${req.method} ${req.path} not found.`,
+      },
+    });
+  }
+
+  const indexPath = path.join(staticDir, 'index.html');
+  if (fs.existsSync(indexPath)) {
+    return res.sendFile(indexPath);
+  }
+
+  return next();
 });
 
 // Global Error Handler
