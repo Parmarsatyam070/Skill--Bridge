@@ -80,13 +80,9 @@ app.get('/api/health', (_req, res) => {
 // Serve frontend static build in production (from client/dist or fallback dist)
 const clientDistPath = path.resolve(process.cwd(), 'client/dist');
 const rootDistPath = path.resolve(process.cwd(), 'dist');
-const staticDir = fs.existsSync(path.join(clientDistPath, 'index.html'))
-  ? clientDistPath
-  : rootDistPath;
 
-if (fs.existsSync(staticDir)) {
-  app.use(express.static(staticDir));
-}
+app.use(express.static(clientDistPath));
+app.use(express.static(rootDistPath));
 
 // SPA fallback for frontend client routing (e.g. /, /login, /dashboard)
 app.get('*', (req: Request, res: Response, next: NextFunction) => {
@@ -100,9 +96,14 @@ app.get('*', (req: Request, res: Response, next: NextFunction) => {
     });
   }
 
-  const indexPath = path.join(staticDir, 'index.html');
-  if (fs.existsSync(indexPath)) {
-    return res.sendFile(indexPath);
+  const clientIndexPath = path.join(clientDistPath, 'index.html');
+  if (fs.existsSync(clientIndexPath)) {
+    return res.sendFile(clientIndexPath);
+  }
+
+  const rootIndexPath = path.join(rootDistPath, 'index.html');
+  if (fs.existsSync(rootIndexPath)) {
+    return res.sendFile(rootIndexPath);
   }
 
   return next();
