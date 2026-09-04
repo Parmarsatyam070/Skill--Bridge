@@ -3,6 +3,13 @@
 @tailwind utilities;
 
 @layer base {
+  html,
+  body,
+  #root {
+    min-height: 100%;
+    background-color: #12141C;
+  }
+
   html {
     scroll-behavior: smooth;
     font-family: 'Inter', sans-serif;

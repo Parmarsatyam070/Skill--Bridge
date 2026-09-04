@@ -3,17 +3,17 @@ import { generateCompleteDSADatabase } from './dsaSeedData.js';
 import { DSAPlatform, DSADifficulty, DSAQuestionData, DSAProgressSummary, DailyPracticeData } from '../../../shared/types.js';
 
 // Valid set sizes
-export const VALID_SET_SIZES = [15, 20, 25, 30] as const;
+export const VALID_SET_SIZES = [5, 15, 20, 25, 30] as const;
 export type ValidSetSize = typeof VALID_SET_SIZES[number];
 
 /**
- * Normalizes question count strictly to allowed sizes (15, 20, 25, 30).
+ * Normalizes question count strictly to allowed sizes (5 for Daily DSA, 15, 20, 25, 30 for Custom Sets).
  */
-export function normalizeSetSize(count?: number): ValidSetSize {
-  if (!count) return 15;
-  if (count <= 15) return 15;
-  if (count <= 20) return 20;
-  if (count <= 25) return 25;
+export function normalizeSetSize(count?: number, isDaily: boolean = false): ValidSetSize {
+  if (isDaily) return 5;
+  if (!count || count <= 17) return 15;
+  if (count <= 22) return 20;
+  if (count <= 27) return 25;
   return 30;
 }
 
@@ -106,6 +106,10 @@ export async function syncDSAQuestionsDatabase(): Promise<number> {
  * Ensures all authentic DSA questions are seeded in the database.
  */
 export async function seedDSAQuestionsIfEmpty(): Promise<number> {
+  const count = await prisma.dSAQuestion.count();
+  if (count >= 50) {
+    return count;
+  }
   return syncDSAQuestionsDatabase();
 }
 
@@ -182,12 +186,14 @@ export async function selectRotatedQuestions(
     topic?: string;
     includeWeakTopics?: boolean;
     filterUnseenOnly?: boolean;
+    isDaily?: boolean;
   }
 ): Promise<DSAQuestionData[]> {
   await seedDSAQuestionsIfEmpty();
 
   const countParam = options.count ?? options.questionCount;
-  const targetCount = normalizeSetSize(countParam);
+  const isDaily = options.isDaily === true || (options.count === 5 && options.questionCount === undefined);
+  const targetCount = isDaily ? 5 : normalizeSetSize(countParam, false);
 
   // 1. Fetch user's historical attempts to know seen / solved / failed topics
   const userAttempts = await prisma.dSAAttempt.findMany({
@@ -405,15 +411,15 @@ export async function getOrCreateDailyPractice(
   });
 
   if (!daily) {
-    // Generate new daily balanced set (default 15 questions)
+    // Generate new daily balanced set (strictly 5 questions for Daily Mandatory DSA)
     const questions = await selectRotatedQuestions(studentId, {
-      count: 15,
+      count: 5,
       difficulty: 'All',
       platform: 'All',
       includeWeakTopics: true,
     });
 
-    const questionIds = questions.map(q => q.id);
+    const questionIds = questions.map(q => q.id).slice(0, 5);
 
     daily = await prisma.dailyPractice.create({
       data: {
@@ -437,15 +443,15 @@ export async function getOrCreateDailyPractice(
     where: { id: { in: savedQuestionIds } },
   });
 
-  // Self-healing backfill if older record had fewer than 15 questions or deleted IDs
-  if (questionsFromDb.length < 15) {
+  // Self-healing backfill if older record had fewer than 5 questions or deleted IDs
+  if (questionsFromDb.length < 5) {
     const freshQuestions = await selectRotatedQuestions(studentId, {
-      count: 15,
+      count: 5,
       difficulty: 'All',
       platform: 'All',
       includeWeakTopics: true,
     });
-    savedQuestionIds = freshQuestions.map(q => q.id);
+    savedQuestionIds = freshQuestions.map(q => q.id).slice(0, 5);
     await prisma.dailyPractice.update({
       where: { id: daily.id },
       data: {
@@ -537,12 +543,17 @@ export async function submitDSAQuestionAttempt(
         testCases,
       });
 
+      const hasCompilationError = !executionResult.compilationSuccess;
+      const hasFailedCases =
+        (Array.isArray(executionResult.testResults) && executionResult.testResults.some((t: any) => !t.passed)) ||
+        (executionResult.testsPassed < executionResult.testsTotal);
+
       const isAccepted =
-        executionResult.compilationSuccess === true &&
-        executionResult.executionCompleted === true &&
-        executionResult.allTestsPassed === true &&
-        executionResult.status === 'ACCEPTED' &&
-        !executionResult.error;
+        !hasCompilationError &&
+        !hasFailedCases &&
+        executionResult.testsTotal > 0 &&
+        executionResult.testsPassed === executionResult.testsTotal &&
+        (executionResult.status === 'ACCEPTED' || executionResult.passed === true);
 
       if (isAccepted) {
         finalStatus = 'SOLVED';
@@ -566,7 +577,8 @@ export async function submitDSAQuestionAttempt(
     },
   });
 
-  const recordStatus = existingAttempt?.status === 'SOLVED' ? 'SOLVED' : finalStatus;
+  const isCurrentAccepted = finalStatus === 'SOLVED';
+  const recordStatus = existingAttempt?.status === 'SOLVED' || isCurrentAccepted ? 'SOLVED' : finalStatus;
 
   const attempt = await prisma.dSAAttempt.upsert({
     where: {
@@ -610,7 +622,7 @@ export async function submitDSAQuestionAttempt(
     const questionIds: string[] = JSON.parse(daily.questionIdsJson || '[]');
     if (questionIds.includes(questionId)) {
       const completedSet = new Set<string>(JSON.parse(daily.completedQuestionIdsJson || '[]'));
-      if (finalStatus === 'SOLVED') {
+      if (isCurrentAccepted) {
         completedSet.add(questionId);
       }
 
@@ -642,7 +654,8 @@ export async function submitDSAQuestionAttempt(
 
   return {
     ...attempt,
-    isAccepted: finalStatus === 'SOLVED',
+    isAccepted: isCurrentAccepted,
+    status: isCurrentAccepted ? 'SOLVED' : 'FAILED',
     executionResult,
   };
 }
@@ -968,6 +981,30 @@ export async function submitDailyQuestion(
     timeSpentSeconds: params.timeSpentSeconds || 60,
     isDailyPractice: true,
   });
+
+  if (params.status === 'SOLVED') {
+    const todayStr = new Date().toISOString().split('T')[0];
+    const daily = await prisma.dailyPractice.findUnique({
+      where: { studentId_date: { studentId, date: todayStr } },
+    });
+    if (daily) {
+      const completedSet = new Set<string>(JSON.parse(daily.completedQuestionIdsJson || '[]'));
+      completedSet.add(params.questionId);
+      const completedCount = completedSet.size;
+      const isComplete = completedCount >= daily.questionCount;
+      const score = Math.round((completedCount / daily.questionCount) * 100);
+
+      await prisma.dailyPractice.update({
+        where: { id: daily.id },
+        data: {
+          completedQuestionIdsJson: JSON.stringify(Array.from(completedSet)),
+          score,
+          status: isComplete ? 'COMPLETED' : (daily.status === 'PENDING' ? 'IN_PROGRESS' : daily.status),
+          completedAt: isComplete ? (daily.completedAt || new Date()) : daily.completedAt,
+        },
+      });
+    }
+  }
 
   const daily = await getOrCreateDailyPractice(studentId);
   return { dailyPractice: daily, attempt, streak: daily.currentStreak };

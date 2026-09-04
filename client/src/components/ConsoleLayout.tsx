@@ -87,7 +87,7 @@ export const ConsoleLayout: React.FC<{ children: React.ReactNode }> = ({ childre
   const currentRoleInfo = roleLabels[user.role as Role] || roleLabels.STUDENT;
 
   return (
-    <div className="min-h-screen bg-console-bg text-console-text flex font-sans antialiased selection:bg-bridge-teal selection:text-white">
+    <div className="min-h-screen w-full bg-console-bg text-console-text flex font-sans antialiased selection:bg-bridge-teal selection:text-white">
       {/* Persistent Left Sidebar */}
       <aside
         className={`bg-console-panel border-r border-console-border flex flex-col justify-between transition-all duration-200 z-30 sticky top-0 h-screen ${
@@ -120,13 +120,13 @@ export const ConsoleLayout: React.FC<{ children: React.ReactNode }> = ({ childre
           <div className={`p-3.5 border-b border-console-border/60 ${collapsed ? 'text-center' : ''}`}>
             <div className="flex items-center gap-2.5">
               <img
-                src={user.avatarUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${user.name}`}
+                src={user.avatarUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(user.name || 'User')}`}
                 alt={user.name}
                 className="w-8 h-8 rounded-full border border-console-border object-cover flex-shrink-0"
               />
               {!collapsed && (
-                <div className="overflow-hidden">
-                  <div className="text-xs font-semibold text-console-text truncate">{user.name}</div>
+                <div className="overflow-hidden min-w-0 flex-1">
+                  <div className="text-xs font-semibold text-console-text truncate" title={user.name}>{user.name}</div>
                   <span className={`inline-block text-[10px] font-mono font-medium px-1.5 py-0.2 rounded border ${currentRoleInfo.badgeBg} truncate max-w-full`}>
                     {currentRoleInfo.title}
                   </span>
@@ -207,7 +207,7 @@ export const ConsoleLayout: React.FC<{ children: React.ReactNode }> = ({ childre
       </aside>
 
       {/* Main Workspace Area */}
-      <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
+      <div className="flex-1 flex flex-col min-w-0 min-h-screen bg-console-bg overflow-x-hidden">
         {/* Top Header Bar */}
         <header className="h-16 bg-console-panel/80 border-b border-console-border sticky top-0 z-20 backdrop-blur-md px-6 flex items-center justify-between">
           {/* Global Search */}
@@ -239,7 +239,7 @@ export const ConsoleLayout: React.FC<{ children: React.ReactNode }> = ({ childre
         </header>
 
         {/* Content Body */}
-        <main className="flex-1 p-6 md:p-8 overflow-y-auto max-w-7xl w-full mx-auto">
+        <main className="flex-1 p-6 md:p-8 overflow-y-auto max-w-7xl w-full mx-auto bg-console-bg min-h-full">
           {children}
         </main>
       </div>

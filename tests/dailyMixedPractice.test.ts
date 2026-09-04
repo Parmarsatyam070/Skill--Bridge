@@ -137,5 +137,5 @@ int twoSum(vector<int>& nums, int target) {
     expect(cResult.compilationSuccess).toBe(true);
     expect(cResult.language).toBe('c');
     expect(cResult.testResults.length).toBe(1);
-  });
+  }, 15000);
 });

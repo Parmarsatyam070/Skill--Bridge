@@ -1,6 +1,6 @@
 import { Router, Response } from 'express';
 import { prisma } from '../config/prisma.js';
-import { authenticate, AuthRequest } from '../middleware/auth.js';
+import { authenticate, optionalAuthenticate, AuthRequest } from '../middleware/auth.js';
 import {
   seedDSAQuestionsIfEmpty,
   selectRotatedQuestions,
@@ -20,20 +20,20 @@ import { executeCodeSandbox } from '../services/codeRunnerService.js';
 const router = Router();
 
 /**
- * GET /api/dsa/questions
+ * Common handler for GET /api/dsa/questions and GET /api/dsa/problems
  * Returns searchable, filterable DSA questions explorer.
  */
-router.get('/questions', authenticate, async (req: AuthRequest, res: Response) => {
+async function handleGetQuestions(req: AuthRequest, res: Response) {
   try {
     await seedDSAQuestionsIfEmpty();
 
     const studentId = req.user?.studentProfileId;
-    const { platform, difficulty, topic, search, status, page = '1', limit = '50' } = req.query;
+    const { platform, difficulty, topic, search, status, page = '1', limit = '50', random } = req.query;
 
     const where: any = {};
 
     if (platform && platform !== 'All') {
-      where.platform = String(platform);
+      where.platform = String(platform).toUpperCase();
     }
     if (difficulty && difficulty !== 'All') {
       where.difficulty = String(difficulty);
@@ -86,6 +86,14 @@ router.get('/questions', authenticate, async (req: AuthRequest, res: Response) =
       }
     }
 
+    // Support random selection if requested
+    if (random === 'true') {
+      for (let i = formatted.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [formatted[i], formatted[j]] = [formatted[j], formatted[i]];
+      }
+    }
+
     return res.json({
       success: true,
       total,
@@ -103,13 +111,16 @@ router.get('/questions', authenticate, async (req: AuthRequest, res: Response) =
     console.error('Error in GET /api/dsa/questions:', error);
     return res.status(500).json({ error: { code: 'SERVER_ERROR', message: error.message } });
   }
-});
+}
+
+router.get('/questions', optionalAuthenticate, handleGetQuestions);
+router.get('/problems', optionalAuthenticate, handleGetQuestions);
 
 /**
  * GET /api/dsa/topics
  * Returns list of distinct DSA topics with counts.
  */
-router.get('/topics', authenticate, async (_req: AuthRequest, res: Response) => {
+router.get('/topics', optionalAuthenticate, async (_req: AuthRequest, res: Response) => {
   try {
     await seedDSAQuestionsIfEmpty();
 
@@ -230,6 +241,9 @@ router.post('/daily/submit-question', authenticate, async (req: AuthRequest, res
       success: true,
       dailyPractice: updatedDaily,
       attempt,
+      isAccepted: attempt.isAccepted,
+      status: attempt.status,
+      executionResult: attempt.executionResult,
       streak: updatedDaily.currentStreak,
       data: attempt,
     });
@@ -335,6 +349,9 @@ router.post('/questions/:id/attempt', authenticate, async (req: AuthRequest, res
     return res.json({
       success: true,
       attempt,
+      isAccepted: attempt.isAccepted,
+      status: attempt.status,
+      executionResult: attempt.executionResult,
       data: attempt,
     });
   } catch (error: any) {
@@ -368,10 +385,10 @@ router.get('/progress', authenticate, async (req: AuthRequest, res: Response) =>
 });
 
 /**
- * GET /api/dsa/questions/:id
+ * Handler for GET /api/dsa/questions/:id and GET /api/dsa/problems/:id
  * Returns authentic problem details by ID or slug.
  */
-router.get('/questions/:id', authenticate, async (req: AuthRequest, res: Response) => {
+async function handleGetQuestionDetail(req: AuthRequest, res: Response) {
   try {
     await seedDSAQuestionsIfEmpty();
     const studentId = req.user?.studentProfileId;
@@ -405,13 +422,16 @@ router.get('/questions/:id', authenticate, async (req: AuthRequest, res: Respons
     console.error('Error in GET /api/dsa/questions/:id:', error);
     return res.status(500).json({ error: { code: 'SERVER_ERROR', message: error.message } });
   }
-});
+}
+
+router.get('/questions/:id', optionalAuthenticate, handleGetQuestionDetail);
+router.get('/problems/:id', optionalAuthenticate, handleGetQuestionDetail);
 
 /**
  * POST /api/dsa/run
  * Executes code on VISIBLE sample test cases only without recording an official submission.
  */
-router.post('/run', authenticate, async (req: AuthRequest, res: Response) => {
+router.post('/run', optionalAuthenticate, async (req: AuthRequest, res: Response) => {
   try {
     const { code, language = 'javascript', questionId, entryFunctionName, testCases } = req.body;
 
@@ -450,15 +470,11 @@ router.post('/run', authenticate, async (req: AuthRequest, res: Response) => {
 
 /**
  * POST /api/dsa/submit
- * Executes code against FULL test suite (visible + hidden), logs attempt, updates DSA skill score.
+ * Executes code against FULL test suite (visible + hidden), logs attempt if student logged in, updates DSA skill score.
  */
-router.post('/submit', authenticate, async (req: AuthRequest, res: Response) => {
+router.post('/submit', optionalAuthenticate, async (req: AuthRequest, res: Response) => {
   try {
     const studentId = req.user?.studentProfileId;
-    if (!studentId) {
-      return res.status(403).json({ error: { code: 'FORBIDDEN', message: 'Student profile required.' } });
-    }
-
     const { code, language = 'javascript', questionId, timeSpentSeconds = 60 } = req.body;
     if (!questionId) {
       return res.status(400).json({ error: { code: 'BAD_REQUEST', message: 'Question ID is required.' } });
@@ -485,60 +501,77 @@ router.post('/submit', authenticate, async (req: AuthRequest, res: Response) => 
       timeoutMs: 4000,
     });
 
-    const isAccepted = result.status === 'ACCEPTED' || result.passed;
+    const hasCompilationError = !result.compilationSuccess;
+    const hasFailedCases =
+      (Array.isArray(result.testResults) && result.testResults.some((t: any) => !t.passed)) ||
+      (result.testsPassed < result.testsTotal);
+
+    const isAccepted =
+      !hasCompilationError &&
+      !hasFailedCases &&
+      result.testsTotal > 0 &&
+      result.testsPassed === result.testsTotal &&
+      (result.status === 'ACCEPTED' || result.passed === true);
+
     const attemptStatus = isAccepted ? 'SOLVED' : 'FAILED';
 
-    const attempt = await prisma.dSAAttempt.upsert({
-      where: {
-        studentId_questionId: {
+    let attempt: any = null;
+
+    if (studentId) {
+      attempt = await prisma.dSAAttempt.upsert({
+        where: {
+          studentId_questionId: {
+            studentId,
+            questionId: question.id,
+          },
+        },
+        update: {
+          status: isAccepted ? 'SOLVED' : undefined,
+          codeSubmitted: code,
+          language,
+          attemptCount: { increment: 1 },
+          timeSpentSeconds: { increment: timeSpentSeconds },
+        },
+        create: {
           studentId,
           questionId: question.id,
+          status: attemptStatus,
+          codeSubmitted: code,
+          language,
+          attemptCount: 1,
+          timeSpentSeconds,
         },
-      },
-      update: {
-        status: isAccepted ? 'SOLVED' : undefined,
-        codeSubmitted: code,
-        language,
-        attemptCount: { increment: 1 },
-        timeSpentSeconds: { increment: timeSpentSeconds },
-      },
-      create: {
-        studentId,
-        questionId: question.id,
-        status: attemptStatus,
-        codeSubmitted: code,
-        language,
-        attemptCount: 1,
-        timeSpentSeconds,
-      },
-    });
+      });
 
-    // If accepted, update DSA skill score in StudentSkillScore
-    if (isAccepted) {
-      try {
-        const dsaSkill = await prisma.skill.findFirst({
-          where: { name: { contains: 'Data Structures' } },
-        });
-        if (dsaSkill) {
-          const prev = await prisma.studentSkillScore.findUnique({
-            where: { studentId_skillId: { studentId, skillId: dsaSkill.id } },
+      // If accepted, update DSA skill score in StudentSkillScore
+      if (isAccepted) {
+        try {
+          const dsaSkill = await prisma.skill.findFirst({
+            where: { name: { contains: 'Data Structures' } },
           });
-          const newScore = Math.min(100, (prev?.score || 50) + 2.5);
-          await prisma.studentSkillScore.upsert({
-            where: { studentId_skillId: { studentId, skillId: dsaSkill.id } },
-            update: { score: newScore, lastAttemptDate: new Date() },
-            create: { studentId, skillId: dsaSkill.id, score: newScore, lastAttemptDate: new Date() },
-          });
-        }
-      } catch {}
+          if (dsaSkill) {
+            const prev = await prisma.studentSkillScore.findUnique({
+              where: { studentId_skillId: { studentId, skillId: dsaSkill.id } },
+            });
+            const newScore = Math.min(100, (prev?.score || 50) + 2.5);
+            await prisma.studentSkillScore.upsert({
+              where: { studentId_skillId: { studentId, skillId: dsaSkill.id } },
+              update: { score: newScore, lastAttemptDate: new Date() },
+              create: { studentId, skillId: dsaSkill.id, score: newScore, lastAttemptDate: new Date() },
+            });
+          }
+        } catch {}
+      }
     }
 
     return res.json({
       success: true,
       result,
+      executionResult: result,
       isAccepted,
+      status: isAccepted ? 'ACCEPTED' : (result.status || 'FAILED'),
       attempt,
-      data: { result, attempt, isAccepted },
+      data: { result, attempt, isAccepted, status: isAccepted ? 'ACCEPTED' : (result.status || 'FAILED') },
     });
   } catch (error: any) {
     console.error('Error in POST /api/dsa/submit:', error);
@@ -550,11 +583,11 @@ router.post('/submit', authenticate, async (req: AuthRequest, res: Response) => 
  * GET /api/dsa/questions/:id/submissions
  * Retrieves historical attempts and submissions for this question.
  */
-router.get('/questions/:id/submissions', authenticate, async (req: AuthRequest, res: Response) => {
+async function handleGetSubmissions(req: AuthRequest, res: Response) {
   try {
     const studentId = req.user?.studentProfileId;
     if (!studentId) {
-      return res.status(403).json({ error: { code: 'FORBIDDEN', message: 'Student profile required.' } });
+      return res.json({ success: true, submissions: [], data: [] });
     }
 
     const { id } = req.params;
@@ -587,7 +620,9 @@ router.get('/questions/:id/submissions', authenticate, async (req: AuthRequest, 
     console.error('Error in GET /api/dsa/questions/:id/submissions:', error);
     return res.status(500).json({ error: { code: 'SERVER_ERROR', message: error.message } });
   }
-});
+}
+
+router.get('/questions/:id/submissions', optionalAuthenticate, handleGetSubmissions);
+router.get('/problems/:id/submissions', optionalAuthenticate, handleGetSubmissions);
 
 export default router;
-

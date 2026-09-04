@@ -379,10 +379,18 @@ export const DsaPracticeRunner: React.FC<DsaPracticeRunnerProps> = ({
       }
     },
     onSuccess: (data: any) => {
-      const isAccepted = data?.isAccepted === true || (data?.attempt?.status === 'SOLVED' && data?.executionResult?.status === 'ACCEPTED');
+      const execRes = data?.executionResult || data?.result || data?.attempt?.executionResult;
+      const isAccepted = Boolean(
+        data?.isAccepted === true ||
+        data?.attempt?.isAccepted === true ||
+        data?.status === 'ACCEPTED' ||
+        data?.attempt?.status === 'SOLVED' ||
+        execRes?.status === 'ACCEPTED' ||
+        (execRes?.compilationSuccess === true && execRes?.allTestsPassed === true && (execRes?.testsTotal ?? 0) > 0)
+      );
 
-      if (data?.executionResult) {
-        setExecutionResult(data.executionResult);
+      if (execRes) {
+        setExecutionResult(execRes);
       }
 
       if (isAccepted) {
@@ -394,24 +402,31 @@ export const DsaPracticeRunner: React.FC<DsaPracticeRunnerProps> = ({
 
         setSubmissionFeedback({
           status: 'success',
-          message: `Solution verified in ${activeLangConfig.label} and recorded! Skill Radar & DSA progress updated.`,
+          message: `✅ Solution Accepted! All test cases passed in ${activeLangConfig.label}. Progress and Skill Radar updated.`,
         });
       } else {
-        // Backend authoritative validation rejected the submission as SOLVED
-        const reason = data?.executionResult?.status
-          ? `Status: ${data.executionResult.status}`
-          : 'Compilation or tests failed';
+        const statusStr = execRes?.status || data?.status || 'FAILED';
+        let reason = 'Some test cases failed';
+        if (execRes?.compilationSuccess === false) {
+          reason = 'Compilation failed';
+        } else if (statusStr === 'TIME_LIMIT_EXCEEDED') {
+          reason = 'Time Limit Exceeded';
+        } else if (statusStr === 'RUNTIME_ERROR') {
+          reason = 'Runtime Error occurred';
+        } else if (execRes && execRes.testsPassed !== undefined && execRes.testsTotal !== undefined) {
+          reason = `${execRes.testsPassed}/${execRes.testsTotal} tests passed`;
+        }
 
         setSubmissionFeedback({
           status: 'failed',
-          message: `Solution NOT accepted (${reason}). Attempt was recorded, but progress and Skill Radar were NOT updated.`,
+          message: `❌ Solution Not Accepted (${reason}). Attempt was recorded, but progress and Skill Radar were not updated.`,
         });
       }
     },
     onError: (err: any) => {
       setSubmissionFeedback({
         status: 'failed',
-        message: `Submission error: ${err.message || 'Could not record attempt'}`,
+        message: `❌ Submission error: ${err.message || 'Could not record attempt'}`,
       });
     },
   });

@@ -187,8 +187,8 @@ describe('DSA Coding Practice & Daily Mandatory Engine Suite', () => {
       const daily1 = await questionSelectionService.getOrCreateDailyPractice(testStudentId, todayDate);
       expect(daily1).toBeDefined();
       expect(daily1.date).toBe(todayDate);
-      expect(daily1.questions.length).toBeGreaterThanOrEqual(15);
-      expect(daily1.questions.length).toBeLessThanOrEqual(30);
+      expect(daily1.questions.length).toBe(5);
+      expect(daily1.questionCount).toBe(5);
 
       // Second call (simulating page refresh)
       const daily2 = await questionSelectionService.getOrCreateDailyPractice(testStudentId, todayDate);

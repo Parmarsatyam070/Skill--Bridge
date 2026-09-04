@@ -50,7 +50,7 @@ export const DsaDailyBanner: React.FC<DsaDailyBannerProps> = ({ onStartDailyPrac
   const daily = data?.dailyPractice;
   if (!daily) return null;
 
-  const totalQuestions = daily.questionCount || daily.questions?.length || 15;
+  const totalQuestions = daily.questionCount || daily.questions?.length || 5;
   const completedCount = daily.completedQuestionIds?.length || 0;
   const isCompleted = daily.status === 'COMPLETED';
   const progressPct = totalQuestions > 0 ? Math.round((completedCount / totalQuestions) * 100) : 0;

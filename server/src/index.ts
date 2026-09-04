@@ -134,21 +134,23 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
 
 import { prisma } from './config/prisma.js';
 import { seedCatalog, seedDemoUsers } from './services/seedService.js';
+import { seedDSAQuestionsIfEmpty } from './services/questionSelectionService.js';
 
 /**
  * Startup Database Health Verification & Auto-Seed Safety Guard:
- * Validates that reference tables (Domain, PracticeSet, Course, Skill) are seeded.
+ * Validates that reference tables (Domain, PracticeSet, Course, Skill, DSA Questions) are seeded.
  * If reference tables are missing and User.count() === 0, automatically seeds catalog.
- * If users already exist (User.count() > 0), strictly logs a warning without mutating data.
+ * If users already exist, safely synchronizes authentic DSA questions bank without mutating user data.
  */
 async function verifyDatabaseHealth() {
   try {
-    const [domainCount, skillCount, practiceSetCount, courseCount, questionCount, userCount] = await Promise.all([
+    const [domainCount, skillCount, practiceSetCount, courseCount, questionCount, dsaQuestionCount, userCount] = await Promise.all([
       prisma.domain.count(),
       prisma.skill.count(),
       prisma.practiceSet.count(),
       prisma.course.count(),
       prisma.question.count(),
+      prisma.dSAQuestion.count(),
       prisma.user.count(),
     ]);
 
@@ -158,7 +160,14 @@ async function verifyDatabaseHealth() {
     console.log(`  • Practice Sets: ${practiceSetCount} (Min: 8)`);
     console.log(`  • Courses: ${courseCount} (Min: 4)`);
     console.log(`  • Questions: ${questionCount} (Min: 20)`);
+    console.log(`  • DSA Questions: ${dsaQuestionCount} (Min: 50)`);
     console.log(`  • Users: ${userCount}`);
+
+    // Ensure DSA questions bank is always populated idempotently
+    if (dsaQuestionCount < 50) {
+      console.log(`🌱 [DSA AUTO-SYNC] Synchronizing authentic DSA questions bank (${dsaQuestionCount}/50)...`);
+      await seedDSAQuestionsIfEmpty();
+    }
 
     if (domainCount < 5 || practiceSetCount < 8 || courseCount < 4 || questionCount < 20) {
       if (userCount === 0) {

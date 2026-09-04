@@ -101,9 +101,9 @@ export const CareerProfileDashboard: React.FC = () => {
         }
       }
 
-      const fullName = (s?.name && s.name.trim().length >= (user?.name?.trim().length || 0))
+      const fullName = (s?.name && s.name.trim().length > 0)
         ? s.name.trim()
-        : (user?.name || s?.name || 'Student');
+        : (user?.name?.trim() || 'Student');
 
       setProfile({
         name: fullName,
@@ -348,6 +348,7 @@ export const CareerProfileDashboard: React.FC = () => {
         if (res.rankings) {
           setProfile((p: any) => ({ ...p, rankings: res.rankings }));
         }
+        await refreshUser();
       } catch (err) {
         console.error('Failed to persist profile to database:', err);
       }
@@ -381,13 +382,9 @@ export const CareerProfileDashboard: React.FC = () => {
   // Helper for initials
   const getInitials = (nameStr: string) => {
     if (!nameStr) return 'SB';
-    return nameStr
-      .trim()
-      .split(/\s+/)
-      .map(n => n[0])
-      .join('')
-      .toUpperCase()
-      .slice(0, 2);
+    const parts = nameStr.trim().split(/\s+/).filter(Boolean);
+    if (parts.length === 1) return parts[0].slice(0, 2).toUpperCase();
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase();
   };
 
   return (
@@ -403,90 +400,95 @@ export const CareerProfileDashboard: React.FC = () => {
           {/* 1. PROFILE HEADER CARD */}
           <div className="bg-console-panel rounded-2xl border border-console-border p-6 sm:p-8 shadow-sm relative overflow-hidden">
             {/* Top decorative gradient banner */}
-            <div className="h-24 -mx-6 -mt-6 sm:-mx-8 sm:-mt-8 bg-gradient-to-r from-bridge-teal via-emerald-600 to-indigo-700 relative" />
+            <div className="h-24 sm:h-28 -mx-6 -mt-6 sm:-mx-8 sm:-mt-8 bg-gradient-to-r from-bridge-teal via-emerald-600 to-indigo-700 relative" />
 
-            <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4 -mt-12 mb-4">
-              {/* Avatar + Info */}
-              <div className="flex items-end gap-4">
-                <div className="relative group">
-                  {profile.avatarUrl ? (
-                    <img
-                      src={profile.avatarUrl}
-                      alt={profile.name}
-                      className="w-24 h-24 rounded-full object-cover border-4 border-console-panel shadow-md bg-console-panel-raised"
-                    />
-                  ) : (
-                    <div className="w-24 h-24 rounded-full bg-bridge-teal text-white font-serif font-bold text-2xl flex items-center justify-center border-4 border-console-panel shadow-md">
-                      {getInitials(profile.name)}
-                    </div>
-                  )}
+            {/* Profile Information Row — Name & Controls on Dark Background */}
+            <div className="relative pt-2 pb-4 mb-1">
+              <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-4">
+                {/* Avatar (overlapping banner boundary) + Name/Headline Column */}
+                <div className="flex flex-col sm:flex-row sm:items-end gap-4 min-w-0 flex-1">
+                  {/* Avatar with negative top margin so ONLY avatar crosses the banner boundary */}
+                  <div className="-mt-14 sm:-mt-16 relative group flex-shrink-0 z-10">
+                    {profile.avatarUrl ? (
+                      <img
+                        src={profile.avatarUrl}
+                        alt={profile.name}
+                        className="w-24 h-24 rounded-full object-cover border-4 border-console-panel shadow-md bg-console-panel-raised"
+                      />
+                    ) : (
+                      <div className="w-24 h-24 rounded-full bg-bridge-teal text-white font-serif font-bold text-2xl flex items-center justify-center border-4 border-console-panel shadow-md">
+                        {getInitials(profile.name)}
+                      </div>
+                    )}
 
-                  {/* Upload photo prompt */}
-                  <button
-                    onClick={() => setIsAvatarModalOpen(true)}
-                    className="absolute inset-0 rounded-full bg-black/50 text-white flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-semibold cursor-pointer"
-                    title="Upload or change photo"
-                  >
-                    <Upload className="w-4 h-4 mb-0.5" />
-                    <span>Upload</span>
-                  </button>
+                    {/* Upload photo prompt */}
+                    <button
+                      onClick={() => setIsAvatarModalOpen(true)}
+                      className="absolute inset-0 rounded-full bg-black/50 text-white flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity text-[10px] font-semibold cursor-pointer"
+                      title="Upload or change photo"
+                    >
+                      <Upload className="w-4 h-4 mb-0.5" />
+                      <span>Upload</span>
+                    </button>
 
-                  <span
-                    className="absolute bottom-1 right-1 w-5 h-5 rounded-full bg-status-green border-2 border-console-panel flex items-center justify-center text-white"
-                    title="Active Verified Talent"
-                  >
-                    <CheckCircle2 className="w-3.5 h-3.5" />
-                  </span>
-                </div>
-
-                <div className="space-y-0.5 pb-1">
-                  <div className="flex items-center gap-2">
-                    <h1 className="font-serif text-2xl sm:text-3xl font-bold text-console-text">
-                      {profile.name}
-                    </h1>
-                    <span className="text-xs font-mono font-medium text-console-text-muted">
-                      @{profile.username}
+                    <span
+                      className="absolute bottom-1 right-1 w-5 h-5 rounded-full bg-status-green border-2 border-console-panel flex items-center justify-center text-white"
+                      title="Active Verified Talent"
+                    >
+                      <CheckCircle2 className="w-3.5 h-3.5" />
                     </span>
                   </div>
-                  <p className="text-xs sm:text-sm font-medium text-bridge-teal">
-                    {profile.headline}
-                  </p>
-                </div>
-              </div>
 
-              {/* Edit Profile Action Button */}
-              <button
-                onClick={() =>
-                  openModal('edit_profile', {
-                    name: profile.name,
-                    username: profile.username,
-                    headline: profile.headline,
-                    institution: profile.institution,
-                    location: profile.location,
-                    resumeFileName: profile.resumeFileName,
-                  })
-                }
-                className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-console-panel-raised hover:border-bridge-teal border border-console-border text-console-text text-xs font-semibold shadow-xs transition-all self-start sm:self-auto"
-              >
-                <Edit3 className="w-3.5 h-3.5 text-console-text-muted" />
-                <span>Edit Profile</span>
-              </button>
+                  {/* Name and headline - fully situated on dark background */}
+                  <div className="space-y-1 min-w-0 flex-1">
+                    <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-0.5 min-w-0">
+                      <h1 className="font-serif text-2xl sm:text-3xl font-bold text-console-text break-words tracking-tight">
+                        {profile.name}
+                      </h1>
+                      <span className="text-xs font-mono font-medium text-console-text-muted break-all flex-shrink-0">
+                        @{profile.username}
+                      </span>
+                    </div>
+                    <p className="text-xs sm:text-sm font-medium text-bridge-teal break-words">
+                      {profile.headline}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Edit Profile Action Button */}
+                <button
+                  onClick={() =>
+                    openModal('edit_profile', {
+                      name: profile.name,
+                      username: profile.username,
+                      headline: profile.headline,
+                      institution: profile.institution,
+                      location: profile.location,
+                      resumeFileName: profile.resumeFileName,
+                    })
+                  }
+                  className="flex-shrink-0 flex items-center gap-1.5 px-4 py-2 rounded-xl bg-console-panel-raised hover:border-bridge-teal border border-console-border text-console-text text-xs font-semibold shadow-xs transition-all self-start sm:self-end"
+                >
+                  <Edit3 className="w-3.5 h-3.5 text-console-text-muted" />
+                  <span>Edit Profile</span>
+                </button>
+              </div>
             </div>
 
             {/* University & Streak Summary Row */}
-            <div className="pt-3 border-t border-console-border flex flex-wrap items-center justify-between gap-3 text-xs text-console-text-muted font-sans">
-              <div className="flex items-center gap-2">
+            <div className="pt-3 border-t border-console-border flex flex-wrap items-center justify-between gap-3 text-xs text-console-text-muted font-sans min-w-0">
+              <div className="flex flex-wrap items-center gap-2 min-w-0">
                 <Building className="w-4 h-4 text-bridge-teal flex-shrink-0" />
-                <span className="font-medium text-console-text">{profile.institution}</span>
+                <span className="font-medium text-console-text break-words">{profile.institution}</span>
                 <span className="text-console-border">•</span>
-                <span className="flex items-center gap-1 text-console-text-muted font-mono">
+                <span className="flex items-center gap-1 text-console-text-muted font-mono flex-shrink-0">
                   <MapPin className="w-3.5 h-3.5 text-console-text-muted" />
                   {profile.location}
                 </span>
               </div>
 
               {/* Daily Streak Highlight */}
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 flex-shrink-0">
                 <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-industry-amber/10 border border-industry-amber/30 text-industry-amber font-mono text-[11px] font-bold">
                   <Flame className="w-3.5 h-3.5 fill-industry-amber" />
                   <span>{profile.rankings?.currentStreak || 1}-day active streak</span>

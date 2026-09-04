@@ -6,9 +6,7 @@ import {
   Play,
   CheckCircle2,
   XCircle,
-  AlertTriangle,
   Clock,
-  ExternalLink,
   ChevronRight,
   Filter,
   Search,
@@ -20,20 +18,19 @@ import {
   FileCode,
   History,
   Check,
-  Zap,
-  BookOpen,
   ArrowUpRight,
   RefreshCw,
   Award,
+  AlertCircle,
+  HelpCircle,
 } from 'lucide-react';
 import {
   DSAQuestionData,
   SupportedLanguage,
-  DSAPlatform,
-  DSADifficulty,
   CodeExecutionResult,
   DSASubmissionItem,
 } from '@shared/types';
+import { api } from '../../lib/api';
 import { useAuth } from '../../context/AuthContext';
 
 const SUPPORTED_LANGUAGES: { id: SupportedLanguage; label: string; monacoLang: string; version: string }[] = [
@@ -61,17 +58,20 @@ const DSA_TOPICS = [
   'All Topics',
   'Arrays',
   'Strings',
+  'Two Pointers',
+  'Sliding Window',
   'Linked Lists',
-  'Trees & Graphs',
-  'Dynamic Programming',
-  'Greedy',
-  'Backtracking',
+  'Stack & Queue',
   'Binary Search',
-  'Two Pointers / Sliding Window',
+  'Trees & Graphs',
+  'Heap / Priority Queue',
+  'Backtracking',
+  'Dynamic Programming',
+  'Graphs',
+  'Greedy',
   'Bit Manipulation',
   'Mathematical Algorithms',
-  'Heap / Priority Queue',
-  'Stack & Queue',
+  'Sorting',
 ];
 
 export const DsaCodingPage: React.FC = () => {
@@ -82,6 +82,7 @@ export const DsaCodingPage: React.FC = () => {
   // Problem list and filtering state
   const [questions, setQuestions] = useState<DSAQuestionData[]>([]);
   const [loadingList, setLoadingList] = useState(true);
+  const [listError, setListError] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedTopic, setSelectedTopic] = useState('All Topics');
   const [selectedPlatform, setSelectedPlatform] = useState<string>('All');
@@ -91,6 +92,7 @@ export const DsaCodingPage: React.FC = () => {
   // Active Problem state
   const [activeQuestion, setActiveQuestion] = useState<DSAQuestionData | null>(null);
   const [loadingQuestion, setLoadingQuestion] = useState(false);
+  const [questionError, setQuestionError] = useState<string | null>(null);
 
   // Code editor state
   const [selectedLanguage, setSelectedLanguage] = useState<SupportedLanguage>('javascript');
@@ -113,22 +115,24 @@ export const DsaCodingPage: React.FC = () => {
   const fetchQuestions = useCallback(async () => {
     try {
       setLoadingList(true);
-      const res = await fetch('/api/dsa/questions?limit=100', {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token') || ''}` },
-      });
-      const data = await res.json();
-      if (data.success && Array.isArray(data.questions)) {
+      setListError(null);
+      const data = await api.get<{ success: boolean; questions: DSAQuestionData[]; total: number }>('/dsa/questions?limit=100');
+
+      if (data && Array.isArray(data.questions)) {
         setQuestions(data.questions);
-        const solvedCount = data.questions.filter((q: DSAQuestionData) => q.userAttemptStatus === 'SOLVED').length;
+        const solvedCount = data.questions.filter((q) => q.userAttemptStatus === 'SOLVED').length;
         setStats({ solved: solvedCount, total: data.questions.length });
 
         // If no slug in URL, select the first question
         if (!slug && data.questions.length > 0) {
           navigate(`/dsa/${data.questions[0].slug}`, { replace: true });
         }
+      } else {
+        setQuestions([]);
       }
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to fetch DSA questions list:', err);
+      setListError(err.message || 'Failed to connect to question bank. Please retry.');
     } finally {
       setLoadingList(false);
     }
@@ -138,24 +142,38 @@ export const DsaCodingPage: React.FC = () => {
     fetchQuestions();
   }, [fetchQuestions]);
 
+  const loadSubmissions = useCallback(async (questionId: string) => {
+    try {
+      setLoadingSubmissions(true);
+      const data = await api.get<{ success: boolean; submissions: DSASubmissionItem[] }>(
+        `/dsa/questions/${questionId}/submissions`
+      );
+      if (data && Array.isArray(data.submissions)) {
+        setSubmissions(data.submissions);
+      }
+    } catch (err) {
+      console.error('Failed to load submissions:', err);
+    } finally {
+      setLoadingSubmissions(false);
+    }
+  }, []);
+
   // 2. Fetch specific question when slug changes
   useEffect(() => {
     if (!slug) return;
     const loadQuestionDetail = async () => {
       try {
         setLoadingQuestion(true);
+        setQuestionError(null);
         setVerdictBanner(null);
         setLastExecutionResult(null);
 
-        const res = await fetch(`/api/dsa/questions/${slug}`, {
-          headers: { Authorization: `Bearer ${localStorage.getItem('token') || ''}` },
-        });
-        const data = await res.json();
-        if (data.success && data.question) {
-          const q: DSAQuestionData = data.question;
+        const data = await api.get<{ success: boolean; question: DSAQuestionData }>(`/dsa/questions/${slug}`);
+        if (data && data.question) {
+          const q = data.question;
           setActiveQuestion(q);
 
-          // Set starter code for current language
+          // Set starter template for currently selected language
           let initialCode = '';
           if (q.starterCode && typeof q.starterCode === 'object') {
             initialCode = (q.starterCode as any)[selectedLanguage] || (q.starterCode as any).javascript || '';
@@ -165,39 +183,28 @@ export const DsaCodingPage: React.FC = () => {
 
           // Fetch submissions for this question
           loadSubmissions(q.id);
+        } else {
+          setQuestionError('Problem not found in question bank.');
         }
-      } catch (err) {
+      } catch (err: any) {
         console.error('Failed to load DSA question detail:', err);
+        setQuestionError(err.message || 'Failed to load question details.');
       } finally {
         setLoadingQuestion(false);
       }
     };
 
     loadQuestionDetail();
-  }, [slug, selectedLanguage]);
-
-  const loadSubmissions = async (questionId: string) => {
-    try {
-      setLoadingSubmissions(true);
-      const res = await fetch(`/api/dsa/questions/${questionId}/submissions`, {
-        headers: { Authorization: `Bearer ${localStorage.getItem('token') || ''}` },
-      });
-      const data = await res.json();
-      if (data.success && Array.isArray(data.submissions)) {
-        setSubmissions(data.submissions);
-      }
-    } catch (err) {
-      console.error('Failed to load submissions:', err);
-    } finally {
-      setLoadingSubmissions(false);
-    }
-  };
+  }, [slug, loadSubmissions]);
 
   // Language switch handler
   const handleLanguageChange = (newLang: SupportedLanguage) => {
     setSelectedLanguage(newLang);
     if (activeQuestion?.starterCode && typeof activeQuestion.starterCode === 'object') {
-      const langCode = (activeQuestion.starterCode as any)[newLang] || (activeQuestion.starterCode as any).javascript || '';
+      const langCode =
+        (activeQuestion.starterCode as any)[newLang] ||
+        (activeQuestion.starterCode as any).javascript ||
+        '';
       setCode(langCode);
     }
   };
@@ -206,7 +213,10 @@ export const DsaCodingPage: React.FC = () => {
   const handleResetCode = () => {
     if (!activeQuestion) return;
     if (activeQuestion.starterCode && typeof activeQuestion.starterCode === 'object') {
-      const starter = (activeQuestion.starterCode as any)[selectedLanguage] || (activeQuestion.starterCode as any).javascript || '';
+      const starter =
+        (activeQuestion.starterCode as any)[selectedLanguage] ||
+        (activeQuestion.starterCode as any).javascript ||
+        '';
       setCode(starter);
     }
   };
@@ -219,26 +229,26 @@ export const DsaCodingPage: React.FC = () => {
       setActiveBottomTab('result');
       setVerdictBanner(null);
 
-      const res = await fetch('/api/dsa/run', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
-        },
-        body: JSON.stringify({
-          code,
-          language: selectedLanguage,
-          questionId: activeQuestion.id,
-          entryFunctionName: activeQuestion.entryFunctionName,
-        }),
+      const data = await api.post<{ success: boolean; result: CodeExecutionResult }>('/dsa/run', {
+        code,
+        language: selectedLanguage,
+        questionId: activeQuestion.id,
+        entryFunctionName: activeQuestion.entryFunctionName,
       });
 
-      const data = await res.json();
-      if (data.result) {
+      if (data && data.result) {
         setLastExecutionResult(data.result);
       }
     } catch (err: any) {
       console.error('Run failed:', err);
+      setLastExecutionResult({
+        status: 'RUNTIME_ERROR',
+        passed: false,
+        totalCases: 0,
+        passedCases: 0,
+        error: err.message || 'Execution failed. Check your network or syntax.',
+        testResults: [],
+      });
     } finally {
       setIsRunning(false);
     }
@@ -251,22 +261,19 @@ export const DsaCodingPage: React.FC = () => {
       setIsSubmitting(true);
       setActiveBottomTab('result');
 
-      const res = await fetch('/api/dsa/submit', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          Authorization: `Bearer ${localStorage.getItem('token') || ''}`,
-        },
-        body: JSON.stringify({
-          code,
-          language: selectedLanguage,
-          questionId: activeQuestion.id,
-          timeSpentSeconds: 120,
-        }),
+      const data = await api.post<{
+        success: boolean;
+        result: CodeExecutionResult;
+        isAccepted: boolean;
+        attempt?: any;
+      }>('/dsa/submit', {
+        code,
+        language: selectedLanguage,
+        questionId: activeQuestion.id,
+        timeSpentSeconds: 120,
       });
 
-      const data = await res.json();
-      if (data.result) {
+      if (data && data.result) {
         setLastExecutionResult(data.result);
         const isAccepted = Boolean(data.isAccepted || data.result.status === 'ACCEPTED');
         setVerdictBanner({
@@ -290,6 +297,11 @@ export const DsaCodingPage: React.FC = () => {
       }
     } catch (err: any) {
       console.error('Submit failed:', err);
+      setVerdictBanner({
+        status: 'SUBMISSION_ERROR',
+        isAccepted: false,
+        message: err.message || 'Submission failed.',
+      });
     } finally {
       setIsSubmitting(false);
     }
@@ -325,11 +337,11 @@ export const DsaCodingPage: React.FC = () => {
 
           <button
             onClick={() => setShowDrawer(!showDrawer)}
-            className="ml-3 px-2.5 py-1 text-xs rounded-md bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 flex items-center gap-1.5 transition"
+            className="ml-3 px-2.5 py-1 text-xs rounded-md bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 flex items-center gap-1.5 transition cursor-pointer"
           >
             <Layers className="w-3.5 h-3.5 text-teal-400" />
             <span>Problem Explorer</span>
-            <span className="bg-teal-500/20 text-teal-300 px-1.5 py-0.2 rounded text-[10px]">
+            <span className="bg-teal-500/20 text-teal-300 px-1.5 py-0.2 rounded text-[10px] font-bold">
               {filteredQuestions.length}
             </span>
           </button>
@@ -340,7 +352,9 @@ export const DsaCodingPage: React.FC = () => {
           <div className="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-gray-800/80 border border-gray-700 text-xs">
             <Award className="w-3.5 h-3.5 text-amber-400" />
             <span className="text-gray-400">Solved:</span>
-            <span className="text-white font-medium">{stats.solved} / {stats.total}</span>
+            <span className="text-white font-medium">
+              {stats.solved} / {stats.total}
+            </span>
           </div>
 
           {activeQuestion?.outboundUrl && (
@@ -366,11 +380,11 @@ export const DsaCodingPage: React.FC = () => {
             <div className="p-3 border-b border-gray-800 flex items-center justify-between">
               <h2 className="text-xs font-semibold text-gray-300 uppercase tracking-wider flex items-center gap-1.5">
                 <Filter className="w-3.5 h-3.5 text-teal-400" />
-                Problem Explorer
+                Problem Explorer ({filteredQuestions.length})
               </h2>
               <button
                 onClick={() => setShowDrawer(false)}
-                className="text-gray-400 hover:text-white text-xs px-2 py-0.5 rounded hover:bg-gray-800"
+                className="text-gray-400 hover:text-white text-xs px-2 py-0.5 rounded hover:bg-gray-800 cursor-pointer"
               >
                 ✕ Close
               </button>
@@ -420,54 +434,83 @@ export const DsaCodingPage: React.FC = () => {
                 className="w-full bg-[#1c2128] border border-gray-700 rounded px-2 py-1 text-xs text-gray-300 focus:outline-none focus:border-teal-500"
               >
                 {DSA_TOPICS.map((t) => (
-                  <option key={t} value={t}>{t}</option>
+                  <option key={t} value={t}>
+                    {t}
+                  </option>
                 ))}
               </select>
             </div>
 
             {/* Questions List */}
             <div className="flex-1 overflow-y-auto divide-y divide-gray-800/60 p-1">
-              {filteredQuestions.map((q) => {
-                const isSelected = activeQuestion?.id === q.id;
-                const isSolved = q.userAttemptStatus === 'SOLVED';
-
-                return (
+              {loadingList ? (
+                <div className="p-4 text-center text-gray-500 text-xs flex items-center justify-center gap-2">
+                  <RefreshCw className="w-4 h-4 animate-spin text-teal-400" />
+                  <span>Loading questions...</span>
+                </div>
+              ) : listError ? (
+                <div className="p-4 text-center space-y-2">
+                  <p className="text-xs text-rose-400">{listError}</p>
                   <button
-                    key={q.id}
-                    onClick={() => {
-                      navigate(`/dsa/${q.slug}`);
-                      setShowDrawer(false);
-                    }}
-                    className={`w-full text-left p-2.5 rounded-md transition flex items-start justify-between gap-2 ${
-                      isSelected
-                        ? 'bg-teal-500/15 border border-teal-500/40 text-teal-200'
-                        : 'hover:bg-gray-800/60 text-gray-300'
-                    }`}
+                    onClick={fetchQuestions}
+                    className="px-3 py-1 text-xs bg-gray-800 hover:bg-gray-700 text-white rounded border border-gray-700"
                   >
-                    <div className="min-w-0 flex-1">
-                      <div className="flex items-center gap-1.5 mb-1">
-                        {isSolved ? (
-                          <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
-                        ) : (
-                          <div className="w-3.5 h-3.5 rounded-full border border-gray-600 flex-shrink-0" />
-                        )}
-                        <span className="text-xs font-medium truncate">{q.title}</span>
-                      </div>
-                      <div className="flex items-center gap-1.5 text-[10px] text-gray-500">
-                        <span className={DIFFICULTY_THEMES[q.difficulty]?.text || 'text-gray-400'}>
-                          {q.difficulty}
-                        </span>
-                        <span>•</span>
-                        <span>{q.topic}</span>
-                      </div>
-                    </div>
-
-                    <span className={`text-[9px] px-1.5 py-0.5 rounded border ${PLATFORM_THEMES[q.platform]?.bg} ${PLATFORM_THEMES[q.platform]?.text} ${PLATFORM_THEMES[q.platform]?.border}`}>
-                      {q.platform}
-                    </span>
+                    Retry
                   </button>
-                );
-              })}
+                </div>
+              ) : filteredQuestions.length === 0 ? (
+                <div className="p-4 text-center text-gray-500 text-xs">
+                  No questions match your current filter.
+                </div>
+              ) : (
+                filteredQuestions.map((q) => {
+                  const isSelected = activeQuestion?.id === q.id;
+                  const isSolved = q.userAttemptStatus === 'SOLVED';
+
+                  return (
+                    <button
+                      key={q.id}
+                      onClick={() => {
+                        navigate(`/dsa/${q.slug}`);
+                        setShowDrawer(false);
+                      }}
+                      className={`w-full text-left p-2.5 rounded-md transition flex items-start justify-between gap-2 cursor-pointer ${
+                        isSelected
+                          ? 'bg-teal-500/15 border border-teal-500/40 text-teal-200'
+                          : 'hover:bg-gray-800/60 text-gray-300'
+                      }`}
+                    >
+                      <div className="min-w-0 flex-1">
+                        <div className="flex items-center gap-1.5 mb-1">
+                          {isSolved ? (
+                            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
+                          ) : (
+                            <div className="w-3.5 h-3.5 rounded-full border border-gray-600 flex-shrink-0" />
+                          )}
+                          <span className="text-xs font-medium truncate">{q.title}</span>
+                        </div>
+                        <div className="flex items-center gap-1.5 text-[10px] text-gray-500">
+                          <span className={DIFFICULTY_THEMES[q.difficulty]?.text || 'text-gray-400'}>
+                            {q.difficulty}
+                          </span>
+                          <span>•</span>
+                          <span>{q.topic}</span>
+                        </div>
+                      </div>
+
+                      <span
+                        className={`text-[9px] px-1.5 py-0.5 rounded border ${
+                          PLATFORM_THEMES[q.platform]?.bg || 'bg-gray-800'
+                        } ${PLATFORM_THEMES[q.platform]?.text || 'text-gray-300'} ${
+                          PLATFORM_THEMES[q.platform]?.border || 'border-gray-700'
+                        }`}
+                      >
+                        {q.platform}
+                      </span>
+                    </button>
+                  );
+                })
+              )}
             </div>
           </aside>
         )}
@@ -479,16 +522,39 @@ export const DsaCodingPage: React.FC = () => {
               <RefreshCw className="w-6 h-6 animate-spin text-teal-400" />
               <p className="text-xs">Loading problem statement...</p>
             </div>
+          ) : questionError ? (
+            <div className="p-8 flex flex-col items-center justify-center text-center gap-3 min-h-[400px]">
+              <AlertCircle className="w-8 h-8 text-rose-400" />
+              <p className="text-xs text-rose-300">{questionError}</p>
+              <button
+                onClick={() => fetchQuestions()}
+                className="px-3 py-1.5 text-xs bg-gray-800 hover:bg-gray-700 text-white rounded border border-gray-700"
+              >
+                Reload Questions
+              </button>
+            </div>
           ) : activeQuestion ? (
             <div className="p-6 space-y-6">
               {/* Problem Header & Badges */}
               <div>
                 <div className="flex flex-wrap items-center gap-2 mb-2">
-                  <span className={`text-xs px-2 py-0.5 rounded border font-medium ${DIFFICULTY_THEMES[activeQuestion.difficulty]?.bg} ${DIFFICULTY_THEMES[activeQuestion.difficulty]?.text} ${DIFFICULTY_THEMES[activeQuestion.difficulty]?.border}`}>
+                  <span
+                    className={`text-xs px-2 py-0.5 rounded border font-medium ${
+                      DIFFICULTY_THEMES[activeQuestion.difficulty]?.bg
+                    } ${DIFFICULTY_THEMES[activeQuestion.difficulty]?.text} ${
+                      DIFFICULTY_THEMES[activeQuestion.difficulty]?.border
+                    }`}
+                  >
                     {activeQuestion.difficulty}
                   </span>
 
-                  <span className={`text-xs px-2 py-0.5 rounded border font-medium ${PLATFORM_THEMES[activeQuestion.platform]?.bg} ${PLATFORM_THEMES[activeQuestion.platform]?.text} ${PLATFORM_THEMES[activeQuestion.platform]?.border}`}>
+                  <span
+                    className={`text-xs px-2 py-0.5 rounded border font-medium ${
+                      PLATFORM_THEMES[activeQuestion.platform]?.bg
+                    } ${PLATFORM_THEMES[activeQuestion.platform]?.text} ${
+                      PLATFORM_THEMES[activeQuestion.platform]?.border
+                    }`}
+                  >
                     {activeQuestion.styleTag || `${activeQuestion.platform}-style`}
                   </span>
 
@@ -505,7 +571,9 @@ export const DsaCodingPage: React.FC = () => {
                 <div className="p-3 rounded-lg bg-teal-950/40 border border-teal-800/50 flex items-center justify-between text-xs">
                   <div className="flex items-center gap-2 text-teal-200">
                     <Sparkles className="w-4 h-4 text-teal-400 flex-shrink-0" />
-                    <span>Original problem verified across <strong>{activeQuestion.platform}</strong>.</span>
+                    <span>
+                      Original problem verified across <strong>{activeQuestion.platform}</strong>.
+                    </span>
                   </div>
                   <a
                     href={activeQuestion.outboundUrl}
@@ -514,7 +582,7 @@ export const DsaCodingPage: React.FC = () => {
                     className="px-2.5 py-1 rounded bg-teal-500/20 hover:bg-teal-500/30 text-teal-300 font-medium flex items-center gap-1 transition"
                   >
                     <span>Solve on {activeQuestion.platform}</span>
-                    <ExternalLink className="w-3 h-3" />
+                    <ArrowUpRight className="w-3 h-3" />
                   </a>
                 </div>
               )}
@@ -529,7 +597,10 @@ export const DsaCodingPage: React.FC = () => {
                 <div className="space-y-3">
                   <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">Examples</h3>
                   {visibleTestCases.map((tc, idx) => (
-                    <div key={tc.id || idx} className="p-3 rounded-lg bg-[#161b22] border border-gray-800 font-mono text-xs space-y-1.5">
+                    <div
+                      key={tc.id || idx}
+                      className="p-3 rounded-lg bg-[#161b22] border border-gray-800 font-mono text-xs space-y-1.5"
+                    >
                       <div className="text-gray-400">
                         <span className="text-teal-400 font-bold">Input:</span> {tc.input}
                       </div>
@@ -567,8 +638,15 @@ export const DsaCodingPage: React.FC = () => {
               )}
             </div>
           ) : (
-            <div className="p-8 text-center text-gray-500 text-xs">
-              Select a problem from the Problem Explorer to start coding.
+            <div className="p-8 text-center text-gray-500 text-xs flex flex-col items-center justify-center min-h-[400px] gap-2">
+              <HelpCircle className="w-6 h-6 text-gray-600" />
+              <span>Select a problem from the Problem Explorer to start coding.</span>
+              <button
+                onClick={() => setShowDrawer(true)}
+                className="mt-2 px-3 py-1.5 bg-teal-600 hover:bg-teal-500 text-white rounded text-xs font-medium cursor-pointer"
+              >
+                Open Problem Explorer
+              </button>
             </div>
           )}
         </div>
@@ -593,7 +671,7 @@ export const DsaCodingPage: React.FC = () => {
 
               <button
                 onClick={handleResetCode}
-                className="p-1 text-gray-400 hover:text-gray-200 hover:bg-gray-800 rounded transition"
+                className="p-1 text-gray-400 hover:text-gray-200 hover:bg-gray-800 rounded transition cursor-pointer"
                 title="Reset to starter template"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
@@ -604,8 +682,8 @@ export const DsaCodingPage: React.FC = () => {
             <div className="flex items-center gap-2">
               <button
                 onClick={handleRunCode}
-                disabled={isRunning || isSubmitting}
-                className="px-3 py-1.5 text-xs font-medium rounded bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 flex items-center gap-1.5 disabled:opacity-50 transition"
+                disabled={isRunning || isSubmitting || !activeQuestion}
+                className="px-3 py-1.5 text-xs font-medium rounded bg-gray-800 hover:bg-gray-700 text-gray-200 border border-gray-700 flex items-center gap-1.5 disabled:opacity-50 transition cursor-pointer"
               >
                 {isRunning ? (
                   <RefreshCw className="w-3 h-3 animate-spin text-teal-400" />
@@ -617,8 +695,8 @@ export const DsaCodingPage: React.FC = () => {
 
               <button
                 onClick={handleSubmitCode}
-                disabled={isRunning || isSubmitting}
-                className="px-4 py-1.5 text-xs font-semibold rounded bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white shadow-sm flex items-center gap-1.5 disabled:opacity-50 transition"
+                disabled={isRunning || isSubmitting || !activeQuestion}
+                className="px-4 py-1.5 text-xs font-semibold rounded bg-gradient-to-r from-teal-500 to-emerald-600 hover:from-teal-600 hover:to-emerald-700 text-white shadow-sm flex items-center gap-1.5 disabled:opacity-50 transition cursor-pointer"
               >
                 {isSubmitting ? (
                   <RefreshCw className="w-3 h-3 animate-spin text-white" />
@@ -659,7 +737,7 @@ export const DsaCodingPage: React.FC = () => {
               <div className="flex items-center gap-4">
                 <button
                   onClick={() => setActiveBottomTab('testcases')}
-                  className={`text-xs font-medium flex items-center gap-1.5 pb-0.5 border-b-2 transition ${
+                  className={`text-xs font-medium flex items-center gap-1.5 pb-0.5 border-b-2 transition cursor-pointer ${
                     activeBottomTab === 'testcases'
                       ? 'border-teal-400 text-teal-300'
                       : 'border-transparent text-gray-400 hover:text-gray-200'
@@ -671,7 +749,7 @@ export const DsaCodingPage: React.FC = () => {
 
                 <button
                   onClick={() => setActiveBottomTab('result')}
-                  className={`text-xs font-medium flex items-center gap-1.5 pb-0.5 border-b-2 transition ${
+                  className={`text-xs font-medium flex items-center gap-1.5 pb-0.5 border-b-2 transition cursor-pointer ${
                     activeBottomTab === 'result'
                       ? 'border-teal-400 text-teal-300'
                       : 'border-transparent text-gray-400 hover:text-gray-200'
@@ -680,11 +758,13 @@ export const DsaCodingPage: React.FC = () => {
                   <FileCode className="w-3.5 h-3.5" />
                   <span>Test Result</span>
                   {lastExecutionResult && (
-                    <span className={`text-[10px] px-1.5 py-0.2 rounded ${
-                      lastExecutionResult.passed || lastExecutionResult.status === 'ACCEPTED'
-                        ? 'bg-emerald-500/20 text-emerald-300'
-                        : 'bg-rose-500/20 text-rose-300'
-                    }`}>
+                    <span
+                      className={`text-[10px] px-1.5 py-0.2 rounded font-bold ${
+                        lastExecutionResult.passed || lastExecutionResult.status === 'ACCEPTED'
+                          ? 'bg-emerald-500/20 text-emerald-300'
+                          : 'bg-rose-500/20 text-rose-300'
+                      }`}
+                    >
                       {lastExecutionResult.status}
                     </span>
                   )}
@@ -692,7 +772,7 @@ export const DsaCodingPage: React.FC = () => {
 
                 <button
                   onClick={() => setActiveBottomTab('submissions')}
-                  className={`text-xs font-medium flex items-center gap-1.5 pb-0.5 border-b-2 transition ${
+                  className={`text-xs font-medium flex items-center gap-1.5 pb-0.5 border-b-2 transition cursor-pointer ${
                     activeBottomTab === 'submissions'
                       ? 'border-teal-400 text-teal-300'
                       : 'border-transparent text-gray-400 hover:text-gray-200'
@@ -721,7 +801,7 @@ export const DsaCodingPage: React.FC = () => {
                       <button
                         key={tc.id || idx}
                         onClick={() => setSelectedTestCaseIndex(idx)}
-                        className={`px-3 py-1 rounded text-xs transition ${
+                        className={`px-3 py-1 rounded text-xs transition cursor-pointer ${
                           selectedTestCaseIndex === idx
                             ? 'bg-teal-500/20 text-teal-300 border border-teal-500/40'
                             : 'bg-gray-800 text-gray-400 hover:text-gray-200'
@@ -735,11 +815,11 @@ export const DsaCodingPage: React.FC = () => {
                   {visibleTestCases[selectedTestCaseIndex] ? (
                     <div className="space-y-2">
                       <div className="text-gray-400 text-[11px]">Input:</div>
-                      <div className="p-2 rounded bg-[#161b22] border border-gray-800 text-gray-200">
+                      <div className="p-2 rounded bg-[#161b22] border border-gray-800 text-gray-200 font-mono">
                         {visibleTestCases[selectedTestCaseIndex].input}
                       </div>
                       <div className="text-gray-400 text-[11px]">Expected Output:</div>
-                      <div className="p-2 rounded bg-[#161b22] border border-gray-800 text-emerald-400">
+                      <div className="p-2 rounded bg-[#161b22] border border-gray-800 text-emerald-400 font-mono">
                         {visibleTestCases[selectedTestCaseIndex].expectedOutput}
                       </div>
                     </div>
@@ -754,11 +834,13 @@ export const DsaCodingPage: React.FC = () => {
                 <div className="space-y-3">
                   {/* Official Verdict Banner */}
                   {verdictBanner && (
-                    <div className={`p-3 rounded-lg border flex items-center gap-3 ${
-                      verdictBanner.isAccepted
-                        ? 'bg-emerald-950/40 border-emerald-800 text-emerald-300'
-                        : 'bg-rose-950/40 border-rose-800 text-rose-300'
-                    }`}>
+                    <div
+                      className={`p-3 rounded-lg border flex items-center gap-3 ${
+                        verdictBanner.isAccepted
+                          ? 'bg-emerald-950/40 border-emerald-800 text-emerald-300'
+                          : 'bg-rose-950/40 border-rose-800 text-rose-300'
+                      }`}
+                    >
                       {verdictBanner.isAccepted ? (
                         <CheckCircle2 className="w-5 h-5 text-emerald-400 flex-shrink-0" />
                       ) : (
@@ -863,4 +945,5 @@ export const DsaCodingPage: React.FC = () => {
     </div>
   );
 };
+
 export default DsaCodingPage;

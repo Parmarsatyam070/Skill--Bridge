@@ -42,7 +42,13 @@ router.post('/sets/:setId/start', authenticate, async (req: AuthRequest, res: Re
   const { setId } = req.params;
 
   try {
-    const startData = await startPracticeSetAttempt(setId, studentProfileId);
+    const { count } = req.body || {};
+    const parsedCount = typeof count === 'number' ? count : parseInt(count, 10);
+    const startData = await startPracticeSetAttempt(
+      setId,
+      studentProfileId,
+      !isNaN(parsedCount) ? parsedCount : undefined
+    );
     return res.json(startData);
   } catch (error: any) {
     console.error('Error starting practice set attempt:', error);

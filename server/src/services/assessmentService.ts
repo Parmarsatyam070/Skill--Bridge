@@ -281,7 +281,8 @@ export async function expandPracticeSetPool(practiceSetId: string): Promise<void
  */
 export async function startPracticeSetAttempt(
   practiceSetId: string,
-  studentProfileId?: string
+  studentProfileId?: string,
+  requestedCount?: number
 ): Promise<AssessmentStartResponse> {
   const set = await prisma.practiceSet.findUnique({
     where: { id: practiceSetId },
@@ -294,7 +295,7 @@ export async function startPracticeSetAttempt(
 
   if (!set) throw new Error('Practice set not found');
 
-  if (set.questions.length < 6 && set.type !== 'aptitude_english_listening') {
+  if (set.questions.length < 20 && set.type !== 'aptitude_english_listening') {
     try {
       await expandPracticeSetPool(practiceSetId);
     } catch (err) {
@@ -350,7 +351,9 @@ export async function startPracticeSetAttempt(
     }
   } else {
     const unseenPool = questionPool.filter(q => !seenQuestionIds.has(q.id));
-    const targetCount = Math.min(questionPool.length, 6);
+    // Domain and Aptitude practice sets: default 20 questions, bounded 20-30
+    const desired = requestedCount ? Math.max(20, Math.min(requestedCount, 30)) : 20;
+    const targetCount = Math.min(questionPool.length, desired);
 
     if (unseenPool.length >= targetCount) {
       selectedRawQuestions = shuffleArray(unseenPool).slice(0, targetCount);

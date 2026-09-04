@@ -74,6 +74,54 @@ export async function authenticate(req: AuthRequest, res: Response, next: NextFu
   }
 }
 
+export async function optionalAuthenticate(req: AuthRequest, _res: Response, next: NextFunction) {
+  let token: string | undefined;
+
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    token = authHeader.substring(7);
+  } else if (req.cookies && req.cookies.accessToken) {
+    token = req.cookies.accessToken;
+  }
+
+  if (!token) {
+    return next();
+  }
+
+  try {
+    const payload = verifyAccessToken(token);
+    if (!payload) {
+      return next();
+    }
+
+    const user = await prisma.user.findUnique({
+      where: { id: payload.userId },
+      include: {
+        studentProfile: true,
+        industryProfile: true,
+        academicianProfile: true,
+        institutionProfile: true,
+      },
+    });
+
+    if (user) {
+      req.user = {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        studentProfileId: user.studentProfile?.id,
+        industryProfileId: user.industryProfile?.id,
+        academicianProfileId: user.academicianProfile?.id,
+        institutionProfileId: user.institutionProfile?.id,
+      };
+    }
+  } catch (err) {
+    console.warn('Optional auth error:', err);
+  }
+
+  return next();
+}
+
 export function requireRole(allowedRoles: string[]) {
   return (req: AuthRequest, res: Response, next: NextFunction) => {
     if (!req.user) {

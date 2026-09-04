@@ -15,6 +15,7 @@ export interface RawDSAQuestion {
     python: string;
     java: string;
     cpp: string;
+    c?: string;
   };
   testCases: {
     id: string;
@@ -26,1149 +27,2836 @@ export interface RawDSAQuestion {
 }
 
 export const AUTHENTIC_DSA_QUESTIONS: RawDSAQuestion[] = [
-  // ─── 1. HEAP / PRIORITY QUEUE ────────────────────────────
   {
-    title: 'Kth Largest Element in an Array',
-    slug: 'kth-largest-element-in-an-array',
-    platform: 'LEETCODE',
-    difficulty: 'Medium',
-    topic: 'Heap / Priority Queue',
-    tags: ['array', 'divide-and-conquer', 'sorting', 'heap', 'quickselect'],
-    canonicalUrl: 'https://leetcode.com/problems/kth-largest-element-in-an-array/',
-    estimatedMinutes: 20,
-    description: 'Given an integer array nums and an integer k, return the kth largest element in the array. Note that it is the kth largest element in the sorted order, not the kth distinct element.',
-    entryFunctionName: 'findKthLargest',
-    companyTags: ['Amazon', 'Meta', 'Google', 'Microsoft', 'Apple'],
-    starterCode: {
-      javascript: '/**\n * @param {number[]} nums\n * @param {number} k\n * @return {number}\n */\nfunction findKthLargest(nums, k) {\n  nums.sort((a, b) => b - a);\n  return nums[k - 1];\n}',
-      python: 'class Solution:\n    def findKthLargest(self, nums: list[int], k: int) -> int:\n        import heapq\n        return heapq.nlargest(k, nums)[-1]',
-      java: 'import java.util.*;\n\nclass Solution {\n    public int findKthLargest(int[] nums, int k) {\n        PriorityQueue<Integer> pq = new PriorityQueue<>();\n        for (int num : nums) {\n            pq.offer(num);\n            if (pq.size() > k) {\n                pq.poll();\n            }\n        }\n        return pq.peek();\n    }\n}',
-      cpp: '#include <vector>\n#include <queue>\nusing namespace std;\n\nclass Solution {\npublic:\n    int findKthLargest(vector<int>& nums, int k) {\n        priority_queue<int, vector<int>, greater<int>> pq;\n        for (int n : nums) {\n            pq.push(n);\n            if (pq.size() > k) pq.pop();\n        }\n        return pq.top();\n    }\n};',
-    },
-    testCases: [
-      { id: 'tc-1', input: 'nums = [3,2,1,5,6,4], k = 2', expectedOutput: '5' },
-      { id: 'tc-2', input: 'nums = [3,2,3,1,2,4,5,5,6], k = 4', expectedOutput: '4' },
-      { id: 'tc-3', input: 'nums = [1], k = 1', expectedOutput: '1', isHidden: true },
+    "title": "Two Sum",
+    "slug": "two-sum",
+    "platform": "LEETCODE",
+    "difficulty": "Easy",
+    "topic": "Arrays",
+    "tags": [
+      "array",
+      "hash-table",
+      "two-pointers"
     ],
+    "canonicalUrl": "https://leetcode.com/problems/two-sum/",
+    "estimatedMinutes": 15,
+    "description": "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target. You may assume each input has exactly one solution, and you may not use the same element twice.",
+    "entryFunctionName": "twoSum",
+    "companyTags": [
+      "Google",
+      "Amazon",
+      "Apple",
+      "Meta",
+      "Microsoft"
+    ],
+    "starterCode": {
+      "javascript": "/**\n * @param {number[]} nums\n * @param {number} target\n * @return {number[]}\n */\nfunction twoSum(nums, target) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def twoSum(self, nums: list[int], target: int) -> list[int]:\n        # Write your solution here\n        pass",
+      "java": "import java.util.*;\n\nclass Solution {\n    public int[] twoSum(int[] nums, int target) {\n        // Write your solution here\n        return new int[]{};\n    }\n}",
+      "cpp": "#include <vector>\n#include <unordered_map>\nusing namespace std;\n\nclass Solution {\npublic:\n    vector<int> twoSum(vector<int>& nums, int target) {\n        // Write your solution here\n        return {};\n    }\n};",
+      "c": "#include <stdio.h>\n#include <stdlib.h>\n\nint* twoSum(int* nums, int numsSize, int target, int* returnSize) {\n    // Write your solution here\n    *returnSize = 0;\n    return NULL;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "nums = [2,7,11,15], target = 9",
+        "expectedOutput": "[0, 1]"
+      },
+      {
+        "id": "tc-2",
+        "input": "nums = [3,2,4], target = 6",
+        "expectedOutput": "[1, 2]"
+      },
+      {
+        "id": "tc-3",
+        "input": "nums = [3,3], target = 6",
+        "expectedOutput": "[0, 1]"
+      },
+      {
+        "id": "tc-4",
+        "input": "nums = [1,5,3,7,9], target = 12",
+        "expectedOutput": "[1, 3]",
+        "isHidden": true
+      }
+    ]
   },
   {
-    title: 'Top K Frequent Elements',
-    slug: 'top-k-frequent-elements',
-    platform: 'LEETCODE',
-    difficulty: 'Medium',
-    topic: 'Heap / Priority Queue',
-    tags: ['array', 'hash-table', 'divide-and-conquer', 'sorting', 'heap', 'bucket-sort'],
-    canonicalUrl: 'https://leetcode.com/problems/top-k-frequent-elements/',
-    estimatedMinutes: 20,
-    description: 'Given an integer array nums and an integer k, return the k most frequent elements. You may return the answer in any order.',
-    entryFunctionName: 'topKFrequent',
-    companyTags: ['Amazon', 'Meta', 'Google', 'Microsoft'],
-    starterCode: {
-      javascript: 'function topKFrequent(nums, k) {\n  const map = new Map();\n  for (const n of nums) map.set(n, (map.get(n) || 0) + 1);\n  return Array.from(map.entries())\n    .sort((a, b) => b[1] - a[1])\n    .slice(0, k)\n    .map(e => e[0]);\n}',
-      python: 'def topKFrequent(nums: list[int], k: int) -> list[int]:\n    from collections import Counter\n    count = Counter(nums)\n    return [item for item, freq in count.most_common(k)]',
-      java: 'import java.util.*;\n\nclass Solution {\n    public int[] topKFrequent(int[] nums, int k) {\n        Map<Integer, Integer> count = new HashMap<>();\n        for (int n : nums) count.put(n, count.getOrDefault(n, 0) + 1);\n        PriorityQueue<Integer> heap = new PriorityQueue<>((a, b) -> count.get(a) - count.get(b));\n        for (int n : count.keySet()) {\n            heap.add(n);\n            if (heap.size() > k) heap.poll();\n        }\n        int[] res = new int[k];\n        for (int i = k - 1; i >= 0; i--) res[i] = heap.poll();\n        return res;\n    }\n}',
-      cpp: '#include <vector>\n#include <unordered_map>\n#include <queue>\nusing namespace std;\n\nclass Solution {\npublic:\n    vector<int> topKFrequent(vector<int>& nums, int k) {\n        unordered_map<int, int> count;\n        for (int n : nums) count[n]++;\n        priority_queue<pair<int, int>, vector<pair<int, int>>, greater<pair<int, int>>> pq;\n        for (auto& p : count) {\n            pq.push({p.second, p.first});\n            if (pq.size() > k) pq.pop();\n        }\n        vector<int> res;\n        while (!pq.empty()) {\n            res.push_back(pq.top().second);\n            pq.pop();\n        }\n        return res;\n    }\n};',
-    },
-    testCases: [
-      { id: 'tc-1', input: 'nums = [1,1,1,2,2,3], k = 2', expectedOutput: '[1, 2]' },
-      { id: 'tc-2', input: 'nums = [1], k = 1', expectedOutput: '[1]' },
+    "title": "Contains Duplicate",
+    "slug": "contains-duplicate",
+    "platform": "LEETCODE",
+    "difficulty": "Easy",
+    "topic": "Arrays",
+    "tags": [
+      "array",
+      "hash-table",
+      "sorting"
     ],
-  },
-
-  // ─── 2. ARRAYS ───────────────────────────────────────────
-  {
-    title: 'Two Sum',
-    slug: 'two-sum',
-    platform: 'LEETCODE',
-    difficulty: 'Easy',
-    topic: 'Arrays',
-    tags: ['array', 'hash-table', 'two-pointers'],
-    canonicalUrl: 'https://leetcode.com/problems/two-sum/',
-    estimatedMinutes: 15,
-    description: 'Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target. You may assume each input has exactly one solution.',
-    entryFunctionName: 'twoSum',
-    companyTags: ['Google', 'Amazon', 'Apple', 'Meta', 'Microsoft'],
-    starterCode: {
-      javascript: 'function twoSum(nums, target) {\n  const map = new Map();\n  for (let i = 0; i < nums.length; i++) {\n    const complement = target - nums[i];\n    if (map.has(complement)) return [map.get(complement), i];\n    map.set(nums[i], i);\n  }\n  return [];\n}',
-      python: 'def twoSum(nums, target):\n    seen = {}\n    for i, num in enumerate(nums):\n        if target - num in seen:\n            return [seen[target - num], i]\n        seen[num] = i\n    return []',
-      java: 'import java.util.*;\n\nclass Solution {\n    public int[] twoSum(int[] nums, int target) {\n        Map<Integer, Integer> map = new HashMap<>();\n        for (int i = 0; i < nums.length; i++) {\n            int complement = target - nums[i];\n            if (map.containsKey(complement)) {\n                return new int[] { map.get(complement), i };\n            }\n            map.put(nums[i], i);\n        }\n        return new int[]{};\n    }\n}',
-      cpp: '#include <vector>\n#include <unordered_map>\nusing namespace std;\n\nclass Solution {\npublic:\n    vector<int> twoSum(vector<int>& nums, int target) {\n        unordered_map<int, int> map;\n        for (int i = 0; i < nums.size(); i++) {\n            int complement = target - nums[i];\n            if (map.count(complement)) return {map[complement], i};\n            map[nums[i]] = i;\n        }\n        return {};\n    }\n};',
-    },
-    testCases: [
-      { id: 'tc-1', input: 'nums = [2,7,11,15], target = 9', expectedOutput: '[0, 1]' },
-      { id: 'tc-2', input: 'nums = [3,2,4], target = 6', expectedOutput: '[1, 2]' },
-      { id: 'tc-3', input: 'nums = [3,3], target = 6', expectedOutput: '[0, 1]' },
+    "canonicalUrl": "https://leetcode.com/problems/contains-duplicate/",
+    "estimatedMinutes": 10,
+    "description": "Given an integer array nums, return true if any value appears at least twice in the array, and return false if every element is distinct.",
+    "entryFunctionName": "containsDuplicate",
+    "companyTags": [
+      "Amazon",
+      "Apple",
+      "Adobe",
+      "Microsoft"
     ],
-  },
-  {
-    title: 'Best Time to Buy and Sell Stock',
-    slug: 'best-time-to-buy-and-sell-stock',
-    platform: 'LEETCODE',
-    difficulty: 'Easy',
-    topic: 'Arrays',
-    tags: ['array', 'dynamic-programming'],
-    canonicalUrl: 'https://leetcode.com/problems/best-time-to-buy-and-sell-stock/',
-    estimatedMinutes: 15,
-    description: 'You are given an array prices where prices[i] is the price of a given stock on the ith day. Find the maximum profit you can achieve from this transaction.',
-    entryFunctionName: 'maxProfit',
-    companyTags: ['Amazon', 'Microsoft', 'Google', 'Meta'],
-    starterCode: {
-      javascript: 'function maxProfit(prices) {\n  let minPrice = Infinity;\n  let maxProfit = 0;\n  for (const price of prices) {\n    if (price < minPrice) minPrice = price;\n    else if (price - minPrice > maxProfit) maxProfit = price - minPrice;\n  }\n  return maxProfit;\n}',
-      python: 'def maxProfit(prices):\n    min_p = float("inf")\n    max_p = 0\n    for p in prices:\n        if p < min_p:\n            min_p = p\n        elif p - min_p > max_p:\n            max_p = p - min_p\n    return max_p',
-      java: 'class Solution {\n    public int maxProfit(int[] prices) {\n        int minPrice = Integer.MAX_VALUE;\n        int maxProfit = 0;\n        for (int price : prices) {\n            if (price < minPrice) minPrice = price;\n            else if (price - minPrice > maxProfit) maxProfit = price - minPrice;\n        }\n        return maxProfit;\n    }\n}',
-      cpp: '#include <vector>\n#include <algorithm>\nusing namespace std;\n\nclass Solution {\npublic:\n    int maxProfit(vector<int>& prices) {\n        int minP = 1e9, maxP = 0;\n        for (int p : prices) {\n            if (p < minP) minP = p;\n            else maxP = max(maxP, p - minP);\n        }\n        return maxP;\n    }\n};',
+    "starterCode": {
+      "javascript": "/**\n * @param {number[]} nums\n * @return {boolean}\n */\nfunction containsDuplicate(nums) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def containsDuplicate(self, nums: list[int]) -> bool:\n        # Write your solution here\n        pass",
+      "java": "import java.util.*;\n\nclass Solution {\n    public boolean containsDuplicate(int[] nums) {\n        // Write your solution here\n        return false;\n    }\n}",
+      "cpp": "#include <vector>\n#include <unordered_set>\nusing namespace std;\n\nclass Solution {\npublic:\n    boolean containsDuplicate(vector<int>& nums) {\n        // Write your solution here\n        return false;\n    }\n};",
+      "c": "#include <stdbool.h>\n\nbool containsDuplicate(int* nums, int numsSize) {\n    // Write your solution here\n    return false;\n}"
     },
-    testCases: [
-      { id: 'tc-1', input: 'prices = [7,1,5,3,6,4]', expectedOutput: '5' },
-      { id: 'tc-2', input: 'prices = [7,6,4,3,1]', expectedOutput: '0' },
-    ],
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "nums = [1,2,3,1]",
+        "expectedOutput": "true"
+      },
+      {
+        "id": "tc-2",
+        "input": "nums = [1,2,3,4]",
+        "expectedOutput": "false"
+      },
+      {
+        "id": "tc-3",
+        "input": "nums = [1,1,1,3,3,4,3,2,4,2]",
+        "expectedOutput": "true"
+      },
+      {
+        "id": "tc-4",
+        "input": "nums = [99]",
+        "expectedOutput": "false",
+        "isHidden": true
+      }
+    ]
   },
   {
-    title: 'Contains Duplicate',
-    slug: 'contains-duplicate',
-    platform: 'LEETCODE',
-    difficulty: 'Easy',
-    topic: 'Arrays',
-    tags: ['array', 'hash-table', 'sorting'],
-    canonicalUrl: 'https://leetcode.com/problems/contains-duplicate/',
-    estimatedMinutes: 10,
-    description: 'Given an integer array nums, return true if any value appears at least twice in the array, and return false if every element is distinct.',
-    entryFunctionName: 'containsDuplicate',
-    companyTags: ['Apple', 'Microsoft', 'Amazon'],
-    starterCode: {
-      javascript: 'function containsDuplicate(nums) {\n  return new Set(nums).size !== nums.length;\n}',
-      python: 'def containsDuplicate(nums):\n    return len(set(nums)) != len(nums)',
-      java: 'import java.util.*;\n\nclass Solution {\n    public boolean containsDuplicate(int[] nums) {\n        Set<Integer> set = new HashSet<>();\n        for (int n : nums) {\n            if (!set.add(n)) return true;\n        }\n        return false;\n    }\n}',
-      cpp: '#include <vector>\n#include <unordered_set>\nusing namespace std;\n\nclass Solution {\npublic:\n    bool containsDuplicate(vector<int>& nums) {\n        unordered_set<int> set(nums.begin(), nums.end());\n        return set.size() != nums.size();\n    }\n};',
-    },
-    testCases: [
-      { id: 'tc-1', input: 'nums = [1,2,3,1]', expectedOutput: 'true' },
-      { id: 'tc-2', input: 'nums = [1,2,3,4]', expectedOutput: 'false' },
+    "title": "Best Time to Buy and Sell Stock",
+    "slug": "best-time-to-buy-and-sell-stock",
+    "platform": "LEETCODE",
+    "difficulty": "Easy",
+    "topic": "Arrays",
+    "tags": [
+      "array",
+      "dynamic-programming",
+      "sliding-window"
     ],
+    "canonicalUrl": "https://leetcode.com/problems/best-time-to-buy-and-sell-stock/",
+    "estimatedMinutes": 15,
+    "description": "You are given an array prices where prices[i] is the price of a given stock on the ith day. You want to maximize your profit by choosing a single day to buy one stock and choosing a different day in the future to sell that stock. Return the maximum profit you can achieve from this transaction. If you cannot achieve any profit, return 0.",
+    "entryFunctionName": "maxProfit",
+    "companyTags": [
+      "Amazon",
+      "Google",
+      "Meta",
+      "Microsoft",
+      "Goldman Sachs"
+    ],
+    "starterCode": {
+      "javascript": "/**\n * @param {number[]} prices\n * @return {number}\n */\nfunction maxProfit(prices) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def maxProfit(self, prices: list[int]) -> int:\n        # Write your solution here\n        pass",
+      "java": "class Solution {\n    public int maxProfit(int[] prices) {\n        // Write your solution here\n        return 0;\n    }\n}",
+      "cpp": "#include <vector>\n#include <algorithm>\nusing namespace std;\n\nclass Solution {\npublic:\n    int maxProfit(vector<int>& prices) {\n        // Write your solution here\n        return 0;\n    }\n};",
+      "c": "int maxProfit(int* prices, int pricesSize) {\n    // Write your solution here\n    return 0;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "prices = [7,1,5,3,6,4]",
+        "expectedOutput": "5"
+      },
+      {
+        "id": "tc-2",
+        "input": "prices = [7,6,4,3,1]",
+        "expectedOutput": "0"
+      },
+      {
+        "id": "tc-3",
+        "input": "prices = [2,4,1]",
+        "expectedOutput": "2",
+        "isHidden": true
+      }
+    ]
   },
   {
-    title: 'Product of Array Except Self',
-    slug: 'product-of-array-except-self',
-    platform: 'LEETCODE',
-    difficulty: 'Medium',
-    topic: 'Arrays',
-    tags: ['array', 'prefix-sum'],
-    canonicalUrl: 'https://leetcode.com/problems/product-of-array-except-self/',
-    estimatedMinutes: 25,
-    description: 'Given an integer array nums, return an array answer such that answer[i] is equal to the product of all the elements of nums except nums[i] in O(n) without division.',
-    entryFunctionName: 'productExceptSelf',
-    companyTags: ['Amazon', 'Apple', 'Meta', 'Microsoft', 'Asana'],
-    starterCode: {
-      javascript: 'function productExceptSelf(nums) {\n  const n = nums.length;\n  const res = new Array(n).fill(1);\n  let left = 1;\n  for (let i = 0; i < n; i++) {\n    res[i] = left;\n    left *= nums[i];\n  }\n  let right = 1;\n  for (let i = n - 1; i >= 0; i--) {\n    res[i] *= right;\n    right *= nums[i];\n  }\n  return res;\n}',
-      python: 'def productExceptSelf(nums):\n    n = len(nums)\n    res = [1] * n\n    left = 1\n    for i in range(n):\n        res[i] = left\n        left *= nums[i]\n    right = 1\n    for i in range(n - 1, -1, -1):\n        res[i] *= right\n        right *= nums[i]\n    return res',
-      java: 'class Solution {\n    public int[] productExceptSelf(int[] nums) {\n        int n = nums.length;\n        int[] res = new int[n];\n        int left = 1;\n        for (int i = 0; i < n; i++) {\n            res[i] = left;\n            left *= nums[i];\n        }\n        int right = 1;\n        for (int i = n - 1; i >= 0; i--) {\n            res[i] *= right;\n            right *= nums[i];\n        }\n        return res;\n    }\n}',
-      cpp: '#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    vector<int> productExceptSelf(vector<int>& nums) {\n        int n = nums.size();\n        vector<int> res(n, 1);\n        int left = 1;\n        for (int i = 0; i < n; i++) {\n            res[i] = left;\n            left *= nums[i];\n        }\n        int right = 1;\n        for (int i = n - 1; i >= 0; i--) {\n            res[i] *= right;\n            right *= nums[i];\n        }\n        return res;\n    }\n};',
-    },
-    testCases: [
-      { id: 'tc-1', input: 'nums = [1,2,3,4]', expectedOutput: '[24, 12, 8, 6]' },
-      { id: 'tc-2', input: 'nums = [-1,1,0,-3,3]', expectedOutput: '[0, 0, 9, 0, 0]' },
+    "title": "Product of Array Except Self",
+    "slug": "product-of-array-except-self",
+    "platform": "LEETCODE",
+    "difficulty": "Medium",
+    "topic": "Arrays",
+    "tags": [
+      "array",
+      "prefix-sum"
     ],
+    "canonicalUrl": "https://leetcode.com/problems/product-of-array-except-self/",
+    "estimatedMinutes": 20,
+    "description": "Given an integer array nums, return an array answer such that answer[i] is equal to the product of all the elements of nums except nums[i]. The product of any prefix or suffix of nums is guaranteed to fit in a 32-bit integer. You must write an algorithm that runs in O(n) time and without using the division operation.",
+    "entryFunctionName": "productExceptSelf",
+    "companyTags": [
+      "Amazon",
+      "Apple",
+      "Meta",
+      "Microsoft",
+      "Bloomberg"
+    ],
+    "starterCode": {
+      "javascript": "/**\n * @param {number[]} nums\n * @return {number[]}\n */\nfunction productExceptSelf(nums) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def productExceptSelf(self, nums: list[int]) -> list[int]:\n        # Write your solution here\n        pass",
+      "java": "class Solution {\n    public int[] productExceptSelf(int[] nums) {\n        // Write your solution here\n        return new int[]{};\n    }\n}",
+      "cpp": "#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    vector<int> productExceptSelf(vector<int>& nums) {\n        // Write your solution here\n        return {};\n    }\n};",
+      "c": "int* productExceptSelf(int* nums, int numsSize, int* returnSize) {\n    // Write your solution here\n    *returnSize = numsSize;\n    return NULL;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "nums = [1,2,3,4]",
+        "expectedOutput": "[24, 12, 8, 6]"
+      },
+      {
+        "id": "tc-2",
+        "input": "nums = [-1,1,0,-3,3]",
+        "expectedOutput": "[0, 0, 9, 0, 0]"
+      },
+      {
+        "id": "tc-3",
+        "input": "nums = [2,3]",
+        "expectedOutput": "[3, 2]",
+        "isHidden": true
+      }
+    ]
   },
   {
-    title: 'Maximum Subarray (Kadane)',
-    slug: 'maximum-subarray',
-    platform: 'LEETCODE',
-    difficulty: 'Medium',
-    topic: 'Arrays',
-    tags: ['array', 'divide-and-conquer', 'dynamic-programming'],
-    canonicalUrl: 'https://leetcode.com/problems/maximum-subarray/',
-    estimatedMinutes: 20,
-    description: 'Given an integer array nums, find the subarray with the largest sum, and return its sum.',
-    entryFunctionName: 'maxSubArray',
-    companyTags: ['Amazon', 'Google', 'Microsoft', 'Apple', 'Cisco'],
-    starterCode: {
-      javascript: 'function maxSubArray(nums) {\n  let cur = nums[0];\n  let max = nums[0];\n  for (let i = 1; i < nums.length; i++) {\n    cur = Math.max(nums[i], cur + nums[i]);\n    max = Math.max(max, cur);\n  }\n  return max;\n}',
-      python: 'def maxSubArray(nums):\n    cur = max_sum = nums[0]\n    for n in nums[1:]:\n        cur = max(n, cur + n)\n        max_sum = max(max_sum, cur)\n    return max_sum',
-      java: 'class Solution {\n    public int maxSubArray(int[] nums) {\n        int cur = nums[0];\n        int max = nums[0];\n        for (int i = 1; i < nums.length; i++) {\n            cur = Math.max(nums[i], cur + nums[i]);\n            max = Math.max(max, cur);\n        }\n        return max;\n    }\n}',
-      cpp: '#include <vector>\n#include <algorithm>\nusing namespace std;\n\nclass Solution {\npublic:\n    int maxSubArray(vector<int>& nums) {\n        int cur = nums[0], maxS = nums[0];\n        for (size_t i = 1; i < nums.size(); i++) {\n            cur = max(nums[i], cur + nums[i]);\n            maxS = max(maxS, cur);\n        }\n        return maxS;\n    }\n};',
-    },
-    testCases: [
-      { id: 'tc-1', input: 'nums = [-2,1,-3,4,-1,2,1,-5,4]', expectedOutput: '6' },
-      { id: 'tc-2', input: 'nums = [1]', expectedOutput: '1' },
-      { id: 'tc-3', input: 'nums = [5,4,-1,7,8]', expectedOutput: '23' },
+    "title": "Maximum Subarray",
+    "slug": "maximum-subarray",
+    "platform": "LEETCODE",
+    "difficulty": "Medium",
+    "topic": "Arrays",
+    "tags": [
+      "array",
+      "divide-and-conquer",
+      "dynamic-programming"
     ],
+    "canonicalUrl": "https://leetcode.com/problems/maximum-subarray/",
+    "estimatedMinutes": 20,
+    "description": "Given an integer array nums, find the subarray with the largest sum, and return its sum. (Kadane's Algorithm)",
+    "entryFunctionName": "maxSubArray",
+    "companyTags": [
+      "Amazon",
+      "Apple",
+      "Google",
+      "Microsoft",
+      "Meta"
+    ],
+    "starterCode": {
+      "javascript": "/**\n * @param {number[]} nums\n * @return {number}\n */\nfunction maxSubArray(nums) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def maxSubArray(self, nums: list[int]) -> int:\n        # Write your solution here\n        pass",
+      "java": "class Solution {\n    public int maxSubArray(int[] nums) {\n        // Write your solution here\n        return 0;\n    }\n}",
+      "cpp": "#include <vector>\n#include <algorithm>\nusing namespace std;\n\nclass Solution {\npublic:\n    int maxSubArray(vector<int>& nums) {\n        // Write your solution here\n        return 0;\n    }\n};",
+      "c": "int maxSubArray(int* nums, int numsSize) {\n    // Write your solution here\n    return 0;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "nums = [-2,1,-3,4,-1,2,1,-5,4]",
+        "expectedOutput": "6"
+      },
+      {
+        "id": "tc-2",
+        "input": "nums = [1]",
+        "expectedOutput": "1"
+      },
+      {
+        "id": "tc-3",
+        "input": "nums = [5,4,-1,7,8]",
+        "expectedOutput": "23"
+      },
+      {
+        "id": "tc-4",
+        "input": "nums = [-1,-2,-3]",
+        "expectedOutput": "-1",
+        "isHidden": true
+      }
+    ]
   },
   {
-    title: 'Maximum Product Subarray',
-    slug: 'maximum-product-subarray',
-    platform: 'LEETCODE',
-    difficulty: 'Medium',
-    topic: 'Arrays',
-    tags: ['array', 'dynamic-programming'],
-    canonicalUrl: 'https://leetcode.com/problems/maximum-product-subarray/',
-    estimatedMinutes: 25,
-    description: 'Given an integer array nums, find a subarray that has the largest product, and return the product.',
-    entryFunctionName: 'maxProduct',
-    companyTags: ['Amazon', 'Google', 'LinkedIn', 'Microsoft'],
-    starterCode: {
-      javascript: 'function maxProduct(nums) {\n  let res = nums[0];\n  let max = nums[0];\n  let min = nums[0];\n  for (let i = 1; i < nums.length; i++) {\n    if (nums[i] < 0) [max, min] = [min, max];\n    max = Math.max(nums[i], max * nums[i]);\n    min = Math.min(nums[i], min * nums[i]);\n    res = Math.max(res, max);\n  }\n  return res;\n}',
-      python: 'def maxProduct(nums):\n    res = max_p = min_p = nums[0]\n    for n in nums[1:]:\n        if n < 0:\n            max_p, min_p = min_p, max_p\n        max_p = max(n, max_p * n)\n        min_p = min(n, min_p * n)\n        res = max(res, max_p)\n    return res',
-      java: 'class Solution {\n    public int maxProduct(int[] nums) {\n        int res = nums[0], max = nums[0], min = nums[0];\n        for (int i = 1; i < nums.length; i++) {\n            if (nums[i] < 0) { int t = max; max = min; min = t; }\n            max = Math.max(nums[i], max * nums[i]);\n            min = Math.min(nums[i], min * nums[i]);\n            res = Math.max(res, max);\n        }\n        return res;\n    }\n}',
-      cpp: '#include <vector>\n#include <algorithm>\nusing namespace std;\n\nclass Solution {\npublic:\n    int maxProduct(vector<int>& nums) {\n        int res = nums[0], mx = nums[0], mn = nums[0];\n        for (size_t i = 1; i < nums.size(); i++) {\n            if (nums[i] < 0) swap(mx, mn);\n            mx = max(nums[i], mx * nums[i]);\n            mn = min(nums[i], mn * nums[i]);\n            res = max(res, mx);\n        }\n        return res;\n    }\n};',
-    },
-    testCases: [
-      { id: 'tc-1', input: 'nums = [2,3,-2,4]', expectedOutput: '6' },
-      { id: 'tc-2', input: 'nums = [-2,0,-1]', expectedOutput: '0' },
+    "title": "Top K Frequent Elements",
+    "slug": "top-k-frequent-elements",
+    "platform": "LEETCODE",
+    "difficulty": "Medium",
+    "topic": "Arrays",
+    "tags": [
+      "array",
+      "hash-table",
+      "divide-and-conquer",
+      "bucket-sort",
+      "heap"
     ],
+    "canonicalUrl": "https://leetcode.com/problems/top-k-frequent-elements/",
+    "estimatedMinutes": 20,
+    "description": "Given an integer array nums and an integer k, return the k most frequent elements. You may return the answer in any order.",
+    "entryFunctionName": "topKFrequent",
+    "companyTags": [
+      "Amazon",
+      "Meta",
+      "Google",
+      "Uber"
+    ],
+    "starterCode": {
+      "javascript": "/**\n * @param {number[]} nums\n * @param {number} k\n * @return {number[]}\n */\nfunction topKFrequent(nums, k) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def topKFrequent(self, nums: list[int], k: int) -> list[int]:\n        # Write your solution here\n        pass",
+      "java": "import java.util.*;\n\nclass Solution {\n    public int[] topKFrequent(int[] nums, int k) {\n        // Write your solution here\n        return new int[]{};\n    }\n}",
+      "cpp": "#include <vector>\n#include <unordered_map>\n#include <queue>\nusing namespace std;\n\nclass Solution {\npublic:\n    vector<int> topKFrequent(vector<int>& nums, int k) {\n        // Write your solution here\n        return {};\n    }\n};",
+      "c": "int* topKFrequent(int* nums, int numsSize, int k, int* returnSize) {\n    // Write your solution here\n    *returnSize = k;\n    return NULL;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "nums = [1,1,1,2,2,3], k = 2",
+        "expectedOutput": "[1, 2]"
+      },
+      {
+        "id": "tc-2",
+        "input": "nums = [1], k = 1",
+        "expectedOutput": "[1]"
+      },
+      {
+        "id": "tc-3",
+        "input": "nums = [4,1,-1,2,-1,2,3], k = 2",
+        "expectedOutput": "[-1, 2]",
+        "isHidden": true
+      }
+    ]
   },
   {
-    title: 'Merge Intervals',
-    slug: 'merge-intervals',
-    platform: 'LEETCODE',
-    difficulty: 'Medium',
-    topic: 'Arrays',
-    tags: ['array', 'sorting'],
-    canonicalUrl: 'https://leetcode.com/problems/merge-intervals/',
-    estimatedMinutes: 25,
-    description: 'Given an array of intervals where intervals[i] = [starti, endi], merge all overlapping intervals, and return an array of the non-overlapping intervals.',
-    entryFunctionName: 'merge',
-    companyTags: ['Meta', 'Google', 'Uber', 'Amazon'],
-    starterCode: {
-      javascript: 'function merge(intervals) {\n  if (!intervals.length) return [];\n  intervals.sort((a, b) => a[0] - b[0]);\n  const result = [intervals[0]];\n  for (let i = 1; i < intervals.length; i++) {\n    const last = result[result.length - 1];\n    if (intervals[i][0] <= last[1]) {\n      last[1] = Math.max(last[1], intervals[i][1]);\n    } else {\n      result.push(intervals[i]);\n    }\n  }\n  return result;\n}',
-      python: 'def merge(intervals):\n    if not intervals:\n        return []\n    intervals.sort(key=lambda x: x[0])\n    merged = [intervals[0]]\n    for current in intervals[1:]:\n        prev = merged[-1]\n        if current[0] <= prev[1]:\n            prev[1] = max(prev[1], current[1])\n        else:\n            merged.append(current)\n    return merged',
-      java: 'import java.util.*;\n\nclass Solution {\n    public int[][] merge(int[][] intervals) {\n        if (intervals.length <= 1) return intervals;\n        Arrays.sort(intervals, (a, b) -> Integer.compare(a[0], b[0]));\n        List<int[]> result = new ArrayList<>();\n        int[] current = intervals[0];\n        result.add(current);\n        for (int[] interval : intervals) {\n            if (interval[0] <= current[1]) {\n                current[1] = Math.max(current[1], interval[1]);\n            } else {\n                current = interval;\n                result.add(current);\n            }\n        }\n        return result.toArray(new int[result.size()][]);\n    }\n}',
-      cpp: '#include <vector>\n#include <algorithm>\nusing namespace std;\n\nclass Solution {\npublic:\n    vector<vector<int>> merge(vector<vector<int>>& intervals) {\n        if (intervals.empty()) return {};\n        sort(intervals.begin(), intervals.end());\n        vector<vector<int>> res;\n        res.push_back(intervals[0]);\n        for (size_t i = 1; i < intervals.size(); i++) {\n            if (intervals[i][0] <= res.back()[1]) {\n                res.back()[1] = max(res.back()[1], intervals[i][1]);\n            } else {\n                res.push_back(intervals[i]);\n            }\n        }\n        return res;\n    }\n};',
-    },
-    testCases: [
-      { id: 'tc-1', input: 'intervals = [[1,3],[2,6],[8,10],[15,18]]', expectedOutput: '[[1, 6], [8, 10], [15, 18]]' },
-      { id: 'tc-2', input: 'intervals = [[1,4],[4,5]]', expectedOutput: '[[1, 5]]' },
+    "title": "Longest Consecutive Sequence",
+    "slug": "longest-consecutive-sequence",
+    "platform": "LEETCODE",
+    "difficulty": "Medium",
+    "topic": "Arrays",
+    "tags": [
+      "array",
+      "hash-table",
+      "union-find"
     ],
-  },
-
-  // ─── 3. STRINGS ──────────────────────────────────────────
-  {
-    title: 'Valid Anagram',
-    slug: 'valid-anagram',
-    platform: 'LEETCODE',
-    difficulty: 'Easy',
-    topic: 'Strings',
-    tags: ['string', 'hash-table', 'sorting'],
-    canonicalUrl: 'https://leetcode.com/problems/valid-anagram/',
-    estimatedMinutes: 10,
-    description: 'Given two strings s and t, return true if t is an anagram of s, and false otherwise.',
-    entryFunctionName: 'isAnagram',
-    companyTags: ['Amazon', 'Google', 'Meta', 'Uber'],
-    starterCode: {
-      javascript: 'function isAnagram(s, t) {\n  if (s.length !== t.length) return false;\n  const count = {};\n  for (const c of s) count[c] = (count[c] || 0) + 1;\n  for (const c of t) {\n    if (!count[c]) return false;\n    count[c]--;\n  }\n  return true;\n}',
-      python: 'def isAnagram(s: str, t: str) -> bool:\n    from collections import Counter\n    return Counter(s) == Counter(t)',
-      java: 'class Solution {\n    public boolean isAnagram(String s, String t) {\n        if (s.length() != t.length()) return false;\n        int[] count = new int[26];\n        for (char c : s.toCharArray()) count[c - \'a\']++;\n        for (char c : t.toCharArray()) {\n            if (--count[c - \'a\'] < 0) return false;\n        }\n        return true;\n    }\n}',
-      cpp: '#include <string>\n#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    bool isAnagram(string s, string t) {\n        if (s.length() != t.length()) return false;\n        vector<int> count(26, 0);\n        for (char c : s) count[c - \'a\']++;\n        for (char c : t) {\n            if (--count[c - \'a\'] < 0) return false;\n        }\n        return true;\n    }\n};',
-    },
-    testCases: [
-      { id: 'tc-1', input: 's = "anagram", t = "nagaram"', expectedOutput: 'true' },
-      { id: 'tc-2', input: 's = "rat", t = "car"', expectedOutput: 'false' },
+    "canonicalUrl": "https://leetcode.com/problems/longest-consecutive-sequence/",
+    "estimatedMinutes": 20,
+    "description": "Given an unsorted array of integers nums, return the length of the longest consecutive elements sequence. You must write an algorithm that runs in O(n) time.",
+    "entryFunctionName": "longestConsecutive",
+    "companyTags": [
+      "Google",
+      "Meta",
+      "Amazon",
+      "Microsoft"
     ],
-  },
-  {
-    title: 'Valid Palindrome',
-    slug: 'valid-palindrome',
-    platform: 'LEETCODE',
-    difficulty: 'Easy',
-    topic: 'Strings',
-    tags: ['two-pointers', 'string'],
-    canonicalUrl: 'https://leetcode.com/problems/valid-palindrome/',
-    estimatedMinutes: 10,
-    description: 'A phrase is a palindrome if, after converting all uppercase letters into lowercase letters and removing all non-alphanumeric characters, it reads the same forward and backward.',
-    entryFunctionName: 'isPalindrome',
-    companyTags: ['Meta', 'Microsoft', 'Amazon'],
-    starterCode: {
-      javascript: 'function isPalindrome(s) {\n  const clean = s.toLowerCase().replace(/[^a-z0-9]/g, "");\n  let l = 0, r = clean.length - 1;\n  while (l < r) {\n    if (clean[l++] !== clean[r--]) return false;\n  }\n  return true;\n}',
-      python: 'def isPalindrome(s: str) -> bool:\n    clean = [c.lower() for c in s if c.isalnum()]\n    return clean == clean[::-1]',
-      java: 'class Solution {\n    public boolean isPalindrome(String s) {\n        int l = 0, r = s.length() - 1;\n        while (l < r) {\n            while (l < r && !Character.isLetterOrDigit(s.charAt(l))) l++;\n            while (l < r && !Character.isLetterOrDigit(s.charAt(r))) r--;\n            if (Character.toLowerCase(s.charAt(l)) != Character.toLowerCase(s.charAt(r))) return false;\n            l++; r--;\n        }\n        return true;\n    }\n}',
-      cpp: '#include <string>\n#include <cctype>\nusing namespace std;\n\nclass Solution {\npublic:\n    bool isPalindrome(string s) {\n        int l = 0, r = s.length() - 1;\n        while (l < r) {\n            while (l < r && !isalnum(s[l])) l++;\n            while (l < r && !isalnum(s[r])) r--;\n            if (tolower(s[l]) != tolower(s[r])) return false;\n            l++; r--;\n        }\n        return true;\n    }\n};',
+    "starterCode": {
+      "javascript": "/**\n * @param {number[]} nums\n * @return {number}\n */\nfunction longestConsecutive(nums) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def longestConsecutive(self, nums: list[int]) -> int:\n        # Write your solution here\n        pass",
+      "java": "import java.util.*;\n\nclass Solution {\n    public int longestConsecutive(int[] nums) {\n        // Write your solution here\n        return 0;\n    }\n}",
+      "cpp": "#include <vector>\n#include <unordered_set>\n#include <algorithm>\nusing namespace std;\n\nclass Solution {\npublic:\n    int longestConsecutive(vector<int>& nums) {\n        // Write your solution here\n        return 0;\n    }\n};",
+      "c": "int longestConsecutive(int* nums, int numsSize) {\n    // Write your solution here\n    return 0;\n}"
     },
-    testCases: [
-      { id: 'tc-1', input: 's = "A man, a plan, a canal: Panama"', expectedOutput: 'true' },
-      { id: 'tc-2', input: 's = "race a car"', expectedOutput: 'false' },
-    ],
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "nums = [100,4,200,1,3,2]",
+        "expectedOutput": "4"
+      },
+      {
+        "id": "tc-2",
+        "input": "nums = [0,3,7,2,5,8,4,6,0,1]",
+        "expectedOutput": "9"
+      },
+      {
+        "id": "tc-3",
+        "input": "nums = []",
+        "expectedOutput": "0",
+        "isHidden": true
+      }
+    ]
   },
   {
-    title: 'Longest Substring Without Repeating Characters',
-    slug: 'longest-substring-without-repeating-characters',
-    platform: 'LEETCODE',
-    difficulty: 'Medium',
-    topic: 'Strings',
-    tags: ['hash-table', 'string', 'sliding-window'],
-    canonicalUrl: 'https://leetcode.com/problems/longest-substring-without-repeating-characters/',
-    estimatedMinutes: 25,
-    description: 'Given a string s, find the length of the longest substring without repeating characters.',
-    entryFunctionName: 'lengthOfLongestSubstring',
-    companyTags: ['Amazon', 'Google', 'Apple', 'Meta', 'Bloomberg'],
-    starterCode: {
-      javascript: 'function lengthOfLongestSubstring(s) {\n  const map = new Map();\n  let max = 0, start = 0;\n  for (let end = 0; end < s.length; end++) {\n    if (map.has(s[end])) {\n      start = Math.max(start, map.get(s[end]) + 1);\n    }\n    map.set(s[end], end);\n    max = Math.max(max, end - start + 1);\n  }\n  return max;\n}',
-      python: 'def lengthOfLongestSubstring(s: str) -> int:\n    seen = {}\n    max_l = start = 0\n    for end, ch in enumerate(s):\n        if ch in seen and seen[ch] >= start:\n            start = seen[ch] + 1\n        seen[ch] = end\n        max_l = max(max_l, end - start + 1)\n    return max_l',
-      java: 'import java.util.*;\n\nclass Solution {\n    public int lengthOfLongestSubstring(String s) {\n        Map<Character, Integer> map = new HashMap<>();\n        int max = 0, start = 0;\n        for (int end = 0; end < s.length(); end++) {\n            char c = s.charAt(end);\n            if (map.containsKey(c)) {\n                start = Math.max(start, map.get(c) + 1);\n            }\n            map.put(c, end);\n            max = Math.max(max, end - start + 1);\n        }\n        return max;\n    }\n}',
-      cpp: '#include <string>\n#include <unordered_map>\n#include <algorithm>\nusing namespace std;\n\nclass Solution {\npublic:\n    int lengthOfLongestSubstring(string s) {\n        unordered_map<char, int> map;\n        int maxL = 0, start = 0;\n        for (int end = 0; end < s.length(); end++) {\n            if (map.count(s[end])) start = max(start, map[s[end]] + 1);\n            map[s[end]] = end;\n            maxL = max(maxL, end - start + 1);\n        }\n        return maxL;\n    }\n};',
-    },
-    testCases: [
-      { id: 'tc-1', input: 's = "abcabcbb"', expectedOutput: '3' },
-      { id: 'tc-2', input: 's = "bbbbb"', expectedOutput: '1' },
-      { id: 'tc-3', input: 's = "pwwkew"', expectedOutput: '3' },
+    "title": "Trapping Rain Water",
+    "slug": "trapping-rain-water",
+    "platform": "LEETCODE",
+    "difficulty": "Hard",
+    "topic": "Arrays",
+    "tags": [
+      "array",
+      "two-pointers",
+      "dynamic-programming",
+      "stack"
     ],
-  },
-
-  // ─── 4. STACK & QUEUE ────────────────────────────────────
-  {
-    title: 'Valid Parentheses',
-    slug: 'valid-parentheses',
-    platform: 'LEETCODE',
-    difficulty: 'Easy',
-    topic: 'Stack',
-    tags: ['string', 'stack'],
-    canonicalUrl: 'https://leetcode.com/problems/valid-parentheses/',
-    estimatedMinutes: 10,
-    description: 'Given a string s containing just the characters \'(\', \')\', \'{\', \'}\', \'[\' and \']\', determine if the input string is valid.',
-    entryFunctionName: 'isValid',
-    companyTags: ['Amazon', 'Meta', 'Google', 'Microsoft', 'Bloomberg'],
-    starterCode: {
-      javascript: 'function isValid(s) {\n  const stack = [];\n  const map = { ")": "(", "}": "{", "]": "[" };\n  for (const c of s) {\n    if (c === "(" || c === "{" || c === "[") stack.push(c);\n    else if (stack.pop() !== map[c]) return false;\n  }\n  return stack.length === 0;\n}',
-      python: 'def isValid(s: str) -> bool:\n    stack = []\n    mapping = {")": "(", "}": "{", "]": "["}\n    for char in s:\n        if char in mapping.values():\n            stack.append(char)\n        elif char in mapping:\n            if not stack or stack.pop() != mapping[char]:\n                return False\n        else:\n            return False\n    return not stack',
-      java: 'import java.util.*;\n\nclass Solution {\n    public boolean isValid(String s) {\n        Stack<Character> stack = new Stack<>();\n        for (char c : s.toCharArray()) {\n            if (c == \'(\') stack.push(\')\');\n            else if (c == \'{\') stack.push(\'}\');\n            else if (c == \'[\') stack.push(\']\');\n            else if (stack.isEmpty() || stack.pop() != c) return false;\n        }\n        return stack.isEmpty();\n    }\n}',
-      cpp: '#include <string>\n#include <stack>\nusing namespace std;\n\nclass Solution {\npublic:\n    bool isValid(string s) {\n        stack<char> st;\n        for (char c : s) {\n            if (c == \'(\') st.push(\')\');\n            else if (c == \'{\') st.push(\'}\');\n            else if (c == \'[\') st.push(\']\');\n            else {\n                if (st.empty() || st.top() != c) return false;\n                st.pop();\n            }\n        }\n        return st.empty();\n    }\n};',
-    },
-    testCases: [
-      { id: 'tc-1', input: 's = "()"', expectedOutput: 'true' },
-      { id: 'tc-2', input: 's = "()[]{}"', expectedOutput: 'true' },
-      { id: 'tc-3', input: 's = "(]"', expectedOutput: 'false' },
+    "canonicalUrl": "https://leetcode.com/problems/trapping-rain-water/",
+    "estimatedMinutes": 30,
+    "description": "Given n non-negative integers representing an elevation map where the width of each bar is 1, compute how much water it can trap after raining.",
+    "entryFunctionName": "trap",
+    "companyTags": [
+      "Amazon",
+      "Google",
+      "Meta",
+      "Apple",
+      "Goldman Sachs"
     ],
-  },
-  {
-    title: 'Daily Temperatures',
-    slug: 'daily-temperatures',
-    platform: 'LEETCODE',
-    difficulty: 'Medium',
-    topic: 'Stack',
-    tags: ['array', 'stack', 'monotonic-stack'],
-    canonicalUrl: 'https://leetcode.com/problems/daily-temperatures/',
-    estimatedMinutes: 20,
-    description: 'Given an array of integers temperatures represents the daily temperatures, return an array answer such that answer[i] is the number of days you have to wait after the ith day to get a warmer temperature.',
-    entryFunctionName: 'dailyTemperatures',
-    companyTags: ['Amazon', 'Google', 'Meta'],
-    starterCode: {
-      javascript: 'function dailyTemperatures(temperatures) {\n  const n = temperatures.length;\n  const res = new Array(n).fill(0);\n  const stack = [];\n  for (let i = 0; i < n; i++) {\n    while (stack.length && temperatures[i] > temperatures[stack[stack.length - 1]]) {\n      const prev = stack.pop();\n      res[prev] = i - prev;\n    }\n    stack.push(i);\n  }\n  return res;\n}',
-      python: 'def dailyTemperatures(temperatures: list[int]) -> list[int]:\n    n = len(temperatures)\n    res = [0] * n\n    stack = []\n    for i, t in enumerate(temperatures):\n        while stack and t > temperatures[stack[-1]]:\n            prev = stack.pop()\n            res[prev] = i - prev\n        stack.append(i)\n    return res',
-      java: 'import java.util.*;\n\nclass Solution {\n    public int[] dailyTemperatures(int[] temperatures) {\n        int n = temperatures.length;\n        int[] res = new int[n];\n        Stack<Integer> stack = new Stack<>();\n        for (int i = 0; i < n; i++) {\n            while (!stack.isEmpty() && temperatures[i] > temperatures[stack.peek()]) {\n                int prev = stack.pop();\n                res[prev] = i - prev;\n            }\n            stack.push(i);\n        }\n        return res;\n    }\n}',
-      cpp: '#include <vector>\n#include <stack>\nusing namespace std;\n\nclass Solution {\npublic:\n    vector<int> dailyTemperatures(vector<int>& temperatures) {\n        int n = temperatures.size();\n        vector<int> res(n, 0);\n        stack<int> st;\n        for (int i = 0; i < n; i++) {\n            while (!st.empty() && temperatures[i] > temperatures[st.top()]) {\n                int prev = st.top(); st.pop();\n                res[prev] = i - prev;\n            }\n            st.push(i);\n        }\n        return res;\n    }\n};',
+    "starterCode": {
+      "javascript": "/**\n * @param {number[]} height\n * @return {number}\n */\nfunction trap(height) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def trap(self, height: list[int]) -> int:\n        # Write your solution here\n        pass",
+      "java": "class Solution {\n    public int trap(int[] height) {\n        // Write your solution here\n        return 0;\n    }\n}",
+      "cpp": "#include <vector>\n#include <algorithm>\nusing namespace std;\n\nclass Solution {\npublic:\n    int trap(vector<int>& height) {\n        // Write your solution here\n        return 0;\n    }\n};",
+      "c": "int trap(int* height, int heightSize) {\n    // Write your solution here\n    return 0;\n}"
     },
-    testCases: [
-      { id: 'tc-1', input: 'temperatures = [73,74,75,71,69,72,76,73]', expectedOutput: '[1, 1, 4, 2, 1, 1, 0, 0]' },
-      { id: 'tc-2', input: 'temperatures = [30,40,50,60]', expectedOutput: '[1, 1, 1, 0]' },
-    ],
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "height = [0,1,0,2,1,0,1,3,2,1,2,1]",
+        "expectedOutput": "6"
+      },
+      {
+        "id": "tc-2",
+        "input": "height = [4,2,0,3,2,5]",
+        "expectedOutput": "9"
+      },
+      {
+        "id": "tc-3",
+        "input": "height = [1,2,3,4,5]",
+        "expectedOutput": "0",
+        "isHidden": true
+      }
+    ]
   },
   {
-    title: 'The Celebrity Problem',
-    slug: 'the-celebrity-problem-gfg',
-    platform: 'GEEKSFORGEEKS',
-    difficulty: 'Hard',
-    topic: 'Stack',
-    tags: ['stack', 'two-pointers', 'matrix'],
-    canonicalUrl: 'https://www.geeksforgeeks.org/problems/the-celebrity-problem/1',
-    estimatedMinutes: 25,
-    description: 'A celebrity is a person who is known to all but does not know anyone at a party. If you go to a party of N people, find if there is a celebrity in the party or not. You are given an NxN matrix M where M[i][j] = 1 means ith person knows jth person.',
-    entryFunctionName: 'celebrity',
-    companyTags: ['Google', 'Amazon', 'Microsoft', 'Flipkart'],
-    starterCode: {
-      javascript: 'function celebrity(M, n) {\n  let c = 0;\n  for (let i = 1; i < n; i++) {\n    if (M[c][i] === 1) c = i;\n  }\n  for (let i = 0; i < n; i++) {\n    if (i !== c && (M[c][i] === 1 || M[i][c] === 0)) return -1;\n  }\n  return c;\n}',
-      python: 'def celebrity(M: list[list[int]], n: int) -> int:\n    c = 0\n    for i in range(1, n):\n        if M[c][i] == 1:\n            c = i\n    for i in range(n):\n        if i != c and (M[c][i] == 1 or M[i][c] == 0):\n            return -1\n    return c',
-      java: 'class Solution {\n    public int celebrity(int[][] M, int n) {\n        int c = 0;\n        for (int i = 1; i < n; i++) {\n            if (M[c][i] == 1) c = i;\n        }\n        for (int i = 0; i < n; i++) {\n            if (i != c && (M[c][i] == 1 || M[i][c] == 0)) return -1;\n        }\n        return c;\n    }\n}',
-      cpp: '#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    int celebrity(vector<vector<int>>& M, int n) {\n        int c = 0;\n        for (int i = 1; i < n; i++) {\n            if (M[c][i] == 1) c = i;\n        }\n        for (int i = 0; i < n; i++) {\n            if (i != c && (M[c][i] == 1 || M[i][c] == 0)) return -1;\n        }\n        return c;\n    }\n};',
-    },
-    testCases: [
-      { id: 'tc-1', input: 'M = [[0,1,0],[0,0,0],[0,1,0]], n = 3', expectedOutput: '1' },
-      { id: 'tc-2', input: 'M = [[0,1],[1,0]], n = 2', expectedOutput: '-1' },
+    "title": "Valid Palindrome",
+    "slug": "valid-palindrome",
+    "platform": "LEETCODE",
+    "difficulty": "Easy",
+    "topic": "Two Pointers",
+    "tags": [
+      "two-pointers",
+      "string"
     ],
-  },
-
-  // ─── 5. TWO POINTERS ─────────────────────────────────────
-  {
-    title: '3Sum',
-    slug: '3sum',
-    platform: 'LEETCODE',
-    difficulty: 'Medium',
-    topic: 'Two Pointers',
-    tags: ['array', 'two-pointers', 'sorting'],
-    canonicalUrl: 'https://leetcode.com/problems/3sum/',
-    estimatedMinutes: 30,
-    description: 'Given an integer array nums, return all the triplets [nums[i], nums[j], nums[k]] such that i != j, i != k, and j != k, and nums[i] + nums[j] + nums[k] == 0.',
-    entryFunctionName: 'threeSum',
-    companyTags: ['Meta', 'Amazon', 'Google', 'Apple'],
-    starterCode: {
-      javascript: 'function threeSum(nums) {\n  nums.sort((a, b) => a - b);\n  const res = [];\n  for (let i = 0; i < nums.length - 2; i++) {\n    if (i > 0 && nums[i] === nums[i - 1]) continue;\n    let l = i + 1, r = nums.length - 1;\n    while (l < r) {\n      const sum = nums[i] + nums[l] + nums[r];\n      if (sum === 0) {\n        res.push([nums[i], nums[l], nums[r]]);\n        while (l < r && nums[l] === nums[l + 1]) l++;\n        while (l < r && nums[r] === nums[r - 1]) r--;\n        l++; r--;\n      } else if (sum < 0) l++;\n      else r--;\n    }\n  }\n  return res;\n}',
-      python: 'def threeSum(nums: list[int]) -> list[list[int]]:\n    nums.sort()\n    res = []\n    for i in range(len(nums) - 2):\n        if i > 0 and nums[i] == nums[i - 1]:\n            continue\n        l, r = i + 1, len(nums) - 1\n        while l < r:\n            s = nums[i] + nums[l] + nums[r]\n            if s == 0:\n                res.append([nums[i], nums[l], nums[r]])\n                while l < r and nums[l] == nums[l + 1]: l += 1\n                while l < r and nums[r] == nums[r - 1]: r -= 1\n                l += 1; r -= 1\n            elif s < 0: l += 1\n            else: r -= 1\n    return res',
-      java: 'import java.util.*;\n\nclass Solution {\n    public List<List<Integer>> threeSum(int[] nums) {\n        Arrays.sort(nums);\n        List<List<Integer>> res = new ArrayList<>();\n        for (int i = 0; i < nums.length - 2; i++) {\n            if (i > 0 && nums[i] == nums[i - 1]) continue;\n            int l = i + 1, r = nums.length - 1;\n            while (l < r) {\n                int sum = nums[i] + nums[l] + nums[r];\n                if (sum == 0) {\n                    res.add(Arrays.asList(nums[i], nums[l], nums[r]));\n                    while (l < r && nums[l] == nums[l + 1]) l++;\n                    while (l < r && nums[r] == nums[r - 1]) r--;\n                    l++; r--;\n                } else if (sum < 0) l++;\n                else r--;\n            }\n        }\n        return res;\n    }\n}',
-      cpp: '#include <vector>\n#include <algorithm>\nusing namespace std;\n\nclass Solution {\npublic:\n    vector<vector<int>> threeSum(vector<int>& nums) {\n        sort(nums.begin(), nums.end());\n        vector<vector<int>> res;\n        int n = nums.size();\n        for (int i = 0; i < n - 2; i++) {\n            if (i > 0 && nums[i] == nums[i - 1]) continue;\n            int l = i + 1, r = n - 1;\n            while (l < r) {\n                int s = nums[i] + nums[l] + nums[r];\n                if (s == 0) {\n                    res.push_back({nums[i], nums[l], nums[r]});\n                    while (l < r && nums[l] == nums[l + 1]) l++;\n                    while (l < r && nums[r] == nums[r - 1]) r--;\n                    l++; r--;\n                } else if (s < 0) l++;\n                else r--;\n            }\n        }\n        return res;\n    }\n};',
-    },
-    testCases: [
-      { id: 'tc-1', input: 'nums = [-1,0,1,2,-1,-4]', expectedOutput: '[[-1, -1, 2], [-1, 0, 1]]' },
+    "canonicalUrl": "https://leetcode.com/problems/valid-palindrome/",
+    "estimatedMinutes": 15,
+    "description": "A phrase is a palindrome if, after converting all uppercase letters into lowercase letters and removing all non-alphanumeric characters, it reads the same forward and backward. Given a string s, return true if it is a palindrome, or false otherwise.",
+    "entryFunctionName": "isPalindrome",
+    "companyTags": [
+      "Meta",
+      "Microsoft",
+      "Amazon",
+      "Spotify"
     ],
-  },
-  {
-    title: 'Container With Most Water',
-    slug: 'container-with-most-water',
-    platform: 'LEETCODE',
-    difficulty: 'Medium',
-    topic: 'Two Pointers',
-    tags: ['array', 'two-pointers', 'greedy'],
-    canonicalUrl: 'https://leetcode.com/problems/container-with-most-water/',
-    estimatedMinutes: 20,
-    description: 'Find two lines that together with the x-axis form a container, such that the container contains the most water. Return the maximum amount of water a container can store.',
-    entryFunctionName: 'maxArea',
-    companyTags: ['Amazon', 'Google', 'Adobe', 'Apple'],
-    starterCode: {
-      javascript: 'function maxArea(height) {\n  let max = 0, l = 0, r = height.length - 1;\n  while (l < r) {\n    const h = Math.min(height[l], height[r]);\n    max = Math.max(max, h * (r - l));\n    if (height[l] < height[r]) l++;\n    else r--;\n  }\n  return max;\n}',
-      python: 'def maxArea(height: list[int]) -> int:\n    l, r = 0, len(height) - 1\n    max_a = 0\n    while l < r:\n        max_a = max(max_a, min(height[l], height[r]) * (r - l))\n        if height[l] < height[r]:\n            l += 1\n        else:\n            r -= 1\n    return max_a',
-      java: 'class Solution {\n    public int maxArea(int[] height) {\n        int l = 0, r = height.length - 1, max = 0;\n        while (l < r) {\n            max = Math.max(max, Math.min(height[l], height[r]) * (r - l));\n            if (height[l] < height[r]) l++;\n            else r--;\n        }\n        return max;\n    }\n}',
-      cpp: '#include <vector>\n#include <algorithm>\nusing namespace std;\n\nclass Solution {\npublic:\n    int maxArea(vector<int>& height) {\n        int l = 0, r = height.size() - 1, maxA = 0;\n        while (l < r) {\n            maxA = max(maxA, min(height[l], height[r]) * (r - l));\n            if (height[l] < height[r]) l++;\n            else r--;\n        }\n        return maxA;\n    }\n};',
+    "starterCode": {
+      "javascript": "/**\n * @param {string} s\n * @return {boolean}\n */\nfunction isPalindrome(s) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def isPalindrome(self, s: str) -> bool:\n        # Write your solution here\n        pass",
+      "java": "class Solution {\n    public boolean isPalindrome(String s) {\n        // Write your solution here\n        return false;\n    }\n}",
+      "cpp": "#include <string>\n#include <cctype>\nusing namespace std;\n\nclass Solution {\npublic:\n    bool isPalindrome(string s) {\n        // Write your solution here\n        return false;\n    }\n};",
+      "c": "#include <stdbool.h>\n#include <string.h>\n#include <ctype.h>\n\nbool isPalindrome(char* s) {\n    // Write your solution here\n    return false;\n}"
     },
-    testCases: [
-      { id: 'tc-1', input: 'height = [1,8,6,2,5,4,8,3,7]', expectedOutput: '49' },
-      { id: 'tc-2', input: 'height = [1,1]', expectedOutput: '1' },
-    ],
-  },
-
-  // ─── 6. BINARY SEARCH ────────────────────────────────────
-  {
-    title: 'Binary Search',
-    slug: 'binary-search',
-    platform: 'LEETCODE',
-    difficulty: 'Easy',
-    topic: 'Binary Search',
-    tags: ['array', 'binary-search'],
-    canonicalUrl: 'https://leetcode.com/problems/binary-search/',
-    estimatedMinutes: 10,
-    description: 'Given an array of integers nums which is sorted in ascending order, and an integer target, write a function to search target in nums.',
-    entryFunctionName: 'search',
-    companyTags: ['Microsoft', 'Apple', 'Google', 'Amazon'],
-    starterCode: {
-      javascript: 'function search(nums, target) {\n  let l = 0, r = nums.length - 1;\n  while (l <= r) {\n    const mid = Math.floor((l + r) / 2);\n    if (nums[mid] === target) return mid;\n    if (nums[mid] < target) l = mid + 1;\n    else r = mid - 1;\n  }\n  return -1;\n}',
-      python: 'def search(nums: list[int], target: int) -> int:\n    l, r = 0, len(nums) - 1\n    while l <= r:\n        mid = (l + r) // 2\n        if nums[mid] == target:\n            return mid\n        if nums[mid] < target:\n            l = mid + 1\n        else:\n            r = mid - 1\n    return -1',
-      java: 'class Solution {\n    public int search(int[] nums, int target) {\n        int l = 0, r = nums.length - 1;\n        while (l <= r) {\n            int mid = l + (r - l) / 2;\n            if (nums[mid] == target) return mid;\n            if (nums[mid] < target) l = mid + 1;\n            else r = mid - 1;\n        }\n        return -1;\n    }\n}',
-      cpp: '#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    int search(vector<int>& nums, int target) {\n        int l = 0, r = nums.size() - 1;\n        while (l <= r) {\n            int mid = l + (r - l) / 2;\n            if (nums[mid] == target) return mid;\n            if (nums[mid] < target) l = mid + 1;\n            else r = mid - 1;\n        }\n        return -1;\n    }\n};',
-    },
-    testCases: [
-      { id: 'tc-1', input: 'nums = [-1,0,3,5,9,12], target = 9', expectedOutput: '4' },
-      { id: 'tc-2', input: 'nums = [-1,0,3,5,9,12], target = 2', expectedOutput: '-1' },
-    ],
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "s = \"A man, a plan, a canal: Panama\"",
+        "expectedOutput": "true"
+      },
+      {
+        "id": "tc-2",
+        "input": "s = \"race a car\"",
+        "expectedOutput": "false"
+      },
+      {
+        "id": "tc-3",
+        "input": "s = \" \"",
+        "expectedOutput": "true"
+      },
+      {
+        "id": "tc-4",
+        "input": "s = \"0P\"",
+        "expectedOutput": "false",
+        "isHidden": true
+      }
+    ]
   },
   {
-    title: 'Find Minimum in Rotated Sorted Array',
-    slug: 'find-minimum-in-rotated-sorted-array',
-    platform: 'LEETCODE',
-    difficulty: 'Medium',
-    topic: 'Binary Search',
-    tags: ['array', 'binary-search'],
-    canonicalUrl: 'https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/',
-    estimatedMinutes: 20,
-    description: 'Given the sorted rotated array nums of unique elements, return the minimum element of this array in O(log n) time.',
-    entryFunctionName: 'findMin',
-    companyTags: ['Amazon', 'Microsoft', 'Meta'],
-    starterCode: {
-      javascript: 'function findMin(nums) {\n  let l = 0, r = nums.length - 1;\n  while (l < r) {\n    const mid = Math.floor((l + r) / 2);\n    if (nums[mid] > nums[r]) l = mid + 1;\n    else r = mid;\n  }\n  return nums[l];\n}',
-      python: 'def findMin(nums: list[int]) -> int:\n    l, r = 0, len(nums) - 1\n    while l < r:\n        mid = (l + r) // 2\n        if nums[mid] > nums[r]:\n            l = mid + 1\n        else:\n            r = mid\n    return nums[l]',
-      java: 'class Solution {\n    public int findMin(int[] nums) {\n        int l = 0, r = nums.length - 1;\n        while (l < r) {\n            int mid = l + (r - l) / 2;\n            if (nums[mid] > nums[r]) l = mid + 1;\n            else r = mid;\n        }\n        return nums[l];\n    }\n}',
-      cpp: '#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    int findMin(vector<int>& nums) {\n        int l = 0, r = nums.size() - 1;\n        while (l < r) {\n            int mid = l + (r - l) / 2;\n            if (nums[mid] > nums[r]) l = mid + 1;\n            else r = mid;\n        }\n        return nums[l];\n    }\n};',
-    },
-    testCases: [
-      { id: 'tc-1', input: 'nums = [3,4,5,1,2]', expectedOutput: '1' },
-      { id: 'tc-2', input: 'nums = [4,5,6,7,0,1,2]', expectedOutput: '0' },
+    "title": "Two Sum II - Input Array Is Sorted",
+    "slug": "two-sum-ii-input-array-is-sorted",
+    "platform": "LEETCODE",
+    "difficulty": "Medium",
+    "topic": "Two Pointers",
+    "tags": [
+      "array",
+      "two-pointers",
+      "binary-search"
     ],
-  },
-
-  // ─── 7. DYNAMIC PROGRAMMING & 1D / 2D DP ───────────────────
-  {
-    title: 'Climbing Stairs',
-    slug: 'climbing-stairs',
-    platform: 'LEETCODE',
-    difficulty: 'Easy',
-    topic: '1D DP',
-    tags: ['math', 'dynamic-programming', 'memoization'],
-    canonicalUrl: 'https://leetcode.com/problems/climbing-stairs/',
-    estimatedMinutes: 10,
-    description: 'You are climbing a staircase. It takes n steps to reach the top. Each time you can either climb 1 or 2 steps. In how many distinct ways can you climb to the top?',
-    entryFunctionName: 'climbStairs',
-    companyTags: ['Amazon', 'Apple', 'Google', 'Meta'],
-    starterCode: {
-      javascript: 'function climbStairs(n) {\n  if (n <= 2) return n;\n  let a = 1, b = 2;\n  for (let i = 3; i <= n; i++) {\n    const temp = a + b;\n    a = b;\n    b = temp;\n  }\n  return b;\n}',
-      python: 'def climbStairs(n: int) -> int:\n    if n <= 2: return n\n    a, b = 1, 2\n    for _ in range(3, n + 1):\n        a, b = b, a + b\n    return b',
-      java: 'class Solution {\n    public int climbStairs(int n) {\n        if (n <= 2) return n;\n        int a = 1, b = 2;\n        for (int i = 3; i <= n; i++) {\n            int temp = a + b;\n            a = b;\n            b = temp;\n        }\n        return b;\n    }\n}',
-      cpp: 'class Solution {\npublic:\n    int climbStairs(int n) {\n        if (n <= 2) return n;\n        int a = 1, b = 2;\n        for (int i = 3; i <= n; i++) {\n            int temp = a + b;\n            a = b;\n            b = temp;\n        }\n        return b;\n    }\n};',
-    },
-    testCases: [
-      { id: 'tc-1', input: 'n = 2', expectedOutput: '2' },
-      { id: 'tc-2', input: 'n = 3', expectedOutput: '3' },
+    "canonicalUrl": "https://leetcode.com/problems/two-sum-ii-input-array-is-sorted/",
+    "estimatedMinutes": 15,
+    "description": "Given a 1-indexed array of integers numbers that is already sorted in non-decreasing order, find two numbers such that they add up to a specific target number. Return the indices of the two numbers, index1 and index2, added by one as an integer array [index1, index2] of length 2.",
+    "entryFunctionName": "twoSum",
+    "companyTags": [
+      "Amazon",
+      "Google",
+      "Meta"
     ],
+    "starterCode": {
+      "javascript": "/**\n * @param {number[]} numbers\n * @param {number} target\n * @return {number[]}\n */\nfunction twoSum(numbers, target) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def twoSum(self, numbers: list[int], target: int) -> list[int]:\n        # Write your solution here\n        pass",
+      "java": "class Solution {\n    public int[] twoSum(int[] numbers, int target) {\n        // Write your solution here\n        return new int[]{};\n    }\n}",
+      "cpp": "#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    vector<int> twoSum(vector<int>& numbers, int target) {\n        // Write your solution here\n        return {};\n    }\n};",
+      "c": "int* twoSum(int* numbers, int numbersSize, int target, int* returnSize) {\n    // Write your solution here\n    *returnSize = 2;\n    return NULL;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "numbers = [2,7,11,15], target = 9",
+        "expectedOutput": "[1, 2]"
+      },
+      {
+        "id": "tc-2",
+        "input": "numbers = [2,3,4], target = 6",
+        "expectedOutput": "[1, 3]"
+      },
+      {
+        "id": "tc-3",
+        "input": "numbers = [-1,0], target = -1",
+        "expectedOutput": "[1, 2]"
+      }
+    ]
   },
   {
-    title: 'House Robber',
-    slug: 'house-robber',
-    platform: 'LEETCODE',
-    difficulty: 'Medium',
-    topic: '1D DP',
-    tags: ['array', 'dynamic-programming'],
-    canonicalUrl: 'https://leetcode.com/problems/house-robber/',
-    estimatedMinutes: 20,
-    description: 'You are a professional robber planning to rob houses along a street. Each house has a certain amount of money stashed. Determine the maximum amount of money you can rob tonight without alerting the police (cannot rob adjacent houses).',
-    entryFunctionName: 'rob',
-    companyTags: ['Amazon', 'Google', 'Apple', 'Microsoft'],
-    starterCode: {
-      javascript: 'function rob(nums) {\n  let prev1 = 0, prev2 = 0;\n  for (const n of nums) {\n    const temp = Math.max(prev1, prev2 + n);\n    prev2 = prev1;\n    prev1 = temp;\n  }\n  return prev1;\n}',
-      python: 'def rob(nums: list[int]) -> int:\n    prev1 = prev2 = 0\n    for n in nums:\n        prev1, prev2 = max(prev1, prev2 + n), prev1\n    return prev1',
-      java: 'class Solution {\n    public int rob(int[] nums) {\n        int prev1 = 0, prev2 = 0;\n        for (int n : nums) {\n            int temp = Math.max(prev1, prev2 + n);\n            prev2 = prev1;\n            prev1 = temp;\n        }\n        return prev1;\n    }\n}',
-      cpp: '#include <vector>\n#include <algorithm>\nusing namespace std;\n\nclass Solution {\npublic:\n    int rob(vector<int>& nums) {\n        int prev1 = 0, prev2 = 0;\n        for (int n : nums) {\n            int temp = max(prev1, prev2 + n);\n            prev2 = prev1;\n            prev1 = temp;\n        }\n        return prev1;\n    }\n};',
-    },
-    testCases: [
-      { id: 'tc-1', input: 'nums = [1,2,3,1]', expectedOutput: '4' },
-      { id: 'tc-2', input: 'nums = [2,7,9,3,1]', expectedOutput: '12' },
+    "title": "3Sum",
+    "slug": "3sum",
+    "platform": "LEETCODE",
+    "difficulty": "Medium",
+    "topic": "Two Pointers",
+    "tags": [
+      "array",
+      "two-pointers",
+      "sorting"
     ],
+    "canonicalUrl": "https://leetcode.com/problems/3sum/",
+    "estimatedMinutes": 25,
+    "description": "Given an integer array nums, return all the triplets [nums[i], nums[j], nums[k]] such that i != j, i != k, and j != k, and nums[i] + nums[j] + nums[k] == 0. Notice that the solution set must not contain duplicate triplets.",
+    "entryFunctionName": "threeSum",
+    "companyTags": [
+      "Meta",
+      "Amazon",
+      "Apple",
+      "Google",
+      "Microsoft"
+    ],
+    "starterCode": {
+      "javascript": "/**\n * @param {number[]} nums\n * @return {number[][]}\n */\nfunction threeSum(nums) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def threeSum(self, nums: list[int]) -> list[list[int]]:\n        # Write your solution here\n        pass",
+      "java": "import java.util.*;\n\nclass Solution {\n    public List<List<Integer>> threeSum(int[] nums) {\n        // Write your solution here\n        return new ArrayList<>();\n    }\n}",
+      "cpp": "#include <vector>\n#include <algorithm>\nusing namespace std;\n\nclass Solution {\npublic:\n    vector<vector<int>> threeSum(vector<int>& nums) {\n        // Write your solution here\n        return {};\n    }\n};",
+      "c": "int** threeSum(int* nums, int numsSize, int* returnSize, int** returnColumnSizes) {\n    // Write your solution here\n    *returnSize = 0;\n    return NULL;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "nums = [-1,0,1,2,-1,-4]",
+        "expectedOutput": "[[-1, -1, 2], [-1, 0, 1]]"
+      },
+      {
+        "id": "tc-2",
+        "input": "nums = [0,1,1]",
+        "expectedOutput": "[]"
+      },
+      {
+        "id": "tc-3",
+        "input": "nums = [0,0,0]",
+        "expectedOutput": "[[0, 0, 0]]"
+      }
+    ]
   },
   {
-    title: 'Coin Change',
-    slug: 'coin-change',
-    platform: 'LEETCODE',
-    difficulty: 'Medium',
-    topic: 'Dynamic Programming',
-    tags: ['array', 'dynamic-programming', 'breadth-first-search'],
-    canonicalUrl: 'https://leetcode.com/problems/coin-change/',
-    estimatedMinutes: 25,
-    description: 'Return the fewest number of coins that you need to make up amount.',
-    entryFunctionName: 'coinChange',
-    companyTags: ['Amazon', 'Google', 'Meta', 'Microsoft', 'Bloomberg'],
-    starterCode: {
-      javascript: 'function coinChange(coins, amount) {\n  const dp = new Array(amount + 1).fill(Infinity);\n  dp[0] = 0;\n  for (let i = 1; i <= amount; i++) {\n    for (const c of coins) {\n      if (i - c >= 0) dp[i] = Math.min(dp[i], dp[i - c] + 1);\n    }\n  }\n  return dp[amount] === Infinity ? -1 : dp[amount];\n}',
-      python: 'def coinChange(coins: list[int], amount: int) -> int:\n    dp = [float("inf")] * (amount + 1)\n    dp[0] = 0\n    for i in range(1, amount + 1):\n        for c in coins:\n            if i - c >= 0:\n                dp[i] = min(dp[i], dp[i - c] + 1)\n    return dp[amount] if dp[amount] != float("inf") else -1',
-      java: 'import java.util.*;\n\nclass Solution {\n    public int coinChange(int[] coins, int amount) {\n        int[] dp = new int[amount + 1];\n        Arrays.fill(dp, amount + 1);\n        dp[0] = 0;\n        for (int i = 1; i <= amount; i++) {\n            for (int c : coins) {\n                if (i - c >= 0) dp[i] = Math.min(dp[i], dp[i - c] + 1);\n            }\n        }\n        return dp[amount] > amount ? -1 : dp[amount];\n    }\n}',
-      cpp: '#include <vector>\n#include <algorithm>\nusing namespace std;\n\nclass Solution {\npublic:\n    int coinChange(vector<int>& coins, int amount) {\n        vector<int> dp(amount + 1, amount + 1);\n        dp[0] = 0;\n        for (int i = 1; i <= amount; i++) {\n            for (int c : coins) {\n                if (i - c >= 0) dp[i] = min(dp[i], dp[i - c] + 1);\n            }\n        }\n        return dp[amount] > amount ? -1 : dp[amount];\n    }\n};',
-    },
-    testCases: [
-      { id: 'tc-1', input: 'coins = [1,2,5], amount = 11', expectedOutput: '3' },
-      { id: 'tc-2', input: 'coins = [2], amount = 3', expectedOutput: '-1' },
-      { id: 'tc-3', input: 'coins = [1], amount = 0', expectedOutput: '0' },
+    "title": "Container With Most Water",
+    "slug": "container-with-most-water",
+    "platform": "LEETCODE",
+    "difficulty": "Medium",
+    "topic": "Two Pointers",
+    "tags": [
+      "array",
+      "two-pointers",
+      "greedy"
     ],
+    "canonicalUrl": "https://leetcode.com/problems/container-with-most-water/",
+    "estimatedMinutes": 20,
+    "description": "You are given an integer array height of length n. There are n vertical lines drawn such that the two endpoints of the ith line are (i, 0) and (i, height[i]). Find two lines that together with the x-axis form a container, such that the container contains the most water. Return the maximum amount of water a container can store.",
+    "entryFunctionName": "maxArea",
+    "companyTags": [
+      "Amazon",
+      "Google",
+      "Apple",
+      "Meta",
+      "Goldman Sachs"
+    ],
+    "starterCode": {
+      "javascript": "/**\n * @param {number[]} height\n * @return {number}\n */\nfunction maxArea(height) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def maxArea(self, height: list[int]) -> int:\n        # Write your solution here\n        pass",
+      "java": "class Solution {\n    public int maxArea(int[] height) {\n        // Write your solution here\n        return 0;\n    }\n}",
+      "cpp": "#include <vector>\n#include <algorithm>\nusing namespace std;\n\nclass Solution {\npublic:\n    int maxArea(vector<int>& height) {\n        // Write your solution here\n        return 0;\n    }\n};",
+      "c": "int maxArea(int* height, int heightSize) {\n    // Write your solution here\n    return 0;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "height = [1,8,6,2,5,4,8,3,7]",
+        "expectedOutput": "49"
+      },
+      {
+        "id": "tc-2",
+        "input": "height = [1,1]",
+        "expectedOutput": "1"
+      },
+      {
+        "id": "tc-3",
+        "input": "height = [4,3,2,1,4]",
+        "expectedOutput": "16",
+        "isHidden": true
+      }
+    ]
   },
   {
-    title: 'Jump Game',
-    slug: 'jump-game',
-    platform: 'LEETCODE',
-    difficulty: 'Medium',
-    topic: 'Greedy',
-    tags: ['array', 'dynamic-programming', 'greedy'],
-    canonicalUrl: 'https://leetcode.com/problems/jump-game/',
-    estimatedMinutes: 20,
-    description: 'You are given an integer array nums. You are initially positioned at the array\'s first index, and each element in the array represents your maximum jump length at that position. Return true if you can reach the last index, or false otherwise.',
-    entryFunctionName: 'canJump',
-    companyTags: ['Amazon', 'Google', 'Apple', 'Meta'],
-    starterCode: {
-      javascript: 'function canJump(nums) {\n  let maxReach = 0;\n  for (let i = 0; i < nums.length; i++) {\n    if (i > maxReach) return false;\n    maxReach = Math.max(maxReach, i + nums[i]);\n  }\n  return true;\n}',
-      python: 'def canJump(nums: list[int]) -> bool:\n    max_reach = 0\n    for i, jump in enumerate(nums):\n        if i > max_reach:\n            return False\n        max_reach = max(max_reach, i + jump)\n    return True',
-      java: 'class Solution {\n    public boolean canJump(int[] nums) {\n        int maxReach = 0;\n        for (int i = 0; i < nums.length; i++) {\n            if (i > maxReach) return false;\n            maxReach = Math.max(maxReach, i + nums[i]);\n        }\n        return true;\n    }\n}',
-      cpp: '#include <vector>\n#include <algorithm>\nusing namespace std;\n\nclass Solution {\npublic:\n    bool canJump(vector<int>& nums) {\n        int maxReach = 0;\n        for (int i = 0; i < nums.size(); i++) {\n            if (i > maxReach) return false;\n            maxReach = max(maxReach, i + nums[i]);\n        }\n        return true;\n    }\n};',
-    },
-    testCases: [
-      { id: 'tc-1', input: 'nums = [2,3,1,1,4]', expectedOutput: 'true' },
-      { id: 'tc-2', input: 'nums = [3,2,1,0,4]', expectedOutput: 'false' },
+    "title": "Longest Substring Without Repeating Characters",
+    "slug": "longest-substring-without-repeating-characters",
+    "platform": "LEETCODE",
+    "difficulty": "Medium",
+    "topic": "Sliding Window",
+    "tags": [
+      "hash-table",
+      "string",
+      "sliding-window"
     ],
+    "canonicalUrl": "https://leetcode.com/problems/longest-substring-without-repeating-characters/",
+    "estimatedMinutes": 20,
+    "description": "Given a string s, find the length of the longest substring without repeating characters.",
+    "entryFunctionName": "lengthOfLongestSubstring",
+    "companyTags": [
+      "Amazon",
+      "Microsoft",
+      "Meta",
+      "Google",
+      "Bloomberg"
+    ],
+    "starterCode": {
+      "javascript": "/**\n * @param {string} s\n * @return {number}\n */\nfunction lengthOfLongestSubstring(s) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def lengthOfLongestSubstring(self, s: str) -> int:\n        # Write your solution here\n        pass",
+      "java": "import java.util.*;\n\nclass Solution {\n    public int lengthOfLongestSubstring(String s) {\n        // Write your solution here\n        return 0;\n    }\n}",
+      "cpp": "#include <string>\n#include <unordered_set>\n#include <algorithm>\nusing namespace std;\n\nclass Solution {\npublic:\n    int lengthOfLongestSubstring(string s) {\n        // Write your solution here\n        return 0;\n    }\n};",
+      "c": "int lengthOfLongestSubstring(char* s) {\n    // Write your solution here\n    return 0;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "s = \"abcabcbb\"",
+        "expectedOutput": "3"
+      },
+      {
+        "id": "tc-2",
+        "input": "s = \"bbbbb\"",
+        "expectedOutput": "1"
+      },
+      {
+        "id": "tc-3",
+        "input": "s = \"pwwkew\"",
+        "expectedOutput": "3"
+      },
+      {
+        "id": "tc-4",
+        "input": "s = \"\"",
+        "expectedOutput": "0",
+        "isHidden": true
+      }
+    ]
   },
   {
-    title: '0 - 1 Knapsack Problem',
-    slug: '0-1-knapsack-problem',
-    platform: 'GEEKSFORGEEKS',
-    difficulty: 'Medium',
-    topic: 'Knapsack',
-    tags: ['dynamic-programming', 'knapsack'],
-    canonicalUrl: 'https://www.geeksforgeeks.org/problems/0-1-knapsack-problem0945/1',
-    estimatedMinutes: 25,
-    description: 'Put items in a knapsack of capacity W to get the maximum total value.',
-    entryFunctionName: 'knapSack',
-    companyTags: ['Amazon', 'Directi', 'Flipkart', 'Paytm'],
-    starterCode: {
-      javascript: 'function knapSack(W, wt, val, n) {\n  const dp = new Array(W + 1).fill(0);\n  for (let i = 0; i < n; i++) {\n    for (let w = W; w >= wt[i]; w--) {\n      dp[w] = Math.max(dp[w], dp[w - wt[i]] + val[i]);\n    }\n  }\n  return dp[W];\n}',
-      python: 'def knapSack(W: int, wt: list[int], val: list[int], n: int) -> int:\n    dp = [0] * (W + 1)\n    for i in range(n):\n        for w in range(W, wt[i] - 1, -1):\n            dp[w] = max(dp[w], dp[w - wt[i]] + val[i])\n    return dp[W]',
-      java: 'class Solution {\n    public int knapSack(int W, int[] wt, int[] val, int n) {\n        int[] dp = new int[W + 1];\n        for (int i = 0; i < n; i++) {\n            for (int w = W; w >= wt[i]; w--) {\n                dp[w] = Math.max(dp[w], dp[w - wt[i]] + val[i]);\n            }\n        }\n        return dp[W];\n    }\n}',
-      cpp: '#include <vector>\n#include <algorithm>\nusing namespace std;\n\nclass Solution {\npublic:\n    int knapSack(int W, vector<int>& wt, vector<int>& val, int n) {\n        vector<int> dp(W + 1, 0);\n        for (int i = 0; i < n; i++) {\n            for (int w = W; w >= wt[i]; w--) {\n                dp[w] = max(dp[w], dp[w - wt[i]] + val[i]);\n            }\n        }\n        return dp[W];\n    }\n};',
-    },
-    testCases: [
-      { id: 'tc-1', input: 'W = 4, wt = [4, 5, 1], val = [1, 2, 3], n = 3', expectedOutput: '3' },
-      { id: 'tc-2', input: 'W = 3, wt = [1, 2, 3], val = [4, 5, 1], n = 3', expectedOutput: '9' },
+    "title": "Longest Repeating Character Replacement",
+    "slug": "longest-repeating-character-replacement",
+    "platform": "LEETCODE",
+    "difficulty": "Medium",
+    "topic": "Sliding Window",
+    "tags": [
+      "hash-table",
+      "string",
+      "sliding-window"
     ],
+    "canonicalUrl": "https://leetcode.com/problems/longest-repeating-character-replacement/",
+    "estimatedMinutes": 25,
+    "description": "You are given a string s and an integer k. You can choose any character of the string and change it to any other uppercase English character. You can perform this operation at most k times. Return the length of the longest substring containing the same letter you can get after performing the above operations.",
+    "entryFunctionName": "characterReplacement",
+    "companyTags": [
+      "Google",
+      "Amazon",
+      "Meta"
+    ],
+    "starterCode": {
+      "javascript": "/**\n * @param {string} s\n * @param {number} k\n * @return {number}\n */\nfunction characterReplacement(s, k) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def characterReplacement(self, s: str, k: int) -> int:\n        # Write your solution here\n        pass",
+      "java": "class Solution {\n    public int characterReplacement(String s, int k) {\n        // Write your solution here\n        return 0;\n    }\n}",
+      "cpp": "#include <string>\n#include <vector>\n#include <algorithm>\nusing namespace std;\n\nclass Solution {\npublic:\n    int characterReplacement(string s, int k) {\n        // Write your solution here\n        return 0;\n    }\n};",
+      "c": "int characterReplacement(char* s, int k) {\n    // Write your solution here\n    return 0;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "s = \"ABAB\", k = 2",
+        "expectedOutput": "4"
+      },
+      {
+        "id": "tc-2",
+        "input": "s = \"AABABBA\", k = 1",
+        "expectedOutput": "4"
+      },
+      {
+        "id": "tc-3",
+        "input": "s = \"AAAA\", k = 2",
+        "expectedOutput": "4",
+        "isHidden": true
+      }
+    ]
   },
   {
-    title: 'Longest Increasing Subsequence',
-    slug: 'longest-increasing-subsequence',
-    platform: 'LEETCODE',
-    difficulty: 'Medium',
-    topic: 'Dynamic Programming',
-    tags: ['array', 'binary-search', 'dynamic-programming'],
-    canonicalUrl: 'https://leetcode.com/problems/longest-increasing-subsequence/',
-    estimatedMinutes: 25,
-    description: 'Given an integer array nums, return the length of the longest strictly increasing subsequence.',
-    entryFunctionName: 'lengthOfLIS',
-    companyTags: ['Amazon', 'Google', 'Meta', 'Microsoft', 'Apple'],
-    starterCode: {
-      javascript: 'function lengthOfLIS(nums) {\n  if (!nums.length) return 0;\n  const dp = new Array(nums.length).fill(1);\n  for (let i = 1; i < nums.length; i++) {\n    for (let j = 0; j < i; j++) {\n      if (nums[j] < nums[i]) dp[i] = Math.max(dp[i], dp[j] + 1);\n    }\n  }\n  return Math.max(...dp);\n}',
-      python: 'def lengthOfLIS(nums: list[int]) -> int:\n    if not nums: return 0\n    dp = [1] * len(nums)\n    for i in range(1, len(nums)):\n        for j in range(i):\n            if nums[j] < nums[i]:\n                dp[i] = max(dp[i], dp[j] + 1)\n    return max(dp)',
-      java: 'import java.util.*;\n\nclass Solution {\n    public int lengthOfLIS(int[] nums) {\n        if (nums == null || nums.length == 0) return 0;\n        int[] dp = new int[nums.length];\n        Arrays.fill(dp, 1);\n        int max = 1;\n        for (int i = 1; i < nums.length; i++) {\n            for (int j = 0; j < i; j++) {\n                if (nums[j] < nums[i]) {\n                    dp[i] = Math.max(dp[i], dp[j] + 1);\n                }\n            }\n            max = Math.max(max, dp[i]);\n        }\n        return max;\n    }\n}',
-      cpp: '#include <vector>\n#include <algorithm>\nusing namespace std;\n\nclass Solution {\npublic:\n    int lengthOfLIS(vector<int>& nums) {\n        if (nums.empty()) return 0;\n        vector<int> dp(nums.size(), 1);\n        int maxLen = 1;\n        for (size_t i = 1; i < nums.size(); i++) {\n            for (size_t j = 0; j < i; j++) {\n                if (nums[j] < nums[i]) dp[i] = max(dp[i], dp[j] + 1);\n            }\n            maxLen = max(maxLen, dp[i]);\n        }\n        return maxLen;\n    }\n};',
-    },
-    testCases: [
-      { id: 'tc-1', input: 'nums = [10,9,2,5,3,7,101,18]', expectedOutput: '4' },
-      { id: 'tc-2', input: 'nums = [0,1,0,3,2,3]', expectedOutput: '4' },
-      { id: 'tc-3', input: 'nums = [7,7,7,7,7,7,7]', expectedOutput: '1', isHidden: true },
+    "title": "Valid Anagram",
+    "slug": "valid-anagram",
+    "platform": "LEETCODE",
+    "difficulty": "Easy",
+    "topic": "Strings",
+    "tags": [
+      "hash-table",
+      "string",
+      "sorting"
     ],
+    "canonicalUrl": "https://leetcode.com/problems/valid-anagram/",
+    "estimatedMinutes": 10,
+    "description": "Given two strings s and t, return true if t is an anagram of s, and false otherwise.",
+    "entryFunctionName": "isAnagram",
+    "companyTags": [
+      "Amazon",
+      "Bloomberg",
+      "Google"
+    ],
+    "starterCode": {
+      "javascript": "/**\n * @param {string} s\n * @param {string} t\n * @return {boolean}\n */\nfunction isAnagram(s, t) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def isAnagram(self, s: str, t: str) -> bool:\n        # Write your solution here\n        pass",
+      "java": "class Solution {\n    public boolean isAnagram(String s, String t) {\n        // Write your solution here\n        return false;\n    }\n}",
+      "cpp": "#include <string>\n#include <algorithm>\nusing namespace std;\n\nclass Solution {\npublic:\n    bool isAnagram(string s, string t) {\n        // Write your solution here\n        return false;\n    }\n};",
+      "c": "#include <stdbool.h>\n#include <string.h>\n\nbool isAnagram(char* s, char* t) {\n    // Write your solution here\n    return false;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "s = \"anagram\", t = \"nagaram\"",
+        "expectedOutput": "true"
+      },
+      {
+        "id": "tc-2",
+        "input": "s = \"rat\", t = \"car\"",
+        "expectedOutput": "false"
+      },
+      {
+        "id": "tc-3",
+        "input": "s = \"a\", t = \"ab\"",
+        "expectedOutput": "false",
+        "isHidden": true
+      }
+    ]
   },
   {
-    title: 'Longest Common Subsequence',
-    slug: 'longest-common-subsequence',
-    platform: 'LEETCODE',
-    difficulty: 'Medium',
-    topic: 'Dynamic Programming',
-    tags: ['string', 'dynamic-programming'],
-    canonicalUrl: 'https://leetcode.com/problems/longest-common-subsequence/',
-    estimatedMinutes: 25,
-    description: 'Given two strings text1 and text2, return the length of their longest common subsequence. If there is no common subsequence, return 0.',
-    entryFunctionName: 'longestCommonSubsequence',
-    companyTags: ['Amazon', 'Google', 'Microsoft', 'Bloomberg'],
-    starterCode: {
-      javascript: 'function longestCommonSubsequence(text1, text2) {\n  const m = text1.length, n = text2.length;\n  const dp = Array.from({ length: m + 1 }, () => new Array(n + 1).fill(0));\n  for (let i = 1; i <= m; i++) {\n    for (let j = 1; j <= n; j++) {\n      if (text1[i - 1] === text2[j - 1]) dp[i][j] = dp[i - 1][j - 1] + 1;\n      else dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);\n    }\n  }\n  return dp[m][n];\n}',
-      python: 'def longestCommonSubsequence(text1: str, text2: str) -> int:\n    m, n = len(text1), len(text2)\n    dp = [[0] * (n + 1) for _ in range(m + 1)]\n    for i in range(1, m + 1):\n        for j in range(1, n + 1):\n            if text1[i - 1] == text2[j - 1]:\n                dp[i][j] = dp[i - 1][j - 1] + 1\n            else:\n                dp[i][j] = max(dp[i - 1][j], dp[i][j - 1])\n    return dp[m][n]',
-      java: 'class Solution {\n    public int longestCommonSubsequence(String text1, String text2) {\n        int m = text1.length(), n = text2.length();\n        int[][] dp = new int[m + 1][n + 1];\n        for (int i = 1; i <= m; i++) {\n            for (int j = 1; j <= n; j++) {\n                if (text1.charAt(i - 1) == text2.charAt(j - 1)) {\n                    dp[i][j] = dp[i - 1][j - 1] + 1;\n                } else {\n                    dp[i][j] = Math.max(dp[i - 1][j], dp[i][j - 1]);\n                }\n            }\n        }\n        return dp[m][n];\n    }\n}',
-      cpp: '#include <string>\n#include <vector>\n#include <algorithm>\nusing namespace std;\n\nclass Solution {\npublic:\n    int longestCommonSubsequence(string text1, string text2) {\n        int m = text1.size(), n = text2.size();\n        vector<vector<int>> dp(m + 1, vector<int>(n + 1, 0));\n        for (int i = 1; i <= m; i++) {\n            for (int j = 1; j <= n; j++) {\n                if (text1[i - 1] == text2[j - 1]) dp[i][j] = dp[i - 1][j - 1] + 1;\n                else dp[i][j] = max(dp[i - 1][j], dp[i][j - 1]);\n            }\n        }\n        return dp[m][n];\n    }\n};',
-    },
-    testCases: [
-      { id: 'tc-1', input: 'text1 = "abcde", text2 = "ace"', expectedOutput: '3' },
-      { id: 'tc-2', input: 'text1 = "abc", text2 = "abc"', expectedOutput: '3' },
-      { id: 'tc-3', input: 'text1 = "abc", text2 = "def"', expectedOutput: '0' },
+    "title": "Group Anagrams",
+    "slug": "group-anagrams",
+    "platform": "LEETCODE",
+    "difficulty": "Medium",
+    "topic": "Strings",
+    "tags": [
+      "array",
+      "hash-table",
+      "string",
+      "sorting"
     ],
+    "canonicalUrl": "https://leetcode.com/problems/group-anagrams/",
+    "estimatedMinutes": 20,
+    "description": "Given an array of strings strs, group the anagrams together. You can return the answer in any order.",
+    "entryFunctionName": "groupAnagrams",
+    "companyTags": [
+      "Amazon",
+      "Meta",
+      "Microsoft",
+      "Google"
+    ],
+    "starterCode": {
+      "javascript": "/**\n * @param {string[]} strs\n * @return {string[][]}\n */\nfunction groupAnagrams(strs) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def groupAnagrams(self, strs: list[str]) -> list[list[str]]:\n        # Write your solution here\n        pass",
+      "java": "import java.util.*;\n\nclass Solution {\n    public List<List<String>> groupAnagrams(String[] strs) {\n        // Write your solution here\n        return new ArrayList<>();\n    }\n}",
+      "cpp": "#include <vector>\n#include <string>\n#include <unordered_map>\nusing namespace std;\n\nclass Solution {\npublic:\n    vector<vector<string>> groupAnagrams(vector<string>& strs) {\n        // Write your solution here\n        return {};\n    }\n};",
+      "c": "char*** groupAnagrams(char** strs, int strsSize, int* returnSize, int** returnColumnSizes) {\n    // Write your solution here\n    *returnSize = 0;\n    return NULL;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "strs = [\"eat\",\"tea\",\"tan\",\"ate\",\"nat\",\"bat\"]",
+        "expectedOutput": "[[\"bat\"], [\"nat\", \"tan\"], [\"ate\", \"eat\", \"tea\"]]"
+      },
+      {
+        "id": "tc-2",
+        "input": "strs = [\"\"]",
+        "expectedOutput": "[[\"\"]]"
+      },
+      {
+        "id": "tc-3",
+        "input": "strs = [\"a\"]",
+        "expectedOutput": "[[\"a\"]]"
+      }
+    ]
   },
   {
-    title: 'Unique Paths',
-    slug: 'unique-paths',
-    platform: 'LEETCODE',
-    difficulty: 'Medium',
-    topic: 'Dynamic Programming',
-    tags: ['math', 'dynamic-programming', 'combinatorics'],
-    canonicalUrl: 'https://leetcode.com/problems/unique-paths/',
-    estimatedMinutes: 20,
-    description: 'There is a robot on an m x n grid. The robot is initially located at the top-left corner and tries to move to the bottom-right corner. How many possible unique paths are there?',
-    entryFunctionName: 'uniquePaths',
-    companyTags: ['Google', 'Meta', 'Amazon', 'Microsoft'],
-    starterCode: {
-      javascript: 'function uniquePaths(m, n) {\n  const row = new Array(n).fill(1);\n  for (let i = 1; i < m; i++) {\n    for (let j = 1; j < n; j++) {\n      row[j] += row[j - 1];\n    }\n  }\n  return row[n - 1];\n}',
-      python: 'def uniquePaths(m: int, n: int) -> int:\n    row = [1] * n\n    for _ in range(1, m):\n        for j in range(1, n):\n            row[j] += row[j - 1]\n    return row[-1]',
-      java: 'import java.util.*;\n\nclass Solution {\n    public int uniquePaths(int m, int n) {\n        int[] row = new int[n];\n        Arrays.fill(row, 1);\n        for (int i = 1; i < m; i++) {\n            for (int j = 1; j < n; j++) {\n                row[j] += row[j - 1];\n            }\n        }\n        return row[n - 1];\n    }\n}',
-      cpp: '#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    int uniquePaths(int m, int n) {\n        vector<int> row(n, 1);\n        for (int i = 1; i < m; i++) {\n            for (int j = 1; j < n; j++) {\n                row[j] += row[j - 1];\n            }\n        }\n        return row[n - 1];\n    }\n};',
-    },
-    testCases: [
-      { id: 'tc-1', input: 'm = 3, n = 7', expectedOutput: '28' },
-      { id: 'tc-2', input: 'm = 3, n = 2', expectedOutput: '3' },
+    "title": "Valid Parentheses",
+    "slug": "valid-parentheses",
+    "platform": "LEETCODE",
+    "difficulty": "Easy",
+    "topic": "Stack & Queue",
+    "tags": [
+      "string",
+      "stack"
     ],
+    "canonicalUrl": "https://leetcode.com/problems/valid-parentheses/",
+    "estimatedMinutes": 15,
+    "description": "Given a string s containing just the characters '(', ')', '{', '}', '[' and ']', determine if the input string is valid. An input string is valid if open brackets are closed by the same type of brackets and in the correct order.",
+    "entryFunctionName": "isValid",
+    "companyTags": [
+      "Amazon",
+      "Google",
+      "Meta",
+      "Microsoft",
+      "Bloomberg"
+    ],
+    "starterCode": {
+      "javascript": "/**\n * @param {string} s\n * @return {boolean}\n */\nfunction isValid(s) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def isValid(self, s: str) -> bool:\n        # Write your solution here\n        pass",
+      "java": "import java.util.*;\n\nclass Solution {\n    public boolean isValid(String s) {\n        // Write your solution here\n        return false;\n    }\n}",
+      "cpp": "#include <string>\n#include <stack>\nusing namespace std;\n\nclass Solution {\npublic:\n    bool isValid(string s) {\n        // Write your solution here\n        return false;\n    }\n};",
+      "c": "#include <stdbool.h>\n#include <string.h>\n\nbool isValid(char* s) {\n    // Write your solution here\n    return false;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "s = \"()\"",
+        "expectedOutput": "true"
+      },
+      {
+        "id": "tc-2",
+        "input": "s = \"()[]{}\"",
+        "expectedOutput": "true"
+      },
+      {
+        "id": "tc-3",
+        "input": "s = \"(]\"",
+        "expectedOutput": "false"
+      },
+      {
+        "id": "tc-4",
+        "input": "s = \"([)]\"",
+        "expectedOutput": "false",
+        "isHidden": true
+      }
+    ]
   },
   {
-    title: 'Min Cost Climbing Stairs',
-    slug: 'min-cost-climbing-stairs',
-    platform: 'LEETCODE',
-    difficulty: 'Easy',
-    topic: 'Dynamic Programming',
-    tags: ['array', 'dynamic-programming'],
-    canonicalUrl: 'https://leetcode.com/problems/min-cost-climbing-stairs/',
-    estimatedMinutes: 15,
-    description: 'You are given an integer array cost where cost[i] is the cost of ith step on a staircase. Once you pay the cost, you can either climb one or two steps. Return the minimum cost to reach the top of the floor.',
-    entryFunctionName: 'minCostClimbingStairs',
-    companyTags: ['Amazon', 'Apple', 'Google'],
-    starterCode: {
-      javascript: 'function minCostClimbingStairs(cost) {\n  let first = cost[0], second = cost[1];\n  for (let i = 2; i < cost.length; i++) {\n    const curr = cost[i] + Math.min(first, second);\n    first = second;\n    second = curr;\n  }\n  return Math.min(first, second);\n}',
-      python: 'def minCostClimbingStairs(cost: list[int]) -> int:\n    first, second = cost[0], cost[1]\n    for i in range(2, len(cost)):\n        curr = cost[i] + min(first, second)\n        first, second = second, curr\n    return min(first, second)',
-      java: 'class Solution {\n    public int minCostClimbingStairs(int[] cost) {\n        int first = cost[0], second = cost[1];\n        for (int i = 2; i < cost.length; i++) {\n            int curr = cost[i] + Math.min(first, second);\n            first = second;\n            second = curr;\n        }\n        return Math.min(first, second);\n    }\n}',
-      cpp: '#include <vector>\n#include <algorithm>\nusing namespace std;\n\nclass Solution {\npublic:\n    int minCostClimbingStairs(vector<int>& cost) {\n        int first = cost[0], second = cost[1];\n        for (size_t i = 2; i < cost.size(); i++) {\n            int curr = cost[i] + min(first, second);\n            first = second;\n            second = curr;\n        }\n        return min(first, second);\n    }\n};',
-    },
-    testCases: [
-      { id: 'tc-1', input: 'cost = [10,15,20]', expectedOutput: '15' },
-      { id: 'tc-2', input: 'cost = [1,100,1,1,1,100,1,1,100,1]', expectedOutput: '6' },
+    "title": "Min Stack",
+    "slug": "min-stack",
+    "platform": "LEETCODE",
+    "difficulty": "Medium",
+    "topic": "Stack & Queue",
+    "tags": [
+      "stack",
+      "design"
     ],
+    "canonicalUrl": "https://leetcode.com/problems/min-stack/",
+    "estimatedMinutes": 20,
+    "description": "Design a stack that supports push, pop, top, and retrieving the minimum element in constant time O(1).",
+    "entryFunctionName": "minStackSimulation",
+    "companyTags": [
+      "Amazon",
+      "Bloomberg",
+      "Microsoft"
+    ],
+    "starterCode": {
+      "javascript": "function minStackSimulation(operations, values) {\n  // Write your solution here\n  \n}",
+      "python": "class MinStack:\n    def __init__(self):\n        pass\n\n    def push(self, val: int) -> None:\n        pass\n\n    def pop(self) -> None:\n        pass\n\n    def top(self) -> int:\n        pass\n\n    def getMin(self) -> int:\n        pass",
+      "java": "class MinStack {\n    public MinStack() {\n        // Write your solution here\n    }\n    public void push(int val) {}\n    public void pop() {}\n    public int top() { return 0; }\n    public int getMin() { return 0; }\n}",
+      "cpp": "#include <stack>\nusing namespace std;\n\nclass MinStack {\npublic:\n    MinStack() {}\n    void push(int val) {}\n    void pop() {}\n    int top() { return 0; }\n    int getMin() { return 0; }\n};",
+      "c": "typedef struct { int* data; } MinStack;\nMinStack* minStackCreate() { return NULL; }\nvoid minStackPush(MinStack* obj, int val) {}\nvoid minStackPop(MinStack* obj) {}\nint minStackTop(MinStack* obj) { return 0; }\nint minStackGetMin(MinStack* obj) { return 0; }"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "operations = [\"push\",\"push\",\"push\",\"getMin\",\"pop\",\"top\",\"getMin\"], values = [[-2],[0],[-3],[],[],[],[]]",
+        "expectedOutput": "[null, null, null, -3, null, 0, -2]"
+      },
+      {
+        "id": "tc-2",
+        "input": "operations = [\"push\",\"push\",\"getMin\"], values = [[1],[2],[]]",
+        "expectedOutput": "[null, null, 1]"
+      }
+    ]
   },
   {
-    title: 'Decode Ways',
-    slug: 'decode-ways',
-    platform: 'LEETCODE',
-    difficulty: 'Medium',
-    topic: 'Dynamic Programming',
-    tags: ['string', 'dynamic-programming'],
-    canonicalUrl: 'https://leetcode.com/problems/decode-ways/',
-    estimatedMinutes: 25,
-    description: 'A message containing letters from A-Z can be encoded into numbers using the mapping A->1, B->2, ... Z->26. Given a string s containing only digits, return the number of ways to decode it.',
-    entryFunctionName: 'numDecodings',
-    companyTags: ['Meta', 'Amazon', 'Google', 'Microsoft', 'Uber'],
-    starterCode: {
-      javascript: 'function numDecodings(s) {\n  if (!s || s[0] === "0") return 0;\n  const n = s.length;\n  const dp = new Array(n + 1).fill(0);\n  dp[0] = 1;\n  dp[1] = 1;\n  for (let i = 2; i <= n; i++) {\n    const one = parseInt(s.slice(i - 1, i));\n    const two = parseInt(s.slice(i - 2, i));\n    if (one >= 1 && one <= 9) dp[i] += dp[i - 1];\n    if (two >= 10 && two <= 26) dp[i] += dp[i - 2];\n  }\n  return dp[n];\n}',
-      python: 'def numDecodings(s: str) -> int:\n    if not s or s[0] == "0":\n        return 0\n    dp = [0] * (len(s) + 1)\n    dp[0] = dp[1] = 1\n    for i in range(2, len(s) + 1):\n        one = int(s[i - 1:i])\n        two = int(s[i - 2:i])\n        if 1 <= one <= 9:\n            dp[i] += dp[i - 1]\n        if 10 <= two <= 26:\n            dp[i] += dp[i - 2]\n    return dp[len(s)]',
-      java: 'class Solution {\n    public int numDecodings(String s) {\n        if (s == null || s.length() == 0 || s.charAt(0) == \'0\') return 0;\n        int n = s.length();\n        int[] dp = new int[n + 1];\n        dp[0] = 1;\n        dp[1] = 1;\n        for (int i = 2; i <= n; i++) {\n            int one = Integer.parseInt(s.substring(i - 1, i));\n            int two = Integer.parseInt(s.substring(i - 2, i));\n            if (one >= 1 && one <= 9) dp[i] += dp[i - 1];\n            if (two >= 10 && two <= 26) dp[i] += dp[i - 2];\n        }\n        return dp[n];\n    }\n}',
-      cpp: '#include <string>\n#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    int numDecodings(string s) {\n        if (s.empty() || s[0] == \'0\') return 0;\n        int n = s.size();\n        vector<int> dp(n + 1, 0);\n        dp[0] = 1;\n        dp[1] = 1;\n        for (int i = 2; i <= n; i++) {\n            int one = stoi(s.substr(i - 1, 1));\n            int two = stoi(s.substr(i - 2, 2));\n            if (one >= 1 && one <= 9) dp[i] += dp[i - 1];\n            if (two >= 10 && two <= 26) dp[i] += dp[i - 2];\n        }\n        return dp[n];\n    }\n};',
-    },
-    testCases: [
-      { id: 'tc-1', input: 's = "12"', expectedOutput: '2' },
-      { id: 'tc-2', input: 's = "226"', expectedOutput: '3' },
-      { id: 'tc-3', input: 's = "06"', expectedOutput: '0' },
+    "title": "Daily Temperatures",
+    "slug": "daily-temperatures",
+    "platform": "LEETCODE",
+    "difficulty": "Medium",
+    "topic": "Stack & Queue",
+    "tags": [
+      "array",
+      "stack",
+      "monotonic-stack"
     ],
+    "canonicalUrl": "https://leetcode.com/problems/daily-temperatures/",
+    "estimatedMinutes": 20,
+    "description": "Given an array of integers temperatures represents the daily temperatures, return an array answer such that answer[i] is the number of days you have to wait after the ith day to get a warmer temperature. If there is no future day for which this is possible, keep answer[i] == 0 instead.",
+    "entryFunctionName": "dailyTemperatures",
+    "companyTags": [
+      "Meta",
+      "Amazon",
+      "Google"
+    ],
+    "starterCode": {
+      "javascript": "/**\n * @param {number[]} temperatures\n * @return {number[]}\n */\nfunction dailyTemperatures(temperatures) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def dailyTemperatures(self, temperatures: list[int]) -> list[int]:\n        # Write your solution here\n        pass",
+      "java": "import java.util.*;\n\nclass Solution {\n    public int[] dailyTemperatures(int[] temperatures) {\n        // Write your solution here\n        return new int[]{};\n    }\n}",
+      "cpp": "#include <vector>\n#include <stack>\nusing namespace std;\n\nclass Solution {\npublic:\n    vector<int> dailyTemperatures(vector<int>& temperatures) {\n        // Write your solution here\n        return {};\n    }\n};",
+      "c": "int* dailyTemperatures(int* temperatures, int temperaturesSize, int* returnSize) {\n    // Write your solution here\n    *returnSize = temperaturesSize;\n    return NULL;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "temperatures = [73,74,75,71,69,72,76,73]",
+        "expectedOutput": "[1, 1, 4, 2, 1, 1, 0, 0]"
+      },
+      {
+        "id": "tc-2",
+        "input": "temperatures = [30,40,50,60]",
+        "expectedOutput": "[1, 1, 1, 0]"
+      },
+      {
+        "id": "tc-3",
+        "input": "temperatures = [30,60,90]",
+        "expectedOutput": "[1, 1, 0]"
+      }
+    ]
   },
   {
-    title: 'Combination Sum IV',
-    slug: 'combination-sum-iv',
-    platform: 'LEETCODE',
-    difficulty: 'Medium',
-    topic: 'Dynamic Programming',
-    tags: ['array', 'dynamic-programming'],
-    canonicalUrl: 'https://leetcode.com/problems/combination-sum-iv/',
-    estimatedMinutes: 20,
-    description: 'Given an array of distinct integers nums and a target integer target, return the number of possible combinations that add up to target.',
-    entryFunctionName: 'combinationSum4',
-    companyTags: ['Google', 'Amazon', 'Meta'],
-    starterCode: {
-      javascript: 'function combinationSum4(nums, target) {\n  const dp = new Array(target + 1).fill(0);\n  dp[0] = 1;\n  for (let i = 1; i <= target; i++) {\n    for (const num of nums) {\n      if (i >= num) dp[i] += dp[i - num];\n    }\n  }\n  return dp[target];\n}',
-      python: 'def combinationSum4(nums: list[int], target: int) -> int:\n    dp = [0] * (target + 1)\n    dp[0] = 1\n    for i in range(1, target + 1):\n        for num in nums:\n            if i >= num:\n                dp[i] += dp[i - num]\n    return dp[target]',
-      java: 'class Solution {\n    public int combinationSum4(int[] nums, int target) {\n        int[] dp = new int[target + 1];\n        dp[0] = 1;\n        for (int i = 1; i <= target; i++) {\n            for (int num : nums) {\n                if (i >= num) dp[i] += dp[i - num];\n            }\n        }\n        return dp[target];\n    }\n}',
-      cpp: '#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    int combinationSum4(vector<int>& nums, int target) {\n        vector<unsigned int> dp(target + 1, 0);\n        dp[0] = 1;\n        for (int i = 1; i <= target; i++) {\n            for (int num : nums) {\n                if (i >= num) dp[i] += dp[i - num];\n            }\n        }\n        return dp[target];\n    }\n};',
-    },
-    testCases: [
-      { id: 'tc-1', input: 'nums = [1,2,3], target = 4', expectedOutput: '7' },
-      { id: 'tc-2', input: 'nums = [9], target = 3', expectedOutput: '0' },
+    "title": "The Celebrity Problem",
+    "slug": "the-celebrity-problem-gfg",
+    "platform": "GEEKSFORGEEKS",
+    "difficulty": "Medium",
+    "topic": "Stack & Queue",
+    "tags": [
+      "stack",
+      "two-pointers",
+      "graph"
     ],
+    "canonicalUrl": "https://www.geeksforgeeks.org/problems/the-celebrity-problem/1",
+    "estimatedMinutes": 20,
+    "description": "A celebrity is a person who is known to all but does not know anyone at a party. A party of N people is represented by an N x N matrix M where M[i][j] = 1 means person i knows person j. Find the celebrity id (0-indexed) or return -1.",
+    "entryFunctionName": "celebrity",
+    "companyTags": [
+      "Amazon",
+      "Microsoft",
+      "Flipkart"
+    ],
+    "starterCode": {
+      "javascript": "function celebrity(M) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def celebrity(self, M: list[list[int]]) -> int:\n        # Write your solution here\n        pass",
+      "java": "class Solution {\n    public int celebrity(int[][] M) {\n        // Write your solution here\n        return -1;\n    }\n}",
+      "cpp": "#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    int celebrity(vector<vector<int>>& M) {\n        // Write your solution here\n        return -1;\n    }\n};",
+      "c": "int celebrity(int** M, int n) {\n    // Write your solution here\n    return -1;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "M = [[0,1,0],[0,0,0],[0,1,0]]",
+        "expectedOutput": "1"
+      },
+      {
+        "id": "tc-2",
+        "input": "M = [[0,1],[1,0]]",
+        "expectedOutput": "-1"
+      },
+      {
+        "id": "tc-3",
+        "input": "M = [[0,0,0],[0,0,0],[0,0,0]]",
+        "expectedOutput": "-1",
+        "isHidden": true
+      }
+    ]
   },
   {
-    title: 'Palindromic Substrings',
-    slug: 'palindromic-substrings',
-    platform: 'LEETCODE',
-    difficulty: 'Medium',
-    topic: 'Dynamic Programming',
-    tags: ['string', 'dynamic-programming'],
-    canonicalUrl: 'https://leetcode.com/problems/palindromic-substrings/',
-    estimatedMinutes: 20,
-    description: 'Given a string s, return the number of palindromic substrings in it.',
-    entryFunctionName: 'countSubstrings',
-    companyTags: ['Meta', 'Amazon', 'LinkedIn', 'Google'],
-    starterCode: {
-      javascript: 'function countSubstrings(s) {\n  let count = 0;\n  for (let i = 0; i < s.length; i++) {\n    count += expand(s, i, i) + expand(s, i, i + 1);\n  }\n  return count;\n}\nfunction expand(s, l, r) {\n  let cnt = 0;\n  while (l >= 0 && r < s.length && s[l] === s[r]) {\n    cnt++;\n    l--;\n    r++;\n  }\n  return cnt;\n}',
-      python: 'def countSubstrings(s: str) -> int:\n    def expand(l: int, r: int) -> int:\n        cnt = 0\n        while l >= 0 and r < len(s) and s[l] == s[r]:\n            cnt += 1\n            l -= 1\n            r += 1\n        return cnt\n    ans = 0\n    for i in range(len(s)):\n        ans += expand(i, i) + expand(i, i + 1)\n    return ans',
-      java: 'class Solution {\n    public int countSubstrings(String s) {\n        int count = 0;\n        for (int i = 0; i < s.length(); i++) {\n            count += expand(s, i, i) + expand(s, i, i + 1);\n        }\n        return count;\n    }\n    private int expand(String s, int l, int r) {\n        int cnt = 0;\n        while (l >= 0 && r < s.length() && s.charAt(l) == s.charAt(r)) {\n            cnt++;\n            l--;\n            r++;\n        }\n        return cnt;\n    }\n}',
-      cpp: '#include <string>\nusing namespace std;\n\nclass Solution {\npublic:\n    int expand(const string& s, int l, int r) {\n        int cnt = 0;\n        while (l >= 0 && r < (int)s.size() && s[l] == s[r]) {\n            cnt++;\n            l--;\n            r++;\n        }\n        return cnt;\n    }\n    int countSubstrings(string s) {\n        int count = 0;\n        for (int i = 0; i < (int)s.size(); i++) {\n            count += expand(s, i, i) + expand(s, i, i + 1);\n        }\n        return count;\n    }\n};',
-    },
-    testCases: [
-      { id: 'tc-1', input: 's = "abc"', expectedOutput: '3' },
-      { id: 'tc-2', input: 's = "aaa"', expectedOutput: '6' },
+    "title": "Reverse Linked List",
+    "slug": "reverse-linked-list",
+    "platform": "LEETCODE",
+    "difficulty": "Easy",
+    "topic": "Linked Lists",
+    "tags": [
+      "linked-list",
+      "recursion"
     ],
+    "canonicalUrl": "https://leetcode.com/problems/reverse-linked-list/",
+    "estimatedMinutes": 15,
+    "description": "Given the head of a singly linked list represented as an array of values, return the reversed linked list values.",
+    "entryFunctionName": "reverseList",
+    "companyTags": [
+      "Amazon",
+      "Google",
+      "Apple",
+      "Meta",
+      "Microsoft"
+    ],
+    "starterCode": {
+      "javascript": "function reverseList(head) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def reverseList(self, head: list) -> list:\n        # Write your solution here\n        pass",
+      "java": "class Solution {\n    public int[] reverseList(int[] head) {\n        // Write your solution here\n        return new int[]{};\n    }\n}",
+      "cpp": "#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    vector<int> reverseList(vector<int>& head) {\n        // Write your solution here\n        return {};\n    }\n};",
+      "c": "int* reverseList(int* head, int headSize, int* returnSize) {\n    // Write your solution here\n    *returnSize = headSize;\n    return NULL;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "head = [1,2,3,4,5]",
+        "expectedOutput": "[5, 4, 3, 2, 1]"
+      },
+      {
+        "id": "tc-2",
+        "input": "head = [1,2]",
+        "expectedOutput": "[2, 1]"
+      },
+      {
+        "id": "tc-3",
+        "input": "head = []",
+        "expectedOutput": "[]"
+      }
+    ]
   },
   {
-    title: 'House Robber II',
-    slug: 'house-robber-ii',
-    platform: 'LEETCODE',
-    difficulty: 'Medium',
-    topic: 'Dynamic Programming',
-    tags: ['array', 'dynamic-programming'],
-    canonicalUrl: 'https://leetcode.com/problems/house-robber-ii/',
-    estimatedMinutes: 25,
-    description: 'All houses at this place are arranged in a circle. That means the first house is the neighbor of the last one. Determine the maximum amount of money you can rob tonight without alerting the police.',
-    entryFunctionName: 'rob',
-    companyTags: ['Amazon', 'Google', 'Microsoft'],
-    starterCode: {
-      javascript: 'function rob(nums) {\n  if (nums.length === 1) return nums[0];\n  function robRange(l, r) {\n    let prev1 = 0, prev2 = 0;\n    for (let i = l; i <= r; i++) {\n      const temp = Math.max(prev1, prev2 + nums[i]);\n      prev2 = prev1;\n      prev1 = temp;\n    }\n    return prev1;\n  }\n  return Math.max(robRange(0, nums.length - 2), robRange(1, nums.length - 1));\n}',
-      python: 'def rob(nums: list[int]) -> int:\n    if len(nums) == 1: return nums[0]\n    def rob_range(l: int, r: int) -> int:\n        prev1 = prev2 = 0\n        for i in range(l, r + 1):\n            prev1, prev2 = max(prev1, prev2 + nums[i]), prev1\n        return prev1\n    return max(rob_range(0, len(nums) - 2), rob_range(1, len(nums) - 1))',
-      java: 'class Solution {\n    public int rob(int[] nums) {\n        if (nums.length == 1) return nums[0];\n        return Math.max(robRange(nums, 0, nums.length - 2), robRange(nums, 1, nums.length - 1));\n    }\n    private int robRange(int[] nums, int l, int r) {\n        int prev1 = 0, prev2 = 0;\n        for (int i = l; i <= r; i++) {\n            int temp = Math.max(prev1, prev2 + nums[i]);\n            prev2 = prev1;\n            prev1 = temp;\n        }\n        return prev1;\n    }\n}',
-      cpp: '#include <vector>\n#include <algorithm>\nusing namespace std;\n\nclass Solution {\npublic:\n    int robRange(vector<int>& nums, int l, int r) {\n        int prev1 = 0, prev2 = 0;\n        for (int i = l; i <= r; i++) {\n            int temp = max(prev1, prev2 + nums[i]);\n            prev2 = prev1;\n            prev1 = temp;\n        }\n        return prev1;\n    }\n    int rob(vector<int>& nums) {\n        if (nums.size() == 1) return nums[0];\n        return max(robRange(nums, 0, nums.size() - 2), robRange(nums, 1, nums.size() - 1));\n    }\n};',
-    },
-    testCases: [
-      { id: 'tc-1', input: 'nums = [2,3,2]', expectedOutput: '3' },
-      { id: 'tc-2', input: 'nums = [1,2,3,1]', expectedOutput: '4' },
-      { id: 'tc-3', input: 'nums = [1,2,3]', expectedOutput: '3' },
+    "title": "Merge Two Sorted Lists",
+    "slug": "merge-two-sorted-lists",
+    "platform": "LEETCODE",
+    "difficulty": "Easy",
+    "topic": "Linked Lists",
+    "tags": [
+      "linked-list",
+      "recursion"
     ],
+    "canonicalUrl": "https://leetcode.com/problems/merge-two-sorted-lists/",
+    "estimatedMinutes": 15,
+    "description": "You are given the heads of two sorted linked lists list1 and list2. Merge the two lists into one sorted list and return its values.",
+    "entryFunctionName": "mergeTwoLists",
+    "companyTags": [
+      "Amazon",
+      "Apple",
+      "Microsoft",
+      "Google"
+    ],
+    "starterCode": {
+      "javascript": "function mergeTwoLists(list1, list2) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def mergeTwoLists(self, list1: list, list2: list) -> list:\n        # Write your solution here\n        pass",
+      "java": "class Solution {\n    public int[] mergeTwoLists(int[] list1, int[] list2) {\n        // Write your solution here\n        return new int[]{};\n    }\n}",
+      "cpp": "#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    vector<int> mergeTwoLists(vector<int>& list1, vector<int>& list2) {\n        // Write your solution here\n        return {};\n    }\n};",
+      "c": "int* mergeTwoLists(int* list1, int l1Size, int* list2, int l2Size, int* returnSize) {\n    // Write your solution here\n    *returnSize = 0;\n    return NULL;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "list1 = [1,2,4], list2 = [1,3,4]",
+        "expectedOutput": "[1, 1, 2, 3, 4, 4]"
+      },
+      {
+        "id": "tc-2",
+        "input": "list1 = [], list2 = []",
+        "expectedOutput": "[]"
+      },
+      {
+        "id": "tc-3",
+        "input": "list1 = [], list2 = [0]",
+        "expectedOutput": "[0]"
+      }
+    ]
   },
   {
-    title: 'Partition Equal Subset Sum',
-    slug: 'partition-equal-subset-sum',
-    platform: 'LEETCODE',
-    difficulty: 'Medium',
-    topic: 'Dynamic Programming',
-    tags: ['array', 'dynamic-programming'],
-    canonicalUrl: 'https://leetcode.com/problems/partition-equal-subset-sum/',
-    estimatedMinutes: 25,
-    description: 'Given an integer array nums, return true if you can partition the array into two subsets such that the sum of the elements in both subsets is equal or false otherwise.',
-    entryFunctionName: 'canPartition',
-    companyTags: ['Amazon', 'Meta', 'Google', 'Microsoft'],
-    starterCode: {
-      javascript: 'function canPartition(nums) {\n  const sum = nums.reduce((a, b) => a + b, 0);\n  if (sum % 2 !== 0) return false;\n  const target = sum / 2;\n  const dp = new Array(target + 1).fill(false);\n  dp[0] = true;\n  for (const num of nums) {\n    for (let i = target; i >= num; i--) {\n      dp[i] = dp[i] || dp[i - num];\n    }\n  }\n  return dp[target];\n}',
-      python: 'def canPartition(nums: list[int]) -> bool:\n    s = sum(nums)\n    if s % 2 != 0: return False\n    target = s // 2\n    dp = [False] * (target + 1)\n    dp[0] = True\n    for num in nums:\n        for i in range(target, num - 1, -1):\n            dp[i] = dp[i] or dp[i - num]\n    return dp[target]',
-      java: 'class Solution {\n    public boolean canPartition(int[] nums) {\n        int sum = 0;\n        for (int n : nums) sum += n;\n        if (sum % 2 != 0) return false;\n        int target = sum / 2;\n        boolean[] dp = new boolean[target + 1];\n        dp[0] = true;\n        for (int num : nums) {\n            for (int i = target; i >= num; i--) {\n                dp[i] = dp[i] || dp[i - num];\n            }\n        }\n        return dp[target];\n    }\n}',
-      cpp: '#include <vector>\n#include <numeric>\nusing namespace std;\n\nclass Solution {\npublic:\n    bool canPartition(vector<int>& nums) {\n        int sum = accumulate(nums.begin(), nums.end(), 0);\n        if (sum % 2 != 0) return false;\n        int target = sum / 2;\n        vector<bool> dp(target + 1, false);\n        dp[0] = true;\n        for (int num : nums) {\n            for (int i = target; i >= num; i--) {\n                dp[i] = dp[i] || dp[i - num];\n            }\n        }\n        return dp[target];\n    }\n};',
-    },
-    testCases: [
-      { id: 'tc-1', input: 'nums = [1,5,11,5]', expectedOutput: 'true' },
-      { id: 'tc-2', input: 'nums = [1,2,3,5]', expectedOutput: 'false' },
+    "title": "Linked List Cycle",
+    "slug": "linked-list-cycle",
+    "platform": "LEETCODE",
+    "difficulty": "Easy",
+    "topic": "Linked Lists",
+    "tags": [
+      "hash-table",
+      "linked-list",
+      "two-pointers"
     ],
+    "canonicalUrl": "https://leetcode.com/problems/linked-list-cycle/",
+    "estimatedMinutes": 15,
+    "description": "Given head, the head of a linked list, determine if the linked list has a cycle in it. There is a cycle in a linked list if there is some node in the list that can be reached again by continuously following the next pointer. Return true if there is a cycle in the linked list. Otherwise, return false.",
+    "entryFunctionName": "hasCycle",
+    "companyTags": [
+      "Amazon",
+      "Microsoft",
+      "Spotify"
+    ],
+    "starterCode": {
+      "javascript": "function hasCycle(head, pos) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def hasCycle(self, head: list, pos: int) -> bool:\n        # Write your solution here\n        pass",
+      "java": "class Solution {\n    public boolean hasCycle(int[] head, int pos) {\n        // Write your solution here\n        return false;\n    }\n}",
+      "cpp": "#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    bool hasCycle(vector<int>& head, int pos) {\n        // Write your solution here\n        return false;\n    }\n};",
+      "c": "#include <stdbool.h>\n\nbool hasCycle(int* head, int headSize, int pos) {\n    // Write your solution here\n    return false;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "head = [3,2,0,-4], pos = 1",
+        "expectedOutput": "true"
+      },
+      {
+        "id": "tc-2",
+        "input": "head = [1,2], pos = 0",
+        "expectedOutput": "true"
+      },
+      {
+        "id": "tc-3",
+        "input": "head = [1], pos = -1",
+        "expectedOutput": "false"
+      }
+    ]
   },
   {
-    title: 'Word Break',
-    slug: 'word-break',
-    platform: 'LEETCODE',
-    difficulty: 'Medium',
-    topic: 'Dynamic Programming',
-    tags: ['string', 'dynamic-programming', 'trie', 'memoization'],
-    canonicalUrl: 'https://leetcode.com/problems/word-break/',
-    estimatedMinutes: 25,
-    description: 'Given a string s and a dictionary of strings wordDict, return true if s can be segmented into a space-separated sequence of one or more dictionary words.',
-    entryFunctionName: 'wordBreak',
-    companyTags: ['Amazon', 'Meta', 'Google', 'Bloomberg', 'Apple'],
-    starterCode: {
-      javascript: 'function wordBreak(s, wordDict) {\n  const wordSet = new Set(wordDict);\n  const dp = new Array(s.length + 1).fill(false);\n  dp[0] = true;\n  for (let i = 1; i <= s.length; i++) {\n    for (let j = 0; j < i; j++) {\n      if (dp[j] && wordSet.has(s.substring(j, i))) {\n        dp[i] = true;\n        break;\n      }\n    }\n  }\n  return dp[s.length];\n}',
-      python: 'def wordBreak(s: str, wordDict: list[str]) -> bool:\n    word_set = set(wordDict)\n    dp = [False] * (len(s) + 1)\n    dp[0] = True\n    for i in range(1, len(s) + 1):\n        for j in range(i):\n            if dp[j] and s[j:i] in word_set:\n                dp[i] = True\n                break\n    return dp[len(s)]',
-      java: 'import java.util.*;\n\nclass Solution {\n    public boolean wordBreak(String s, List<String> wordDict) {\n        Set<String> wordSet = new HashSet<>(wordDict);\n        boolean[] dp = new boolean[s.length() + 1];\n        dp[0] = true;\n        for (int i = 1; i <= s.length(); i++) {\n            for (int j = 0; j < i; j++) {\n                if (dp[j] && wordSet.contains(s.substring(j, i))) {\n                    dp[i] = true;\n                    break;\n                }\n            }\n        }\n        return dp[s.length()];\n    }\n}',
-      cpp: '#include <string>\n#include <vector>\n#include <unordered_set>\nusing namespace std;\n\nclass Solution {\npublic:\n    bool wordBreak(string s, vector<string>& wordDict) {\n        unordered_set<string> wordSet(wordDict.begin(), wordDict.end());\n        vector<bool> dp(s.size() + 1, false);\n        dp[0] = true;\n        for (size_t i = 1; i <= s.size(); i++) {\n            for (size_t j = 0; j < i; j++) {\n                if (dp[j] && wordSet.count(s.substr(j, i - j))) {\n                    dp[i] = true;\n                    break;\n                }\n            }\n        }\n        return dp[s.size()];\n    }\n};',
-    },
-    testCases: [
-      { id: 'tc-1', input: 's = "leetcode", wordDict = ["leet","code"]', expectedOutput: 'true' },
-      { id: 'tc-2', input: 's = "applepenapple", wordDict = ["apple","pen"]', expectedOutput: 'true' },
-      { id: 'tc-3', input: 's = "catsandog", wordDict = ["cats","dog","sand","and","cat"]', expectedOutput: 'false' },
+    "title": "Binary Search",
+    "slug": "binary-search",
+    "platform": "LEETCODE",
+    "difficulty": "Easy",
+    "topic": "Binary Search",
+    "tags": [
+      "array",
+      "binary-search"
     ],
-  },
-
-  // ─── 8. GRAPHS & BFS / DFS ───────────────────────────────
-  {
-    title: 'Number of Islands',
-    slug: 'number-of-islands',
-    platform: 'LEETCODE',
-    difficulty: 'Medium',
-    topic: 'Graphs',
-    tags: ['array', 'depth-first-search', 'breadth-first-search', 'union-find', 'matrix'],
-    canonicalUrl: 'https://leetcode.com/problems/number-of-islands/',
-    estimatedMinutes: 20,
-    description: 'Given an m x n 2D binary grid grid which represents a map of \'1\'s (land) and \'0\'s (water), return the number of islands.',
-    entryFunctionName: 'numIslands',
-    companyTags: ['Amazon', 'Google', 'Meta', 'Microsoft', 'Bloomberg'],
-    starterCode: {
-      javascript: 'function numIslands(grid) {\n  if (!grid.length) return 0;\n  let count = 0;\n  const m = grid.length, n = grid[0].length;\n  function dfs(r, c) {\n    if (r < 0 || c < 0 || r >= m || c >= n || grid[r][c] !== "1") return;\n    grid[r][c] = "0";\n    dfs(r + 1, c); dfs(r - 1, c); dfs(r, c + 1); dfs(r, c - 1);\n  }\n  for (let r = 0; r < m; r++) {\n    for (let c = 0; c < n; c++) {\n      if (grid[r][c] === "1") { count++; dfs(r, c); }\n    }\n  }\n  return count;\n}',
-      python: 'def numIslands(grid: list[list[str]]) -> int:\n    if not grid: return 0\n    m, n = len(grid), len(grid[0])\n    count = 0\n    def dfs(r, c):\n        if r < 0 or c < 0 or r >= m or c >= n or grid[r][c] != "1":\n            return\n        grid[r][c] = "0"\n        dfs(r+1, c); dfs(r-1, c); dfs(r, c+1); dfs(r, c-1)\n    for r in range(m):\n        for c in range(n):\n            if grid[r][c] == "1":\n                count += 1\n                dfs(r, c)\n    return count',
-      java: 'class Solution {\n    public int numIslands(char[][] grid) {\n        if (grid == null || grid.length == 0) return 0;\n        int count = 0;\n        for (int r = 0; r < grid.length; r++) {\n            for (int c = 0; c < grid[0].length; c++) {\n                if (grid[r][c] == \'1\') {\n                    count++;\n                    dfs(grid, r, c);\n                }\n            }\n        }\n        return count;\n    }\n    private void dfs(char[][] grid, int r, int c) {\n        if (r < 0 || c < 0 || r >= grid.length || c >= grid[0].length || grid[r][c] != \'1\') return;\n        grid[r][c] = \'0\';\n        dfs(grid, r + 1, c); dfs(grid, r - 1, c); dfs(grid, r, c + 1); dfs(grid, r, c - 1);\n    }\n}',
-      cpp: '#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    void dfs(vector<vector<char>>& grid, int r, int c) {\n        if (r < 0 || c < 0 || r >= grid.size() || c >= grid[0].size() || grid[r][c] != \'1\') return;\n        grid[r][c] = \'0\';\n        dfs(grid, r + 1, c); dfs(grid, r - 1, c); dfs(grid, r, c + 1); dfs(grid, r, c - 1);\n    }\n    int numIslands(vector<vector<char>>& grid) {\n        if (grid.empty()) return 0;\n        int count = 0;\n        for (int r = 0; r < grid.size(); r++) {\n            for (int c = 0; c < grid[0].size(); c++) {\n                if (grid[r][c] == \'1\') { count++; dfs(grid, r, c); }\n            }\n        }\n        return count;\n    }\n};',
-    },
-    testCases: [
-      { id: 'tc-1', input: 'grid = [["1","1","1","1","0"],["1","1","0","1","0"],["1","1","0","0","0"],["0","0","0","0","0"]]', expectedOutput: '1' },
-      { id: 'tc-2', input: 'grid = [["1","1","0","0","0"],["1","1","0","0","0"],["0","0","1","0","0"],["0","0","0","1","1"]]', expectedOutput: '3' },
+    "canonicalUrl": "https://leetcode.com/problems/binary-search/",
+    "estimatedMinutes": 10,
+    "description": "Given an array of integers nums which is sorted in ascending order, and an integer target, write a function to search target in nums. If target exists, then return its index. Otherwise, return -1. You must write an algorithm with O(log n) runtime complexity.",
+    "entryFunctionName": "search",
+    "companyTags": [
+      "Microsoft",
+      "Apple",
+      "Google"
     ],
+    "starterCode": {
+      "javascript": "/**\n * @param {number[]} nums\n * @param {number} target\n * @return {number}\n */\nfunction search(nums, target) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def search(self, nums: list[int], target: int) -> int:\n        # Write your solution here\n        pass",
+      "java": "class Solution {\n    public int search(int[] nums, int target) {\n        // Write your solution here\n        return -1;\n    }\n}",
+      "cpp": "#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    int search(vector<int>& nums, int target) {\n        // Write your solution here\n        return -1;\n    }\n};",
+      "c": "int search(int* nums, int numsSize, int target) {\n    // Write your solution here\n    return -1;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "nums = [-1,0,3,5,9,12], target = 9",
+        "expectedOutput": "4"
+      },
+      {
+        "id": "tc-2",
+        "input": "nums = [-1,0,3,5,9,12], target = 2",
+        "expectedOutput": "-1"
+      },
+      {
+        "id": "tc-3",
+        "input": "nums = [5], target = 5",
+        "expectedOutput": "0"
+      }
+    ]
   },
   {
-    title: 'Course Schedule',
-    slug: 'course-schedule',
-    platform: 'LEETCODE',
-    difficulty: 'Medium',
-    topic: 'Topological Sort',
-    tags: ['depth-first-search', 'breadth-first-search', 'graph', 'topological-sort'],
-    canonicalUrl: 'https://leetcode.com/problems/course-schedule/',
-    estimatedMinutes: 25,
-    description: 'Return true if you can finish all courses given prerequisite dependencies.',
-    entryFunctionName: 'canFinish',
-    companyTags: ['Amazon', 'Google', 'Meta', 'Microsoft', 'Uber'],
-    starterCode: {
-      javascript: 'function canFinish(numCourses, prerequisites) {\n  const inDegree = new Array(numCourses).fill(0);\n  const adj = Array.from({ length: numCourses }, () => []);\n  for (const [course, pre] of prerequisites) {\n    adj[pre].push(course);\n    inDegree[course]++;\n  }\n  const q = [];\n  for (let i = 0; i < numCourses; i++) {\n    if (inDegree[i] === 0) q.push(i);\n  }\n  let count = 0;\n  while (q.length) {\n    const node = q.shift();\n    count++;\n    for (const neighbor of adj[node]) {\n      inDegree[neighbor]--;\n      if (inDegree[neighbor] === 0) q.push(neighbor);\n    }\n  }\n  return count === numCourses;\n}',
-      python: 'def canFinish(numCourses: int, prerequisites: list[list[int]]) -> bool:\n    from collections import deque\n    in_degree = [0] * numCourses\n    adj = [[] for _ in range(numCourses)]\n    for crs, pre in prerequisites:\n        adj[pre].append(crs)\n        in_degree[crs] += 1\n    q = deque([i for i in range(numCourses) if in_degree[i] == 0])\n    count = 0\n    while q:\n        node = q.popleft()\n        count += 1\n        for neighbor in adj[node]:\n            in_degree[neighbor] -= 1\n            if in_degree[neighbor] == 0:\n                q.append(neighbor)\n    return count == numCourses',
-      java: 'import java.util.*;\n\nclass Solution {\n    public boolean canFinish(int numCourses, int[][] prerequisites) {\n        int[] inDegree = new int[numCourses];\n        List<List<Integer>> adj = new ArrayList<>();\n        for (int i = 0; i < numCourses; i++) adj.add(new ArrayList<>());\n        for (int[] p : prerequisites) {\n            adj.get(p[1]).add(p[0]);\n            inDegree[p[0]]++;\n        }\n        Queue<Integer> q = new LinkedList<>();\n        for (int i = 0; i < numCourses; i++) {\n            if (inDegree[i] == 0) q.offer(i);\n        }\n        int count = 0;\n        while (!q.isEmpty()) {\n            int node = q.poll();\n            count++;\n            for (int neighbor : adj.get(node)) {\n                if (--inDegree[neighbor] == 0) q.offer(neighbor);\n            }\n        }\n        return count == numCourses;\n    }\n}',
-      cpp: '#include <vector>\n#include <queue>\nusing namespace std;\n\nclass Solution {\npublic:\n    bool canFinish(int numCourses, vector<vector<int>>& prerequisites) {\n        vector<int> inDegree(numCourses, 0);\n        vector<vector<int>> adj(numCourses);\n        for (auto& p : prerequisites) {\n            adj[p[1]].push_back(p[0]);\n            inDegree[p[0]]++;\n        }\n        queue<int> q;\n        for (int i = 0; i < numCourses; i++) {\n            if (inDegree[i] == 0) q.push(i);\n        }\n        int count = 0;\n        while (!q.empty()) {\n            int node = q.front(); q.pop();\n            count++;\n            for (int neighbor : adj[node]) {\n                if (--inDegree[neighbor] == 0) q.push(neighbor);\n            }\n        }\n        return count == numCourses;\n    }\n};',
-    },
-    testCases: [
-      { id: 'tc-1', input: 'numCourses = 2, prerequisites = [[1,0]]', expectedOutput: 'true' },
-      { id: 'tc-2', input: 'numCourses = 2, prerequisites = [[1,0],[0,1]]', expectedOutput: 'false' },
+    "title": "Search in Rotated Sorted Array",
+    "slug": "search-in-rotated-sorted-array",
+    "platform": "LEETCODE",
+    "difficulty": "Medium",
+    "topic": "Binary Search",
+    "tags": [
+      "array",
+      "binary-search"
     ],
+    "canonicalUrl": "https://leetcode.com/problems/search-in-rotated-sorted-array/",
+    "estimatedMinutes": 20,
+    "description": "There is an integer array nums sorted in ascending order (with distinct values), rotated at an unknown pivot index. Given the array nums after the possible rotation and an integer target, return the index of target if it is in nums, or -1 if it is not in nums. You must write an algorithm with O(log n) runtime complexity.",
+    "entryFunctionName": "search",
+    "companyTags": [
+      "Amazon",
+      "Meta",
+      "Microsoft",
+      "Google"
+    ],
+    "starterCode": {
+      "javascript": "/**\n * @param {number[]} nums\n * @param {number} target\n * @return {number}\n */\nfunction search(nums, target) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def search(self, nums: list[int], target: int) -> int:\n        # Write your solution here\n        pass",
+      "java": "class Solution {\n    public int search(int[] nums, int target) {\n        // Write your solution here\n        return -1;\n    }\n}",
+      "cpp": "#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    int search(vector<int>& nums, int target) {\n        // Write your solution here\n        return -1;\n    }\n};",
+      "c": "int search(int* nums, int numsSize, int target) {\n    // Write your solution here\n    return -1;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "nums = [4,5,6,7,0,1,2], target = 0",
+        "expectedOutput": "4"
+      },
+      {
+        "id": "tc-2",
+        "input": "nums = [4,5,6,7,0,1,2], target = 3",
+        "expectedOutput": "-1"
+      },
+      {
+        "id": "tc-3",
+        "input": "nums = [1], target = 0",
+        "expectedOutput": "-1"
+      }
+    ]
   },
   {
-    title: 'Rotting Oranges',
-    slug: 'rotting-oranges',
-    platform: 'LEETCODE',
-    difficulty: 'Medium',
-    topic: 'BFS',
-    tags: ['array', 'breadth-first-search', 'matrix'],
-    canonicalUrl: 'https://leetcode.com/problems/rotting-oranges/',
-    estimatedMinutes: 20,
-    description: 'You are given an m x n grid where each cell can have one of three values: 0 empty, 1 fresh orange, 2 rotten orange. Every minute, any fresh orange that is 4-directionally adjacent to a rotten orange becomes rotten. Return minimum minutes until no cell has a fresh orange (-1 if impossible).',
-    entryFunctionName: 'orangesRotting',
-    companyTags: ['Amazon', 'Microsoft', 'Google'],
-    starterCode: {
-      javascript: 'function orangesRotting(grid) {\n  const m = grid.length, n = grid[0].length;\n  const queue = [];\n  let fresh = 0;\n  for (let r = 0; r < m; r++) {\n    for (let c = 0; c < n; c++) {\n      if (grid[r][c] === 2) queue.push([r, c, 0]);\n      else if (grid[r][c] === 1) fresh++;\n    }\n  }\n  let minutes = 0;\n  const dirs = [[1,0],[-1,0],[0,1],[0,-1]];\n  while (queue.length) {\n    const [r, c, d] = queue.shift();\n    minutes = Math.max(minutes, d);\n    for (const [dr, dc] of dirs) {\n      const nr = r + dr, nc = c + dc;\n      if (nr >= 0 && nr < m && nc >= 0 && nc < n && grid[nr][nc] === 1) {\n        grid[nr][nc] = 2;\n        fresh--;\n        queue.push([nr, nc, d + 1]);\n      }\n    }\n  }\n  return fresh === 0 ? minutes : -1;\n}',
-      python: 'def orangesRotting(grid: list[list[int]]) -> int:\n    from collections import deque\n    m, n = len(grid), len(grid[0])\n    q = deque()\n    fresh = 0\n    for r in range(m):\n        for c in range(n):\n            if grid[r][c] == 2:\n                q.append((r, c, 0))\n            elif grid[r][c] == 1:\n                fresh += 1\n    minutes = 0\n    dirs = [(1,0),(-1,0),(0,1),(0,-1)]\n    while q:\n        r, c, d = q.popleft()\n        minutes = max(minutes, d)\n        for dr, dc in dirs:\n            nr, nc = r + dr, c + dc\n            if 0 <= nr < m and 0 <= nc < n and grid[nr][nc] == 1:\n                grid[nr][nc] = 2\n                fresh -= 1\n                q.append((nr, nc, d + 1))\n    return minutes if fresh == 0 else -1',
-      java: 'import java.util.*;\n\nclass Solution {\n    public int orangesRotting(int[][] grid) {\n        int m = grid.length, n = grid[0].length;\n        Queue<int[]> q = new LinkedList<>();\n        int fresh = 0;\n        for (int r = 0; r < m; r++) {\n            for (int c = 0; c < n; c++) {\n                if (grid[r][c] == 2) q.offer(new int[]{r, c, 0});\n                else if (grid[r][c] == 1) fresh++;\n            }\n        }\n        int minutes = 0;\n        int[][] dirs = {{1,0},{-1,0},{0,1},{0,-1}};\n        while (!q.isEmpty()) {\n            int[] curr = q.poll();\n            minutes = Math.max(minutes, curr[2]);\n            for (int[] d : dirs) {\n                int nr = curr[0] + d[0], nc = curr[1] + d[1];\n                if (nr >= 0 && nr < m && nc >= 0 && nc < n && grid[nr][nc] == 1) {\n                    grid[nr][nc] = 2;\n                    fresh--;\n                    q.offer(new int[]{nr, nc, curr[2] + 1});\n                }\n            }\n        }\n        return fresh == 0 ? minutes : -1;\n    }\n}',
-      cpp: '#include <vector>\n#include <queue>\n#include <algorithm>\nusing namespace std;\n\nclass Solution {\npublic:\n    int orangesRotting(vector<vector<int>>& grid) {\n        int m = grid.size(), n = grid[0].size();\n        queue<vector<int>> q;\n        int fresh = 0;\n        for (int r = 0; r < m; r++) {\n            for (int c = 0; c < n; c++) {\n                if (grid[r][c] == 2) q.push({r, c, 0});\n                else if (grid[r][c] == 1) fresh++;\n            }\n        }\n        int minutes = 0;\n        vector<pair<int, int>> dirs = {{1,0},{-1,0},{0,1},{0,-1}};\n        while (!q.empty()) {\n            auto curr = q.front(); q.pop();\n            minutes = max(minutes, curr[2]);\n            for (auto& d : dirs) {\n                int nr = curr[0] + d.first, nc = curr[1] + d.second;\n                if (nr >= 0 && nr < m && nc >= 0 && nc < n && grid[nr][nc] == 1) {\n                    grid[nr][nc] = 2;\n                    fresh--;\n                    q.push({nr, nc, curr[2] + 1});\n                }\n            }\n        }\n        return fresh == 0 ? minutes : -1;\n    }\n};',
-    },
-    testCases: [
-      { id: 'tc-1', input: 'grid = [[2,1,1],[1,1,0],[0,1,1]]', expectedOutput: '4' },
-      { id: 'tc-2', input: 'grid = [[2,1,1],[0,1,1],[1,0,1]]', expectedOutput: '-1' },
-      { id: 'tc-3', input: 'grid = [[0,2]]', expectedOutput: '0' },
+    "title": "Find Minimum in Rotated Sorted Array",
+    "slug": "find-minimum-in-rotated-sorted-array",
+    "platform": "LEETCODE",
+    "difficulty": "Medium",
+    "topic": "Binary Search",
+    "tags": [
+      "array",
+      "binary-search"
     ],
-  },
-
-  // ─── 9. BIT MANIPULATION ─────────────────────────────────
-  {
-    title: 'Single Number',
-    slug: 'single-number',
-    platform: 'LEETCODE',
-    difficulty: 'Easy',
-    topic: 'Bit Manipulation',
-    tags: ['array', 'bit-manipulation'],
-    canonicalUrl: 'https://leetcode.com/problems/single-number/',
-    estimatedMinutes: 10,
-    description: 'Given a non-empty array of integers nums, every element appears twice except for one. Find that single one.',
-    entryFunctionName: 'singleNumber',
-    companyTags: ['Amazon', 'Apple', 'Google'],
-    starterCode: {
-      javascript: 'function singleNumber(nums) {\n  let res = 0;\n  for (const n of nums) res ^= n;\n  return res;\n}',
-      python: 'def singleNumber(nums: list[int]) -> int:\n    res = 0\n    for n in nums:\n        res ^= n\n    return res',
-      java: 'class Solution {\n    public int singleNumber(int[] nums) {\n        int res = 0;\n        for (int n : nums) res ^= n;\n        return res;\n    }\n}',
-      cpp: '#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    int singleNumber(vector<int>& nums) {\n        int res = 0;\n        for (int n : nums) res ^= n;\n        return res;\n    }\n};',
-    },
-    testCases: [
-      { id: 'tc-1', input: 'nums = [2,2,1]', expectedOutput: '1' },
-      { id: 'tc-2', input: 'nums = [4,1,2,1,2]', expectedOutput: '4' },
-      { id: 'tc-3', input: 'nums = [1]', expectedOutput: '1' },
+    "canonicalUrl": "https://leetcode.com/problems/find-minimum-in-rotated-sorted-array/",
+    "estimatedMinutes": 15,
+    "description": "Suppose an array of length n sorted in ascending order is rotated between 1 and n times. Notice that rotating an array [a[0], a[1], a[2], ..., a[n-1]] 1 time results in the array [a[n-1], a[0], a[1], a[2], ..., a[n-2]]. Given the sorted rotated array nums of unique elements, return the minimum element of this array. You must write an algorithm that runs in O(log n) time.",
+    "entryFunctionName": "findMin",
+    "companyTags": [
+      "Amazon",
+      "Google",
+      "Microsoft"
     ],
+    "starterCode": {
+      "javascript": "/**\n * @param {number[]} nums\n * @return {number}\n */\nfunction findMin(nums) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def findMin(self, nums: list[int]) -> int:\n        # Write your solution here\n        pass",
+      "java": "class Solution {\n    public int findMin(int[] nums) {\n        // Write your solution here\n        return 0;\n    }\n}",
+      "cpp": "#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    int findMin(vector<int>& nums) {\n        // Write your solution here\n        return 0;\n    }\n};",
+      "c": "int findMin(int* nums, int numsSize) {\n    // Write your solution here\n    return 0;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "nums = [3,4,5,1,2]",
+        "expectedOutput": "1"
+      },
+      {
+        "id": "tc-2",
+        "input": "nums = [4,5,6,7,0,1,2]",
+        "expectedOutput": "0"
+      },
+      {
+        "id": "tc-3",
+        "input": "nums = [11,13,15,17]",
+        "expectedOutput": "11"
+      }
+    ]
   },
   {
-    title: 'Counting Bits',
-    slug: 'counting-bits',
-    platform: 'LEETCODE',
-    difficulty: 'Easy',
-    topic: 'Bit Manipulation',
-    tags: ['dynamic-programming', 'bit-manipulation'],
-    canonicalUrl: 'https://leetcode.com/problems/counting-bits/',
-    estimatedMinutes: 15,
-    description: 'Given an integer n, return an array ans of length n + 1 such that for each i (0 <= i <= n), ans[i] is the number of 1\'s in the binary representation of i.',
-    entryFunctionName: 'countBits',
-    companyTags: ['Amazon', 'Google'],
-    starterCode: {
-      javascript: 'function countBits(n) {\n  const ans = new Array(n + 1).fill(0);\n  for (let i = 1; i <= n; i++) {\n    ans[i] = ans[i >> 1] + (i & 1);\n  }\n  return ans;\n}',
-      python: 'def countBits(n: int) -> list[int]:\n    ans = [0] * (n + 1)\n    for i in range(1, n + 1):\n        ans[i] = ans[i >> 1] + (i & 1)\n    return ans',
-      java: 'class Solution {\n    public int[] countBits(int n) {\n        int[] ans = new int[n + 1];\n        for (int i = 1; i <= n; i++) {\n            ans[i] = ans[i >> 1] + (i & 1);\n        }\n        return ans;\n    }\n}',
-      cpp: '#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    vector<int> countBits(int n) {\n        vector<int> ans(n + 1, 0);\n        for (int i = 1; i <= n; i++) {\n            ans[i] = ans[i >> 1] + (i & 1);\n        }\n        return ans;\n    }\n};',
-    },
-    testCases: [
-      { id: 'tc-1', input: 'n = 2', expectedOutput: '[0, 1, 1]' },
-      { id: 'tc-2', input: 'n = 5', expectedOutput: '[0, 1, 1, 2, 1, 2]' },
+    "title": "Maximum Depth of Binary Tree",
+    "slug": "maximum-depth-of-binary-tree",
+    "platform": "LEETCODE",
+    "difficulty": "Easy",
+    "topic": "Trees & Graphs",
+    "tags": [
+      "tree",
+      "depth-first-search",
+      "breadth-first-search",
+      "binary-tree"
     ],
-  },
-
-  // ─── 10. PREFIX SUM & DIFFERENCE ARRAY ───────────────────
-  {
-    title: 'Subarray Sum Equals K',
-    slug: 'subarray-sum-equals-k',
-    platform: 'LEETCODE',
-    difficulty: 'Medium',
-    topic: 'Prefix Sum',
-    tags: ['array', 'hash-table', 'prefix-sum'],
-    canonicalUrl: 'https://leetcode.com/problems/subarray-sum-equals-k/',
-    estimatedMinutes: 20,
-    description: 'Given an array of integers nums and an integer k, return the total number of subarrays whose sum equals to k.',
-    entryFunctionName: 'subarraySum',
-    companyTags: ['Meta', 'Amazon', 'Google'],
-    starterCode: {
-      javascript: 'function subarraySum(nums, k) {\n  let count = 0, sum = 0;\n  const map = new Map([[0, 1]]);\n  for (const n of nums) {\n    sum += n;\n    if (map.has(sum - k)) count += map.get(sum - k);\n    map.set(sum, (map.get(sum) || 0) + 1);\n  }\n  return count;\n}',
-      python: 'def subarraySum(nums: list[int], k: int) -> int:\n    count = sum_val = 0\n    seen = {0: 1}\n    for n in nums:\n        sum_val += n\n        if sum_val - k in seen:\n            count += seen[sum_val - k]\n        seen[sum_val] = seen.get(sum_val, 0) + 1\n    return count',
-      java: 'import java.util.*;\n\nclass Solution {\n    public int subarraySum(int[] nums, int k) {\n        int count = 0, sum = 0;\n        Map<Integer, Integer> map = new HashMap<>();\n        map.put(0, 1);\n        for (int n : nums) {\n            sum += n;\n            if (map.containsKey(sum - k)) count += map.get(sum - k);\n            map.put(sum, map.getOrDefault(sum, 0) + 1);\n        }\n        return count;\n    }\n}',
-      cpp: '#include <vector>\n#include <unordered_map>\nusing namespace std;\n\nclass Solution {\npublic:\n    int subarraySum(vector<int>& nums, int k) {\n        int count = 0, sum = 0;\n        unordered_map<int, int> map;\n        map[0] = 1;\n        for (int n : nums) {\n            sum += n;\n            if (map.count(sum - k)) count += map[sum - k];\n            map[sum]++;\n        }\n        return count;\n    }\n};',
-    },
-    testCases: [
-      { id: 'tc-1', input: 'nums = [1,1,1], k = 2', expectedOutput: '2' },
-      { id: 'tc-2', input: 'nums = [1,2,3], k = 3', expectedOutput: '2' },
+    "canonicalUrl": "https://leetcode.com/problems/maximum-depth-of-binary-tree/",
+    "estimatedMinutes": 15,
+    "description": "Given the root of a binary tree represented as an array (level-order), return its maximum depth.",
+    "entryFunctionName": "maxDepth",
+    "companyTags": [
+      "Amazon",
+      "Google",
+      "Meta",
+      "LinkedIn"
     ],
-  },
-  {
-    title: 'Car Pooling',
-    slug: 'car-pooling',
-    platform: 'LEETCODE',
-    difficulty: 'Medium',
-    topic: 'Difference Array',
-    tags: ['array', 'sorting', 'heap-priority-queue', 'simulation', 'prefix-sum'],
-    canonicalUrl: 'https://leetcode.com/problems/car-pooling/',
-    estimatedMinutes: 20,
-    description: 'There is a car with capacity empty seats. The vehicle only drives east. Given the integer capacity and an array trips where trips[i] = [numPassengers, from, to], return true if it is possible to pick up and drop off all passengers for all the given trips, or false otherwise.',
-    entryFunctionName: 'carPooling',
-    companyTags: ['Amazon', 'Uber'],
-    starterCode: {
-      javascript: 'function carPooling(trips, capacity) {\n  const road = new Array(1001).fill(0);\n  for (const [num, from, to] of trips) {\n    road[from] += num;\n    road[to] -= num;\n  }\n  let cur = 0;\n  for (const passengers of road) {\n    cur += passengers;\n    if (cur > capacity) return false;\n  }\n  return true;\n}',
-      python: 'def carPooling(trips: list[list[int]], capacity: int) -> bool:\n    road = [0] * 1001\n    for num, start, end in trips:\n        road[start] += num\n        road[end] -= num\n    cur = 0\n    for p in road:\n        cur += p\n        if cur > capacity: return False\n    return True',
-      java: 'class Solution {\n    public boolean carPooling(int[][] trips, int capacity) {\n        int[] road = new int[1001];\n        for (int[] t : trips) {\n            road[t[1]] += t[0];\n            road[t[2]] -= t[0];\n        }\n        int cur = 0;\n        for (int p : road) {\n            cur += p;\n            if (cur > capacity) return false;\n        }\n        return true;\n    }\n}',
-      cpp: '#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    bool carPooling(vector<vector<int>>& trips, int capacity) {\n        vector<int> road(1001, 0);\n        for (auto& t : trips) {\n            road[t[1]] += t[0];\n            road[t[2]] -= t[0];\n        }\n        int cur = 0;\n        for (int p : road) {\n            cur += p;\n            if (cur > capacity) return false;\n        }\n        return true;\n    }\n};',
+    "starterCode": {
+      "javascript": "function maxDepth(root) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def maxDepth(self, root: list) -> int:\n        # Write your solution here\n        pass",
+      "java": "class Solution {\n    public int maxDepth(Integer[] root) {\n        // Write your solution here\n        return 0;\n    }\n}",
+      "cpp": "#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    int maxDepth(vector<int>& root) {\n        // Write your solution here\n        return 0;\n    }\n};",
+      "c": "int maxDepth(int* root, int rootSize) {\n    // Write your solution here\n    return 0;\n}"
     },
-    testCases: [
-      { id: 'tc-1', input: 'trips = [[2,1,5],[3,3,7]], capacity = 4', expectedOutput: 'false' },
-      { id: 'tc-2', input: 'trips = [[2,1,5],[3,3,7]], capacity = 5', expectedOutput: 'true' },
-    ],
-  },
-
-  // ─── 11. HASHING & STRINGS RECURSION ─────────────────────
-  {
-    title: 'Ransom Note',
-    slug: 'ransom-note',
-    platform: 'LEETCODE',
-    difficulty: 'Easy',
-    topic: 'Hashing',
-    tags: ['hash-table', 'string', 'counting'],
-    canonicalUrl: 'https://leetcode.com/problems/ransom-note/',
-    estimatedMinutes: 10,
-    description: 'Given two strings ransomNote and magazine, return true if ransomNote can be constructed by using the letters from magazine and false otherwise. Each letter in magazine can only be used once.',
-    entryFunctionName: 'canConstruct',
-    companyTags: ['Amazon', 'Apple'],
-    starterCode: {
-      javascript: 'function canConstruct(ransomNote, magazine) {\n  const count = {};\n  for (const c of magazine) count[c] = (count[c] || 0) + 1;\n  for (const c of ransomNote) {\n    if (!count[c]) return false;\n    count[c]--;\n  }\n  return true;\n}',
-      python: 'def canConstruct(ransomNote: str, magazine: str) -> bool:\n    from collections import Counter\n    r_count, m_count = Counter(ransomNote), Counter(magazine)\n    return not (r_count - m_count)',
-      java: 'class Solution {\n    public boolean canConstruct(String ransomNote, String magazine) {\n        int[] count = new int[26];\n        for (char c : magazine.toCharArray()) count[c - \'a\']++;\n        for (char c : ransomNote.toCharArray()) {\n            if (--count[c - \'a\'] < 0) return false;\n        }\n        return true;\n    }\n}',
-      cpp: '#include <string>\n#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    bool canConstruct(string ransomNote, string magazine) {\n        vector<int> count(26, 0);\n        for (char c : magazine) count[c - \'a\']++;\n        for (char c : ransomNote) {\n            if (--count[c - \'a\'] < 0) return false;\n        }\n        return true;\n    }\n};',
-    },
-    testCases: [
-      { id: 'tc-1', input: 'ransomNote = "a", magazine = "b"', expectedOutput: 'false' },
-      { id: 'tc-2', input: 'ransomNote = "aa", magazine = "ab"', expectedOutput: 'false' },
-      { id: 'tc-3', input: 'ransomNote = "aa", magazine = "aab"', expectedOutput: 'true' },
-    ],
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "root = [3,9,20,null,null,15,7]",
+        "expectedOutput": "3"
+      },
+      {
+        "id": "tc-2",
+        "input": "root = [1,null,2]",
+        "expectedOutput": "2"
+      },
+      {
+        "id": "tc-3",
+        "input": "root = []",
+        "expectedOutput": "0"
+      }
+    ]
   },
   {
-    title: 'Fibonacci Number',
-    slug: 'fibonacci-number',
-    platform: 'LEETCODE',
-    difficulty: 'Easy',
-    topic: 'Recursion',
-    tags: ['math', 'dynamic-programming', 'recursion'],
-    canonicalUrl: 'https://leetcode.com/problems/fibonacci-number/',
-    estimatedMinutes: 10,
-    description: 'The Fibonacci numbers form a sequence such that each number is the sum of the two preceding ones, starting from 0 and 1. Given n, calculate F(n).',
-    entryFunctionName: 'fib',
-    companyTags: ['Amazon', 'Google'],
-    starterCode: {
-      javascript: 'function fib(n) {\n  if (n <= 1) return n;\n  let a = 0, b = 1;\n  for (let i = 2; i <= n; i++) {\n    const temp = a + b;\n    a = b;\n    b = temp;\n  }\n  return b;\n}',
-      python: 'def fib(n: int) -> int:\n    if n <= 1: return n\n    a, b = 0, 1\n    for _ in range(2, n + 1):\n        a, b = b, a + b\n    return b',
-      java: 'class Solution {\n    public int fib(int n) {\n        if (n <= 1) return n;\n        int a = 0, b = 1;\n        for (int i = 2; i <= n; i++) {\n            int temp = a + b;\n            a = b;\n            b = temp;\n        }\n        return b;\n    }\n}',
-      cpp: 'class Solution {\npublic:\n    int fib(int n) {\n        if (n <= 1) return n;\n        int a = 0, b = 1;\n        for (int i = 2; i <= n; i++) {\n            int temp = a + b;\n            a = b;\n            b = temp;\n        }\n        return b;\n    }\n};',
-    },
-    testCases: [
-      { id: 'tc-1', input: 'n = 2', expectedOutput: '1' },
-      { id: 'tc-2', input: 'n = 3', expectedOutput: '2' },
-      { id: 'tc-3', input: 'n = 4', expectedOutput: '3' },
+    "title": "Invert Binary Tree",
+    "slug": "invert-binary-tree",
+    "platform": "LEETCODE",
+    "difficulty": "Easy",
+    "topic": "Trees & Graphs",
+    "tags": [
+      "tree",
+      "depth-first-search",
+      "binary-tree"
     ],
+    "canonicalUrl": "https://leetcode.com/problems/invert-binary-tree/",
+    "estimatedMinutes": 15,
+    "description": "Given the root of a binary tree represented in level order, invert the tree, and return its root values in level order.",
+    "entryFunctionName": "invertTree",
+    "companyTags": [
+      "Google",
+      "Amazon",
+      "Meta"
+    ],
+    "starterCode": {
+      "javascript": "function invertTree(root) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def invertTree(self, root: list) -> list:\n        # Write your solution here\n        pass",
+      "java": "class Solution {\n    public Integer[] invertTree(Integer[] root) {\n        // Write your solution here\n        return new Integer[]{};\n    }\n}",
+      "cpp": "#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    vector<int> invertTree(vector<int>& root) {\n        // Write your solution here\n        return {};\n    }\n};",
+      "c": "int* invertTree(int* root, int rootSize, int* returnSize) {\n    // Write your solution here\n    *returnSize = rootSize;\n    return NULL;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "root = [4,2,7,1,3,6,9]",
+        "expectedOutput": "[4, 7, 2, 9, 6, 3, 1]"
+      },
+      {
+        "id": "tc-2",
+        "input": "root = [2,1,3]",
+        "expectedOutput": "[2, 3, 1]"
+      },
+      {
+        "id": "tc-3",
+        "input": "root = []",
+        "expectedOutput": "[]"
+      }
+    ]
   },
   {
-    title: 'Power of Two',
-    slug: 'power-of-two',
-    platform: 'LEETCODE',
-    difficulty: 'Easy',
-    topic: 'Bit Manipulation',
-    tags: ['math', 'bit-manipulation', 'recursion'],
-    canonicalUrl: 'https://leetcode.com/problems/power-of-two/',
-    estimatedMinutes: 10,
-    description: 'Given an integer n, return true if it is a power of two. Otherwise, return false.',
-    entryFunctionName: 'isPowerOfTwo',
-    companyTags: ['Google', 'Amazon'],
-    starterCode: {
-      javascript: 'function isPowerOfTwo(n) {\n  return n > 0 && (n & (n - 1)) === 0;\n}',
-      python: 'def isPowerOfTwo(n: int) -> bool:\n    return n > 0 and (n & (n - 1)) == 0',
-      java: 'class Solution {\n    public boolean isPowerOfTwo(int n) {\n        return n > 0 && (n & (n - 1)) == 0;\n    }\n}',
-      cpp: 'class Solution {\npublic:\n    bool isPowerOfTwo(int n) {\n        return n > 0 && (n & (n - 1)) == 0;\n    }\n};',
-    },
-    testCases: [
-      { id: 'tc-1', input: 'n = 1', expectedOutput: 'true' },
-      { id: 'tc-2', input: 'n = 16', expectedOutput: 'true' },
-      { id: 'tc-3', input: 'n = 3', expectedOutput: 'false' },
+    "title": "Validate Binary Search Tree",
+    "slug": "validate-binary-search-tree",
+    "platform": "LEETCODE",
+    "difficulty": "Medium",
+    "topic": "Trees & Graphs",
+    "tags": [
+      "tree",
+      "depth-first-search",
+      "binary-search-tree"
     ],
-  },
-
-  // ─── 12. COMPETITIVE PROGRAMMING CLASSICS ─────────────────
-  {
-    title: 'Watermelon (Codeforces 4A)',
-    slug: 'watermelon-codeforces-4a',
-    platform: 'CODEFORCES',
-    difficulty: 'Easy',
-    topic: 'Mathematical Algorithms',
-    tags: ['math', 'brute-force'],
-    canonicalUrl: 'https://codeforces.com/problemset/problem/4/A',
-    estimatedMinutes: 5,
-    description: 'One hot summer day Pete and Billy decided to buy a watermelon. They want to divide the watermelon in such a way that each of the two parts weighs an even number of kilos. Determine if they can do so.',
-    entryFunctionName: 'watermelon',
-    companyTags: ['Codeforces'],
-    starterCode: {
-      javascript: 'function watermelon(w) {\n  return w > 2 && w % 2 === 0 ? "YES" : "NO";\n}',
-      python: 'def watermelon(w: int) -> str:\n    return "YES" if w > 2 and w % 2 == 0 else "NO"',
-      java: 'class Solution {\n    public String watermelon(int w) {\n        return (w > 2 && w % 2 == 0) ? "YES" : "NO";\n    }\n}',
-      cpp: '#include <string>\nusing namespace std;\n\nclass Solution {\npublic:\n    string watermelon(int w) {\n        return (w > 2 && w % 2 == 0) ? "YES" : "NO";\n    }\n};',
-    },
-    testCases: [
-      { id: 'tc-1', input: 'w = 8', expectedOutput: '"YES"' },
-      { id: 'tc-2', input: 'w = 2', expectedOutput: '"NO"' },
-      { id: 'tc-3', input: 'w = 5', expectedOutput: '"NO"' },
+    "canonicalUrl": "https://leetcode.com/problems/validate-binary-search-tree/",
+    "estimatedMinutes": 20,
+    "description": "Given the root of a binary tree, determine if it is a valid binary search tree (BST). A valid BST satisfies: left subtree contains only nodes with keys less than the node key, and right subtree contains only nodes with keys greater than the node key.",
+    "entryFunctionName": "isValidBST",
+    "companyTags": [
+      "Amazon",
+      "Bloomberg",
+      "Meta",
+      "Microsoft"
     ],
+    "starterCode": {
+      "javascript": "function isValidBST(root) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def isValidBST(self, root: list) -> bool:\n        # Write your solution here\n        pass",
+      "java": "class Solution {\n    public boolean isValidBST(Integer[] root) {\n        // Write your solution here\n        return false;\n    }\n}",
+      "cpp": "#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    bool isValidBST(vector<int>& root) {\n        // Write your solution here\n        return false;\n    }\n};",
+      "c": "#include <stdbool.h>\n\nbool isValidBST(int* root, int rootSize) {\n    // Write your solution here\n    return false;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "root = [2,1,3]",
+        "expectedOutput": "true"
+      },
+      {
+        "id": "tc-2",
+        "input": "root = [5,1,4,null,null,3,6]",
+        "expectedOutput": "false"
+      },
+      {
+        "id": "tc-3",
+        "input": "root = [10,5,15,null,null,6,20]",
+        "expectedOutput": "false",
+        "isHidden": true
+      }
+    ]
   },
   {
-    title: 'Way Too Long Words (Codeforces 71A)',
-    slug: 'way-too-long-words-codeforces-71a',
-    platform: 'CODEFORCES',
-    difficulty: 'Easy',
-    topic: 'Strings',
-    tags: ['strings'],
-    canonicalUrl: 'https://codeforces.com/problemset/problem/71/A',
-    estimatedMinutes: 10,
-    description: 'If a word has length strictly greater than 10, abbreviate it by keeping the first and last letters and putting the count of skipped characters in between.',
-    entryFunctionName: 'abbreviateWord',
-    companyTags: ['Codeforces'],
-    starterCode: {
-      javascript: 'function abbreviateWord(word) {\n  if (word.length <= 10) return word;\n  return word[0] + (word.length - 2) + word[word.length - 1];\n}',
-      python: 'def abbreviateWord(word: str) -> str:\n    if len(word) <= 10: return word\n    return word[0] + str(len(word) - 2) + word[-1]',
-      java: 'class Solution {\n    public String abbreviateWord(String word) {\n        if (word.length() <= 10) return word;\n        return "" + word.charAt(0) + (word.length() - 2) + word.charAt(word.length() - 1);\n    }\n}',
-      cpp: '#include <string>\nusing namespace std;\n\nclass Solution {\npublic:\n    string abbreviateWord(string word) {\n        if (word.length() <= 10) return word;\n        return word[0] + to_string(word.length() - 2) + word.back();\n    }\n};',
-    },
-    testCases: [
-      { id: 'tc-1', input: 'word = "localization"', expectedOutput: '"l10n"' },
-      { id: 'tc-2', input: 'word = "internationalization"', expectedOutput: '"i18n"' },
+    "title": "Kth Largest Element in an Array",
+    "slug": "kth-largest-element-in-an-array",
+    "platform": "LEETCODE",
+    "difficulty": "Medium",
+    "topic": "Heap / Priority Queue",
+    "tags": [
+      "array",
+      "divide-and-conquer",
+      "sorting",
+      "heap",
+      "quickselect"
     ],
+    "canonicalUrl": "https://leetcode.com/problems/kth-largest-element-in-an-array/",
+    "estimatedMinutes": 20,
+    "description": "Given an integer array nums and an integer k, return the kth largest element in the array. Note that it is the kth largest element in the sorted order, not the kth distinct element.",
+    "entryFunctionName": "findKthLargest",
+    "companyTags": [
+      "Amazon",
+      "Meta",
+      "Google",
+      "Microsoft",
+      "Apple"
+    ],
+    "starterCode": {
+      "javascript": "/**\n * @param {number[]} nums\n * @param {number} k\n * @return {number}\n */\nfunction findKthLargest(nums, k) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def findKthLargest(self, nums: list[int], k: int) -> int:\n        # Write your solution here\n        pass",
+      "java": "import java.util.*;\n\nclass Solution {\n    public int findKthLargest(int[] nums, int k) {\n        // Write your solution here\n        return 0;\n    }\n}",
+      "cpp": "#include <vector>\n#include <queue>\nusing namespace std;\n\nclass Solution {\npublic:\n    int findKthLargest(vector<int>& nums, int k) {\n        // Write your solution here\n        return 0;\n    }\n};",
+      "c": "#include <stdlib.h>\n\nint findKthLargest(int* nums, int numsSize, int k) {\n    // Write your solution here\n    return 0;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "nums = [3,2,1,5,6,4], k = 2",
+        "expectedOutput": "5"
+      },
+      {
+        "id": "tc-2",
+        "input": "nums = [3,2,3,1,2,4,5,5,6], k = 4",
+        "expectedOutput": "4"
+      },
+      {
+        "id": "tc-3",
+        "input": "nums = [1], k = 1",
+        "expectedOutput": "1",
+        "isHidden": true
+      }
+    ]
   },
   {
-    title: 'Bit++ (Codeforces 282A)',
-    slug: 'bit-plus-plus-codeforces-282a',
-    platform: 'CODEFORCES',
-    difficulty: 'Easy',
-    topic: 'Mathematical Algorithms',
-    tags: ['implementation'],
-    canonicalUrl: 'https://codeforces.com/problemset/problem/282/A',
-    estimatedMinutes: 10,
-    description: 'The language Bit++ has one variable x. Initially x = 0. Operations ++ and -- add 1 or subtract 1. Calculate the final value of x after n statements.',
-    entryFunctionName: 'bitOperations',
-    companyTags: ['Codeforces'],
-    starterCode: {
-      javascript: 'function bitOperations(statements) {\n  let x = 0;\n  for (const s of statements) {\n    if (s.includes("++")) x++;\n    else x--;\n  }\n  return x;\n}',
-      python: 'def bitOperations(statements: list[str]) -> int:\n    x = 0\n    for s in statements:\n        if "++" in s: x += 1\n        else: x -= 1\n    return x',
-      java: 'class Solution {\n    public int bitOperations(String[] statements) {\n        int x = 0;\n        for (String s : statements) {\n            if (s.contains("++")) x++;\n            else x--;\n        }\n        return x;\n    }\n}',
-      cpp: '#include <vector>\n#include <string>\nusing namespace std;\n\nclass Solution {\npublic:\n    int bitOperations(vector<string>& statements) {\n        int x = 0;\n        for (const string& s : statements) {\n            if (s.find("++") != string::npos) x++;\n            else x--;\n        }\n        return x;\n    }\n};',
-    },
-    testCases: [
-      { id: 'tc-1', input: 'statements = ["++X", "X++", "--X"]', expectedOutput: '1' },
-      { id: 'tc-2', input: 'statements = ["--X", "X--"]', expectedOutput: '-2' },
+    "title": "Last Stone Weight",
+    "slug": "last-stone-weight",
+    "platform": "LEETCODE",
+    "difficulty": "Easy",
+    "topic": "Heap / Priority Queue",
+    "tags": [
+      "array",
+      "heap"
     ],
+    "canonicalUrl": "https://leetcode.com/problems/last-stone-weight/",
+    "estimatedMinutes": 15,
+    "description": "You are given an array of integers stones where stones[i] is the weight of the ith stone. We are playing a game with the stones. On each turn, we choose the heaviest two stones with weights x and y with x <= y. The result of this smash is: if x == y, both stones are destroyed; if x != y, the stone of weight x is destroyed, and the stone of weight y has new weight y - x. At the end of the game, there is at most one stone left. Return the weight of the last remaining stone. If there are no stones left, return 0.",
+    "entryFunctionName": "lastStoneWeight",
+    "companyTags": [
+      "Amazon"
+    ],
+    "starterCode": {
+      "javascript": "function lastStoneWeight(stones) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def lastStoneWeight(self, stones: list[int]) -> int:\n        # Write your solution here\n        pass",
+      "java": "import java.util.*;\n\nclass Solution {\n    public int lastStoneWeight(int[] stones) {\n        // Write your solution here\n        return 0;\n    }\n}",
+      "cpp": "#include <vector>\n#include <queue>\nusing namespace std;\n\nclass Solution {\npublic:\n    int lastStoneWeight(vector<int>& stones) {\n        // Write your solution here\n        return 0;\n    }\n};",
+      "c": "int lastStoneWeight(int* stones, int stonesSize) {\n    // Write your solution here\n    return 0;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "stones = [2,7,4,1,8,1]",
+        "expectedOutput": "1"
+      },
+      {
+        "id": "tc-2",
+        "input": "stones = [1]",
+        "expectedOutput": "1"
+      }
+    ]
   },
   {
-    title: 'Missing Number (CSES 1083)',
-    slug: 'missing-number-cses-1083',
-    platform: 'CSES',
-    difficulty: 'Easy',
-    topic: 'Arrays',
-    tags: ['math', 'cses'],
-    canonicalUrl: 'https://cses.fi/problemset/task/1083',
-    estimatedMinutes: 10,
-    description: 'You are given all numbers between 1,2,...,n except one. Your task is to find the missing number.',
-    entryFunctionName: 'missingNumber',
-    companyTags: ['CSES'],
-    starterCode: {
-      javascript: 'function missingNumber(n, arr) {\n  const total = (n * (n + 1)) / 2;\n  const sum = arr.reduce((a, b) => a + b, 0);\n  return total - sum;\n}',
-      python: 'def missingNumber(n: int, arr: list[int]) -> int:\n    return (n * (n + 1)) // 2 - sum(arr)',
-      java: 'class Solution {\n    public long missingNumber(long n, int[] arr) {\n        long total = (n * (n + 1)) / 2;\n        long sum = 0;\n        for (int a : arr) sum += a;\n        return total - sum;\n    }\n}',
-      cpp: '#include <vector>\n#include <numeric>\nusing namespace std;\n\nclass Solution {\npublic:\n    long long missingNumber(long long n, vector<int>& arr) {\n        long long total = (n * (n + 1)) / 2;\n        long long sum = 0;\n        for (int a : arr) sum += a;\n        return total - sum;\n    }\n};',
-    },
-    testCases: [
-      { id: 'tc-1', input: 'n = 5, arr = [2, 3, 1, 5]', expectedOutput: '4' },
-      { id: 'tc-2', input: 'n = 3, arr = [1, 2]', expectedOutput: '3' },
+    "title": "K Closest Points to Origin",
+    "slug": "k-closest-points-to-origin",
+    "platform": "LEETCODE",
+    "difficulty": "Medium",
+    "topic": "Heap / Priority Queue",
+    "tags": [
+      "array",
+      "math",
+      "divide-and-conquer",
+      "geometry",
+      "sorting",
+      "heap"
     ],
+    "canonicalUrl": "https://leetcode.com/problems/k-closest-points-to-origin/",
+    "estimatedMinutes": 20,
+    "description": "Given an array of points where points[i] = [xi, yi] represents a point on the X-Y plane and an integer k, return the k closest points to the origin (0, 0). The distance between two points on the X-Y plane is the Euclidean distance (sqrt((x1 - x2)^2 + (y1 - y2)^2)). You may return the answer in any order.",
+    "entryFunctionName": "kClosest",
+    "companyTags": [
+      "Meta",
+      "Amazon",
+      "Google"
+    ],
+    "starterCode": {
+      "javascript": "function kClosest(points, k) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def kClosest(self, points: list[list[int]], k: int) -> list[list[int]]:\n        # Write your solution here\n        pass",
+      "java": "import java.util.*;\n\nclass Solution {\n    public int[][] kClosest(int[][] points, int k) {\n        // Write your solution here\n        return new int[][]{};\n    }\n}",
+      "cpp": "#include <vector>\n#include <queue>\nusing namespace std;\n\nclass Solution {\npublic:\n    vector<vector<int>> kClosest(vector<vector<int>>& points, int k) {\n        // Write your solution here\n        return {};\n    }\n};",
+      "c": "int** kClosest(int** points, int pointsSize, int* pointsColSize, int k, int* returnSize, int** returnColumnSizes) {\n    // Write your solution here\n    *returnSize = k;\n    return NULL;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "points = [[1,3],[-2,2]], k = 1",
+        "expectedOutput": "[[-2, 2]]"
+      },
+      {
+        "id": "tc-2",
+        "input": "points = [[3,3],[5,-1],[-2,4]], k = 2",
+        "expectedOutput": "[[3, 3], [-2, 4]]"
+      }
+    ]
   },
+  {
+    "title": "Subsets",
+    "slug": "subsets",
+    "platform": "LEETCODE",
+    "difficulty": "Medium",
+    "topic": "Backtracking",
+    "tags": [
+      "array",
+      "backtracking",
+      "bit-manipulation"
+    ],
+    "canonicalUrl": "https://leetcode.com/problems/subsets/",
+    "estimatedMinutes": 20,
+    "description": "Given an integer array nums of unique elements, return all possible subsets (the power set). The solution set must not contain duplicate subsets. Return the solution in any order.",
+    "entryFunctionName": "subsets",
+    "companyTags": [
+      "Meta",
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
+    "starterCode": {
+      "javascript": "/**\n * @param {number[]} nums\n * @return {number[][]}\n */\nfunction subsets(nums) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def subsets(self, nums: list[int]) -> list[list[int]]:\n        # Write your solution here\n        pass",
+      "java": "import java.util.*;\n\nclass Solution {\n    public List<List<Integer>> subsets(int[] nums) {\n        // Write your solution here\n        return new ArrayList<>();\n    }\n}",
+      "cpp": "#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    vector<vector<int>> subsets(vector<int>& nums) {\n        // Write your solution here\n        return {};\n    }\n};",
+      "c": "int** subsets(int* nums, int numsSize, int* returnSize, int** returnColumnSizes) {\n    // Write your solution here\n    *returnSize = 0;\n    return NULL;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "nums = [1,2,3]",
+        "expectedOutput": "[[], [1], [2], [1, 2], [3], [1, 3], [2, 3], [1, 2, 3]]"
+      },
+      {
+        "id": "tc-2",
+        "input": "nums = [0]",
+        "expectedOutput": "[[], [0]]"
+      }
+    ]
+  },
+  {
+    "title": "Combination Sum",
+    "slug": "combination-sum",
+    "platform": "LEETCODE",
+    "difficulty": "Medium",
+    "topic": "Backtracking",
+    "tags": [
+      "array",
+      "backtracking"
+    ],
+    "canonicalUrl": "https://leetcode.com/problems/combination-sum/",
+    "estimatedMinutes": 25,
+    "description": "Given an array of distinct integers candidates and a target integer target, return a list of all unique combinations of candidates where the chosen numbers sum to target. You may return the combinations in any order.",
+    "entryFunctionName": "combinationSum",
+    "companyTags": [
+      "Amazon",
+      "Meta",
+      "Airbnb",
+      "Google"
+    ],
+    "starterCode": {
+      "javascript": "/**\n * @param {number[]} candidates\n * @param {number} target\n * @return {number[][]}\n */\nfunction combinationSum(candidates, target) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def combinationSum(self, candidates: list[int], target: int) -> list[list[int]]:\n        # Write your solution here\n        pass",
+      "java": "import java.util.*;\n\nclass Solution {\n    public List<List<Integer>> combinationSum(int[] candidates, int target) {\n        // Write your solution here\n        return new ArrayList<>();\n    }\n}",
+      "cpp": "#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    vector<vector<int>> combinationSum(vector<int>& candidates, int target) {\n        // Write your solution here\n        return {};\n    }\n};",
+      "c": "int** combinationSum(int* candidates, int candidatesSize, int target, int* returnSize, int** returnColumnSizes) {\n    // Write your solution here\n    *returnSize = 0;\n    return NULL;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "candidates = [2,3,6,7], target = 7",
+        "expectedOutput": "[[2, 2, 3], [7]]"
+      },
+      {
+        "id": "tc-2",
+        "input": "candidates = [2,3,5], target = 8",
+        "expectedOutput": "[[2, 2, 2, 2], [2, 3, 3], [3, 5]]"
+      },
+      {
+        "id": "tc-3",
+        "input": "candidates = [2], target = 1",
+        "expectedOutput": "[]"
+      }
+    ]
+  },
+  {
+    "title": "Generate Parentheses",
+    "slug": "generate-parentheses",
+    "platform": "LEETCODE",
+    "difficulty": "Medium",
+    "topic": "Backtracking",
+    "tags": [
+      "string",
+      "dynamic-programming",
+      "backtracking"
+    ],
+    "canonicalUrl": "https://leetcode.com/problems/generate-parentheses/",
+    "estimatedMinutes": 20,
+    "description": "Given n pairs of parentheses, write a function to generate all combinations of well-formed parentheses.",
+    "entryFunctionName": "generateParenthesis",
+    "companyTags": [
+      "Amazon",
+      "Meta",
+      "Microsoft",
+      "Google"
+    ],
+    "starterCode": {
+      "javascript": "/**\n * @param {number} n\n * @return {string[]}\n */\nfunction generateParenthesis(n) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def generateParenthesis(self, n: int) -> list[str]:\n        # Write your solution here\n        pass",
+      "java": "import java.util.*;\n\nclass Solution {\n    public List<String> generateParenthesis(int n) {\n        // Write your solution here\n        return new ArrayList<>();\n    }\n}",
+      "cpp": "#include <vector>\n#include <string>\nusing namespace std;\n\nclass Solution {\npublic:\n    vector<string> generateParenthesis(int n) {\n        // Write your solution here\n        return {};\n    }\n};",
+      "c": "char** generateParenthesis(int n, int* returnSize) {\n    // Write your solution here\n    *returnSize = 0;\n    return NULL;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "n = 3",
+        "expectedOutput": "[\"((()))\", \"(()())\", \"(())()\", \"()(())\", \"()()()\"]"
+      },
+      {
+        "id": "tc-2",
+        "input": "n = 1",
+        "expectedOutput": "[\"()\"]"
+      }
+    ]
+  },
+  {
+    "title": "Climbing Stairs",
+    "slug": "climbing-stairs",
+    "platform": "LEETCODE",
+    "difficulty": "Easy",
+    "topic": "Dynamic Programming",
+    "tags": [
+      "math",
+      "dynamic-programming",
+      "memoization"
+    ],
+    "canonicalUrl": "https://leetcode.com/problems/climbing-stairs/",
+    "estimatedMinutes": 10,
+    "description": "You are climbing a staircase. It takes n steps to reach the top. Each time you can either climb 1 or 2 steps. In how many distinct ways can you climb to the top?",
+    "entryFunctionName": "climbStairs",
+    "companyTags": [
+      "Amazon",
+      "Google",
+      "Adobe",
+      "Apple"
+    ],
+    "starterCode": {
+      "javascript": "/**\n * @param {number} n\n * @return {number}\n */\nfunction climbStairs(n) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def climbStairs(self, n: int) -> int:\n        # Write your solution here\n        pass",
+      "java": "class Solution {\n    public int climbStairs(int n) {\n        // Write your solution here\n        return 0;\n    }\n}",
+      "cpp": "class Solution {\npublic:\n    int climbStairs(int n) {\n        // Write your solution here\n        return 0;\n    }\n};",
+      "c": "int climbStairs(int n) {\n    // Write your solution here\n    return 0;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "n = 2",
+        "expectedOutput": "2"
+      },
+      {
+        "id": "tc-2",
+        "input": "n = 3",
+        "expectedOutput": "3"
+      },
+      {
+        "id": "tc-3",
+        "input": "n = 5",
+        "expectedOutput": "8"
+      },
+      {
+        "id": "tc-4",
+        "input": "n = 1",
+        "expectedOutput": "1",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "title": "House Robber",
+    "slug": "house-robber",
+    "platform": "LEETCODE",
+    "difficulty": "Medium",
+    "topic": "Dynamic Programming",
+    "tags": [
+      "array",
+      "dynamic-programming"
+    ],
+    "canonicalUrl": "https://leetcode.com/problems/house-robber/",
+    "estimatedMinutes": 20,
+    "description": "You are a professional robber planning to rob houses along a street. Each house has a certain amount of money stashed. Adjacent houses have security systems connected and it will automatically contact the police if two adjacent houses were broken into on the same night. Return the maximum amount of money you can rob tonight without alerting the police.",
+    "entryFunctionName": "rob",
+    "companyTags": [
+      "Amazon",
+      "Microsoft",
+      "Google",
+      "Meta"
+    ],
+    "starterCode": {
+      "javascript": "/**\n * @param {number[]} nums\n * @return {number}\n */\nfunction rob(nums) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def rob(self, nums: list[int]) -> int:\n        # Write your solution here\n        pass",
+      "java": "class Solution {\n    public int rob(int[] nums) {\n        // Write your solution here\n        return 0;\n    }\n}",
+      "cpp": "#include <vector>\n#include <algorithm>\nusing namespace std;\n\nclass Solution {\npublic:\n    int rob(vector<int>& nums) {\n        // Write your solution here\n        return 0;\n    }\n};",
+      "c": "int rob(int* nums, int numsSize) {\n    // Write your solution here\n    return 0;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "nums = [1,2,3,1]",
+        "expectedOutput": "4"
+      },
+      {
+        "id": "tc-2",
+        "input": "nums = [2,7,9,3,1]",
+        "expectedOutput": "12"
+      },
+      {
+        "id": "tc-3",
+        "input": "nums = [2,1,1,2]",
+        "expectedOutput": "4",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "title": "House Robber II",
+    "slug": "house-robber-ii",
+    "platform": "LEETCODE",
+    "difficulty": "Medium",
+    "topic": "Dynamic Programming",
+    "tags": [
+      "array",
+      "dynamic-programming"
+    ],
+    "canonicalUrl": "https://leetcode.com/problems/house-robber-ii/",
+    "estimatedMinutes": 25,
+    "description": "You are a professional robber planning to rob houses along a street. All houses at this place are arranged in a circle. That means the first house is the neighbor of the last one. Adjacent houses have security systems connected. Return the maximum amount of money you can rob tonight without alerting the police.",
+    "entryFunctionName": "rob",
+    "companyTags": [
+      "Amazon",
+      "Microsoft",
+      "Google"
+    ],
+    "starterCode": {
+      "javascript": "function rob(nums) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def rob(self, nums: list[int]) -> int:\n        # Write your solution here\n        pass",
+      "java": "class Solution {\n    public int rob(int[] nums) {\n        // Write your solution here\n        return 0;\n    }\n}",
+      "cpp": "#include <vector>\n#include <algorithm>\nusing namespace std;\n\nclass Solution {\npublic:\n    int rob(vector<int>& nums) {\n        // Write your solution here\n        return 0;\n    }\n};",
+      "c": "int rob(int* nums, int numsSize) {\n    // Write your solution here\n    return 0;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "nums = [2,3,2]",
+        "expectedOutput": "3"
+      },
+      {
+        "id": "tc-2",
+        "input": "nums = [1,2,3,1]",
+        "expectedOutput": "4"
+      },
+      {
+        "id": "tc-3",
+        "input": "nums = [1,2,3]",
+        "expectedOutput": "3"
+      }
+    ]
+  },
+  {
+    "title": "Coin Change",
+    "slug": "coin-change",
+    "platform": "LEETCODE",
+    "difficulty": "Medium",
+    "topic": "Dynamic Programming",
+    "tags": [
+      "array",
+      "dynamic-programming",
+      "breadth-first-search"
+    ],
+    "canonicalUrl": "https://leetcode.com/problems/coin-change/",
+    "estimatedMinutes": 25,
+    "description": "You are given an integer array coins representing coins of different denominations and an integer amount representing a total amount of money. Return the fewest number of coins that you need to make up that amount. If that amount of money cannot be made up by any combination of the coins, return -1.",
+    "entryFunctionName": "coinChange",
+    "companyTags": [
+      "Amazon",
+      "Meta",
+      "Microsoft",
+      "Bloomberg"
+    ],
+    "starterCode": {
+      "javascript": "/**\n * @param {number[]} coins\n * @param {number} amount\n * @return {number}\n */\nfunction coinChange(coins, amount) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def coinChange(self, coins: list[int], amount: int) -> int:\n        # Write your solution here\n        pass",
+      "java": "import java.util.*;\n\nclass Solution {\n    public int coinChange(int[] coins, int amount) {\n        // Write your solution here\n        return -1;\n    }\n}",
+      "cpp": "#include <vector>\n#include <algorithm>\nusing namespace std;\n\nclass Solution {\npublic:\n    int coinChange(vector<int>& coins, int amount) {\n        // Write your solution here\n        return -1;\n    }\n};",
+      "c": "int coinChange(int* coins, int coinsSize, int amount) {\n    // Write your solution here\n    return -1;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "coins = [1,2,5], amount = 11",
+        "expectedOutput": "3"
+      },
+      {
+        "id": "tc-2",
+        "input": "coins = [2], amount = 3",
+        "expectedOutput": "-1"
+      },
+      {
+        "id": "tc-3",
+        "input": "coins = [1], amount = 0",
+        "expectedOutput": "0"
+      }
+    ]
+  },
+  {
+    "title": "Longest Increasing Subsequence",
+    "slug": "longest-increasing-subsequence",
+    "platform": "LEETCODE",
+    "difficulty": "Medium",
+    "topic": "Dynamic Programming",
+    "tags": [
+      "array",
+      "binary-search",
+      "dynamic-programming"
+    ],
+    "canonicalUrl": "https://leetcode.com/problems/longest-increasing-subsequence/",
+    "estimatedMinutes": 25,
+    "description": "Given an integer array nums, return the length of the longest strictly increasing subsequence.",
+    "entryFunctionName": "lengthOfLIS",
+    "companyTags": [
+      "Google",
+      "Amazon",
+      "Microsoft",
+      "Apple"
+    ],
+    "starterCode": {
+      "javascript": "/**\n * @param {number[]} nums\n * @return {number}\n */\nfunction lengthOfLIS(nums) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def lengthOfLIS(self, nums: list[int]) -> int:\n        # Write your solution here\n        pass",
+      "java": "import java.util.*;\n\nclass Solution {\n    public int lengthOfLIS(int[] nums) {\n        // Write your solution here\n        return 0;\n    }\n}",
+      "cpp": "#include <vector>\n#include <algorithm>\nusing namespace std;\n\nclass Solution {\npublic:\n    int lengthOfLIS(vector<int>& nums) {\n        // Write your solution here\n        return 0;\n    }\n};",
+      "c": "int lengthOfLIS(int* nums, int numsSize) {\n    // Write your solution here\n    return 0;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "nums = [10,9,2,5,3,7,101,18]",
+        "expectedOutput": "4"
+      },
+      {
+        "id": "tc-2",
+        "input": "nums = [0,1,0,3,2,3]",
+        "expectedOutput": "4"
+      },
+      {
+        "id": "tc-3",
+        "input": "nums = [7,7,7,7,7,7,7]",
+        "expectedOutput": "1"
+      }
+    ]
+  },
+  {
+    "title": "0/1 Knapsack Problem",
+    "slug": "0-1-knapsack-problem",
+    "platform": "GEEKSFORGEEKS",
+    "difficulty": "Medium",
+    "topic": "Dynamic Programming",
+    "tags": [
+      "dynamic-programming",
+      "knapsack"
+    ],
+    "canonicalUrl": "https://www.geeksforgeeks.org/problems/0-1-knapsack-problem0945/1",
+    "estimatedMinutes": 25,
+    "description": "You are given weights and values of N items, put these items in a knapsack of capacity W to get the maximum total value in the knapsack.",
+    "entryFunctionName": "knapSack",
+    "companyTags": [
+      "Amazon",
+      "Paytm",
+      "Flipkart"
+    ],
+    "starterCode": {
+      "javascript": "function knapSack(W, wt, val, n) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def knapSack(self, W: int, wt: list[int], val: list[int], n: int) -> int:\n        # Write your solution here\n        pass",
+      "java": "class Solution {\n    public int knapSack(int W, int[] wt, int[] val, int n) {\n        // Write your solution here\n        return 0;\n    }\n}",
+      "cpp": "#include <vector>\n#include <algorithm>\nusing namespace std;\n\nclass Solution {\npublic:\n    int knapSack(int W, vector<int>& wt, vector<int>& val, int n) {\n        // Write your solution here\n        return 0;\n    }\n};",
+      "c": "int knapSack(int W, int* wt, int* val, int n) {\n    // Write your solution here\n    return 0;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "W = 4, wt = [4, 5, 1], val = [1, 2, 3], n = 3",
+        "expectedOutput": "3"
+      },
+      {
+        "id": "tc-2",
+        "input": "W = 3, wt = [4, 5, 6], val = [1, 2, 3], n = 3",
+        "expectedOutput": "0"
+      }
+    ]
+  },
+  {
+    "title": "Unique Paths",
+    "slug": "unique-paths",
+    "platform": "LEETCODE",
+    "difficulty": "Medium",
+    "topic": "Dynamic Programming",
+    "tags": [
+      "math",
+      "dynamic-programming",
+      "combinatorics"
+    ],
+    "canonicalUrl": "https://leetcode.com/problems/unique-paths/",
+    "estimatedMinutes": 20,
+    "description": "There is a robot on an m x n grid. The robot is initially located at the top-left corner (i.e., grid[0][0]). The robot tries to move to the bottom-right corner (i.e., grid[m - 1][n - 1]). The robot can only move either down or right at any point in time. Given the two integers m and n, return the number of possible unique paths that the robot can take to reach the bottom-right corner.",
+    "entryFunctionName": "uniquePaths",
+    "companyTags": [
+      "Google",
+      "Amazon",
+      "Meta"
+    ],
+    "starterCode": {
+      "javascript": "/**\n * @param {number} m\n * @param {number} n\n * @return {number}\n */\nfunction uniquePaths(m, n) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def uniquePaths(self, m: int, n: int) -> int:\n        # Write your solution here\n        pass",
+      "java": "class Solution {\n    public int uniquePaths(int m, int n) {\n        // Write your solution here\n        return 0;\n    }\n}",
+      "cpp": "#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    int uniquePaths(int m, int n) {\n        // Write your solution here\n        return 0;\n    }\n};",
+      "c": "int uniquePaths(int m, int n) {\n    // Write your solution here\n    return 0;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "m = 3, n = 7",
+        "expectedOutput": "28"
+      },
+      {
+        "id": "tc-2",
+        "input": "m = 3, n = 2",
+        "expectedOutput": "3"
+      },
+      {
+        "id": "tc-3",
+        "input": "m = 1, n = 1",
+        "expectedOutput": "1",
+        "isHidden": true
+      }
+    ]
+  },
+  {
+    "title": "Longest Common Subsequence",
+    "slug": "longest-common-subsequence",
+    "platform": "LEETCODE",
+    "difficulty": "Medium",
+    "topic": "Dynamic Programming",
+    "tags": [
+      "string",
+      "dynamic-programming"
+    ],
+    "canonicalUrl": "https://leetcode.com/problems/longest-common-subsequence/",
+    "estimatedMinutes": 25,
+    "description": "Given two strings text1 and text2, return the length of their longest common subsequence. If there is no common subsequence, return 0.",
+    "entryFunctionName": "longestCommonSubsequence",
+    "companyTags": [
+      "Amazon",
+      "Microsoft",
+      "Google"
+    ],
+    "starterCode": {
+      "javascript": "function longestCommonSubsequence(text1, text2) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def longestCommonSubsequence(self, text1: str, text2: str) -> int:\n        # Write your solution here\n        pass",
+      "java": "class Solution {\n    public int longestCommonSubsequence(String text1, String text2) {\n        // Write your solution here\n        return 0;\n    }\n}",
+      "cpp": "#include <string>\n#include <vector>\n#include <algorithm>\nusing namespace std;\n\nclass Solution {\npublic:\n    int longestCommonSubsequence(string text1, string text2) {\n        // Write your solution here\n        return 0;\n    }\n};",
+      "c": "int longestCommonSubsequence(char* text1, char* text2) {\n    // Write your solution here\n    return 0;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "text1 = \"abcde\", text2 = \"ace\"",
+        "expectedOutput": "3"
+      },
+      {
+        "id": "tc-2",
+        "input": "text1 = \"abc\", text2 = \"abc\"",
+        "expectedOutput": "3"
+      },
+      {
+        "id": "tc-3",
+        "input": "text1 = \"abc\", text2 = \"def\"",
+        "expectedOutput": "0"
+      }
+    ]
+  },
+  {
+    "title": "Word Break",
+    "slug": "word-break",
+    "platform": "LEETCODE",
+    "difficulty": "Medium",
+    "topic": "Dynamic Programming",
+    "tags": [
+      "hash-table",
+      "string",
+      "dynamic-programming",
+      "trie",
+      "memoization"
+    ],
+    "canonicalUrl": "https://leetcode.com/problems/word-break/",
+    "estimatedMinutes": 25,
+    "description": "Given a string s and a dictionary of strings wordDict, return true if s can be segmented into a space-separated sequence of one or more dictionary words.",
+    "entryFunctionName": "wordBreak",
+    "companyTags": [
+      "Amazon",
+      "Meta",
+      "Bloomberg",
+      "Google"
+    ],
+    "starterCode": {
+      "javascript": "function wordBreak(s, wordDict) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def wordBreak(self, s: str, wordDict: list[str]) -> bool:\n        # Write your solution here\n        pass",
+      "java": "import java.util.*;\n\nclass Solution {\n    public boolean wordBreak(String s, List<String> wordDict) {\n        // Write your solution here\n        return false;\n    }\n}",
+      "cpp": "#include <string>\n#include <vector>\n#include <unordered_set>\nusing namespace std;\n\nclass Solution {\npublic:\n    bool wordBreak(string s, vector<string>& wordDict) {\n        // Write your solution here\n        return false;\n    }\n};",
+      "c": "#include <stdbool.h>\n\nbool wordBreak(char* s, char** wordDict, int wordDictSize) {\n    // Write your solution here\n    return false;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "s = \"leetcode\", wordDict = [\"leet\",\"code\"]",
+        "expectedOutput": "true"
+      },
+      {
+        "id": "tc-2",
+        "input": "s = \"applepenapple\", wordDict = [\"apple\",\"pen\"]",
+        "expectedOutput": "true"
+      },
+      {
+        "id": "tc-3",
+        "input": "s = \"catsandog\", wordDict = [\"cats\",\"dog\",\"sand\",\"and\",\"cat\"]",
+        "expectedOutput": "false"
+      }
+    ]
+  },
+  {
+    "title": "Jump Game",
+    "slug": "jump-game",
+    "platform": "LEETCODE",
+    "difficulty": "Medium",
+    "topic": "Dynamic Programming",
+    "tags": [
+      "array",
+      "dynamic-programming",
+      "greedy"
+    ],
+    "canonicalUrl": "https://leetcode.com/problems/jump-game/",
+    "estimatedMinutes": 20,
+    "description": "You are given an integer array nums. You are initially positioned at the array's first index, and each element in the array represents your maximum jump length at that position. Return true if you can reach the last index, or false otherwise.",
+    "entryFunctionName": "canJump",
+    "companyTags": [
+      "Amazon",
+      "Microsoft",
+      "Google"
+    ],
+    "starterCode": {
+      "javascript": "function canJump(nums) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def canJump(self, nums: list[int]) -> bool:\n        # Write your solution here\n        pass",
+      "java": "class Solution {\n    public boolean canJump(int[] nums) {\n        // Write your solution here\n        return false;\n    }\n}",
+      "cpp": "#include <vector>\n#include <algorithm>\nusing namespace std;\n\nclass Solution {\npublic:\n    bool canJump(vector<int>& nums) {\n        // Write your solution here\n        return false;\n    }\n};",
+      "c": "#include <stdbool.h>\n\nbool canJump(int* nums, int numsSize) {\n    // Write your solution here\n    return false;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "nums = [2,3,1,1,4]",
+        "expectedOutput": "true"
+      },
+      {
+        "id": "tc-2",
+        "input": "nums = [3,2,1,0,4]",
+        "expectedOutput": "false"
+      }
+    ]
+  },
+  {
+    "title": "Edit Distance",
+    "slug": "edit-distance",
+    "platform": "LEETCODE",
+    "difficulty": "Medium",
+    "topic": "Dynamic Programming",
+    "tags": [
+      "string",
+      "dynamic-programming"
+    ],
+    "canonicalUrl": "https://leetcode.com/problems/edit-distance/",
+    "estimatedMinutes": 30,
+    "description": "Given two strings word1 and word2, return the minimum number of operations required to convert word1 to word2. You have the following three operations permitted on a word: insert a character, delete a character, replace a character.",
+    "entryFunctionName": "minDistance",
+    "companyTags": [
+      "Google",
+      "Amazon",
+      "Microsoft"
+    ],
+    "starterCode": {
+      "javascript": "function minDistance(word1, word2) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def minDistance(self, word1: str, word2: str) -> int:\n        # Write your solution here\n        pass",
+      "java": "class Solution {\n    public int minDistance(String word1, String word2) {\n        // Write your solution here\n        return 0;\n    }\n}",
+      "cpp": "#include <string>\n#include <vector>\n#include <algorithm>\nusing namespace std;\n\nclass Solution {\npublic:\n    int minDistance(string word1, string word2) {\n        // Write your solution here\n        return 0;\n    }\n};",
+      "c": "int minDistance(char* word1, char* word2) {\n    // Write your solution here\n    return 0;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "word1 = \"horse\", word2 = \"ros\"",
+        "expectedOutput": "3"
+      },
+      {
+        "id": "tc-2",
+        "input": "word1 = \"intention\", word2 = \"execution\"",
+        "expectedOutput": "5"
+      }
+    ]
+  },
+  {
+    "title": "Decode Ways",
+    "slug": "decode-ways",
+    "platform": "LEETCODE",
+    "difficulty": "Medium",
+    "topic": "Dynamic Programming",
+    "tags": [
+      "string",
+      "dynamic-programming"
+    ],
+    "canonicalUrl": "https://leetcode.com/problems/decode-ways/",
+    "estimatedMinutes": 20,
+    "description": "A message containing letters from A-Z can be encoded into numbers using the mapping 'A' -> \"1\", 'B' -> \"2\", ... 'Z' -> \"26\". Given a string s containing only digits, return the number of ways to decode it.",
+    "entryFunctionName": "numDecodings",
+    "companyTags": [
+      "Meta",
+      "Amazon",
+      "Google"
+    ],
+    "starterCode": {
+      "javascript": "function numDecodings(s) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def numDecodings(self, s: str) -> int:\n        # Write your solution here\n        pass",
+      "java": "class Solution {\n    public int numDecodings(String s) {\n        // Write your solution here\n        return 0;\n    }\n}",
+      "cpp": "#include <string>\n#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    int numDecodings(string s) {\n        // Write your solution here\n        return 0;\n    }\n};",
+      "c": "int numDecodings(char* s) {\n    // Write your solution here\n    return 0;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "s = \"12\"",
+        "expectedOutput": "2"
+      },
+      {
+        "id": "tc-2",
+        "input": "s = \"226\"",
+        "expectedOutput": "3"
+      },
+      {
+        "id": "tc-3",
+        "input": "s = \"06\"",
+        "expectedOutput": "0"
+      }
+    ]
+  },
+  {
+    "title": "Partition Equal Subset Sum",
+    "slug": "partition-equal-subset-sum",
+    "platform": "LEETCODE",
+    "difficulty": "Medium",
+    "topic": "Dynamic Programming",
+    "tags": [
+      "array",
+      "dynamic-programming"
+    ],
+    "canonicalUrl": "https://leetcode.com/problems/partition-equal-subset-sum/",
+    "estimatedMinutes": 25,
+    "description": "Given an integer array nums, return true if you can partition the array into two subsets such that the sum of the elements in both subsets is equal or false otherwise.",
+    "entryFunctionName": "canPartition",
+    "companyTags": [
+      "Amazon",
+      "Meta"
+    ],
+    "starterCode": {
+      "javascript": "function canPartition(nums) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def canPartition(self, nums: list[int]) -> bool:\n        # Write your solution here\n        pass",
+      "java": "class Solution {\n    public boolean canPartition(int[] nums) {\n        // Write your solution here\n        return false;\n    }\n}",
+      "cpp": "#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    bool canPartition(vector<int>& nums) {\n        // Write your solution here\n        return false;\n    }\n};",
+      "c": "#include <stdbool.h>\n\nbool canPartition(int* nums, int numsSize) {\n    // Write your solution here\n    return false;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "nums = [1,5,11,5]",
+        "expectedOutput": "true"
+      },
+      {
+        "id": "tc-2",
+        "input": "nums = [1,2,3,5]",
+        "expectedOutput": "false"
+      }
+    ]
+  },
+  {
+    "title": "Gas Station",
+    "slug": "gas-station",
+    "platform": "LEETCODE",
+    "difficulty": "Medium",
+    "topic": "Greedy",
+    "tags": [
+      "array",
+      "greedy"
+    ],
+    "canonicalUrl": "https://leetcode.com/problems/gas-station/",
+    "estimatedMinutes": 20,
+    "description": "There are n gas stations along a circular route, where the amount of gas at the ith station is gas[i]. You have a car with an unlimited gas tank and it costs cost[i] of gas to travel from the ith station to its next (i + 1)th station. You begin the journey with an empty tank at one of the gas stations. Return the starting gas station index if you can travel around the circuit once in the clockwise direction, otherwise return -1.",
+    "entryFunctionName": "canCompleteCircuit",
+    "companyTags": [
+      "Amazon",
+      "Google",
+      "Microsoft"
+    ],
+    "starterCode": {
+      "javascript": "function canCompleteCircuit(gas, cost) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def canCompleteCircuit(self, gas: list[int], cost: list[int]) -> int:\n        # Write your solution here\n        pass",
+      "java": "class Solution {\n    public int canCompleteCircuit(int[] gas, int[] cost) {\n        // Write your solution here\n        return -1;\n    }\n}",
+      "cpp": "#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    int canCompleteCircuit(vector<int>& gas, vector<int>& cost) {\n        // Write your solution here\n        return -1;\n    }\n};",
+      "c": "int canCompleteCircuit(int* gas, int gasSize, int* cost, int costSize) {\n    // Write your solution here\n    return -1;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "gas = [1,2,3,4,5], cost = [3,4,5,1,2]",
+        "expectedOutput": "3"
+      },
+      {
+        "id": "tc-2",
+        "input": "gas = [2,3,4], cost = [3,4,3]",
+        "expectedOutput": "-1"
+      }
+    ]
+  },
+  {
+    "title": "Maximum Subarray (Kadane)",
+    "slug": "kadanes-algorithm-gfg",
+    "platform": "GEEKSFORGEEKS",
+    "difficulty": "Medium",
+    "topic": "Greedy",
+    "tags": [
+      "arrays",
+      "dynamic-programming"
+    ],
+    "canonicalUrl": "https://www.geeksforgeeks.org/problems/kadanes-algorithm-1587115620/1",
+    "estimatedMinutes": 15,
+    "description": "Given an integer array arr[]. You need to find the maximum sum of a contiguous subarray.",
+    "entryFunctionName": "maxSubarraySum",
+    "companyTags": [
+      "Samsung",
+      "Amazon",
+      "Flipkart"
+    ],
+    "starterCode": {
+      "javascript": "function maxSubarraySum(arr) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def maxSubarraySum(self, arr: list[int]) -> int:\n        # Write your solution here\n        pass",
+      "java": "class Solution {\n    public int maxSubarraySum(int[] arr) {\n        // Write your solution here\n        return 0;\n    }\n}",
+      "cpp": "#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    int maxSubarraySum(vector<int>& arr) {\n        // Write your solution here\n        return 0;\n    }\n};",
+      "c": "int maxSubarraySum(int* arr, int arrSize) {\n    // Write your solution here\n    return 0;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "arr = [2, 3, -8, 7, -1, 2, 3]",
+        "expectedOutput": "11"
+      },
+      {
+        "id": "tc-2",
+        "input": "arr = [-2, -4]",
+        "expectedOutput": "-2"
+      },
+      {
+        "id": "tc-3",
+        "input": "arr = [5, 4, 1, 7, 8]",
+        "expectedOutput": "25"
+      }
+    ]
+  },
+  {
+    "title": "Number of Islands",
+    "slug": "number-of-islands",
+    "platform": "LEETCODE",
+    "difficulty": "Medium",
+    "topic": "Graphs",
+    "tags": [
+      "array",
+      "depth-first-search",
+      "breadth-first-search",
+      "union-find",
+      "matrix"
+    ],
+    "canonicalUrl": "https://leetcode.com/problems/number-of-islands/",
+    "estimatedMinutes": 25,
+    "description": "Given an m x n 2D binary grid grid which represents a map of '1's (land) and '0's (water), return the number of islands. An island is surrounded by water and is formed by connecting adjacent lands horizontally or vertically.",
+    "entryFunctionName": "numIslands",
+    "companyTags": [
+      "Amazon",
+      "Google",
+      "Meta",
+      "Microsoft",
+      "Bloomberg"
+    ],
+    "starterCode": {
+      "javascript": "/**\n * @param {character[][]} grid\n * @return {number}\n */\nfunction numIslands(grid) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def numIslands(self, grid: list[list[str]]) -> int:\n        # Write your solution here\n        pass",
+      "java": "class Solution {\n    public int numIslands(char[][] grid) {\n        // Write your solution here\n        return 0;\n    }\n}",
+      "cpp": "#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    int numIslands(vector<vector<char>>& grid) {\n        // Write your solution here\n        return 0;\n    }\n};",
+      "c": "int numIslands(char** grid, int gridSize, int* gridColSize) {\n    // Write your solution here\n    return 0;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "grid = [[\"1\",\"1\",\"1\",\"1\",\"0\"],[\"1\",\"1\",\"0\",\"1\",\"0\"],[\"1\",\"1\",\"0\",\"0\",\"0\"],[\"0\",\"0\",\"0\",\"0\",\"0\"]]",
+        "expectedOutput": "1"
+      },
+      {
+        "id": "tc-2",
+        "input": "grid = [[\"1\",\"1\",\"0\",\"0\",\"0\"],[\"1\",\"1\",\"0\",\"0\",\"0\"],[\"0\",\"0\",\"1\",\"0\",\"0\"],[\"0\",\"0\",\"0\",\"1\",\"1\"]]",
+        "expectedOutput": "3"
+      }
+    ]
+  },
+  {
+    "title": "Clone Graph",
+    "slug": "clone-graph",
+    "platform": "LEETCODE",
+    "difficulty": "Medium",
+    "topic": "Graphs",
+    "tags": [
+      "hash-table",
+      "depth-first-search",
+      "breadth-first-search",
+      "graph"
+    ],
+    "canonicalUrl": "https://leetcode.com/problems/clone-graph/",
+    "estimatedMinutes": 25,
+    "description": "Given a reference of a node in a connected undirected graph, return a deep copy (clone) of the graph.",
+    "entryFunctionName": "cloneGraph",
+    "companyTags": [
+      "Meta",
+      "Amazon",
+      "Microsoft"
+    ],
+    "starterCode": {
+      "javascript": "function cloneGraph(adjList) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def cloneGraph(self, adjList: list[list[int]]) -> list[list[int]]:\n        # Write your solution here\n        pass",
+      "java": "import java.util.*;\n\nclass Solution {\n    public List<List<Integer>> cloneGraph(List<List<Integer>> adjList) {\n        // Write your solution here\n        return new ArrayList<>();\n    }\n}",
+      "cpp": "#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    vector<vector<int>> cloneGraph(vector<vector<int>>& adjList) {\n        // Write your solution here\n        return {};\n    }\n};",
+      "c": "int** cloneGraph(int** adjList, int n, int* returnSize, int** returnColumnSizes) {\n    // Write your solution here\n    *returnSize = n;\n    return NULL;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "adjList = [[2,4],[1,3],[2,4],[1,3]]",
+        "expectedOutput": "[[2, 4], [1, 3], [2, 4], [1, 3]]"
+      },
+      {
+        "id": "tc-2",
+        "input": "adjList = [[]]",
+        "expectedOutput": "[[]]"
+      },
+      {
+        "id": "tc-3",
+        "input": "adjList = []",
+        "expectedOutput": "[]"
+      }
+    ]
+  },
+  {
+    "title": "Course Schedule",
+    "slug": "course-schedule",
+    "platform": "LEETCODE",
+    "difficulty": "Medium",
+    "topic": "Graphs",
+    "tags": [
+      "depth-first-search",
+      "breadth-first-search",
+      "graph",
+      "topological-sort"
+    ],
+    "canonicalUrl": "https://leetcode.com/problems/course-schedule/",
+    "estimatedMinutes": 25,
+    "description": "There are a total of numCourses courses you have to take, labeled from 0 to numCourses - 1. You are given an array prerequisites where prerequisites[i] = [ai, bi] indicates that you must take course bi first if you want to take course ai. Return true if you can finish all courses. Otherwise, return false.",
+    "entryFunctionName": "canFinish",
+    "companyTags": [
+      "Amazon",
+      "Google",
+      "Meta",
+      "Microsoft",
+      "Apple"
+    ],
+    "starterCode": {
+      "javascript": "/**\n * @param {number} numCourses\n * @param {number[][]} prerequisites\n * @return {boolean}\n */\nfunction canFinish(numCourses, prerequisites) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def canFinish(self, numCourses: int, prerequisites: list[list[int]]) -> bool:\n        # Write your solution here\n        pass",
+      "java": "import java.util.*;\n\nclass Solution {\n    public boolean canFinish(int numCourses, int[][] prerequisites) {\n        // Write your solution here\n        return false;\n    }\n}",
+      "cpp": "#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    bool canFinish(int numCourses, vector<vector<int>>& prerequisites) {\n        // Write your solution here\n        return false;\n    }\n};",
+      "c": "#include <stdbool.h>\n\nbool canFinish(int numCourses, int** prerequisites, int prerequisitesSize, int* prerequisitesColSize) {\n    // Write your solution here\n    return false;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "numCourses = 2, prerequisites = [[1,0]]",
+        "expectedOutput": "true"
+      },
+      {
+        "id": "tc-2",
+        "input": "numCourses = 2, prerequisites = [[1,0],[0,1]]",
+        "expectedOutput": "false"
+      }
+    ]
+  },
+  {
+    "title": "Weird Algorithm",
+    "slug": "weird-algorithm-cses",
+    "platform": "CSES",
+    "difficulty": "Easy",
+    "topic": "Mathematical Algorithms",
+    "tags": [
+      "math",
+      "simulation"
+    ],
+    "canonicalUrl": "https://cses.fi/problemset/task/1068",
+    "estimatedMinutes": 10,
+    "description": "Consider an algorithm that takes as input a positive integer n. If n is even, the algorithm divides it by two, and if n is odd, the algorithm multiplies it by three and adds one. The algorithm repeats this, until n is one. Return the generated sequence.",
+    "entryFunctionName": "weirdAlgorithm",
+    "companyTags": [
+      "Competitive Programming"
+    ],
+    "starterCode": {
+      "javascript": "function weirdAlgorithm(n) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def weirdAlgorithm(self, n: int) -> list[int]:\n        # Write your solution here\n        pass",
+      "java": "import java.util.*;\n\nclass Solution {\n    public List<Long> weirdAlgorithm(long n) {\n        // Write your solution here\n        return new ArrayList<>();\n    }\n}",
+      "cpp": "#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    vector<long long> weirdAlgorithm(long long n) {\n        // Write your solution here\n        return {};\n    }\n};",
+      "c": "long long* weirdAlgorithm(long long n, int* returnSize) {\n    // Write your solution here\n    *returnSize = 0;\n    return NULL;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "n = 3",
+        "expectedOutput": "[3, 10, 5, 16, 8, 4, 2, 1]"
+      },
+      {
+        "id": "tc-2",
+        "input": "n = 1",
+        "expectedOutput": "[1]"
+      }
+    ]
+  },
+  {
+    "title": "Watermelon",
+    "slug": "watermelon-codeforces",
+    "platform": "CODEFORCES",
+    "difficulty": "Easy",
+    "topic": "Mathematical Algorithms",
+    "tags": [
+      "math",
+      "brute-force"
+    ],
+    "canonicalUrl": "https://codeforces.com/problemset/problem/4/A",
+    "estimatedMinutes": 5,
+    "description": "Pete and Billy bought a watermelon weighing w kilos. They want to divide it into two parts such that each part weighs an even number of kilos. Determine if they can divide the watermelon this way.",
+    "entryFunctionName": "canDivideWatermelon",
+    "companyTags": [
+      "Competitive Programming"
+    ],
+    "starterCode": {
+      "javascript": "function canDivideWatermelon(w) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def canDivideWatermelon(self, w: int) -> bool:\n        # Write your solution here\n        pass",
+      "java": "class Solution {\n    public boolean canDivideWatermelon(int w) {\n        // Write your solution here\n        return false;\n    }\n}",
+      "cpp": "class Solution {\npublic:\n    bool canDivideWatermelon(int w) {\n        // Write your solution here\n        return false;\n    }\n};",
+      "c": "#include <stdbool.h>\n\nbool canDivideWatermelon(int w) {\n    // Write your solution here\n    return false;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "w = 8",
+        "expectedOutput": "true"
+      },
+      {
+        "id": "tc-2",
+        "input": "w = 2",
+        "expectedOutput": "false"
+      },
+      {
+        "id": "tc-3",
+        "input": "w = 10",
+        "expectedOutput": "true"
+      }
+    ]
+  },
+  {
+    "title": "Way Too Long Words",
+    "slug": "way-too-long-words-codeforces",
+    "platform": "CODEFORCES",
+    "difficulty": "Easy",
+    "topic": "Strings",
+    "tags": [
+      "strings"
+    ],
+    "canonicalUrl": "https://codeforces.com/problemset/problem/71/A",
+    "estimatedMinutes": 10,
+    "description": "Sometimes some words like \"localization\" or \"internationalization\" are so long that their writing is rather tiresome. Let's consider a word too long if its length is strictly more than 10 characters. All too long words should be replaced with a special abbreviation: first letter, number of letters between first and last, and last letter.",
+    "entryFunctionName": "abbreviateWord",
+    "companyTags": [
+      "Competitive Programming"
+    ],
+    "starterCode": {
+      "javascript": "function abbreviateWord(word) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def abbreviateWord(self, word: str) -> str:\n        # Write your solution here\n        pass",
+      "java": "class Solution {\n    public String abbreviateWord(String word) {\n        // Write your solution here\n        return \"\";\n    }\n}",
+      "cpp": "#include <string>\nusing namespace std;\n\nclass Solution {\npublic:\n    string abbreviateWord(string word) {\n        // Write your solution here\n        return \"\";\n    }\n};",
+      "c": "char* abbreviateWord(char* word) {\n    // Write your solution here\n    return word;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "word = \"word\"",
+        "expectedOutput": "\"word\""
+      },
+      {
+        "id": "tc-2",
+        "input": "word = \"localization\"",
+        "expectedOutput": "\"l10n\""
+      },
+      {
+        "id": "tc-3",
+        "input": "word = \"internationalization\"",
+        "expectedOutput": "\"i18n\""
+      }
+    ]
+  },
+  {
+    "title": "Next Round",
+    "slug": "next-round-codeforces",
+    "platform": "CODEFORCES",
+    "difficulty": "Easy",
+    "topic": "Sorting",
+    "tags": [
+      "arrays",
+      "sorting"
+    ],
+    "canonicalUrl": "https://codeforces.com/problemset/problem/158/A",
+    "estimatedMinutes": 10,
+    "description": "Contestant who earns a score equal to or greater than the k-th place finisher's score will advance to the next round, as long as the contestant earns a positive score. Calculate how many contestants advance.",
+    "entryFunctionName": "nextRound",
+    "companyTags": [
+      "Competitive Programming"
+    ],
+    "starterCode": {
+      "javascript": "function nextRound(k, scores) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def nextRound(self, k: int, scores: list[int]) -> int:\n        # Write your solution here\n        pass",
+      "java": "class Solution {\n    public int nextRound(int k, int[] scores) {\n        // Write your solution here\n        return 0;\n    }\n}",
+      "cpp": "#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    int nextRound(int k, vector<int>& scores) {\n        // Write your solution here\n        return 0;\n    }\n};",
+      "c": "int nextRound(int k, int* scores, int scoresSize) {\n    // Write your solution here\n    return 0;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "k = 5, scores = [10, 9, 8, 7, 7, 7, 5, 5]",
+        "expectedOutput": "6"
+      },
+      {
+        "id": "tc-2",
+        "input": "k = 2, scores = [0, 0, 0, 0]",
+        "expectedOutput": "0"
+      }
+    ]
+  },
+  {
+    "title": "Number of 1 Bits",
+    "slug": "number-of-1-bits",
+    "platform": "LEETCODE",
+    "difficulty": "Easy",
+    "topic": "Bit Manipulation",
+    "tags": [
+      "bit-manipulation",
+      "divide-and-conquer"
+    ],
+    "canonicalUrl": "https://leetcode.com/problems/number-of-1-bits/",
+    "estimatedMinutes": 10,
+    "description": "Given a positive integer n, write a function that returns the number of set bits it has (also known as the Hamming weight).",
+    "entryFunctionName": "hammingWeight",
+    "companyTags": [
+      "Microsoft",
+      "Apple",
+      "Amazon"
+    ],
+    "starterCode": {
+      "javascript": "/**\n * @param {number} n\n * @return {number}\n */\nfunction hammingWeight(n) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def hammingWeight(self, n: int) -> int:\n        # Write your solution here\n        pass",
+      "java": "class Solution {\n    public int hammingWeight(int n) {\n        // Write your solution here\n        return 0;\n    }\n}",
+      "cpp": "class Solution {\npublic:\n    int hammingWeight(int n) {\n        // Write your solution here\n        return 0;\n    }\n};",
+      "c": "int hammingWeight(int n) {\n    // Write your solution here\n    return 0;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "n = 11",
+        "expectedOutput": "3"
+      },
+      {
+        "id": "tc-2",
+        "input": "n = 128",
+        "expectedOutput": "1"
+      },
+      {
+        "id": "tc-3",
+        "input": "n = 2147483645",
+        "expectedOutput": "30"
+      }
+    ]
+  },
+  {
+    "title": "Counting Bits",
+    "slug": "counting-bits",
+    "platform": "LEETCODE",
+    "difficulty": "Easy",
+    "topic": "Bit Manipulation",
+    "tags": [
+      "dynamic-programming",
+      "bit-manipulation"
+    ],
+    "canonicalUrl": "https://leetcode.com/problems/counting-bits/",
+    "estimatedMinutes": 15,
+    "description": "Given an integer n, return an array ans of length n + 1 such that for each i (0 <= i <= n), ans[i] is the number of 1's in the binary representation of i.",
+    "entryFunctionName": "countBits",
+    "companyTags": [
+      "Amazon",
+      "Google"
+    ],
+    "starterCode": {
+      "javascript": "/**\n * @param {number} n\n * @return {number[]}\n */\nfunction countBits(n) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def countBits(self, n: int) -> list[int]:\n        # Write your solution here\n        pass",
+      "java": "class Solution {\n    public int[] countBits(int n) {\n        // Write your solution here\n        return new int[]{};\n    }\n}",
+      "cpp": "#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    vector<int> countBits(int n) {\n        // Write your solution here\n        return {};\n    }\n};",
+      "c": "int* countBits(int n, int* returnSize) {\n    // Write your solution here\n    *returnSize = n + 1;\n    return NULL;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "n = 2",
+        "expectedOutput": "[0, 1, 1]"
+      },
+      {
+        "id": "tc-2",
+        "input": "n = 5",
+        "expectedOutput": "[0, 1, 1, 2, 1, 2]"
+      }
+    ]
+  },
+  {
+    "title": "Single Number",
+    "slug": "single-number",
+    "platform": "LEETCODE",
+    "difficulty": "Easy",
+    "topic": "Bit Manipulation",
+    "tags": [
+      "array",
+      "bit-manipulation"
+    ],
+    "canonicalUrl": "https://leetcode.com/problems/single-number/",
+    "estimatedMinutes": 10,
+    "description": "Given a non-empty array of integers nums, every element appears twice except for one. Find that single one. You must implement a solution with a linear runtime complexity and use only constant extra space.",
+    "entryFunctionName": "singleNumber",
+    "companyTags": [
+      "Amazon",
+      "Meta",
+      "Google"
+    ],
+    "starterCode": {
+      "javascript": "/**\n * @param {number[]} nums\n * @return {number}\n */\nfunction singleNumber(nums) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def singleNumber(self, nums: list[int]) -> int:\n        # Write your solution here\n        pass",
+      "java": "class Solution {\n    public int singleNumber(int[] nums) {\n        // Write your solution here\n        return 0;\n    }\n}",
+      "cpp": "#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    int singleNumber(vector<int>& nums) {\n        // Write your solution here\n        return 0;\n    }\n};",
+      "c": "int singleNumber(int* nums, int numsSize) {\n    // Write your solution here\n    return 0;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "nums = [2,2,1]",
+        "expectedOutput": "1"
+      },
+      {
+        "id": "tc-2",
+        "input": "nums = [4,1,2,1,2]",
+        "expectedOutput": "4"
+      },
+      {
+        "id": "tc-3",
+        "input": "nums = [1]",
+        "expectedOutput": "1"
+      }
+    ]
+  },
+  {
+    "title": "Merge Intervals",
+    "slug": "merge-intervals",
+    "platform": "LEETCODE",
+    "difficulty": "Medium",
+    "topic": "Sorting",
+    "tags": [
+      "array",
+      "sorting"
+    ],
+    "canonicalUrl": "https://leetcode.com/problems/merge-intervals/",
+    "estimatedMinutes": 20,
+    "description": "Given an array of intervals where intervals[i] = [starti, endi], merge all overlapping intervals, and return an array of the non-overlapping intervals that cover all the intervals in the input.",
+    "entryFunctionName": "merge",
+    "companyTags": [
+      "Meta",
+      "Google",
+      "Amazon",
+      "Microsoft",
+      "Uber"
+    ],
+    "starterCode": {
+      "javascript": "/**\n * @param {number[][]} intervals\n * @return {number[][]}\n */\nfunction merge(intervals) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def merge(self, intervals: list[list[int]]) -> list[list[int]]:\n        # Write your solution here\n        pass",
+      "java": "import java.util.*;\n\nclass Solution {\n    public int[][] merge(int[][] intervals) {\n        // Write your solution here\n        return new int[][]{};\n    }\n}",
+      "cpp": "#include <vector>\n#include <algorithm>\nusing namespace std;\n\nclass Solution {\npublic:\n    vector<vector<int>> merge(vector<vector<int>>& intervals) {\n        // Write your solution here\n        return {};\n    }\n};",
+      "c": "int** merge(int** intervals, int intervalsSize, int* intervalsColSize, int* returnSize, int** returnColumnSizes) {\n    // Write your solution here\n    *returnSize = 0;\n    return NULL;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "intervals = [[1,3],[2,6],[8,10],[15,18]]",
+        "expectedOutput": "[[1, 6], [8, 10], [15, 18]]"
+      },
+      {
+        "id": "tc-2",
+        "input": "intervals = [[1,4],[4,5]]",
+        "expectedOutput": "[[1, 5]]"
+      }
+    ]
+  },
+  {
+    "title": "Non-overlapping Intervals",
+    "slug": "non-overlapping-intervals",
+    "platform": "LEETCODE",
+    "difficulty": "Medium",
+    "topic": "Sorting",
+    "tags": [
+      "array",
+      "dynamic-programming",
+      "greedy",
+      "sorting"
+    ],
+    "canonicalUrl": "https://leetcode.com/problems/non-overlapping-intervals/",
+    "estimatedMinutes": 20,
+    "description": "Given an array of intervals intervals where intervals[i] = [starti, endi], return the minimum number of intervals you need to remove to make the rest of the intervals non-overlapping.",
+    "entryFunctionName": "eraseOverlapIntervals",
+    "companyTags": [
+      "Meta",
+      "Amazon"
+    ],
+    "starterCode": {
+      "javascript": "function eraseOverlapIntervals(intervals) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def eraseOverlapIntervals(self, intervals: list[list[int]]) -> int:\n        # Write your solution here\n        pass",
+      "java": "import java.util.*;\n\nclass Solution {\n    public int eraseOverlapIntervals(int[][] intervals) {\n        // Write your solution here\n        return 0;\n    }\n}",
+      "cpp": "#include <vector>\n#include <algorithm>\nusing namespace std;\n\nclass Solution {\npublic:\n    int eraseOverlapIntervals(vector<vector<int>>& intervals) {\n        // Write your solution here\n        return 0;\n    }\n};",
+      "c": "int eraseOverlapIntervals(int** intervals, int intervalsSize, int* intervalsColSize) {\n    // Write your solution here\n    return 0;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "intervals = [[1,2],[2,3],[3,4],[1,3]]",
+        "expectedOutput": "1"
+      },
+      {
+        "id": "tc-2",
+        "input": "intervals = [[1,2],[1,2],[1,2]]",
+        "expectedOutput": "2"
+      },
+      {
+        "id": "tc-3",
+        "input": "intervals = [[1,2],[2,3]]",
+        "expectedOutput": "0"
+      }
+    ]
+  },
+  {
+    "title": "Count Primes",
+    "slug": "count-primes",
+    "platform": "LEETCODE",
+    "difficulty": "Medium",
+    "topic": "Mathematical Algorithms",
+    "tags": [
+      "array",
+      "math",
+      "number-theory"
+    ],
+    "canonicalUrl": "https://leetcode.com/problems/count-primes/",
+    "estimatedMinutes": 15,
+    "description": "Given an integer n, return the number of prime numbers that are strictly less than n. (Sieve of Eratosthenes)",
+    "entryFunctionName": "countPrimes",
+    "companyTags": [
+      "Amazon",
+      "Microsoft",
+      "Google"
+    ],
+    "starterCode": {
+      "javascript": "/**\n * @param {number} n\n * @return {number}\n */\nfunction countPrimes(n) {\n  // Write your solution here\n  \n}",
+      "python": "class Solution:\n    def countPrimes(self, n: int) -> int:\n        # Write your solution here\n        pass",
+      "java": "class Solution {\n    public int countPrimes(int n) {\n        // Write your solution here\n        return 0;\n    }\n}",
+      "cpp": "#include <vector>\nusing namespace std;\n\nclass Solution {\npublic:\n    int countPrimes(int n) {\n        // Write your solution here\n        return 0;\n    }\n};",
+      "c": "int countPrimes(int n) {\n    // Write your solution here\n    return 0;\n}"
+    },
+    "testCases": [
+      {
+        "id": "tc-1",
+        "input": "n = 10",
+        "expectedOutput": "4"
+      },
+      {
+        "id": "tc-2",
+        "input": "n = 0",
+        "expectedOutput": "0"
+      },
+      {
+        "id": "tc-3",
+        "input": "n = 1",
+        "expectedOutput": "0"
+      }
+    ]
+  }
 ];
 
 /**

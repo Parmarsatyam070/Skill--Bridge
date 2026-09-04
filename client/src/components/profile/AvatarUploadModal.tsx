@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Upload, X, Check, Image as ImageIcon, AlertCircle, ZoomIn, ZoomOut, RefreshCw } from 'lucide-react';
 import { api } from '../../lib/api';
 

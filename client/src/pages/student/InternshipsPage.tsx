@@ -102,7 +102,7 @@ export const InternshipsPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-8 font-sans">
+    <div className="min-h-full space-y-8 font-sans bg-console-bg">
       {/* Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-console-border">
         <div>
