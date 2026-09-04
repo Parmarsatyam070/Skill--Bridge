@@ -23,6 +23,7 @@ import { CareerResumeBuilder } from './pages/resumes/CareerResumeBuilder';
 import { StudentDashboard } from './pages/student/StudentDashboard';
 import { SkillProfilePage } from './pages/student/SkillProfilePage';
 import { AssessmentPage } from './pages/student/AssessmentPage';
+import { DsaCodingPage } from './pages/student/DsaCodingPage';
 import { ReportCardPage } from './pages/student/ReportCardPage';
 import { InternshipsPage } from './pages/student/InternshipsPage';
 import { CoursesPage } from './pages/student/CoursesPage';
@@ -116,6 +117,26 @@ export const App: React.FC = () => {
             <RoleGate allowedRoles={['STUDENT']}>
               <ConsoleLayout>
                 <AssessmentPage />
+              </ConsoleLayout>
+            </RoleGate>
+          }
+        />
+        <Route
+          path="/dsa"
+          element={
+            <RoleGate allowedRoles={['STUDENT']}>
+              <ConsoleLayout>
+                <DsaCodingPage />
+              </ConsoleLayout>
+            </RoleGate>
+          }
+        />
+        <Route
+          path="/dsa/:slug"
+          element={
+            <RoleGate allowedRoles={['STUDENT']}>
+              <ConsoleLayout>
+                <DsaCodingPage />
               </ConsoleLayout>
             </RoleGate>
           }

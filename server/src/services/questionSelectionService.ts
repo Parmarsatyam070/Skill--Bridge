@@ -18,16 +18,12 @@ export function normalizeSetSize(count?: number): ValidSetSize {
 }
 
 /**
- * Ensures all authentic DSA questions are seeded in the database.
+ * Authoritative Synchronization: Ensures 100% of DSA questions in the database are authentic
+ * with valid multi-language starter code and authentic test cases.
  */
-export async function seedDSAQuestionsIfEmpty(): Promise<number> {
-  const currentCount = await prisma.dSAQuestion.count();
-  if (currentCount >= 250) {
-    return currentCount;
-  }
-
+export async function syncDSAQuestionsDatabase(): Promise<number> {
   const allQuestions = generateCompleteDSADatabase();
-  console.log(`🌱 Seeding ${allQuestions.length} authentic DSA questions...`);
+  console.log(`🌱 Synchronizing ${allQuestions.length} authentic DSA questions...`);
 
   for (const q of allQuestions) {
     await prisma.dSAQuestion.upsert({
@@ -43,7 +39,7 @@ export async function seedDSAQuestionsIfEmpty(): Promise<number> {
         description: q.description,
         starterCodeJson: JSON.stringify(q.starterCode),
         testCasesJson: JSON.stringify(q.testCases),
-        entryFunctionName: q.entryFunctionName || 'solution',
+        entryFunctionName: q.entryFunctionName,
         companyTagsJson: JSON.stringify(q.companyTags || []),
       },
       create: {
@@ -58,15 +54,59 @@ export async function seedDSAQuestionsIfEmpty(): Promise<number> {
         description: q.description,
         starterCodeJson: JSON.stringify(q.starterCode),
         testCasesJson: JSON.stringify(q.testCases),
-        entryFunctionName: q.entryFunctionName || 'solution',
+        entryFunctionName: q.entryFunctionName,
         companyTagsJson: JSON.stringify(q.companyTags || []),
       },
     });
   }
 
+  // Authoritative cleanup: Delete any questions that are non-canonical, placeholder, or missing 4 languages
+  const validSlugs = new Set(allQuestions.map((q) => q.slug));
+  const allDbQuestions = await prisma.dSAQuestion.findMany({
+    select: { id: true, slug: true, starterCodeJson: true, testCasesJson: true },
+  });
+
+  const staleIds: string[] = [];
+  for (const dbQ of allDbQuestions) {
+    if (!validSlugs.has(dbQ.slug)) {
+      staleIds.push(dbQ.id);
+      continue;
+    }
+    if (
+      dbQ.testCasesJson?.includes('sample') ||
+      dbQ.testCasesJson?.includes('sample_output') ||
+      dbQ.testCasesJson?.includes('output_1')
+    ) {
+      staleIds.push(dbQ.id);
+      continue;
+    }
+    try {
+      const sc = JSON.parse(dbQ.starterCodeJson || '{}');
+      if (!sc.javascript || !sc.python || !sc.java || !sc.cpp) {
+        staleIds.push(dbQ.id);
+      }
+    } catch {
+      staleIds.push(dbQ.id);
+    }
+  }
+
+  if (staleIds.length > 0) {
+    console.log(`🧹 Removing ${staleIds.length} legacy / incomplete DSA questions...`);
+    await prisma.dSAQuestion.deleteMany({
+      where: { id: { in: staleIds } },
+    });
+  }
+
   const finalCount = await prisma.dSAQuestion.count();
-  console.log(`✅ DSA question database seeded: ${finalCount} problems ready.`);
+  console.log(`✅ DSA question database synchronized: ${finalCount} authentic problems ready.`);
   return finalCount;
+}
+
+/**
+ * Ensures all authentic DSA questions are seeded in the database.
+ */
+export async function seedDSAQuestionsIfEmpty(): Promise<number> {
+  return syncDSAQuestionsDatabase();
 }
 
 export function normalizePlatform(raw: string): DSAPlatform {
@@ -94,11 +134,17 @@ export function formatDSAQuestion(q: any, attempt?: any): DSAQuestionData {
   let companyTags: string[] = [];
   try { companyTags = q.companyTagsJson ? JSON.parse(q.companyTagsJson) : []; } catch {}
 
+  if (starterCode && typeof starterCode === 'object' && !starterCode.c) {
+    starterCode.c = starterCode.cpp || '';
+  }
+
+  const normPlatform = normalizePlatform(q.platform);
+
   return {
     id: q.id,
     title: q.title,
     slug: q.slug,
-    platform: normalizePlatform(q.platform),
+    platform: normPlatform,
     difficulty: q.difficulty as DSADifficulty,
     topic: q.topic,
     tags,
@@ -109,6 +155,8 @@ export function formatDSAQuestion(q: any, attempt?: any): DSAQuestionData {
     testCases,
     entryFunctionName: q.entryFunctionName || undefined,
     companyTags,
+    styleTag: q.styleTag || `${normPlatform}-style (${q.difficulty})`,
+    outboundUrl: q.outboundUrl || q.canonicalUrl,
     userAttemptStatus: attempt ? (attempt.status as any) : 'UNSEEN',
     userLastCode: attempt?.codeSubmitted || undefined,
   };
@@ -178,7 +226,14 @@ export async function selectRotatedQuestions(
     else baseWhere.platform = options.platform;
   }
   if (options.topic && options.topic !== 'All') {
-    baseWhere.topic = options.topic;
+    const t = options.topic.toLowerCase();
+    if (t.includes('dynamic') || t === 'dp') {
+      baseWhere.topic = { in: ['Dynamic Programming', '1D DP', '2D DP', 'Knapsack', 'DP'] };
+    } else if (t.includes('heap') || t.includes('priority')) {
+      baseWhere.topic = { in: ['Heap / Priority Queue', 'Heap', 'Priority Queue'] };
+    } else {
+      baseWhere.topic = options.topic;
+    }
   }
 
   // Fetch all candidate questions matching basic criteria
@@ -223,6 +278,25 @@ export async function selectRotatedQuestions(
   const topicCounts: Record<string, number> = {};
   const platformCounts: Record<string, number> = {};
 
+  const addQuestion = (q: any) => {
+    if (selectedMap.has(q.id)) return false;
+    selectedMap.set(q.id, q);
+    topicCounts[q.topic] = (topicCounts[q.topic] || 0) + 1;
+    platformCounts[q.platform] = (platformCounts[q.platform] || 0) + 1;
+    return true;
+  };
+
+  // Platform diversity check: if platform is 'All' and targetCount >= 10, ensure at least 2 different platforms
+  if (!options.platform || options.platform === 'All') {
+    const platforms = ['LEETCODE', 'GEEKSFORGEEKS', 'CSES', 'CODEFORCES'];
+    for (const plat of platforms) {
+      const pCandidate = scored.find(s => !selectedMap.has(s.question.id) && s.question.platform.toUpperCase().includes(plat.substring(0, 4)));
+      if (pCandidate) {
+        addQuestion(pCandidate.question);
+      }
+    }
+  }
+
   // Difficulty balancing: if difficulty is 'All', ensure at least 25% Easy, 40% Medium, 15% Hard
   if (!options.difficulty || options.difficulty === 'All') {
     const easyCandidates = scored.filter(s => s.question.difficulty === 'Easy');
@@ -233,14 +307,20 @@ export async function selectRotatedQuestions(
     const targetMed = Math.max(1, Math.floor(targetCount * 0.45));
     const targetHard = Math.max(1, Math.floor(targetCount * 0.15));
 
-    for (const item of easyCandidates.slice(0, targetEasy)) {
-      selectedMap.set(item.question.id, item.question);
+    for (const item of easyCandidates) {
+      if (selectedMap.size >= targetCount) break;
+      if (easyCandidates.filter(c => selectedMap.has(c.question.id)).length >= targetEasy) break;
+      addQuestion(item.question);
     }
-    for (const item of medCandidates.slice(0, targetMed)) {
-      selectedMap.set(item.question.id, item.question);
+    for (const item of medCandidates) {
+      if (selectedMap.size >= targetCount) break;
+      if (medCandidates.filter(c => selectedMap.has(c.question.id)).length >= targetMed) break;
+      addQuestion(item.question);
     }
-    for (const item of hardCandidates.slice(0, targetHard)) {
-      selectedMap.set(item.question.id, item.question);
+    for (const item of hardCandidates) {
+      if (selectedMap.size >= targetCount) break;
+      if (hardCandidates.filter(c => selectedMap.has(c.question.id)).length >= targetHard) break;
+      addQuestion(item.question);
     }
   }
 
@@ -251,23 +331,18 @@ export async function selectRotatedQuestions(
     if (selectedMap.has(q.id)) continue;
 
     const tCount = topicCounts[q.topic] || 0;
-    const pCount = platformCounts[q.platform] || 0;
 
     // Avoid over-saturating a single topic unless filter was specific
     if (!options.topic && tCount >= Math.ceil(targetCount / 4)) continue;
 
-    selectedMap.set(q.id, q);
-    topicCounts[q.topic] = tCount + 1;
-    platformCounts[q.platform] = pCount + 1;
+    addQuestion(q);
   }
 
   // Pass 2: fill remaining slots if diversity constraint was too strict
   if (selectedMap.size < targetCount) {
     for (const item of scored) {
       if (selectedMap.size >= targetCount) break;
-      if (!selectedMap.has(item.question.id)) {
-        selectedMap.set(item.question.id, item.question);
-      }
+      addQuestion(item.question);
     }
   }
 
@@ -355,12 +430,33 @@ export async function getOrCreateDailyPractice(
   }
 
   // 2. Load the exact questions in the saved daily set
-  const savedQuestionIds: string[] = JSON.parse(daily.questionIdsJson || '[]');
+  let savedQuestionIds: string[] = JSON.parse(daily.questionIdsJson || '[]');
   const completedIds: string[] = JSON.parse(daily.completedQuestionIdsJson || '[]');
 
-  const questionsFromDb = await prisma.dSAQuestion.findMany({
+  let questionsFromDb = await prisma.dSAQuestion.findMany({
     where: { id: { in: savedQuestionIds } },
   });
+
+  // Self-healing backfill if older record had fewer than 15 questions or deleted IDs
+  if (questionsFromDb.length < 15) {
+    const freshQuestions = await selectRotatedQuestions(studentId, {
+      count: 15,
+      difficulty: 'All',
+      platform: 'All',
+      includeWeakTopics: true,
+    });
+    savedQuestionIds = freshQuestions.map(q => q.id);
+    await prisma.dailyPractice.update({
+      where: { id: daily.id },
+      data: {
+        questionCount: savedQuestionIds.length,
+        questionIdsJson: JSON.stringify(savedQuestionIds),
+      },
+    });
+    questionsFromDb = await prisma.dSAQuestion.findMany({
+      where: { id: { in: savedQuestionIds } },
+    });
+  }
 
   // Maintain saved question order
   const qMap = new Map(questionsFromDb.map(q => [q.id, q]));
@@ -415,7 +511,50 @@ export async function submitDSAQuestionAttempt(
     date?: string;
   }
 ) {
-  const { questionId, status, timeSpentSeconds = 0, codeSubmitted, language = 'javascript', isDailyPractice } = params;
+  const { questionId, status: requestedStatus, timeSpentSeconds = 0, codeSubmitted, language = 'javascript', isDailyPractice } = params;
+
+  let finalStatus: 'VIEWED' | 'ATTEMPTED' | 'SOLVED' | 'FAILED' = requestedStatus;
+  let executionResult: any = undefined;
+
+  // 0. Authoritative Backend Validation:
+  // If the client submitted code and claims SOLVED (or submits for evaluation), verify with the execution sandbox
+  if (codeSubmitted && codeSubmitted.trim().length > 0) {
+    const question = await prisma.dSAQuestion.findUnique({
+      where: { id: questionId },
+    });
+
+    if (question) {
+      let testCases: any[] = [];
+      try {
+        testCases = JSON.parse(question.testCasesJson || '[]');
+      } catch {}
+
+      const { executeCodeSandbox } = await import('./codeRunnerService.js');
+      executionResult = await executeCodeSandbox({
+        code: codeSubmitted,
+        language,
+        entryFunctionName: question.entryFunctionName || undefined,
+        testCases,
+      });
+
+      const isAccepted =
+        executionResult.compilationSuccess === true &&
+        executionResult.executionCompleted === true &&
+        executionResult.allTestsPassed === true &&
+        executionResult.status === 'ACCEPTED' &&
+        !executionResult.error;
+
+      if (isAccepted) {
+        finalStatus = 'SOLVED';
+      } else {
+        // If compilation failed or tests failed, strictly reject SOLVED status
+        finalStatus = requestedStatus === 'VIEWED' ? 'VIEWED' : 'FAILED';
+      }
+    }
+  } else if (requestedStatus === 'SOLVED') {
+    // Cannot claim SOLVED without code
+    finalStatus = 'FAILED';
+  }
 
   // 1. Upsert DSAAttempt
   const existingAttempt = await prisma.dSAAttempt.findUnique({
@@ -427,6 +566,8 @@ export async function submitDSAQuestionAttempt(
     },
   });
 
+  const recordStatus = existingAttempt?.status === 'SOLVED' ? 'SOLVED' : finalStatus;
+
   const attempt = await prisma.dSAAttempt.upsert({
     where: {
       studentId_questionId: {
@@ -435,7 +576,7 @@ export async function submitDSAQuestionAttempt(
       },
     },
     update: {
-      status: status === 'SOLVED' ? 'SOLVED' : (existingAttempt?.status === 'SOLVED' ? 'SOLVED' : status),
+      status: recordStatus,
       timeSpentSeconds: { increment: timeSpentSeconds },
       codeSubmitted: codeSubmitted !== undefined ? codeSubmitted : existingAttempt?.codeSubmitted,
       language: language || existingAttempt?.language,
@@ -445,7 +586,7 @@ export async function submitDSAQuestionAttempt(
     create: {
       studentId,
       questionId,
-      status,
+      status: finalStatus,
       timeSpentSeconds,
       codeSubmitted,
       language,
@@ -469,7 +610,7 @@ export async function submitDSAQuestionAttempt(
     const questionIds: string[] = JSON.parse(daily.questionIdsJson || '[]');
     if (questionIds.includes(questionId)) {
       const completedSet = new Set<string>(JSON.parse(daily.completedQuestionIdsJson || '[]'));
-      if (status === 'SOLVED') {
+      if (finalStatus === 'SOLVED') {
         completedSet.add(questionId);
       }
 
@@ -499,7 +640,11 @@ export async function submitDSAQuestionAttempt(
   // 3. Dynamically calibrate Skill Radar problem-solving score based on DSA performance
   await calibrateDSASkillScore(studentId);
 
-  return attempt;
+  return {
+    ...attempt,
+    isAccepted: finalStatus === 'SOLVED',
+    executionResult,
+  };
 }
 
 /**
@@ -848,6 +993,7 @@ export const getProgressSummary = getDSAProgressSummary;
 export const questionSelectionService = {
   normalizeSetSize,
   seedDSAQuestionsIfEmpty,
+  syncDSAQuestionsDatabase,
   getAllTopics,
   getQuestions,
   getQuestionById,

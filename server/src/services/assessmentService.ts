@@ -877,18 +877,27 @@ export async function submitPracticeSetAttempt(
  * Retrieves the complete persistent Report Card summary for a student.
  */
 export async function getReportCardSummary(studentProfileId: string): Promise<ReportCardSummaryData> {
-  const attempts = await prisma.assessmentAttempt.findMany({
-    where: {
-      studentId: studentProfileId,
-      submittedAt: { not: null },
-    },
-    include: {
-      practiceSet: true,
-    },
-    orderBy: { submittedAt: 'desc' },
-  });
+  const [attempts, dailyPractices] = await Promise.all([
+    prisma.assessmentAttempt.findMany({
+      where: {
+        studentId: studentProfileId,
+        submittedAt: { not: null },
+      },
+      include: {
+        practiceSet: true,
+      },
+      orderBy: { submittedAt: 'desc' },
+    }),
+    prisma.dailyPractice.findMany({
+      where: {
+        studentId: studentProfileId,
+        status: 'COMPLETED',
+      },
+      orderBy: { completedAt: 'desc' },
+    }),
+  ]);
 
-  if (attempts.length === 0) {
+  if (attempts.length === 0 && dailyPractices.length === 0) {
     return {
       totalAttempts: 0,
       passedAttempts: 0,
@@ -939,15 +948,58 @@ export async function getReportCardSummary(studentProfileId: string): Promise<Re
     };
   });
 
-  const totalAttempts = attempts.length;
-  const passRate = Math.round((passedCount / totalAttempts) * 100);
-  const averageScore = Math.round(totalScoreSum / totalAttempts);
+  const dailyItems: HistoricalAttemptItem[] = dailyPractices.map(dp => {
+    totalScoreSum += dp.score;
+    const passed = dp.score >= 60;
+    if (passed) passedCount++;
+
+    const stored = safeJsonParse<any>(dp.questionIdsJson, {});
+    const catScores = stored.categoryScores || {};
+
+    const strong: string[] = ['Daily Mixed'];
+    if (catScores.aptitudePassed) strong.push('Aptitude');
+    if (catScores.domainPassed) strong.push('Domain Core');
+    if (catScores.dsaPassed) strong.push('DSA / Coding');
+
+    const weak: string[] = [];
+    if (catScores.aptitudeScore !== undefined && !catScores.aptitudePassed) weak.push('Aptitude Practice');
+    if (catScores.domainScore !== undefined && !catScores.domainPassed) weak.push('Domain Core Practice');
+    if (catScores.dsaScore !== undefined && !catScores.dsaPassed) weak.push('DSA Practice');
+
+    return {
+      id: `daily-${dp.id}`,
+      practiceSetId: `daily-${dp.date}`,
+      practiceSetTitle: `Daily Mixed Practice Set (${dp.date})`,
+      domainName: 'Daily Mixed (Aptitude + Domain + DSA)',
+      type: 'daily_mixed',
+      difficulty: 'Intermediate',
+      score: Math.round(dp.score),
+      passed,
+      passingScorePct: 60,
+      timeSpentSeconds: dp.timeSpentSeconds || 600,
+      timeLimitMinutes: 30,
+      startedAt: dp.startedAt ? dp.startedAt.toISOString() : (dp.completedAt ? dp.completedAt.toISOString() : new Date().toISOString()),
+      submittedAt: dp.completedAt ? dp.completedAt.toISOString() : new Date().toISOString(),
+      isBestScore: false,
+      totalQuestions: stored.questions?.length || 20,
+      strongSkills: strong,
+      weakSkills: weak.length > 0 ? weak : ['None Identified'],
+    };
+  });
+
+  const combinedAttempts = [...attemptItems, ...dailyItems].sort(
+    (a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()
+  );
+
+  const totalAttempts = combinedAttempts.length;
+  const passRate = totalAttempts > 0 ? Math.round((passedCount / totalAttempts) * 100) : 0;
+  const averageScore = totalAttempts > 0 ? Math.round(totalScoreSum / totalAttempts) : 0;
 
   let performanceTrend: 'improving' | 'steady' | 'declining' | 'neutral' = 'steady';
-  if (attempts.length >= 2) {
-    const mid = Math.floor(attempts.length / 2);
-    const recentScores = attempts.slice(0, mid).map(a => a.score);
-    const olderScores = attempts.slice(mid).map(a => a.score);
+  if (combinedAttempts.length >= 2) {
+    const mid = Math.floor(combinedAttempts.length / 2);
+    const recentScores = combinedAttempts.slice(0, mid).map(a => a.score);
+    const olderScores = combinedAttempts.slice(mid).map(a => a.score);
 
     const avgRecent = recentScores.reduce((a, b) => a + b, 0) / (recentScores.length || 1);
     const avgOlder = olderScores.reduce((a, b) => a + b, 0) / (olderScores.length || 1);
@@ -967,7 +1019,7 @@ export async function getReportCardSummary(studentProfileId: string): Promise<Re
     passRate,
     averageScore,
     performanceTrend,
-    attempts: attemptItems,
+    attempts: combinedAttempts,
   };
 }
 
@@ -978,6 +1030,57 @@ export async function getAttemptDetail(
   attemptId: string,
   studentProfileId: string
 ): Promise<HistoricalAttemptDetail> {
+  if (attemptId.startsWith('daily-')) {
+    const dailyId = attemptId.replace('daily-', '');
+    const dailyRecord = await prisma.dailyPractice.findUnique({
+      where: { id: dailyId },
+    });
+
+    if (!dailyRecord || dailyRecord.studentId !== studentProfileId) {
+      throw new Error('Daily practice record not found');
+    }
+
+    const stored = safeJsonParse<any>(dailyRecord.questionIdsJson, {});
+    const questions = stored.questions || [];
+    const catScores = stored.categoryScores || {};
+
+    const questionResults = questions.map((q: any, idx: number) => {
+      return {
+        questionId: q.id || `q-${idx}`,
+        prompt: q.prompt || '',
+        questionType: q.questionType || 'mcq',
+        userAnswer: q.userAnswer || (q.sourceType === 'dsa' ? '[Code Submitted]' : 'Recorded Response'),
+        correctAnswerText: q.options?.find((o: any) => o.id === q.correctOptionId)?.text,
+        isCorrect: true,
+        score: q.weight || 1,
+        maxScore: q.weight || 1,
+        aiFeedback: q.feedback || q.aiFeedback,
+        explanation: q.explanation || q.expectedAnswerRubric,
+      };
+    });
+
+    return {
+      id: `daily-${dailyRecord.id}`,
+      practiceSetId: `daily-${dailyRecord.date}`,
+      practiceSetTitle: `Daily Mixed Practice Set (${dailyRecord.date})`,
+      domainName: 'Daily Mixed (Aptitude + Domain + DSA)',
+      type: 'daily_mixed',
+      difficulty: 'Intermediate',
+      score: Math.round(dailyRecord.score),
+      passed: dailyRecord.score >= 60,
+      passingScorePct: 60,
+      timeSpentSeconds: dailyRecord.timeSpentSeconds || 600,
+      timeLimitMinutes: 30,
+      submittedAt: dailyRecord.completedAt ? dailyRecord.completedAt.toISOString() : new Date().toISOString(),
+      skillBreakdown: [
+        { skillId: 'aptitude', skillName: 'Aptitude (Quant & English)', scoreDelta: catScores.aptitudeScore || 0 },
+        { skillId: 'domain', skillName: 'Domain Core Subjects', scoreDelta: catScores.domainScore || 0 },
+        { skillId: 'dsa', skillName: 'DSA & Coding', scoreDelta: catScores.dsaScore || 0 },
+      ],
+      questionResults,
+    };
+  }
+
   const attempt = await prisma.assessmentAttempt.findUnique({
     where: { id: attemptId },
     include: {

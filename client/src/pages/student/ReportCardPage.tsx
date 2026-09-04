@@ -58,6 +58,7 @@ export const ReportCardPage: React.FC = () => {
   const filteredAttempts = attempts.filter(att => {
     // Category filter
     if (selectedCategory !== 'all') {
+      if (selectedCategory === 'daily_mixed' && att.type !== 'daily_mixed') return false;
       if (selectedCategory === 'aptitude_quant' && att.type !== 'aptitude_quant') return false;
       if (selectedCategory === 'aptitude_english_reading' && att.type !== 'aptitude_english_reading') return false;
       if (selectedCategory === 'aptitude_english_listening' && att.type !== 'aptitude_english_listening') return false;
@@ -233,6 +234,7 @@ export const ReportCardPage: React.FC = () => {
         <div className="flex items-center gap-2 overflow-x-auto pb-1">
           {[
             { id: 'all', label: 'All Sets' },
+            { id: 'daily_mixed', label: 'Daily Mixed Sets' },
             { id: 'domain_web', label: 'Full-Stack Web' },
             { id: 'domain_ai', label: 'AI/Data Science' },
             { id: 'domain_cloud', label: 'Cloud/DevOps' },
@@ -389,8 +391,16 @@ export const ReportCardPage: React.FC = () => {
           HISTORICAL ATTEMPT REVIEW MODAL
       ───────────────────────────────────────────────────────────── */}
       {activeModalAttemptId && (
-        <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 overflow-y-auto animate-in fade-in duration-200">
-          <div className="w-full max-w-3xl bg-console-panel border border-console-border rounded-2xl shadow-2xl overflow-hidden my-8 max-h-[90vh] flex flex-col">
+        <div
+          className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto animate-in fade-in duration-200"
+          onClick={() => setActiveModalAttemptId(null)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            className="w-full max-w-3xl bg-console-panel border border-console-border rounded-2xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9)] overflow-hidden my-8 max-h-[90vh] flex flex-col animate-in fade-in zoom-in-95 duration-150"
+            onClick={(e) => e.stopPropagation()}
+          >
             {/* Modal Header */}
             <div className="p-5 bg-console-panel-raised border-b border-console-border flex items-center justify-between">
               <div className="space-y-1">
@@ -408,7 +418,9 @@ export const ReportCardPage: React.FC = () => {
               </div>
 
               <button
+                type="button"
                 onClick={() => setActiveModalAttemptId(null)}
+                aria-label="Close review dialog"
                 className="p-1.5 rounded-lg hover:bg-white/10 text-console-text-muted hover:text-console-text transition-colors"
               >
                 <X className="w-5 h-5" />

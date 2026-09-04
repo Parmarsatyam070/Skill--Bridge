@@ -86,9 +86,12 @@ export const ResetPasswordPage: React.FC = () => {
 
           <div className="bg-white border border-line rounded-2xl p-7 shadow-campus-card space-y-5">
             {error && (
-              <div className="flex items-center gap-2 p-3.5 rounded-xl bg-status-red/10 border border-status-red/20 text-status-red text-xs">
-                <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                <span>{error}</span>
+              <div
+                className="flex items-start gap-2.5 p-3.5 rounded-xl bg-status-red/10 border border-status-red/30 text-status-red text-xs font-medium"
+                role="alert"
+              >
+                <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                <span className="leading-relaxed">{error}</span>
               </div>
             )}
 
@@ -105,7 +108,7 @@ export const ResetPasswordPage: React.FC = () => {
                 </p>
                 <Link
                   to="/login"
-                  className="inline-block px-4 py-2 rounded-xl bg-bridge-teal text-white text-xs font-semibold"
+                  className="inline-block px-4 py-2.5 rounded-xl bg-bridge-teal hover:bg-bridge-teal/90 text-white text-xs font-bold shadow-md transition-all"
                 >
                   Sign In Now
                 </Link>
@@ -126,7 +129,7 @@ export const ResetPasswordPage: React.FC = () => {
                         onChange={e => setToken(e.target.value)}
                         placeholder="Paste reset token"
                         required
-                        className="w-full bg-paper border border-line rounded-xl pl-10 pr-4 py-2 text-xs text-ink font-mono focus:outline-none focus:border-bridge-teal"
+                        className="w-full bg-paper border border-line rounded-xl pl-10 pr-4 py-2 text-xs text-ink font-mono placeholder:text-ink-muted focus:outline-none focus:border-bridge-teal focus:ring-1 focus:ring-bridge-teal transition-all"
                       />
                     </div>
                   </div>
@@ -144,7 +147,7 @@ export const ResetPasswordPage: React.FC = () => {
                           onChange={e => setIdentifier(e.target.value)}
                           placeholder="e.g. +91 98765 43210 or email@domain.edu"
                           required
-                          className="w-full bg-paper border border-line rounded-xl pl-10 pr-4 py-2 text-xs text-ink focus:outline-none focus:border-bridge-teal"
+                          className="w-full bg-paper border border-line rounded-xl pl-10 pr-4 py-2 text-xs text-ink placeholder:text-ink-muted focus:outline-none focus:border-bridge-teal focus:ring-1 focus:ring-bridge-teal transition-all"
                         />
                       </div>
                     </div>
@@ -162,7 +165,7 @@ export const ResetPasswordPage: React.FC = () => {
                           onChange={e => setOtp(e.target.value)}
                           placeholder="e.g. 123456"
                           required
-                          className="w-full bg-paper border border-line rounded-xl pl-10 pr-4 py-2 text-xs text-ink font-mono tracking-widest font-bold focus:outline-none focus:border-bridge-teal"
+                          className="w-full bg-paper border border-line rounded-xl pl-10 pr-4 py-2 text-xs text-ink font-mono tracking-widest font-bold placeholder:text-ink-muted focus:outline-none focus:border-bridge-teal focus:ring-1 focus:ring-bridge-teal transition-all"
                         />
                       </div>
                     </div>
@@ -181,7 +184,7 @@ export const ResetPasswordPage: React.FC = () => {
                       onChange={e => setPassword(e.target.value)}
                       placeholder="Min 6 characters"
                       required
-                      className="w-full bg-paper border border-line rounded-xl pl-10 pr-4 py-2.5 text-xs text-ink focus:outline-none focus:border-bridge-teal"
+                      className="w-full bg-paper border border-line rounded-xl pl-10 pr-4 py-2.5 text-xs text-ink placeholder:text-ink-muted focus:outline-none focus:border-bridge-teal focus:ring-1 focus:ring-bridge-teal transition-all"
                     />
                   </div>
                 </div>
@@ -198,7 +201,7 @@ export const ResetPasswordPage: React.FC = () => {
                       onChange={e => setConfirmPassword(e.target.value)}
                       placeholder="Confirm new password"
                       required
-                      className="w-full bg-paper border border-line rounded-xl pl-10 pr-4 py-2.5 text-xs text-ink focus:outline-none focus:border-bridge-teal"
+                      className="w-full bg-paper border border-line rounded-xl pl-10 pr-4 py-2.5 text-xs text-ink placeholder:text-ink-muted focus:outline-none focus:border-bridge-teal focus:ring-1 focus:ring-bridge-teal transition-all"
                     />
                   </div>
                 </div>
@@ -206,7 +209,7 @@ export const ResetPasswordPage: React.FC = () => {
                 <button
                   type="submit"
                   disabled={loading}
-                  className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-bridge-teal hover:bg-bridge-teal/90 text-white font-semibold text-xs shadow-sm transition-all disabled:opacity-50"
+                  className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-bridge-teal hover:bg-bridge-teal/90 active:bg-[#20635c] text-white font-bold text-xs shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-bridge-teal"
                 >
                   {loading ? 'Updating Password...' : 'Save New Password & Sign In'}
                 </button>

@@ -91,9 +91,12 @@ export const LoginPage: React.FC = () => {
           {/* Main Login Form */}
           <div className="bg-white border border-line rounded-2xl p-7 shadow-campus-card space-y-5">
             {error && (
-              <div className="flex items-center gap-2 p-3 rounded-xl bg-status-red/10 border border-status-red/20 text-status-red text-xs">
-                <AlertCircle className="w-4 h-4 flex-shrink-0" />
-                <span>{error}</span>
+              <div
+                className="flex items-start gap-2.5 p-3.5 rounded-xl bg-status-red/10 border border-status-red/30 text-status-red text-xs font-medium"
+                role="alert"
+              >
+                <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                <span className="leading-relaxed">{error}</span>
               </div>
             )}
 
@@ -110,7 +113,7 @@ export const LoginPage: React.FC = () => {
                     onChange={e => setIdentifier(e.target.value)}
                     placeholder="e.g. name@university.edu or +91 98765 43210"
                     required
-                    className="w-full bg-paper border border-line rounded-xl pl-10 pr-4 py-2.5 text-xs text-ink placeholder:text-ink-muted focus:outline-none focus:border-bridge-teal transition-colors"
+                    className="w-full bg-paper border border-line rounded-xl pl-10 pr-4 py-2.5 text-xs text-ink placeholder:text-ink-muted focus:outline-none focus:border-bridge-teal focus:ring-1 focus:ring-bridge-teal transition-all"
                   />
                 </div>
               </div>
@@ -122,7 +125,7 @@ export const LoginPage: React.FC = () => {
                   </label>
                   <Link
                     to="/forgot-password"
-                    className="text-[11px] font-mono text-bridge-teal hover:underline"
+                    className="text-[11px] font-mono text-bridge-teal hover:underline font-medium"
                   >
                     Forgot password?
                   </Link>
@@ -135,13 +138,13 @@ export const LoginPage: React.FC = () => {
                     onChange={e => setPassword(e.target.value)}
                     placeholder="••••••••••••"
                     required
-                    className="w-full bg-paper border border-line rounded-xl pl-10 pr-4 py-2.5 text-xs text-ink placeholder:text-ink-muted focus:outline-none focus:border-bridge-teal transition-colors"
+                    className="w-full bg-paper border border-line rounded-xl pl-10 pr-4 py-2.5 text-xs text-ink placeholder:text-ink-muted focus:outline-none focus:border-bridge-teal focus:ring-1 focus:ring-bridge-teal transition-all"
                   />
                 </div>
               </div>
 
               {coldStartNotice && loading && (
-                <div className="flex items-center gap-2 p-3 rounded-xl bg-bridge-teal/10 border border-bridge-teal/20 text-bridge-teal text-xs animate-in fade-in duration-200">
+                <div className="flex items-center gap-2.5 p-3 rounded-xl bg-bridge-teal/10 border border-bridge-teal/30 text-bridge-teal text-xs animate-in fade-in duration-200">
                   <RefreshCw className="w-4 h-4 animate-spin flex-shrink-0" />
                   <span>Waking up server backend (Render cold-start)... Hang tight!</span>
                 </div>
@@ -150,7 +153,7 @@ export const LoginPage: React.FC = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-bridge-teal hover:bg-bridge-teal/90 text-white font-semibold text-xs shadow-sm transition-all disabled:opacity-50"
+                className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-bridge-teal hover:bg-bridge-teal/90 active:bg-[#20635c] text-white font-bold text-xs shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-bridge-teal"
               >
                 {loading ? (
                   <span className="font-mono flex items-center gap-1.5">
@@ -170,7 +173,7 @@ export const LoginPage: React.FC = () => {
               <div className="absolute inset-0 flex items-center">
                 <div className="w-full border-t border-line" />
               </div>
-              <div className="relative flex justify-center text-[10.5px] font-mono uppercase tracking-wider bg-white px-2 text-ink-muted">
+              <div className="relative flex justify-center text-[10.5px] font-mono uppercase tracking-wider bg-white px-2 text-ink-muted font-medium">
                 or continue with
               </div>
             </div>
@@ -180,7 +183,7 @@ export const LoginPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setOauthProvider('google')}
-                className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border border-line hover:border-ink text-xs font-medium text-ink transition-colors bg-paper hover:bg-white"
+                className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border border-line hover:border-bridge-teal text-xs font-semibold text-ink transition-all bg-paper hover:bg-white shadow-2xs hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-bridge-teal"
                 title="Sign in with Google"
               >
                 <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24">
@@ -201,23 +204,23 @@ export const LoginPage: React.FC = () => {
                     d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
                   />
                 </svg>
-                <span className="text-[11px] font-medium">Google</span>
+                <span className="text-[11px] font-semibold">Google</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setOauthProvider('github')}
-                className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border border-line hover:border-ink text-xs font-medium text-ink transition-colors bg-paper hover:bg-white"
+                className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border border-line hover:border-bridge-teal text-xs font-semibold text-ink transition-all bg-paper hover:bg-white shadow-2xs hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-bridge-teal"
                 title="Sign in with GitHub"
               >
                 <Github className="w-4 h-4 flex-shrink-0" />
-                <span className="text-[11px] font-medium">GitHub</span>
+                <span className="text-[11px] font-semibold">GitHub</span>
               </button>
 
               <button
                 type="button"
                 onClick={() => setOauthProvider('microsoft')}
-                className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border border-line hover:border-ink text-xs font-medium text-ink transition-colors bg-paper hover:bg-white"
+                className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border border-line hover:border-bridge-teal text-xs font-semibold text-ink transition-all bg-paper hover:bg-white shadow-2xs hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-bridge-teal"
                 title="Sign in with Microsoft 365"
               >
                 <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 23 23">
@@ -226,7 +229,7 @@ export const LoginPage: React.FC = () => {
                   <path fill="#05a6f0" d="M1 12h10v10H1z" />
                   <path fill="#ffba08" d="M12 12h10v10H12z" />
                 </svg>
-                <span className="text-[11px] font-medium">Microsoft</span>
+                <span className="text-[11px] font-semibold">Microsoft</span>
               </button>
             </div>
           </div>

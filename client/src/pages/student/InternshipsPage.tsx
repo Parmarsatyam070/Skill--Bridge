@@ -262,11 +262,21 @@ export const InternshipsPage: React.FC = () => {
 
       {/* In-App Apply Modal with Resume Selection */}
       {activeApplyJob && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-console-panel border border-console-border rounded-2xl max-w-lg w-full p-6 space-y-5 shadow-2xl relative">
+        <div
+          className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto animate-in fade-in duration-200"
+          onClick={() => setActiveApplyJob(null)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            className="bg-console-panel border border-console-border rounded-2xl max-w-lg w-full p-6 space-y-5 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9)] relative animate-in fade-in zoom-in-95 duration-150"
+            onClick={(e) => e.stopPropagation()}
+          >
             <button
+              type="button"
               onClick={() => setActiveApplyJob(null)}
-              className="absolute top-4 right-4 p-1 rounded-lg text-console-text-muted hover:text-console-text"
+              aria-label="Close dialog"
+              className="absolute top-4 right-4 p-1 rounded-lg text-console-text-muted hover:text-console-text hover:bg-console-bg transition-colors"
             >
               <X className="w-4 h-4" />
             </button>

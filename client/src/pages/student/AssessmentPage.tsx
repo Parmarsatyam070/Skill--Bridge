@@ -35,6 +35,10 @@ import {
   AssessmentQuestionData,
   AssessmentSubmitResult,
   ListeningPassageData,
+  DailyMixedPracticeSetData,
+  DailyMixedSubmitResult,
+  DSAQuestionData,
+  DailyPracticeData,
 } from '@shared/types';
 import { CodingSandbox } from '../../components/CodingSandbox';
 import { DailyPracticeBanner } from '../../components/DailyPracticeBanner';
@@ -44,7 +48,6 @@ import { DsaProgressDashboard } from '../../components/dsa/DsaProgressDashboard'
 import { DsaProblemExplorer } from '../../components/dsa/DsaProblemExplorer';
 import { DsaPracticeRunner } from '../../components/dsa/DsaPracticeRunner';
 import { Code2 } from 'lucide-react';
-import { DSAQuestionData, DailyPracticeData } from '@shared/types';
 
 export const AssessmentPage: React.FC = () => {
   const { user } = useAuth();
@@ -57,6 +60,12 @@ export const AssessmentPage: React.FC = () => {
   const [mainCategory, setMainCategory] = useState<'domain' | 'aptitude' | 'dsa'>(
     searchParams.get('tab') === 'dsa' ? 'dsa' : 'domain'
   );
+
+  // Daily Mixed Practice Session State
+  const [isDailyMixedSession, setIsDailyMixedSession] = useState(false);
+  const [dailyMixedData, setDailyMixedData] = useState<DailyMixedPracticeSetData | null>(null);
+  const [dailyMixedResult, setDailyMixedResult] = useState<DailyMixedSubmitResult | null>(null);
+  const [loadingDailyMixed, setLoadingDailyMixed] = useState(false);
 
   // DSA Active Runner Session State
   const [dsaRunnerSession, setDsaRunnerSession] = useState<{
@@ -209,7 +218,94 @@ export const AssessmentPage: React.FC = () => {
     return () => clearInterval(timer);
   }, [isTimerRunning, secondsRemaining]);
 
+  // Start Daily Mixed Practice Set
+  const startDailyMixedPractice = async () => {
+    try {
+      setLoadingDailyMixed(true);
+      const res = await api.get<{ mixedSet: DailyMixedPracticeSetData }>('/assessments/daily-mixed');
+      if (res?.mixedSet) {
+        const ms = res.mixedSet;
+        setDailyMixedData(ms);
+        setIsDailyMixedSession(true);
+        setActiveSet({
+          id: ms.id,
+          title: `Daily Mixed Practice Set (${ms.date})`,
+          description: `Mandatory daily practice set: ${ms.aptitudeCount} Aptitude + ${ms.domainCount} Domain Core + ${ms.dsaCount} DSA Coding questions.`,
+          domainName: 'Daily Mixed Practice',
+          type: 'domain',
+          timeLimitMinutes: 30,
+          passingScorePct: 60,
+          difficulty: 'Mixed' as any,
+          displayOrder: 1,
+          questionCount: ms.totalQuestions,
+        });
+        setAttemptId(ms.id);
+        setQuestions(
+          ms.questions.map((q) => ({
+            id: q.id,
+            type: q.sourceType as any,
+            questionType: q.questionType,
+            prompt: q.prompt,
+            options: q.options || [],
+            weight: q.weight,
+            passageText: q.passageText,
+            listeningPassage: q.listeningPassage,
+            starterCode: typeof q.starterCode === 'object' ? (q.starterCode as any).javascript : q.starterCode || '',
+            entryFunctionName: q.entryFunctionName,
+            testCases: q.testCases || [],
+            constraints: q.constraints,
+            externalLinks: q.externalLinks || [],
+          }))
+        );
+        setCurrentQuestionIdx(0);
+        setSelectedAnswers({});
+        setWrittenAnswers({});
+        setCodingAnswers({});
+        setSecondsRemaining(30 * 60);
+        setIsTimerRunning(true);
+        setDailyMixedResult(null);
+        setSubmissionResult(null);
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    } catch (err: any) {
+      alert(`Could not start daily mixed practice: ${err?.message || 'Please try again.'}`);
+    } finally {
+      setLoadingDailyMixed(false);
+    }
+  };
+
+  const submitDailyMixedAttempt = async () => {
+    try {
+      setIsTimerRunning(false);
+      const codingPayload: Record<string, { code: string; language: string }> = {};
+      Object.entries(codingAnswers).forEach(([qId, codeStr]) => {
+        codingPayload[qId] = { code: codeStr, language: 'javascript' };
+      });
+
+      const res = await api.post<{ result: DailyMixedSubmitResult }>('/assessments/daily-mixed/submit', {
+        answers: selectedAnswers,
+        writtenAnswers: writtenAnswers,
+        codingAnswers: codingPayload,
+        timeSpentSeconds: 1800 - secondsRemaining,
+      });
+
+      if (res?.result) {
+        setDailyMixedResult(res.result);
+        queryClient.invalidateQueries({ queryKey: ['dailyPracticeStatus'] });
+        queryClient.invalidateQueries({ queryKey: ['reportCard'] });
+        queryClient.invalidateQueries({ queryKey: ['radarData'] });
+        queryClient.invalidateQueries({ queryKey: ['studentProfile'] });
+      }
+    } catch (err: any) {
+      alert(`Failed to submit daily mixed practice: ${err?.message || 'Please retry.'}`);
+    }
+  };
+
   const handleAutoSubmit = () => {
+    if (isDailyMixedSession) {
+      submitDailyMixedAttempt();
+      return;
+    }
     if (activeSet && attemptId && !submissionResult) {
       submitAttemptMutation.mutate({
         answers: selectedAnswers,
@@ -220,6 +316,21 @@ export const AssessmentPage: React.FC = () => {
   };
 
   const handleManualSubmit = () => {
+    if (isDailyMixedSession) {
+      const answeredCount =
+        Object.keys(selectedAnswers).length +
+        Object.keys(writtenAnswers).length +
+        Object.keys(codingAnswers).length;
+      if (answeredCount < questions.length) {
+        const confirm = window.confirm(
+          `You have answered ${answeredCount} of ${questions.length} questions. Are you sure you want to submit now?`
+        );
+        if (!confirm) return;
+      }
+      submitDailyMixedAttempt();
+      return;
+    }
+
     if (!activeSet || !attemptId) return;
     const answeredCount =
       Object.keys(selectedAnswers).length +
@@ -310,7 +421,192 @@ export const AssessmentPage: React.FC = () => {
   }
 
   // ─────────────────────────────────────────────────────────────
-  // VIEW 1: ASSESSMENT RESULTS BREAKDOWN SCREEN
+  // VIEW 1a: DAILY MIXED PRACTICE RESULTS BREAKDOWN SCREEN
+  // ─────────────────────────────────────────────────────────────
+  if (dailyMixedResult) {
+    const passed = dailyMixedResult.passed;
+    const scorePct = dailyMixedResult.overallScore;
+    const streak = dailyMixedResult.currentStreak;
+    const { aptitude, domain, dsa } = dailyMixedResult.categoryBreakdown;
+
+    return (
+      <div className="max-w-4xl mx-auto space-y-8 font-sans animate-fade-in p-4 sm:p-6">
+        {/* Banner */}
+        <div
+          className={`p-6 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-6 shadow-xl ${
+            passed
+              ? 'bg-status-green/10 border-status-green/30 text-status-green'
+              : 'bg-industry-amber/10 border-industry-amber/30 text-industry-amber'
+          }`}
+        >
+          <div className="flex items-center gap-4">
+            <div
+              className={`w-14 h-14 rounded-2xl flex items-center justify-center text-white ${
+                passed ? 'bg-status-green shadow-lg shadow-status-green/20' : 'bg-industry-amber shadow-lg shadow-industry-amber/20'
+              }`}
+            >
+              {passed ? <Award className="w-8 h-8" /> : <AlertCircle className="w-8 h-8" />}
+            </div>
+            <div>
+              <div className="flex items-center gap-2 mb-1">
+                <span className="text-xs font-mono uppercase tracking-wider font-semibold">
+                  Daily Mixed Practice • {dailyMixedResult.date}
+                </span>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1 font-mono">
+                  <Flame className="w-3 h-3 text-amber-400 fill-amber-400" />
+                  {streak}-Day Streak {dailyMixedResult.streakUpdated ? '(+1 🔥)' : 'Active'}
+                </span>
+              </div>
+              <h2 className="text-2xl font-serif font-bold text-console-text">
+                {passed ? 'Daily Practice Completed! Streak Maintained' : 'Practice Set Finished — Keep Pushing!'}
+              </h2>
+              <p className="text-xs text-console-text-muted mt-0.5">
+                Passing Threshold: 60% • Your Overall Score: <strong className="text-white">{scorePct}%</strong>
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <Link
+              to="/report-card"
+              className="px-4 py-2.5 rounded-xl bg-campus-blue/20 hover:bg-campus-blue/30 text-campus-blue text-xs font-semibold border border-campus-blue/40 transition-colors flex items-center gap-1.5"
+            >
+              <FileText className="w-3.5 h-3.5" />
+              <span>Report Card</span>
+            </Link>
+            <button
+              onClick={() => {
+                setActiveSet(null);
+                setIsDailyMixedSession(false);
+                setDailyMixedResult(null);
+                setDailyMixedData(null);
+              }}
+              className="px-4 py-2.5 rounded-xl bg-console-panel-raised hover:bg-console-border text-console-text text-xs font-semibold border border-console-border transition-colors"
+            >
+              Done
+            </button>
+          </div>
+        </div>
+
+        {/* 3 Distinct Category Score Cards */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {/* 1. Aptitude */}
+          <div className="p-5 rounded-2xl bg-console-panel border border-console-border space-y-2">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-semibold text-console-text flex items-center gap-1.5">
+                <Calculator className="w-4 h-4 text-purple-400" />
+                Aptitude (Maths & English)
+              </span>
+              <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${aptitude.passed ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'}`}>
+                {aptitude.passed ? 'PASSED' : 'RETRY'}
+              </span>
+            </div>
+            <div className="text-2xl font-bold text-white font-serif">{aptitude.score}%</div>
+            <div className="text-[11px] text-console-text-muted">
+              {aptitude.correct} of {aptitude.total} questions correct
+            </div>
+          </div>
+
+          {/* 2. Domain Core */}
+          <div className="p-5 rounded-2xl bg-console-panel border border-console-border space-y-2">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-semibold text-console-text flex items-center gap-1.5">
+                <BookOpen className="w-4 h-4 text-teal-400" />
+                Domain Core Subjects
+              </span>
+              <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${domain.passed ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'}`}>
+                {domain.passed ? 'PASSED' : 'RETRY'}
+              </span>
+            </div>
+            <div className="text-2xl font-bold text-white font-serif">{domain.score}%</div>
+            <div className="text-[11px] text-console-text-muted">
+              {domain.correct} of {domain.total} questions correct
+            </div>
+          </div>
+
+          {/* 3. DSA Coding */}
+          <div className="p-5 rounded-2xl bg-console-panel border border-console-border space-y-2">
+            <div className="flex items-center justify-between text-xs">
+              <span className="font-semibold text-console-text flex items-center gap-1.5">
+                <Code2 className="w-4 h-4 text-amber-400" />
+                DSA / Coding
+              </span>
+              <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${dsa.passed ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'}`}>
+                {dsa.passed ? 'PASSED' : 'RETRY'}
+              </span>
+            </div>
+            <div className="text-2xl font-bold text-white font-serif">{dsa.score}%</div>
+            <div className="text-[11px] text-console-text-muted">
+              {dsa.solved} of {dsa.total} problems solved
+            </div>
+          </div>
+        </div>
+
+        {/* Detailed Question Review List */}
+        <div className="space-y-4">
+          <h3 className="text-sm font-bold font-serif text-console-text">
+            Mixed Set Solutions & Breakdown ({dailyMixedResult.questionResults.length} Questions)
+          </h3>
+
+          <div className="space-y-4">
+            {dailyMixedResult.questionResults.map((q, idx) => (
+              <div
+                key={q.questionId}
+                className={`p-5 rounded-2xl bg-console-panel border space-y-3 ${
+                  q.isCorrect ? 'border-status-green/30' : 'border-status-red/30'
+                }`}
+              >
+                <div className="flex items-start justify-between gap-4">
+                  <div className="flex items-center gap-2">
+                    <span className="w-6 h-6 rounded-lg bg-console-panel-raised border border-console-border text-xs font-mono font-bold flex items-center justify-center text-console-text">
+                      {idx + 1}
+                    </span>
+                    <span className="text-[10px] px-2 py-0.5 rounded font-mono uppercase tracking-wider font-bold bg-slate-800 text-teal-300 border border-slate-700">
+                      {q.sourceType === 'aptitude' ? 'Aptitude' : q.sourceType === 'domain' ? 'Domain Core' : 'DSA Coding'}
+                    </span>
+                  </div>
+
+                  <span
+                    className={`text-xs font-mono font-bold px-2 py-0.5 rounded-full border ${
+                      q.isCorrect
+                        ? 'bg-status-green/15 text-status-green border-status-green/30'
+                        : 'bg-status-red/15 text-status-red border-status-red/30'
+                    }`}
+                  >
+                    {q.isCorrect ? '✓ PASSED' : '✗ INCORRECT'} ({q.score}/{q.maxScore} pts)
+                  </span>
+                </div>
+
+                <p className="text-xs text-console-text font-medium leading-relaxed">{q.prompt}</p>
+
+                {q.userAnswer && (
+                  <div className="text-xs text-slate-400 font-mono">
+                    <span className="text-slate-500">Your Answer:</span> {q.userAnswer}
+                  </div>
+                )}
+
+                {q.feedback && (
+                  <div className="p-3 rounded-xl bg-purple-500/10 border border-purple-500/30 text-xs text-purple-200">
+                    {q.feedback}
+                  </div>
+                )}
+
+                {q.explanation && (
+                  <div className="p-3 rounded-xl bg-console-bg border border-console-border text-[11px] text-console-text-muted leading-relaxed">
+                    <span className="font-semibold text-bridge-teal font-mono">Explanation: </span>
+                    {q.explanation}
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  // VIEW 1b: STANDARD ASSESSMENT RESULTS BREAKDOWN SCREEN
   // ─────────────────────────────────────────────────────────────
   if (submissionResult) {
     const passed = submissionResult.passed;

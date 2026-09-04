@@ -480,7 +480,12 @@ export interface PortfolioMessageData {
   createdAt: string;
 }
 
-export type PracticeSetCategory = 'domain' | 'aptitude_quant' | 'aptitude_english_reading' | 'aptitude_english_listening';
+export type PracticeSetCategory =
+  | 'domain'
+  | 'aptitude_quant'
+  | 'aptitude_english_reading'
+  | 'aptitude_english_listening'
+  | 'daily_mixed';
 
 export interface PracticeSetData {
   id: string;
@@ -525,25 +530,57 @@ export interface ExternalPlatformLink {
   url: string;
 }
 
-export interface CodeExecutionResult {
+export type SupportedLanguage = 'javascript' | 'python' | 'java' | 'cpp' | 'c';
+
+export type ExecutionStatus =
+  | 'IDLE'
+  | 'COMPILING'
+  | 'COMPILE_ERROR'
+  | 'COMPILED'
+  | 'RUNNING'
+  | 'WRONG_ANSWER'
+  | 'RUNTIME_ERROR'
+  | 'TIME_LIMIT_EXCEEDED'
+  | 'RUNNER_ERROR'
+  | 'ACCEPTED';
+
+export interface TestResultData {
+  id: string;
+  testCaseId?: string;
   passed: boolean;
-  totalTestCases: number;
-  passedTestCases: number;
-  failedTestCases?: number;
+  status: 'PASSED' | 'FAILED' | 'NOT_EXECUTED';
+  input: string;
+  expectedOutput: string;
+  actualOutput: string;
   executionTimeMs: number;
-  stdout?: string;
-  logs?: string[];
   error?: string;
-  testCaseResults: {
-    id: string;
-    passed: boolean;
-    input: string;
-    expectedOutput: string;
-    actualOutput: string;
-    executionTimeMs: number;
-    error?: string;
-    isHidden?: boolean;
-  }[];
+  isHidden?: boolean;
+}
+
+export interface CodeExecutionResult {
+  status: ExecutionStatus;
+  passed: boolean; // true ONLY when status === 'ACCEPTED'
+  compilationSuccess: boolean;
+  executionCompleted: boolean;
+  compilationTimeMs: number | null;
+  executionTimeMs: number | null;
+  testsTotal: number;
+  testsExecuted: number;
+  testsPassed: number;
+  allTestsPassed: boolean;
+  totalTestCases: number; // backward compatibility
+  passedTestCases: number; // backward compatibility
+  failedTestCases: number; // backward compatibility
+  language?: SupportedLanguage | string;
+  stdout?: string;
+  stderr?: string;
+  compilerOutput?: string;
+  exitCode?: number | null;
+  errorType?: string;
+  error?: string;
+  testResults: TestResultData[];
+  testCaseResults: TestResultData[]; // backward compatibility alias
+  logs?: string[];
 }
 
 export interface AssessmentQuestionData {
@@ -773,6 +810,8 @@ export interface DSAQuestionData {
   testCases?: TestCaseData[];
   entryFunctionName?: string;
   companyTags?: string[];
+  styleTag?: string; // e.g. "LeetCode-style (Medium)", "GFG-style", "CSES-style", "Codeforces-style (Div 2 B)"
+  outboundUrl?: string; // Direct link to solve authentic original problem on platform
   userAttemptStatus?: DSAAttemptStatus;
   userLastCode?: string;
 }
@@ -789,6 +828,16 @@ export interface DSAAttemptData {
   updatedAt: string;
 }
 
+export interface DSASubmissionItem {
+  id: string;
+  questionId: string;
+  status: DSAAttemptStatus | ExecutionStatus;
+  language: string;
+  executionTimeMs?: number;
+  codeSubmitted?: string;
+  submittedAt: string;
+}
+
 export interface DailyPracticeData {
   id: string;
   date: string;
@@ -802,6 +851,90 @@ export interface DailyPracticeData {
   longestStreak: number;
   startedAt?: string;
   completedAt?: string;
+}
+
+// ─────────────────────────────────────────────────────────────
+// DAILY MIXED PRACTICE SET (Aptitude + Domain Core + DSA)
+// ─────────────────────────────────────────────────────────────
+
+export type DailyMixedQuestionSource = 'aptitude' | 'domain' | 'dsa';
+
+export interface DailyMixedQuestionItem {
+  id: string;
+  sourceType: DailyMixedQuestionSource;
+  categoryLabel: string; // e.g. "Quantitative Aptitude", "English Reading", "Full-Stack Web Core", "DSA / Algorithms"
+  questionType: 'mcq' | 'written' | 'coding';
+  prompt: string;
+  difficulty: string;
+  weight: number;
+  // MCQ fields
+  options?: { id: string; text: string }[];
+  // Audio & Reading fields
+  listeningPassage?: ListeningPassageData | null;
+  passageText?: string;
+  // Coding fields
+  starterCode?: Record<string, string> | string;
+  entryFunctionName?: string;
+  testCases?: TestCaseData[];
+  constraints?: string;
+  externalLinks?: ExternalPlatformLink[];
+  styleTag?: string;
+  outboundUrl?: string;
+}
+
+export interface DailyMixedPracticeSetData {
+  id: string;
+  date: string;
+  studentId: string;
+  totalQuestions: number;
+  aptitudeCount: number;
+  domainCount: number;
+  dsaCount: number;
+  questions: DailyMixedQuestionItem[];
+  completedQuestionIds: string[];
+  overallScore: number;
+  passed: boolean;
+  categoryScores: {
+    aptitudeScore: number;
+    aptitudePassed: boolean;
+    domainScore: number;
+    domainPassed: boolean;
+    dsaScore: number;
+    dsaPassed: boolean;
+  };
+  status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED';
+  currentStreak: number;
+  longestStreak: number;
+  timeSpentSeconds: number;
+  startedAt?: string;
+  completedAt?: string;
+}
+
+export interface DailyMixedSubmitResult {
+  dailyPracticeId: string;
+  date: string;
+  overallScore: number;
+  passed: boolean;
+  streakUpdated: boolean;
+  currentStreak: number;
+  longestStreak: number;
+  categoryBreakdown: {
+    aptitude: { score: number; total: number; correct: number; passed: boolean };
+    domain: { score: number; total: number; correct: number; passed: boolean };
+    dsa: { score: number; total: number; solved: number; passed: boolean };
+  };
+  questionResults: {
+    questionId: string;
+    sourceType: DailyMixedQuestionSource;
+    prompt: string;
+    isCorrect: boolean;
+    score: number;
+    maxScore: number;
+    userAnswer: string;
+    explanation?: string;
+    feedback?: string;
+    codeResult?: CodeExecutionResult;
+  }[];
 }
 
 export interface DSAProgressSummary {

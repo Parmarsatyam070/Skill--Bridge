@@ -179,4 +179,56 @@ router.get('/attempts/:attemptId', authenticate, async (req: AuthRequest, res: R
   }
 });
 
+/**
+ * GET /api/assessments/daily-mixed
+ * Retrieves or generates the deterministic daily mixed practice set (Aptitude + Domain + DSA).
+ */
+router.get('/daily-mixed', authenticate, async (req: AuthRequest, res: Response) => {
+  const studentProfileId = req.user?.studentProfileId;
+  if (!studentProfileId) {
+    return res.status(403).json({ error: { code: 'FORBIDDEN', message: 'Only students have a daily practice set.' } });
+  }
+
+  const dateStr = typeof req.query.date === 'string' ? req.query.date : undefined;
+
+  try {
+    const { getOrCreateDailyMixedPractice } = await import('../services/dailyMixedPracticeService.js');
+    const mixedSet = await getOrCreateDailyMixedPractice(studentProfileId, dateStr);
+    return res.json({ success: true, mixedSet, data: mixedSet });
+  } catch (error: any) {
+    console.error('Error fetching daily mixed practice set:', error);
+    return res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: error.message } });
+  }
+});
+
+/**
+ * POST /api/assessments/daily-mixed/submit
+ * Evaluates submitted daily mixed practice set across Aptitude, Domain, and DSA.
+ */
+router.post('/daily-mixed/submit', authenticate, async (req: AuthRequest, res: Response) => {
+  const studentProfileId = req.user?.studentProfileId;
+  if (!studentProfileId) {
+    return res.status(403).json({ error: { code: 'FORBIDDEN', message: 'Only students can submit daily practice.' } });
+  }
+
+  const { answers, writtenAnswers, codingAnswers, timeSpentSeconds, date } = req.body;
+
+  try {
+    const { submitDailyMixedPractice } = await import('../services/dailyMixedPracticeService.js');
+    const result = await submitDailyMixedPractice(studentProfileId, {
+      answers: answers || {},
+      writtenAnswers: writtenAnswers || {},
+      codingAnswers: codingAnswers || {},
+      timeSpentSeconds: timeSpentSeconds || 0,
+      date,
+    });
+
+    return res.json({ success: true, result, data: result });
+  } catch (error: any) {
+    console.error('Error submitting daily mixed practice set:', error);
+    return res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: error.message } });
+  }
+});
+
 export default router;
+

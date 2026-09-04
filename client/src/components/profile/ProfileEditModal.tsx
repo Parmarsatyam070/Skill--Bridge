@@ -42,6 +42,18 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
     }
   }, [initialData, type, isOpen]);
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+    if (isOpen) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isOpen, onClose]);
+
   if (!isOpen || !type) return null;
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -83,13 +95,23 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-y-auto">
-      <div className="bg-console-panel rounded-2xl border border-console-border max-w-lg w-full p-6 shadow-2xl space-y-5 relative my-8">
+    <div
+      className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto animate-in fade-in duration-200"
+      onClick={onClose}
+      role="dialog"
+      aria-modal="true"
+    >
+      <div
+        className="bg-console-panel rounded-2xl border border-console-border max-w-lg w-full p-6 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9)] space-y-5 relative my-8 animate-in fade-in zoom-in-95 duration-150"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* Header */}
         <div className="flex items-center justify-between pb-3 border-b border-console-border">
           <h3 className="font-serif text-lg font-bold text-console-text">{getTitle()}</h3>
           <button
+            type="button"
             onClick={onClose}
+            aria-label="Close modal"
             className="p-1 rounded-lg text-console-muted hover:text-console-text hover:bg-console-bg transition-colors"
           >
             <X className="w-5 h-5" />

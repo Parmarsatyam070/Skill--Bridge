@@ -1267,7 +1267,7 @@ export const CareerProfileDashboard: React.FC = () => {
 
       {/* Inline Resume Attachment Modal (Replacing window.prompt) */}
       {isResumeModalOpen && (
-        <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+        <div className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
           <div className="bg-console-panel rounded-2xl border border-console-border max-w-md w-full p-6 shadow-2xl space-y-4">
             <div className="flex items-center justify-between pb-3 border-b border-console-border">
               <div className="flex items-center gap-2.5">

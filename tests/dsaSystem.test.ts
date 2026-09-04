@@ -33,42 +33,12 @@ describe('DSA Coding Practice & Daily Mandatory Engine Suite', () => {
     }
     testStudentId = student.id;
 
-    // Ensure DSA questions are seeded
-    const count = await prisma.dSAQuestion.count();
-    if (count < 200) {
-      for (const q of dsaSeedQuestions) {
-        await prisma.dSAQuestion.upsert({
-          where: { slug: q.slug },
-          update: {
-            title: q.title,
-            platform: q.platform,
-            difficulty: q.difficulty,
-            topic: q.topic,
-            tags: JSON.stringify(q.tags),
-            canonicalUrl: q.canonicalUrl,
-            estimatedMinutes: q.estimatedMinutes,
-            description: q.description,
-            starterCode: typeof q.starterCode === 'object' ? JSON.stringify(q.starterCode) : (q.starterCode || ''),
-            testCases: q.testCases ? JSON.stringify(q.testCases) : null,
-            entryFunctionName: q.entryFunctionName,
-          },
-          create: {
-            title: q.title,
-            slug: q.slug,
-            platform: q.platform,
-            difficulty: q.difficulty,
-            topic: q.topic,
-            tags: JSON.stringify(q.tags),
-            canonicalUrl: q.canonicalUrl,
-            estimatedMinutes: q.estimatedMinutes,
-            description: q.description,
-            starterCode: typeof q.starterCode === 'object' ? JSON.stringify(q.starterCode) : (q.starterCode || ''),
-            testCases: q.testCases ? JSON.stringify(q.testCases) : null,
-            entryFunctionName: q.entryFunctionName,
-          },
-        });
-      }
-    }
+    // Clean any previous test artifacts for testStudentId
+    await prisma.dailyPractice.deleteMany({ where: { studentId: testStudentId } });
+    await prisma.dSAAttempt.deleteMany({ where: { studentId: testStudentId } });
+
+    // Ensure DSA questions are seeded and synchronized
+    await questionSelectionService.syncDSAQuestionsDatabase();
   });
 
   afterAll(async () => {
@@ -235,10 +205,11 @@ describe('DSA Coding Practice & Daily Mandatory Engine Suite', () => {
       const daily = await questionSelectionService.getOrCreateDailyPractice(testStudentId, todayDate);
 
       const targetQuestion = daily.questions[0];
+      const validCode = targetQuestion.starterCode?.javascript || 'function solution() {}';
       const res = await questionSelectionService.submitDailyQuestion(testStudentId, {
         questionId: targetQuestion.id,
         status: 'SOLVED',
-        code: 'function solve() { return true; }',
+        code: validCode,
         timeSpentSeconds: 90,
       });
 
@@ -296,4 +267,133 @@ describe('DSA Coding Practice & Daily Mandatory Engine Suite', () => {
       expect(Array.isArray(progress.strongTopics)).toBe(true);
     });
   });
+
+  // ─────────────────────────────────────────────────────────────
+  // 5. AUTHORITATIVE ACCEPTANCE & ANTI-FALSE-PROGRESS ENGINE
+  // ─────────────────────────────────────────────────────────────
+  describe('Authoritative Acceptance & Anti-False Progress Engine', () => {
+    it('should reject client SOLVED claim when code has compilation error and never update solved progress', async () => {
+      const q = (await prisma.dSAQuestion.findFirst({
+        where: { slug: 'kth-largest-element-in-an-array' },
+      })) || (await prisma.dSAQuestion.findFirst());
+      expect(q).toBeDefined();
+
+      const initialProgress = await questionSelectionService.getProgressSummary(testStudentId);
+
+      const invalidCode = `
+class Solution {
+    public int findKthLargest(int[] nums, int k) {
+        NonExistentClass x = new NonExistentClass();
+        return 0;
+    }
+}
+`;
+
+      const result = await questionSelectionService.submitDSAQuestionAttempt(testStudentId, {
+        questionId: q!.id,
+        status: 'SOLVED',
+        codeSubmitted: invalidCode,
+        language: 'java',
+      });
+
+      expect(result.isAccepted).toBe(false);
+      expect(result.status).not.toBe('SOLVED');
+      expect(result.executionResult?.compilationSuccess).toBe(false);
+
+      // Verify that progress was not incremented
+      const afterProgress = await questionSelectionService.getProgressSummary(testStudentId);
+      expect(afterProgress.totalSolved).toBe(initialProgress.totalSolved);
+    });
+
+    it('should accept valid code submission and update solved progress', async () => {
+      const q = await prisma.dSAQuestion.findFirst({
+        where: { slug: 'contains-duplicate' },
+      });
+      if (q) {
+        const validCode = `
+function containsDuplicate(nums) {
+  return new Set(nums).size !== nums.length;
+}
+`;
+        const result = await questionSelectionService.submitDSAQuestionAttempt(testStudentId, {
+          questionId: q.id,
+          status: 'SOLVED',
+          codeSubmitted: validCode,
+          language: 'javascript',
+        });
+
+        expect(result.isAccepted).toBe(true);
+        expect(result.status).toBe('SOLVED');
+        expect(result.executionResult?.allTestsPassed).toBe(true);
+      }
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────────
+  // 6. AUTHENTIC METADATA & ZERO PLACEHOLDER GUARANTEE
+  // ─────────────────────────────────────────────────────────────
+  describe('Authentic DSA Question Metadata & Zero Placeholder Guarantee', () => {
+    it('should guarantee ZERO questions in seed data contain placeholder sample input or output', () => {
+      const allQuestions = dsaSeedQuestions;
+      expect(allQuestions.length).toBeGreaterThan(30);
+
+      for (const q of allQuestions) {
+        // Assert entryFunctionName is real
+        expect(q.entryFunctionName).toBeDefined();
+        expect(q.entryFunctionName).not.toBe('solution');
+
+        // Assert all 4 languages have authentic starter code
+        expect(q.starterCode.javascript).toBeDefined();
+        expect(q.starterCode.javascript.length).toBeGreaterThan(10);
+        expect(q.starterCode.python).toBeDefined();
+        expect(q.starterCode.python!.length).toBeGreaterThan(10);
+        expect(q.starterCode.java).toBeDefined();
+        expect(q.starterCode.java!.length).toBeGreaterThan(10);
+        expect(q.starterCode.cpp).toBeDefined();
+        expect(q.starterCode.cpp!.length).toBeGreaterThan(10);
+
+        // Assert test cases contain real values, not "sample"
+        expect(q.testCases.length).toBeGreaterThan(0);
+        for (const tc of q.testCases) {
+          expect(tc.input).not.toContain('sample');
+          expect(tc.input).not.toContain('input = sample');
+          expect(tc.expectedOutput).not.toContain('sample');
+          expect(tc.expectedOutput).not.toContain('sample_output');
+          expect(tc.expectedOutput).not.toBe('output');
+          expect(tc.expectedOutput).not.toBe('output_1');
+          expect(tc.expectedOutput).not.toBe('output_2');
+        }
+      }
+    });
+
+    it('should guarantee ZERO questions in the Prisma database contain placeholder data', async () => {
+      const allDbQuestions = await prisma.dSAQuestion.findMany();
+      expect(allDbQuestions.length).toBeGreaterThan(30);
+
+      for (const q of allDbQuestions) {
+        if (q.testCasesJson) {
+          const tcs = JSON.parse(q.testCasesJson);
+          for (const tc of tcs) {
+            expect(tc.input).not.toContain('sample');
+            expect(tc.input).not.toContain('input = sample');
+            expect(tc.expectedOutput).not.toContain('sample');
+            expect(tc.expectedOutput).not.toContain('sample_output');
+            expect(tc.expectedOutput).not.toBe('output');
+            expect(tc.expectedOutput).not.toBe('output_1');
+          }
+        }
+      }
+    });
+
+    it('should verify Celebrity Problem in DB has authentic matrix signature and test cases', async () => {
+      const celeb = await prisma.dSAQuestion.findFirst({
+        where: { slug: 'the-celebrity-problem-gfg' },
+      });
+      expect(celeb).toBeDefined();
+      expect(celeb!.entryFunctionName).toBe('celebrity');
+      expect(celeb!.testCasesJson).toContain('M = [[0,1,0],[0,0,0],[0,1,0]]');
+      expect(celeb!.testCasesJson).not.toContain('sample');
+    });
+  });
 });
+

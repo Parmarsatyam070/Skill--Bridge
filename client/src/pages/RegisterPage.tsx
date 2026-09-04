@@ -191,78 +191,84 @@ export const RegisterPage: React.FC = () => {
             </div>
           </div>
 
-          {/* Quick OAuth Alternative Row */}
-          <div className="space-y-3">
-            <div className="text-center text-[11px] font-mono text-ink-muted uppercase tracking-wider">
-              Sign up with single sign-on
-            </div>
-            <div className="grid grid-cols-3 gap-2.5">
-              <button
-                type="button"
-                onClick={() => setOauthProvider('google')}
-                className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border border-line hover:border-ink text-xs font-medium text-ink transition-colors bg-paper hover:bg-white"
-              >
-                <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24">
-                  <path
-                    fill="#4285F4"
-                    d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"
-                  />
-                  <path
-                    fill="#34A853"
-                    d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"
-                  />
-                  <path
-                    fill="#FBBC05"
-                    d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.98 0 12s.45 3.82 1.25 5.42l4.03-3.15z"
-                  />
-                  <path
-                    fill="#EA4335"
-                    d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
-                  />
-                </svg>
-                <span className="text-[11px] font-medium">Google</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setOauthProvider('github')}
-                className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border border-line hover:border-ink text-xs font-medium text-ink transition-colors bg-paper hover:bg-white"
-              >
-                <Github className="w-4 h-4 flex-shrink-0" />
-                <span className="text-[11px] font-medium">GitHub</span>
-              </button>
-
-              <button
-                type="button"
-                onClick={() => setOauthProvider('microsoft')}
-                className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border border-line hover:border-ink text-xs font-medium text-ink transition-colors bg-paper hover:bg-white"
-              >
-                <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 23 23">
-                  <path fill="#f35325" d="M1 1h10v10H1z" />
-                  <path fill="#81bc06" d="M12 1h10v10H12z" />
-                  <path fill="#05a6f0" d="M1 12h10v10H1z" />
-                  <path fill="#ffba08" d="M12 12h10v10H12z" />
-                </svg>
-                <span className="text-[11px] font-medium">Microsoft</span>
-              </button>
-            </div>
-
-            <div className="relative my-4">
-              <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-line" />
+            {/* Quick OAuth Alternative Row */}
+            <div className="space-y-3">
+              <div className="text-center text-[11px] font-mono text-ink-muted uppercase tracking-wider font-medium">
+                Sign up with single sign-on
               </div>
-              <div className="relative flex justify-center text-[10.5px] font-mono uppercase tracking-wider bg-white px-2 text-ink-muted">
-                or register with email
+              <div className="grid grid-cols-3 gap-2.5">
+                <button
+                  type="button"
+                  onClick={() => setOauthProvider('google')}
+                  className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border border-line hover:border-bridge-teal text-xs font-semibold text-ink transition-all bg-paper hover:bg-white shadow-2xs hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-bridge-teal"
+                  title="Sign up with Google"
+                >
+                  <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24">
+                    <path
+                      fill="#4285F4"
+                      d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"
+                    />
+                    <path
+                      fill="#34A853"
+                      d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"
+                    />
+                    <path
+                      fill="#FBBC05"
+                      d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.98 0 12s.45 3.82 1.25 5.42l4.03-3.15z"
+                    />
+                    <path
+                      fill="#EA4335"
+                      d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
+                    />
+                  </svg>
+                  <span className="text-[11px] font-semibold">Google</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setOauthProvider('github')}
+                  className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border border-line hover:border-bridge-teal text-xs font-semibold text-ink transition-all bg-paper hover:bg-white shadow-2xs hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-bridge-teal"
+                  title="Sign up with GitHub"
+                >
+                  <Github className="w-4 h-4 flex-shrink-0" />
+                  <span className="text-[11px] font-semibold">GitHub</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setOauthProvider('microsoft')}
+                  className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border border-line hover:border-bridge-teal text-xs font-semibold text-ink transition-all bg-paper hover:bg-white shadow-2xs hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-bridge-teal"
+                  title="Sign up with Microsoft 365"
+                >
+                  <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 23 23">
+                    <path fill="#f35325" d="M1 1h10v10H1z" />
+                    <path fill="#81bc06" d="M12 1h10v10H12z" />
+                    <path fill="#05a6f0" d="M1 12h10v10H1z" />
+                    <path fill="#ffba08" d="M12 12h10v10H12z" />
+                  </svg>
+                  <span className="text-[11px] font-semibold">Microsoft</span>
+                </button>
+              </div>
+
+              <div className="relative my-4">
+                <div className="absolute inset-0 flex items-center">
+                  <div className="w-full border-t border-line" />
+                </div>
+                <div className="relative flex justify-center text-[10.5px] font-mono uppercase tracking-wider bg-white px-2 text-ink-muted font-medium">
+                  or register with email
+                </div>
               </div>
             </div>
-          </div>
 
-          {error && (
-            <div className="flex items-center gap-2 p-3.5 rounded-xl bg-status-red/10 border border-status-red/20 text-status-red text-xs">
-              <AlertCircle className="w-4 h-4 flex-shrink-0" />
-              <span>{error}</span>
-            </div>
-          )}
+            {error && (
+              <div
+                className="flex items-start gap-2.5 p-3.5 rounded-xl bg-status-red/10 border border-status-red/30 text-status-red text-xs font-medium"
+                role="alert"
+              >
+                <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+                <span className="leading-relaxed">{error}</span>
+              </div>
+            )}
 
           <form onSubmit={handleSubmit} className="space-y-4 text-xs">
             {/* Student Fields */}
@@ -447,7 +453,7 @@ export const RegisterPage: React.FC = () => {
                     onChange={e => setEmail(e.target.value)}
                     placeholder="e.g. candidate@university.edu"
                     required
-                    className="w-full bg-paper border border-line rounded-xl pl-10 pr-3.5 py-2.5 text-xs text-ink focus:outline-none focus:border-bridge-teal"
+                    className="w-full bg-paper border border-line rounded-xl pl-10 pr-3.5 py-2.5 text-xs text-ink focus:outline-none focus:border-bridge-teal focus:ring-1 focus:ring-bridge-teal transition-all"
                   />
                 </div>
               </div>
@@ -461,7 +467,7 @@ export const RegisterPage: React.FC = () => {
                     value={phone}
                     onChange={e => setPhone(e.target.value)}
                     placeholder="e.g. +91 98765 43210"
-                    className="w-full bg-paper border border-line rounded-xl pl-10 pr-3.5 py-2.5 text-xs text-ink focus:outline-none focus:border-bridge-teal"
+                    className="w-full bg-paper border border-line rounded-xl pl-10 pr-3.5 py-2.5 text-xs text-ink focus:outline-none focus:border-bridge-teal focus:ring-1 focus:ring-bridge-teal transition-all"
                   />
                 </div>
               </div>
@@ -479,7 +485,7 @@ export const RegisterPage: React.FC = () => {
                     onChange={e => setPassword(e.target.value)}
                     placeholder="Min 6 characters"
                     required
-                    className="w-full bg-paper border border-line rounded-xl pl-10 pr-3.5 py-2.5 text-xs text-ink focus:outline-none focus:border-bridge-teal"
+                    className="w-full bg-paper border border-line rounded-xl pl-10 pr-3.5 py-2.5 text-xs text-ink focus:outline-none focus:border-bridge-teal focus:ring-1 focus:ring-bridge-teal transition-all"
                   />
                 </div>
               </div>
@@ -494,7 +500,7 @@ export const RegisterPage: React.FC = () => {
                     onChange={e => setConfirmPassword(e.target.value)}
                     placeholder="Confirm password"
                     required
-                    className="w-full bg-paper border border-line rounded-xl pl-10 pr-3.5 py-2.5 text-xs text-ink focus:outline-none focus:border-bridge-teal"
+                    className="w-full bg-paper border border-line rounded-xl pl-10 pr-3.5 py-2.5 text-xs text-ink focus:outline-none focus:border-bridge-teal focus:ring-1 focus:ring-bridge-teal transition-all"
                   />
                 </div>
               </div>
@@ -503,7 +509,7 @@ export const RegisterPage: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-bridge-teal hover:bg-bridge-teal/90 text-white font-semibold text-xs shadow-sm transition-all mt-4 disabled:opacity-50"
+              className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-bridge-teal hover:bg-bridge-teal/90 active:bg-[#20635c] text-white font-bold text-xs shadow-md transition-all mt-4 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-bridge-teal"
             >
               {loading ? (
                 <span className="font-mono">Creating Account...</span>

@@ -22,6 +22,7 @@ import {
   Shield,
   Zap,
   Flame,
+  Code2,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { BridgeBotWidget } from './BridgeBotWidget';
@@ -51,7 +52,8 @@ export const ConsoleLayout: React.FC<{ children: React.ReactNode }> = ({ childre
       { label: 'Career Profile', path: '/profile', icon: UserCheck, badge: 'Modern' },
       { label: 'Overview', path: '/dashboard', icon: LayoutDashboard },
       { label: 'Skill Profile', path: '/skill-profile', icon: Radar },
-      { label: 'Skill Assessment', path: '/assessment', icon: CheckSquare, badge: 'Sets + Aptitude' },
+      { label: 'Skill Assessment', path: '/assessment', icon: CheckSquare, badge: 'Daily + Sets' },
+      { label: 'DSA & Coding', path: '/dsa', icon: Code2, badge: 'Coding' },
       { label: 'Learning Hub', path: '/learn', icon: BookOpen, badge: 'Resources' },
       { label: 'Report Card', path: '/report-card', icon: Award, badge: 'History' },
       { label: 'Matched Internships', path: '/internships', icon: Briefcase, badge: 'Live %' },

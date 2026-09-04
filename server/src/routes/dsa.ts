@@ -15,6 +15,7 @@ import {
   RecordDSAAttemptSchema,
   SubmitDailyDSAQuestionSchema,
 } from '../../../shared/validation.js';
+import { executeCodeSandbox } from '../services/codeRunnerService.js';
 
 const router = Router();
 
@@ -366,4 +367,227 @@ router.get('/progress', authenticate, async (req: AuthRequest, res: Response) =>
   }
 });
 
+/**
+ * GET /api/dsa/questions/:id
+ * Returns authentic problem details by ID or slug.
+ */
+router.get('/questions/:id', authenticate, async (req: AuthRequest, res: Response) => {
+  try {
+    await seedDSAQuestionsIfEmpty();
+    const studentId = req.user?.studentProfileId;
+    const { id } = req.params;
+
+    const question = await prisma.dSAQuestion.findFirst({
+      where: {
+        OR: [{ id }, { slug: id }],
+      },
+    });
+
+    if (!question) {
+      return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'DSA Question not found' } });
+    }
+
+    let attempt: any = null;
+    if (studentId) {
+      attempt = await prisma.dSAAttempt.findUnique({
+        where: {
+          studentId_questionId: {
+            studentId,
+            questionId: question.id,
+          },
+        },
+      });
+    }
+
+    const formatted = formatDSAQuestion(question, attempt);
+    return res.json({ success: true, question: formatted, data: formatted });
+  } catch (error: any) {
+    console.error('Error in GET /api/dsa/questions/:id:', error);
+    return res.status(500).json({ error: { code: 'SERVER_ERROR', message: error.message } });
+  }
+});
+
+/**
+ * POST /api/dsa/run
+ * Executes code on VISIBLE sample test cases only without recording an official submission.
+ */
+router.post('/run', authenticate, async (req: AuthRequest, res: Response) => {
+  try {
+    const { code, language = 'javascript', questionId, entryFunctionName, testCases } = req.body;
+
+    let casesToRun = testCases;
+    let fnName = entryFunctionName;
+
+    if (questionId && (!casesToRun || casesToRun.length === 0)) {
+      const q = await prisma.dSAQuestion.findFirst({
+        where: { OR: [{ id: questionId }, { slug: questionId }] },
+      });
+      if (q) {
+        fnName = fnName || q.entryFunctionName || undefined;
+        try {
+          const allCases = JSON.parse(q.testCasesJson || '[]');
+          casesToRun = allCases.filter((tc: any) => !tc.isHidden);
+          if (casesToRun.length === 0) casesToRun = allCases.slice(0, 2);
+        } catch {}
+      }
+    }
+
+    const result = await executeCodeSandbox({
+      code: code || '',
+      language,
+      entryFunctionName: fnName,
+      testCases: casesToRun || [],
+      visibleOnly: true,
+      timeoutMs: 3500,
+    });
+
+    return res.json({ success: true, result, data: result });
+  } catch (error: any) {
+    console.error('Error in POST /api/dsa/run:', error);
+    return res.status(500).json({ error: { code: 'SANDBOX_ERROR', message: error.message } });
+  }
+});
+
+/**
+ * POST /api/dsa/submit
+ * Executes code against FULL test suite (visible + hidden), logs attempt, updates DSA skill score.
+ */
+router.post('/submit', authenticate, async (req: AuthRequest, res: Response) => {
+  try {
+    const studentId = req.user?.studentProfileId;
+    if (!studentId) {
+      return res.status(403).json({ error: { code: 'FORBIDDEN', message: 'Student profile required.' } });
+    }
+
+    const { code, language = 'javascript', questionId, timeSpentSeconds = 60 } = req.body;
+    if (!questionId) {
+      return res.status(400).json({ error: { code: 'BAD_REQUEST', message: 'Question ID is required.' } });
+    }
+
+    const question = await prisma.dSAQuestion.findFirst({
+      where: { OR: [{ id: questionId }, { slug: questionId }] },
+    });
+
+    if (!question) {
+      return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Question not found.' } });
+    }
+
+    let allCases: any[] = [];
+    try {
+      allCases = JSON.parse(question.testCasesJson || '[]');
+    } catch {}
+
+    const result = await executeCodeSandbox({
+      code: code || '',
+      language,
+      entryFunctionName: question.entryFunctionName || undefined,
+      testCases: allCases,
+      timeoutMs: 4000,
+    });
+
+    const isAccepted = result.status === 'ACCEPTED' || result.passed;
+    const attemptStatus = isAccepted ? 'SOLVED' : 'FAILED';
+
+    const attempt = await prisma.dSAAttempt.upsert({
+      where: {
+        studentId_questionId: {
+          studentId,
+          questionId: question.id,
+        },
+      },
+      update: {
+        status: isAccepted ? 'SOLVED' : undefined,
+        codeSubmitted: code,
+        language,
+        attemptCount: { increment: 1 },
+        timeSpentSeconds: { increment: timeSpentSeconds },
+      },
+      create: {
+        studentId,
+        questionId: question.id,
+        status: attemptStatus,
+        codeSubmitted: code,
+        language,
+        attemptCount: 1,
+        timeSpentSeconds,
+      },
+    });
+
+    // If accepted, update DSA skill score in StudentSkillScore
+    if (isAccepted) {
+      try {
+        const dsaSkill = await prisma.skill.findFirst({
+          where: { name: { contains: 'Data Structures' } },
+        });
+        if (dsaSkill) {
+          const prev = await prisma.studentSkillScore.findUnique({
+            where: { studentId_skillId: { studentId, skillId: dsaSkill.id } },
+          });
+          const newScore = Math.min(100, (prev?.score || 50) + 2.5);
+          await prisma.studentSkillScore.upsert({
+            where: { studentId_skillId: { studentId, skillId: dsaSkill.id } },
+            update: { score: newScore, lastAttemptDate: new Date() },
+            create: { studentId, skillId: dsaSkill.id, score: newScore, lastAttemptDate: new Date() },
+          });
+        }
+      } catch {}
+    }
+
+    return res.json({
+      success: true,
+      result,
+      isAccepted,
+      attempt,
+      data: { result, attempt, isAccepted },
+    });
+  } catch (error: any) {
+    console.error('Error in POST /api/dsa/submit:', error);
+    return res.status(500).json({ error: { code: 'SUBMIT_ERROR', message: error.message } });
+  }
+});
+
+/**
+ * GET /api/dsa/questions/:id/submissions
+ * Retrieves historical attempts and submissions for this question.
+ */
+router.get('/questions/:id/submissions', authenticate, async (req: AuthRequest, res: Response) => {
+  try {
+    const studentId = req.user?.studentProfileId;
+    if (!studentId) {
+      return res.status(403).json({ error: { code: 'FORBIDDEN', message: 'Student profile required.' } });
+    }
+
+    const { id } = req.params;
+    const question = await prisma.dSAQuestion.findFirst({
+      where: { OR: [{ id }, { slug: id }] },
+    });
+
+    if (!question) {
+      return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Question not found.' } });
+    }
+
+    const attempt = await prisma.dSAAttempt.findUnique({
+      where: { studentId_questionId: { studentId, questionId: question.id } },
+    });
+
+    const submissions: any[] = [];
+    if (attempt && attempt.codeSubmitted) {
+      submissions.push({
+        id: attempt.id,
+        questionId: question.id,
+        status: attempt.status,
+        language: attempt.language || 'javascript',
+        codeSubmitted: attempt.codeSubmitted,
+        submittedAt: attempt.updatedAt.toISOString(),
+      });
+    }
+
+    return res.json({ success: true, submissions, data: submissions });
+  } catch (error: any) {
+    console.error('Error in GET /api/dsa/questions/:id/submissions:', error);
+    return res.status(500).json({ error: { code: 'SERVER_ERROR', message: error.message } });
+  }
+});
+
 export default router;
+

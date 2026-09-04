@@ -12,11 +12,35 @@ const router = Router();
  */
 router.get('/search', async (req, res: Response) => {
   try {
-    const q = (req.query.q as string) || '';
-    const category = (req.query.category as string) || 'all';
+    const rawQ =
+      (req.query.query as string) ||
+      (req.query.q as string) ||
+      (req.query.search as string) ||
+      '';
+    const category =
+      (req.query.category as string) ||
+      (req.query.type as string) ||
+      'all';
+    const isFreeParam =
+      req.query.isFree !== undefined
+        ? req.query.isFree === 'true'
+        : req.query.freeOnly !== undefined
+        ? req.query.freeOnly === 'true'
+        : undefined;
 
-    const results = await searchLearningHub(q, category);
-    return res.json({ success: true, data: results });
+    const results = await searchLearningHub({
+      query: rawQ,
+      category,
+      isFree: isFreeParam,
+    });
+
+    return res.json({
+      success: true,
+      query: results.query,
+      totalResults: results.totalResults,
+      categories: results.categories,
+      data: results,
+    });
   } catch (error: any) {
     console.error('Error in GET /api/resources/search:', error);
     return res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: error.message } });

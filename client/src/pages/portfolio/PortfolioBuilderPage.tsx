@@ -1069,8 +1069,16 @@ export const PortfolioBuilderPage: React.FC = () => {
 
       {/* ── AI WIZARD MODAL ── */}
       {showAiWizard && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="max-w-lg w-full rounded-2xl bg-console-panel border border-console-border shadow-2xl p-6 space-y-6 animate-in fade-in zoom-in-95 duration-200">
+        <div
+          className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto animate-in fade-in duration-200"
+          onClick={() => setShowAiWizard(false)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            className="max-w-lg w-full rounded-2xl bg-console-panel border border-console-border shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9)] p-6 space-y-6 animate-in fade-in zoom-in-95 duration-150"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between border-b border-console-border pb-3">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-purple-600 to-indigo-600 text-white flex items-center justify-center">
@@ -1082,8 +1090,10 @@ export const PortfolioBuilderPage: React.FC = () => {
                 </div>
               </div>
               <button
+                type="button"
                 onClick={() => setShowAiWizard(false)}
-                className="p-1 rounded-lg text-console-text-muted hover:text-console-text"
+                aria-label="Close dialog"
+                className="p-1 rounded-lg text-console-text-muted hover:text-console-text hover:bg-console-bg"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -1182,8 +1192,16 @@ export const PortfolioBuilderPage: React.FC = () => {
 
       {/* ── VISITOR INBOX MODAL ── */}
       {showMessagesModal && (
-        <div className="fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="max-w-2xl w-full rounded-2xl bg-console-panel border border-console-border shadow-2xl p-6 space-y-4 max-h-[85vh] flex flex-col">
+        <div
+          className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-md flex items-center justify-center p-4 overflow-y-auto animate-in fade-in duration-200"
+          onClick={() => setShowMessagesModal(false)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            className="max-w-2xl w-full rounded-2xl bg-console-panel border border-console-border shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9)] p-6 space-y-4 max-h-[85vh] flex flex-col animate-in fade-in zoom-in-95 duration-150"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="flex items-center justify-between border-b border-console-border pb-3">
               <div className="flex items-center gap-2.5">
                 <div className="w-8 h-8 rounded-lg bg-bridge-teal/20 text-bridge-teal flex items-center justify-center">

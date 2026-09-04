@@ -28,6 +28,12 @@ export default {
           text: '#EDEFF3',
           'text-muted': '#8A90A3',
         },
+        canvas: {
+          DEFAULT: '#12141C',
+          subtle: '#1B1E29',
+          raised: '#242836',
+          border: '#2E3241',
+        },
         status: {
           amber: '#F0A94E',
           green: '#4CC38A',

@@ -1456,15 +1456,25 @@ export const CareerResumeBuilder: React.FC = () => {
           STEP 2: CREATION OPTION MODAL (Fetch from Profile vs Blank)
       ───────────────────────────────────────────────────────────── */}
       {isChoiceModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
-          <div className="bg-console-panel rounded-2xl border border-console-border shadow-2xl w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+        <div
+          className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200"
+          onClick={() => setIsChoiceModalOpen(false)}
+          role="dialog"
+          aria-modal="true"
+        >
+          <div
+            className="bg-console-panel rounded-2xl border border-console-border shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9)] w-full max-w-lg overflow-hidden animate-in fade-in zoom-in-95 duration-150"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="px-6 py-4 border-b border-console-border flex items-center justify-between">
               <div>
                 <h3 className="font-serif font-bold text-lg text-console-text">Choose Creation Option</h3>
                 <p className="text-xs text-console-muted">Select how you want to initialize your resume draft</p>
               </div>
               <button
+                type="button"
                 onClick={() => setIsChoiceModalOpen(false)}
+                aria-label="Close dialog"
                 className="p-1 rounded-lg text-console-muted hover:text-console-text hover:bg-console-bg"
               >
                 <X className="w-4 h-4" />
