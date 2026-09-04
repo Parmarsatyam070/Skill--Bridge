@@ -6,6 +6,7 @@ import {
   Mail,
   Github,
   AlertCircle,
+  RefreshCw,
 } from 'lucide-react';
 import { useAuth, getRoleRedirect } from '../context/AuthContext';
 import { Role } from '@shared/types';
@@ -20,6 +21,7 @@ export const LoginPage: React.FC = () => {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [coldStartNotice, setColdStartNotice] = useState(false);
 
   // OAuth Modal state
   const [oauthProvider, setOauthProvider] = useState<'google' | 'github' | 'microsoft' | null>(null);
@@ -33,15 +35,37 @@ export const LoginPage: React.FC = () => {
 
     setError(null);
     setLoading(true);
+    setColdStartNotice(false);
+
+    const coldTimer = setTimeout(() => {
+      setColdStartNotice(true);
+    }, 3500);
 
     try {
-      const user = await login(identifier, password);
+      const loginPromise = login(identifier, password);
+      const timeoutPromise = new Promise((_, reject) =>
+        setTimeout(
+          () =>
+            reject(
+              new Error(
+                'Server took too long to respond. The backend may still be spinning up from cold start — please try again.'
+              )
+            ),
+          20000
+        )
+      );
+
+      const user = (await Promise.race([loginPromise, timeoutPromise])) as any;
+      clearTimeout(coldTimer);
       const redirectPath = getRoleRedirect(user.role as Role);
       navigate(redirectPath);
     } catch (err: any) {
+      clearTimeout(coldTimer);
       setError(err.message || 'Invalid credentials. Please verify your details.');
     } finally {
+      clearTimeout(coldTimer);
       setLoading(false);
+      setColdStartNotice(false);
     }
   };
 
@@ -116,13 +140,23 @@ export const LoginPage: React.FC = () => {
                 </div>
               </div>
 
+              {coldStartNotice && loading && (
+                <div className="flex items-center gap-2 p-3 rounded-xl bg-bridge-teal/10 border border-bridge-teal/20 text-bridge-teal text-xs animate-in fade-in duration-200">
+                  <RefreshCw className="w-4 h-4 animate-spin flex-shrink-0" />
+                  <span>Waking up server backend (Render cold-start)... Hang tight!</span>
+                </div>
+              )}
+
               <button
                 type="submit"
                 disabled={loading}
                 className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-bridge-teal hover:bg-bridge-teal/90 text-white font-semibold text-xs shadow-sm transition-all disabled:opacity-50"
               >
                 {loading ? (
-                  <span className="font-mono">Signing in...</span>
+                  <span className="font-mono flex items-center gap-1.5">
+                    <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                    <span>Signing in...</span>
+                  </span>
                 ) : (
                   <>
                     <span>Log in</span>

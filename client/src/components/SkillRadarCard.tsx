@@ -37,7 +37,18 @@ export const SkillRadarCard: React.FC<SkillRadarCardProps> = ({
 }) => {
   const scoreMap = new Map(studentSkills.map(s => [s.skillId, s.score]));
 
-  const chartData = benchmarks.map(b => {
+  const effectiveBenchmarks = benchmarks.length >= 3
+    ? benchmarks
+    : [
+        { skillId: 'def-1', skillName: 'Problem Solving & DSA', benchmarkScore: 80 },
+        { skillId: 'def-2', skillName: 'Core Architecture', benchmarkScore: 75 },
+        { skillId: 'def-3', skillName: 'API & Data Contracts', benchmarkScore: 75 },
+        { skillId: 'def-4', skillName: 'Code Quality & Testing', benchmarkScore: 70 },
+        { skillId: 'def-5', skillName: 'System Fundamentals', benchmarkScore: 80 },
+        { skillId: 'def-6', skillName: 'DevOps & Tooling', benchmarkScore: 70 },
+      ];
+
+  const chartData = effectiveBenchmarks.map(b => {
     const studentScore = scoreMap.get(b.skillId) || 0;
     return {
       skill: b.skillName,
@@ -47,6 +58,7 @@ export const SkillRadarCard: React.FC<SkillRadarCardProps> = ({
     };
   });
 
+  const isAllZero = chartData.every(d => d.studentScore === 0);
   const totalGaps = chartData.filter(d => d.studentScore < d.benchmarkScore).length;
   const strengths = chartData.filter(d => d.studentScore >= d.benchmarkScore).length;
 
@@ -84,7 +96,7 @@ export const SkillRadarCard: React.FC<SkillRadarCardProps> = ({
       <div className="w-full h-72">
         <ResponsiveContainer width="100%" height="100%">
           <RadarChart cx="50%" cy="50%" outerRadius="75%" data={chartData}>
-            <PolarGrid stroke="#2E3241" />
+            <PolarGrid gridType="polygon" stroke="#2E3241" />
             <PolarAngleAxis
               dataKey="skill"
               tick={{ fill: '#EDEFF3', fontSize: 11, fontFamily: 'Inter' }}
@@ -92,6 +104,8 @@ export const SkillRadarCard: React.FC<SkillRadarCardProps> = ({
             <PolarRadiusAxis
               angle={30}
               domain={[0, 100]}
+              type="number"
+              allowDataOverflow={false}
               tick={{ fill: '#8A90A3', fontSize: 10, fontFamily: 'IBM Plex Mono' }}
             />
             <Tooltip
@@ -158,6 +172,14 @@ export const SkillRadarCard: React.FC<SkillRadarCardProps> = ({
           <span className="text-console-text-muted">Industry Target Benchmark</span>
         </div>
       </div>
+
+      {isAllZero && (
+        <div className="mt-3 p-2.5 rounded-lg bg-canvas-subtle border border-console-border text-center">
+          <span className="text-[11px] text-console-text-muted font-sans">
+            ⚡ Calibration Pending: Complete domain assessments or course certifications to expand your verified polygon.
+          </span>
+        </div>
+      )}
     </div>
   );
 };

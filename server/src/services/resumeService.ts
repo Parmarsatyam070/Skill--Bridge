@@ -1,5 +1,6 @@
 import { jsPDF } from 'jspdf';
 import { prisma } from '../config/prisma.js';
+import { isLlmConfigured, generateLlmText } from './llmService.js';
 
 /**
  * Generates structured AI resume data by pulling verified skill scores,
@@ -61,8 +62,22 @@ export async function generateResumeContent(
     linkedin: student.linkedinUrl || undefined,
   });
 
-  const defaultSummary = student.bio || customInput?.careerObjective ||
+  let summary = student.bio || customInput?.careerObjective ||
     `Results-driven ${student.targetDomain || 'Software'} engineer with strong fundamentals and hands-on proficiency across modern engineering tools. Demonstrated problem solver with industry-aligned skill vectors and verified platform achievements.`;
+
+  if (isLlmConfigured()) {
+    try {
+      const generated = await generateLlmText({
+        systemPrompt: 'You are an expert ATS resume writer. Write a concise, impactful 2-3 sentence professional resume summary tailored for student tech roles.',
+        prompt: `Candidate Name: ${student.user.name}\nTarget Domain: ${student.targetDomain || 'Software Engineering'}\nTop Verified Skills: ${topSkills.join(', ')}\nInstitution: ${student.institution || 'Engineering College'}\nObjective: ${customInput?.careerObjective || ''}`,
+      });
+      if (generated && generated.trim().length > 20) {
+        summary = generated.trim();
+      }
+    } catch {
+      // Gracefully retain default summary
+    }
+  }
 
   return {
     fullName: student.user.name,
@@ -70,7 +85,7 @@ export async function generateResumeContent(
     email: student.user.email,
     phone: student.user.phone || '+91 98765 43210',
     location: student.location || 'India',
-    summary: defaultSummary,
+    summary,
     skills: topSkills.length > 0 ? topSkills : ['TypeScript', 'React.js', 'Node.js', 'PostgreSQL', 'Docker'],
     verifiedSkills: student.skillScores.map(ss => ({ name: ss.skill.name, score: ss.score, category: ss.skill.category })),
     educations,

@@ -309,6 +309,7 @@ export interface Question {
   prompt: string;
   options: { id: string; text: string; isCorrect: boolean }[];
   weight: number;
+  entryFunctionName?: string;
 }
 
 export interface DomainSkillReqItem {
@@ -560,6 +561,7 @@ export interface AssessmentQuestionData {
   passageText?: string;
   explanation?: string;
   starterCode?: string;
+  entryFunctionName?: string;
   testCases?: TestCaseData[];
   constraints?: string;
   inputFormat?: string;

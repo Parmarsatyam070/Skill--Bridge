@@ -127,6 +127,56 @@ app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
   });
 });
 
-app.listen(PORT, () => {
+import { prisma } from './config/prisma.js';
+import { seedCatalog, seedDemoUsers } from './services/seedService.js';
+
+/**
+ * Startup Database Health Verification & Auto-Seed Safety Guard:
+ * Validates that reference tables (Domain, PracticeSet, Course, Skill) are seeded.
+ * If reference tables are missing and User.count() === 0, automatically seeds catalog.
+ * If users already exist (User.count() > 0), strictly logs a warning without mutating data.
+ */
+async function verifyDatabaseHealth() {
+  try {
+    const [domainCount, skillCount, practiceSetCount, courseCount, questionCount, userCount] = await Promise.all([
+      prisma.domain.count(),
+      prisma.skill.count(),
+      prisma.practiceSet.count(),
+      prisma.course.count(),
+      prisma.question.count(),
+      prisma.user.count(),
+    ]);
+
+    console.log(`[DB HEALTH CHECK] Status:`);
+    console.log(`  • Domains: ${domainCount} (Min: 5)`);
+    console.log(`  • Skills: ${skillCount} (Min: 25)`);
+    console.log(`  • Practice Sets: ${practiceSetCount} (Min: 8)`);
+    console.log(`  • Courses: ${courseCount} (Min: 4)`);
+    console.log(`  • Questions: ${questionCount} (Min: 20)`);
+    console.log(`  • Users: ${userCount}`);
+
+    if (domainCount < 5 || practiceSetCount < 8 || courseCount < 4 || questionCount < 20) {
+      if (userCount === 0) {
+        console.log(`\n🌱 [DB AUTO-SEED] Empty database detected (0 users, incomplete reference catalog). Automatically seeding core catalog...`);
+        await seedCatalog(prisma);
+        await seedDemoUsers(prisma);
+        console.log(`✅ [DB AUTO-SEED] Startup initialization completed successfully.\n`);
+      } else {
+        console.warn(`\n⚠️ [DB HEALTH WARNING] Production database appears incompletely seeded or missing reference records!`);
+        console.warn(`   Current row counts: Domains=${domainCount}/5, PracticeSets=${practiceSetCount}/8, Courses=${courseCount}/4, Questions=${questionCount}/20`);
+        console.warn(`   ⚠️ [SAFETY GUARD] Auto-seed skipped because ${userCount} user record(s) already exist in database.`);
+        console.warn(`   Action required: Run 'npm run db:seed' against DATABASE_URL if you wish to re-populate reference tables manually.\n`);
+      }
+    } else {
+      console.log(`✅ [DB HEALTH CHECK] Core reference catalog is healthy and fully seeded.\n`);
+    }
+  } catch (err: any) {
+    console.error('❌ [DB HEALTH CHECK] Error connecting to database on startup:', err.message);
+  }
+}
+
+app.listen(PORT, async () => {
   console.log(`🚀 SkillBridge Backend API server running on http://localhost:${PORT}`);
+  await verifyDatabaseHealth();
 });
+

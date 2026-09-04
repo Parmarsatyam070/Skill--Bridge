@@ -1,5 +1,6 @@
 import { prisma } from '../config/prisma.js';
 import { PortfolioWebsiteData, PortfolioTheme } from '../../../shared/types.js';
+import { isLlmConfigured, generateLlmText } from './llmService.js';
 
 const THEME_MAP: Record<string, PortfolioTheme> = {
   'Full-Stack Web': 'teal_dark',
@@ -135,7 +136,7 @@ export async function getOrCreateStudentPortfolio(studentProfileId: string): Pro
 
     const stats = [
       { label: 'Projects Shipped', value: `${projects.length}+`, subtext: 'Production Grade' },
-      { label: 'Verified Certifications', value: `${student.enrollments.length || 3}`, subtext: 'NPTEL & Industry' },
+      { label: 'Verified Certifications', value: `${student.enrollments.length}`, subtext: 'NPTEL & Industry' },
       { label: 'Skill Vector Match', value: '94%', subtext: domain },
     ];
 
@@ -248,6 +249,28 @@ export async function generateAIWizardPortfolio(
     bio = `Specialized in building end-to-end distributed applications, optimized relational database queries, asynchronous event loops, and containerized CI/CD delivery pipelines.`;
   }
 
+  if (isLlmConfigured()) {
+    try {
+      const generatedHeadline = await generateLlmText({
+        systemPrompt: `You are an elite portfolio copywriter. Generate a single punchy headline (maximum 12 words) for a student's portfolio website in the ${tone} tone.`,
+        prompt: `Name: ${student.user.name}, Target Role: ${targetRole}, Top Skills: ${topSkills.join(', ')}`,
+      });
+      if (generatedHeadline && generatedHeadline.trim()) {
+        headline = generatedHeadline.trim().replace(/^"|"$/g, '');
+      }
+
+      const generatedBio = await generateLlmText({
+        systemPrompt: `You are an elite tech portfolio writer. Write a 2-3 sentence About Me bio in ${tone} tone.`,
+        prompt: `Name: ${student.user.name}, Institution: ${student.institution || 'Engineering College'}, Role: ${targetRole}, Skills: ${topSkills.join(', ')}`,
+      });
+      if (generatedBio && generatedBio.trim()) {
+        bio = generatedBio.trim().replace(/^"|"$/g, '');
+      }
+    } catch {
+      // Gracefully fall back to deterministic templates
+    }
+  }
+
   // Generate 3 focus areas based on targetRole
   const services = [
     {
@@ -307,7 +330,7 @@ export async function generateAIWizardPortfolio(
 
   const stats = [
     { label: 'Projects Shipped', value: `${projects.length}+`, subtext: 'Verified Work' },
-    { label: 'Accredited Certs', value: `${student.enrollments.length || 3}`, subtext: 'Course Verifications' },
+    { label: 'Accredited Certs', value: `${student.enrollments.length}`, subtext: 'Course Verifications' },
     { label: 'Domain Skill Match', value: '92%', subtext: targetRole },
   ];
 

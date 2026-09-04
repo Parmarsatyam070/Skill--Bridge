@@ -90,13 +90,14 @@ router.get('/daily-status', authenticate, async (req: AuthRequest, res: Response
  * Runs code in the sandbox environment against provided test cases for immediate feedback
  */
 router.post('/run-code', authenticate, async (req: AuthRequest, res: Response) => {
-  const { code, language, testCases } = req.body;
+  const { code, language, entryFunctionName, testCases } = req.body;
 
   try {
     const { executeCodeSandbox } = await import('../services/codeRunnerService.js');
     const result = await executeCodeSandbox({
       code: code || '',
       language: language || 'javascript',
+      entryFunctionName,
       testCases: testCases || [],
     });
     return res.json(result);

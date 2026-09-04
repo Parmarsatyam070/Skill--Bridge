@@ -3,14 +3,18 @@ import { useNavigate } from 'react-router-dom';
 import { UserSession, Role } from '@shared/types';
 import { api } from '../lib/api';
 
-interface OAuthVerifyResult {
-  requiresRoleSelection?: boolean;
-  email?: string;
-  name?: string;
-  provider?: string;
-  avatarUrl?: string | null;
+export interface OAuthCallbackResult {
+  isNewUser: boolean;
+  onboardingToken?: string;
+  profile?: {
+    email: string;
+    name: string;
+    avatarUrl?: string | null;
+    provider: string;
+  };
   user?: UserSession;
   accessToken?: string;
+  message?: string;
 }
 
 interface AuthContextType {
@@ -19,14 +23,9 @@ interface AuthContextType {
   isLoading: boolean;
   login: (identifier: string, password: string) => Promise<UserSession>;
   register: (data: any) => Promise<UserSession>;
-  oauthLogin: (payload: {
-    provider: 'google' | 'github' | 'microsoft';
-    email: string;
-    name?: string;
-    avatarUrl?: string;
-    role?: Role;
-    roleData?: any;
-  }) => Promise<OAuthVerifyResult>;
+  initiateOAuth: (provider: 'google' | 'github' | 'microsoft') => Promise<void>;
+  handleOAuthCallback: (provider: string, code: string) => Promise<OAuthCallbackResult>;
+  completeOAuthRegistration: (onboardingToken: string, role: Role, roleData: any) => Promise<UserSession>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
   getRoleRedirect: (role: Role) => string;
@@ -91,21 +90,50 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     return res.user;
   };
 
-  const oauthLogin = async (payload: {
-    provider: 'google' | 'github' | 'microsoft';
-    email: string;
-    name?: string;
-    avatarUrl?: string;
-    role?: Role;
-    roleData?: any;
-  }): Promise<OAuthVerifyResult> => {
-    const res = await api.post<OAuthVerifyResult>('/auth/oauth/verify', payload);
+  const initiateOAuth = async (provider: 'google' | 'github' | 'microsoft'): Promise<void> => {
+    const redirectUri = `${window.location.origin}/auth/callback`;
+    const res = await api.get<{ authUrl: string; configured: boolean }>(
+      `/auth/oauth/${provider}/url?redirectUri=${encodeURIComponent(redirectUri)}`
+    );
+    if (res.authUrl) {
+      window.location.href = res.authUrl;
+    }
+  };
+
+  const handleOAuthCallback = async (provider: string, code: string): Promise<OAuthCallbackResult> => {
+    const redirectUri = `${window.location.origin}/auth/callback`;
+    const res = await api.post<OAuthCallbackResult>(`/auth/oauth/${provider}/callback`, {
+      code,
+      redirectUri,
+    });
+
+    if (!res.isNewUser && res.accessToken && res.user) {
+      localStorage.setItem('skillbridge_token', res.accessToken);
+      setToken(res.accessToken);
+      setUser(res.user);
+    }
+
+    return res;
+  };
+
+  const completeOAuthRegistration = async (
+    onboardingToken: string,
+    role: Role,
+    roleData: any
+  ): Promise<UserSession> => {
+    const res = await api.post<{ accessToken: string; user: UserSession }>('/auth/oauth/register', {
+      onboardingToken,
+      role,
+      roleData,
+    });
+
     if (res.accessToken && res.user) {
       localStorage.setItem('skillbridge_token', res.accessToken);
       setToken(res.accessToken);
       setUser(res.user);
     }
-    return res;
+
+    return res.user;
   };
 
   const logout = async () => {
@@ -130,7 +158,9 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isLoading,
         login,
         register,
-        oauthLogin,
+        initiateOAuth,
+        handleOAuthCallback,
+        completeOAuthRegistration,
         logout,
         refreshUser,
         getRoleRedirect,

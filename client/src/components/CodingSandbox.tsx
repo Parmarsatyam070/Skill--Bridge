@@ -47,6 +47,7 @@ export const CodingSandbox: React.FC<CodingSandboxProps> = ({
       const result = await api.post<CodeExecutionResult>('/assessments/run-code', {
         code: currentCode,
         language: 'javascript',
+        entryFunctionName: question.entryFunctionName,
         testCases,
       });
       setExecutionResult(result);

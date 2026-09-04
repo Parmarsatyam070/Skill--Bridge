@@ -54,4 +54,45 @@ describe('Auth & Security Service Suite', () => {
     const invalidResult = RegisterStudentSchema.safeParse(invalidEmail);
     expect(invalidResult.success).toBe(false);
   });
+
+  it('should generate valid OAuth 2.0 authorization URLs for Google, GitHub, and Microsoft', async () => {
+    const { getAuthorizationUrl } = await import('../server/src/services/oauthService.js');
+    const redirectUri = 'http://localhost:5173/auth/callback';
+
+    const googleUrl = getAuthorizationUrl('google', redirectUri, 'state-123');
+    expect(googleUrl.authUrl).toContain('accounts.google.com/o/oauth2/v2/auth');
+    expect(googleUrl.authUrl).toContain('redirect_uri=' + encodeURIComponent(redirectUri));
+    expect(googleUrl.authUrl).toContain('openid');
+
+    const githubUrl = getAuthorizationUrl('github', redirectUri, 'state-456');
+    expect(githubUrl.authUrl).toContain('github.com/login/oauth/authorize');
+    expect(githubUrl.authUrl).toContain('redirect_uri=' + encodeURIComponent(redirectUri));
+
+    const microsoftUrl = getAuthorizationUrl('microsoft', redirectUri, 'state-789');
+    expect(microsoftUrl.authUrl).toContain('login.microsoftonline.com/common/oauth2/v2.0/authorize');
+  });
+
+  it('should securely sign and verify OAuth onboarding tokens with role preservation', async () => {
+    const { createOAuthOnboardingToken, verifyOAuthOnboardingToken } = await import('../server/src/services/oauthService.js');
+
+    const verifiedUser = {
+      provider: 'google' as const,
+      providerId: 'google-sub-987654',
+      email: 'verified.student@gmail.com',
+      name: 'Priya Patel',
+      avatarUrl: 'https://lh3.googleusercontent.com/avatar',
+    };
+
+    const onboardingToken = createOAuthOnboardingToken(verifiedUser);
+    expect(typeof onboardingToken).toBe('string');
+
+    const decoded = verifyOAuthOnboardingToken(onboardingToken);
+    expect(decoded.email).toBe('verified.student@gmail.com');
+    expect(decoded.name).toBe('Priya Patel');
+    expect(decoded.provider).toBe('google');
+    expect(decoded.type).toBe('oauth_onboarding');
+
+    // Reject tampered token
+    expect(() => verifyOAuthOnboardingToken(onboardingToken + 'tampered')).toThrow();
+  });
 });

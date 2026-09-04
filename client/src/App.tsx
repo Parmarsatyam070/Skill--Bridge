@@ -3,7 +3,6 @@ import { Routes, Route, Navigate } from 'react-router-dom';
 import { AuthProvider } from './context/AuthContext';
 import { RoleGate } from './components/RoleGate';
 import { ConsoleLayout } from './components/ConsoleLayout';
-import { CareerProfileLayout } from './components/layout/CareerProfileLayout';
 
 // Public Campus Pages
 import { LandingPage } from './pages/LandingPage';
@@ -11,11 +10,12 @@ import { LoginPage } from './pages/LoginPage';
 import { RegisterPage } from './pages/RegisterPage';
 import { ForgotPasswordPage } from './pages/ForgotPasswordPage';
 import { ResetPasswordPage } from './pages/ResetPasswordPage';
+import { OAuthCallbackPage } from './pages/OAuthCallbackPage';
 import { PublicPortfolioPage } from './pages/PublicPortfolioPage';
 import { PublicPortfolioSite } from './pages/portfolio/PublicPortfolioSite';
 import { PortfolioBuilderPage } from './pages/portfolio/PortfolioBuilderPage';
 
-// User Profile Dashboard & Resume Builder (Modern Light Gray Theme)
+// User Profile Dashboard & Resume Builder
 import { CareerProfileDashboard } from './pages/profile/CareerProfileDashboard';
 import { CareerResumeBuilder } from './pages/resumes/CareerResumeBuilder';
 
@@ -51,34 +51,41 @@ export const App: React.FC = () => {
         <Route path="/register" element={<RegisterPage />} />
         <Route path="/forgot-password" element={<ForgotPasswordPage />} />
         <Route path="/reset-password" element={<ResetPasswordPage />} />
+        <Route path="/auth/callback" element={<OAuthCallbackPage />} />
         <Route path="/p/:username" element={<PublicPortfolioSite />} />
         <Route path="/portfolio/:studentId" element={<PublicPortfolioSite />} />
 
-        {/* User Profile Dashboard (Light Modern Theme with Left Sidebar & Top Search Nav) */}
+        {/* User Profile Dashboard in Unified Console Layout */}
         <Route
           path="/profile"
           element={
-            <CareerProfileLayout>
-              <CareerProfileDashboard />
-            </CareerProfileLayout>
+            <RoleGate allowedRoles={['STUDENT', 'INDUSTRY', 'ACADEMICIAN', 'INSTITUTION_ADMIN']}>
+              <ConsoleLayout>
+                <CareerProfileDashboard />
+              </ConsoleLayout>
+            </RoleGate>
           }
         />
 
-        {/* Resume Builder Interface (Light Modern Theme with Template Rail & Resumes List) */}
+        {/* Resume Builder Interface in Unified Console Layout */}
         <Route
           path="/resume-builder"
           element={
-            <CareerProfileLayout>
-              <CareerResumeBuilder />
-            </CareerProfileLayout>
+            <RoleGate allowedRoles={['STUDENT']}>
+              <ConsoleLayout>
+                <CareerResumeBuilder />
+              </ConsoleLayout>
+            </RoleGate>
           }
         />
         <Route
           path="/resumes"
           element={
-            <CareerProfileLayout>
-              <CareerResumeBuilder />
-            </CareerProfileLayout>
+            <RoleGate allowedRoles={['STUDENT']}>
+              <ConsoleLayout>
+                <CareerResumeBuilder />
+              </ConsoleLayout>
+            </RoleGate>
           }
         />
 

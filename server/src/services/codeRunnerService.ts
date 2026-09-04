@@ -1,9 +1,18 @@
 import vm from 'node:vm';
 import { CodeExecutionResult, TestCaseData } from '../../../shared/types.js';
 
+/**
+ * SECURITY NOTICE: Node's built-in `vm` module is designed for isolated context execution
+ * within the Node process, but is NOT a full multi-tenant security barrier against prototype-
+ * pollution or constructor-based sandbox escapes.
+ * For production environments accepting arbitrary untrusted student code at scale, this runner
+ * should be backed by containerized or microVM execution layers (e.g. Judge0, Piston, or Docker workers).
+ */
+
 interface RunCodeOptions {
   code: string;
   language?: 'javascript' | 'python' | 'typescript';
+  entryFunctionName?: string;
   testCases: TestCaseData[];
   timeoutMs?: number;
 }
@@ -41,7 +50,7 @@ function cleanExpected(expectedStr: string): string {
  * Executes a student code submission against a set of test cases safely in a VM sandbox.
  */
 export async function executeCodeSandbox(options: RunCodeOptions): Promise<CodeExecutionResult> {
-  const { code, language = 'javascript', testCases, timeoutMs = 2500 } = options;
+  const { code, language = 'javascript', entryFunctionName, testCases, timeoutMs = 2500 } = options;
 
   if (!code || code.trim().length === 0) {
     return {
@@ -98,35 +107,43 @@ export async function executeCodeSandbox(options: RunCodeOptions): Promise<CodeE
         isFinite,
       });
 
-      // Construct execution wrapper that invokes the defined function or entry point
-      // If student defined a function (e.g. function twoSum(nums, target) ... or const solution = ...),
-      // we inspect the sandbox for exported/defined functions and execute with tc.input
+      // Construct execution wrapper that invokes the explicit entry function if provided,
+      // or dynamically detects defined functions in scope without hardcoded whitelists.
+      const targetFnEscaped = entryFunctionName ? JSON.stringify(entryFunctionName) : 'null';
+
       const wrapperScript = `
         ${code}
 
-        // Auto-detect entry function
         let __entryFn = null;
-        if (typeof solution === 'function') __entryFn = solution;
-        else if (typeof twoSum === 'function') __entryFn = twoSum;
-        else if (typeof lengthOfLongestSubstring === 'function') __entryFn = lengthOfLongestSubstring;
-        else if (typeof isPalindrome === 'function') __entryFn = isPalindrome;
-        else if (typeof maxDepth === 'function') __entryFn = maxDepth;
-        else if (typeof coinChange === 'function') __entryFn = coinChange;
-        else if (typeof reverseList === 'function') __entryFn = reverseList;
-        else if (typeof hasCycle === 'function') __entryFn = hasCycle;
-        else if (typeof isValid === 'function') __entryFn = isValid;
-        else if (typeof fib === 'function') __entryFn = fib;
-        else {
-          // Find any user-defined function in scope
-          const keys = Object.keys(this).filter(k => typeof this[k] === 'function' && !['Array', 'Object', 'String', 'Number', 'Date', 'RegExp', 'Map', 'Set', 'Math'].includes(k));
-          if (keys.length > 0) {
-            __entryFn = this[keys[keys.length - 1]];
+        const __targetName = ${targetFnEscaped};
+
+        if (__targetName && typeof this[__targetName] === 'function') {
+          __entryFn = this[__targetName];
+        } else if (__targetName) {
+          try {
+            const evalFn = eval(__targetName);
+            if (typeof evalFn === 'function') __entryFn = evalFn;
+          } catch {}
+        }
+
+        if (!__entryFn) {
+          if (typeof solution === 'function') {
+            __entryFn = solution;
+          } else {
+            // Find any user-defined function in global scope excluding standard globals
+            const standardGlobals = new Set(['Array', 'Object', 'String', 'Number', 'Date', 'RegExp', 'Map', 'Set', 'Math', 'parseInt', 'parseFloat', 'isNaN', 'isFinite']);
+            const keys = Object.keys(this).filter(k => typeof this[k] === 'function' && !standardGlobals.has(k));
+            if (keys.length > 0) {
+              __entryFn = this[keys[keys.length - 1]];
+            }
           }
         }
 
         let __result = undefined;
         if (__entryFn) {
           __result = __entryFn(${tc.input});
+        } else {
+          throw new Error(__targetName ? 'Entry function "' + __targetName + '" is not defined in submitted code.' : 'No executable function found in submitted code.');
         }
         __result;
       `;

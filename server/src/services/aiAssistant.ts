@@ -1,6 +1,7 @@
 import { prisma } from '../config/prisma.js';
 import { calculateStudentMatches } from './matchingEngine.js';
 import { SkillCovered } from '../../../shared/types.js';
+import { isLlmConfigured, callLlmChat, ToolDefinition } from './llmService.js';
 
 interface Message {
   role: 'user' | 'assistant' | 'system';
@@ -21,6 +22,78 @@ export interface AssistantResponse {
   toolCalls?: ToolCallResult[];
   suggestedPrompts?: string[];
 }
+
+const BRIDGE_BOT_TOOLS: ToolDefinition[] = [
+  {
+    name: 'get_skill_gaps',
+    description: 'Compares the student verified skill scores against industry benchmarks for their target domain and identifies top gaps.',
+    parameters: {
+      type: 'object',
+      properties: {
+        domain: { type: 'string', description: 'Domain name (e.g. Full-Stack Web, AI/Data Science, Cloud/DevOps)' },
+      },
+    },
+  },
+  {
+    name: 'recommend_learning_resources',
+    description: 'Recommends curated learning materials, tutorials, and YouTube courses for a specific skill topic or tag.',
+    parameters: {
+      type: 'object',
+      properties: {
+        skillTag: { type: 'string', description: 'Skill topic or tag like React, TypeScript, DSA, Node.js, Python' },
+      },
+      required: ['skillTag'],
+    },
+  },
+  {
+    name: 'recommend_courses',
+    description: 'Finds accredited partner courses (NPTEL, SWAYAM, HCL) mapped to the student domain or target skill.',
+    parameters: {
+      type: 'object',
+      properties: {
+        domain: { type: 'string', description: 'Domain name to filter courses' },
+        skillName: { type: 'string', description: 'Specific skill name to filter courses' },
+      },
+    },
+  },
+  {
+    name: 'explain_match_score',
+    description: 'Explains the mathematical skill match breakdown and strength/gap analysis for an internship posting.',
+    parameters: {
+      type: 'object',
+      properties: {
+        internshipId: { type: 'string', description: 'Specific internship ID or title keyword' },
+        domain: { type: 'string', description: 'Domain context' },
+      },
+    },
+  },
+  {
+    name: 'draft_application_note',
+    description: 'Generates a customized application cover note highlighting verified credentials and projects.',
+    parameters: {
+      type: 'object',
+      properties: {
+        internshipTitle: { type: 'string', description: 'Title of the internship' },
+        companyName: { type: 'string', description: 'Name of the hiring company' },
+        keySkills: { type: 'string', description: 'Key skills to highlight' },
+      },
+    },
+  },
+  {
+    name: 'navigate_to',
+    description: 'Navigates the user to a relevant page in the SkillBridge application.',
+    parameters: {
+      type: 'object',
+      properties: {
+        page: {
+          type: 'string',
+          description: 'Destination route (e.g. /assessment, /courses, /internships, /resume-builder, /learn, /dashboard)',
+        },
+      },
+      required: ['page'],
+    },
+  },
+];
 
 /**
  * Executes a specific Bridge Bot tool directly against authoritative database records,
@@ -261,6 +334,58 @@ export async function processChat(
   const lowerPrompt = prompt.toLowerCase();
   const toolCalls: ToolCallResult[] = [];
   const currentDomain = activeDomain || 'Full-Stack Web';
+
+  // 0. Live LLM Integration (Gemini / OpenAI) with tool execution
+  if (isLlmConfigured()) {
+    try {
+      const systemPrompt = `You are Bridge Bot, an intelligent, authoritative AI career navigator on SkillBridge.
+Student Information:
+- Name: ${user.name}
+- Role: ${user.role}
+- Active Domain Context: ${currentDomain}
+
+Your mission is to guide students on skill gap analyses, course recommendations (NPTEL, SWAYAM, HCL), internship match explanations, resume building, and application drafting.
+When asked for specific skill gaps, courses, internship matches, cover notes, or navigation, call the appropriate tool. Format your responses with clear markdown, bullet points, and actionable next steps.`;
+
+      const messages: { role: 'user' | 'assistant' | 'system'; content: string }[] = [
+        ...history.slice(-6).map(h => ({ role: h.role, content: h.content })),
+        { role: 'user', content: prompt },
+      ];
+
+      const llmResult = await callLlmChat({
+        systemPrompt,
+        messages,
+        tools: BRIDGE_BOT_TOOLS,
+      });
+
+      if (llmResult.provider !== 'none' && (llmResult.text || (llmResult.toolCalls && llmResult.toolCalls.length > 0))) {
+        const executedToolCalls: ToolCallResult[] = [];
+        if (llmResult.toolCalls) {
+          for (const tc of llmResult.toolCalls) {
+            const res = await executeTool(tc.name, tc.args, user.studentProfileId, currentDomain);
+            executedToolCalls.push(res);
+          }
+        }
+
+        let finalMessage = llmResult.text || '';
+        if (!finalMessage && executedToolCalls.length > 0) {
+          finalMessage = `I've retrieved the latest verified records for **${currentDomain}** and executed your request.`;
+        }
+
+        return {
+          message: finalMessage,
+          toolCalls: executedToolCalls.length > 0 ? executedToolCalls : undefined,
+          suggestedPrompts: [
+            `What are my biggest ${currentDomain} skill gaps?`,
+            `Recommend courses for ${currentDomain}`,
+            'Open AI Resume Builder',
+          ],
+        };
+      }
+    } catch (err: any) {
+      console.warn('⚠️ [BRIDGE BOT LLM EXECUTION ERROR]:', err.message, '— falling back to offline intent engine.');
+    }
+  }
 
   // 1. Skill Gaps intent
   if (lowerPrompt.includes('gap') || lowerPrompt.includes('weak') || lowerPrompt.includes('improve') || lowerPrompt.includes('skills')) {

@@ -25,16 +25,18 @@ export const CoursesPage: React.FC = () => {
   const [completedNotice, setCompletedNotice] = useState<string | null>(null);
 
   // 1. Fetch Courses with enrollment states
-  const { data: coursesData, isLoading } = useQuery({
+  const { data: coursesData, isLoading, isError, error, refetch } = useQuery({
     queryKey: ['courses', studentProfileId],
-    queryFn: () => api.get<{ courses: any[] }>(`/courses?studentId=${studentProfileId}`),
-    enabled: !!studentProfileId,
+    queryFn: () => api.get<{ courses: any[] }>(studentProfileId ? `/courses?studentId=${studentProfileId}` : '/courses'),
+    retry: 2,
+    staleTime: 60 * 1000,
   });
 
   // 2. Fetch Course Providers
   const { data: providersData } = useQuery({
     queryKey: ['courseProviders'],
     queryFn: () => api.get<{ providers: any[] }>('/courses/providers'),
+    staleTime: 5 * 60 * 1000,
   });
 
   // Enroll Mutation (Records enrollment and opens partner link)
@@ -74,7 +76,7 @@ export const CoursesPage: React.FC = () => {
     const matchesSearch =
       c.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
       c.description.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      c.provider.name.toLowerCase().includes(searchQuery.toLowerCase());
+      (c.provider?.name || '').toLowerCase().includes(searchQuery.toLowerCase());
     return matchesProvider && matchesSearch;
   });
 
@@ -137,8 +139,47 @@ export const CoursesPage: React.FC = () => {
 
       {/* Courses Grid */}
       {isLoading ? (
-        <div className="h-64 flex items-center justify-center">
+        <div className="h-64 flex flex-col items-center justify-center gap-3">
           <div className="w-8 h-8 border-2 border-bridge-teal border-t-transparent rounded-full animate-spin" />
+          <p className="text-xs text-console-text-muted font-mono">Loading accredited partner courses...</p>
+        </div>
+      ) : isError ? (
+        <div className="p-8 rounded-2xl bg-console-panel border border-status-red/30 text-center space-y-4">
+          <AlertCircle className="w-10 h-10 text-status-red mx-auto" />
+          <div className="space-y-1">
+            <h3 className="font-serif text-lg font-bold text-console-text">Unable to load courses — try again</h3>
+            <p className="text-xs text-console-text-muted max-w-md mx-auto">
+              {(error as any)?.message || 'The server could not be reached or returned an empty response. Please try again.'}
+            </p>
+          </div>
+          <button
+            onClick={() => refetch()}
+            className="px-4 py-2 rounded-xl bg-bridge-teal hover:bg-bridge-teal/90 text-white font-semibold text-xs transition-colors"
+          >
+            Try Again
+          </button>
+        </div>
+      ) : filteredCourses.length === 0 ? (
+        <div className="p-12 rounded-2xl bg-console-panel border border-console-border text-center space-y-4">
+          <BookOpen className="w-10 h-10 text-console-text-muted mx-auto" />
+          <div className="space-y-1">
+            <h3 className="font-serif text-base font-bold text-console-text">
+              {courses.length === 0 ? 'Unable to load courses — try again' : 'No courses found'}
+            </h3>
+            <p className="text-xs text-console-text-muted max-w-sm mx-auto">
+              {courses.length === 0
+                ? 'No accredited partner courses were found in the catalog. The database may need to be refreshed.'
+                : 'No accredited courses matched your current filter or search criteria.'}
+            </p>
+          </div>
+          {courses.length === 0 && (
+            <button
+              onClick={() => refetch()}
+              className="px-4 py-2 rounded-xl bg-bridge-teal hover:bg-bridge-teal/90 text-white font-semibold text-xs transition-colors"
+            >
+              Try Again
+            </button>
+          )}
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

@@ -285,6 +285,36 @@ describe('SkillBridge Advanced Suite: Daily Practice, Dynamic Radar, Code Sandbo
       expect(result.testCaseResults[0].passed).toBe(false);
       expect(result.testCaseResults[0].actualOutput).toContain('Error');
     });
+
+    it('should dynamically execute code using an arbitrary custom entryFunctionName', async () => {
+      const customCode = `
+        function calculateMaxProfit(prices) {
+          let minPrice = Infinity;
+          let maxProfit = 0;
+          for (const p of prices) {
+            minPrice = Math.min(minPrice, p);
+            maxProfit = Math.max(maxProfit, p - minPrice);
+          }
+          return maxProfit;
+        }
+      `;
+
+      const testCases = [
+        { id: 'tc1', input: '[7, 1, 5, 3, 6, 4]', expectedOutput: '5' },
+        { id: 'tc2', input: '[7, 6, 4, 3, 1]', expectedOutput: '0' },
+      ];
+
+      const result = await codeRunnerService.executeCodeSandbox({
+        code: customCode,
+        language: 'javascript',
+        entryFunctionName: 'calculateMaxProfit',
+        testCases,
+        timeoutMs: 2500,
+      });
+
+      expect(result.passed).toBe(true);
+      expect(result.passedTestCases).toBe(2);
+    });
   });
 
   // ─────────────────────────────────────────────────────────────

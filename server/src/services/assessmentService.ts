@@ -200,6 +200,7 @@ export async function expandPracticeSetPool(practiceSetId: string): Promise<void
     prompt: string;
     options: { id: string; text: string; isCorrect: boolean }[];
     weight: number;
+    entryFunctionName?: string;
     expectedAnswerRubric?: string;
     explanation?: string;
     starterCode?: string;
@@ -233,6 +234,7 @@ export async function expandPracticeSetPool(practiceSetId: string): Promise<void
         prompt: 'Given an array of integers `nums` and an integer `target`, return the indices of the two numbers such that they add up to `target`. Assume exactly one solution exists.',
         options: [],
         weight: 3.0,
+        entryFunctionName: 'twoSum',
         starterCode: `function twoSum(nums, target) {\n  const map = new Map();\n  for (let i = 0; i < nums.length; i++) {\n    const complement = target - nums[i];\n    if (map.has(complement)) {\n      return [map.get(complement), i];\n    }\n    map.set(nums[i], i);\n  }\n  return [];\n}`,
         testCasesJson: JSON.stringify([
           { id: 'tc-1', input: '[2, 7, 11, 15], 9', expectedOutput: '[0, 1]', isHidden: false, explanation: 'nums[0] + nums[1] = 2 + 7 = 9' },
@@ -397,6 +399,7 @@ export async function startPracticeSetAttempt(
       listeningPassage,
       passageText: q.passageText || undefined,
       starterCode: q.starterCode || undefined,
+      entryFunctionName: (q as any).entryFunctionName || undefined,
       testCases: testCases.map(tc => ({
         id: tc.id,
         input: tc.input,
@@ -696,6 +699,7 @@ export async function submitPracticeSetAttempt(
       const codeExecResult: CodeExecutionResult = await executeCodeSandbox({
         code: codeSubmission,
         language: 'javascript',
+        entryFunctionName: (q as any).entryFunctionName || undefined,
         testCases,
       });
 

@@ -17,6 +17,13 @@ import {
 import { authenticate, AuthRequest } from '../middleware/auth.js';
 import { recordDailyActivity } from '../services/streakService.js';
 import { sendPasswordResetEmail, sendSmsOtp } from '../services/notificationService.js';
+import {
+  getAuthorizationUrl,
+  exchangeCodeForVerifiedUser,
+  createOAuthOnboardingToken,
+  verifyOAuthOnboardingToken,
+  OAuthProvider,
+} from '../services/oauthService.js';
 
 const router = Router();
 
@@ -321,86 +328,169 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
 });
 
 /**
- * POST /api/auth/oauth/verify
- * OAuth handler for Google, GitHub, and Microsoft
- * Links user by verified email; creates new account if non-existent
+ * GET /api/auth/oauth/:provider/url
+ * Returns authorization URL for Google, GitHub, or Microsoft 365
  */
-router.post('/oauth/verify', async (req: Request, res: Response) => {
-  const { provider, email, name, avatarUrl, role, roleData } = req.body;
+router.get('/oauth/:provider/url', (req: Request, res: Response) => {
+  const { provider } = req.params;
+  const redirectUri = (req.query.redirectUri as string) || `${process.env.CLIENT_URL || 'http://localhost:5173'}/auth/callback`;
+  const state = (req.query.state as string) || '';
 
-  if (!provider || !['google', 'github', 'microsoft'].includes(provider)) {
-    return res.status(400).json({ error: { message: 'Valid OAuth provider (google, github, or microsoft) is required.' } });
+  if (!['google', 'github', 'microsoft'].includes(provider)) {
+    return res.status(400).json({ error: { message: 'Supported providers: google, github, microsoft' } });
   }
 
-  if (!email || typeof email !== 'string') {
-    return res.status(400).json({ error: { message: 'A verified email from the provider is required.' } });
+  try {
+    const result = getAuthorizationUrl(provider as OAuthProvider, redirectUri, state);
+    return res.json(result);
+  } catch (err: any) {
+    return res.status(500).json({ error: { message: err.message } });
+  }
+});
+
+/**
+ * POST /api/auth/oauth/:provider/callback
+ * Real OAuth 2.0 authorization code exchange & cryptographic identity verification
+ */
+router.post('/oauth/:provider/callback', async (req: Request, res: Response) => {
+  const { provider } = req.params;
+  const { code, redirectUri } = req.body;
+
+  if (!['google', 'github', 'microsoft'].includes(provider)) {
+    return res.status(400).json({ error: { message: 'Supported providers: google, github, microsoft' } });
   }
 
-  const cleanEmail = email.toLowerCase().trim();
+  if (!code || typeof code !== 'string') {
+    return res.status(400).json({ error: { message: 'Authorization code is required.' } });
+  }
 
-  // 1. Check if user already exists with this verified email
-  let user = await prisma.user.findUnique({
-    where: { email: cleanEmail },
-  });
+  const effectiveRedirectUri = redirectUri || `${process.env.CLIENT_URL || 'http://localhost:5173'}/auth/callback`;
 
-  if (user) {
-    // Record external integration token/metadata
-    await prisma.externalIntegration.upsert({
-      where: {
-        userId_platform: {
+  try {
+    const verifiedOAuthUser = await exchangeCodeForVerifiedUser(
+      provider as OAuthProvider,
+      code,
+      effectiveRedirectUri
+    );
+
+    const cleanEmail = verifiedOAuthUser.email.toLowerCase().trim();
+
+    // 1. Check if user exists with this verified email
+    let user = await prisma.user.findUnique({
+      where: { email: cleanEmail },
+    });
+
+    if (user) {
+      // Connect/update integration record
+      await prisma.externalIntegration.upsert({
+        where: {
+          userId_platform: {
+            userId: user.id,
+            platform: provider.toUpperCase(),
+          },
+        },
+        update: {
+          profileDataJson: JSON.stringify({
+            provider,
+            providerId: verifiedOAuthUser.providerId,
+            verifiedEmail: cleanEmail,
+            lastAuthAt: new Date().toISOString(),
+          }),
+          connectedAt: new Date(),
+        },
+        create: {
           userId: user.id,
           platform: provider.toUpperCase(),
+          profileDataJson: JSON.stringify({
+            provider,
+            providerId: verifiedOAuthUser.providerId,
+            verifiedEmail: cleanEmail,
+            lastAuthAt: new Date().toISOString(),
+          }),
         },
-      },
-      update: {
-        profileDataJson: JSON.stringify({ provider, verifiedEmail: cleanEmail, lastAuthAt: new Date().toISOString() }),
-        connectedAt: new Date(),
-      },
-      create: {
-        userId: user.id,
-        platform: provider.toUpperCase(),
-        profileDataJson: JSON.stringify({ provider, verifiedEmail: cleanEmail, lastAuthAt: new Date().toISOString() }),
-      },
-    });
+      });
 
-    // Record daily activity
-    await recordDailyActivity(user.id);
+      await recordDailyActivity(user.id);
 
-    const tokenPayload = { userId: user.id, role: user.role, email: user.email };
-    const accessToken = generateAccessToken(tokenPayload);
-    const refreshToken = generateRefreshToken(tokenPayload);
+      const tokenPayload = { userId: user.id, role: user.role, email: user.email };
+      const accessToken = generateAccessToken(tokenPayload);
+      const refreshToken = generateRefreshToken(tokenPayload);
 
-    res.cookie('refreshToken', refreshToken, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
-    });
+      res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
 
-    const session = await buildUserSession(user.id);
+      const session = await buildUserSession(user.id);
+      return res.json({
+        isNewUser: false,
+        message: `Signed in successfully via ${provider}`,
+        accessToken,
+        user: session,
+      });
+    }
+
+    // 2. User is new -> Generate signed onboarding token so they can select role & onboarding info
+    const onboardingToken = createOAuthOnboardingToken(verifiedOAuthUser);
+
     return res.json({
-      message: `Signed in successfully via ${provider}`,
-      accessToken,
-      user: session,
+      isNewUser: true,
+      onboardingToken,
+      profile: {
+        email: verifiedOAuthUser.email,
+        name: verifiedOAuthUser.name,
+        avatarUrl: verifiedOAuthUser.avatarUrl,
+        provider: verifiedOAuthUser.provider,
+      },
+    });
+  } catch (err: any) {
+    console.error(`[OAUTH ERROR] ${provider} exchange failed:`, err.message);
+    return res.status(400).json({
+      error: {
+        code: 'OAUTH_VERIFICATION_FAILED',
+        message: err.message || 'OAuth identity verification failed.',
+      },
     });
   }
+});
 
-  // 2. User does not exist yet. If role is not specified, prompt for role selection
-  if (!role) {
-    return res.json({
-      requiresRoleSelection: true,
-      email: cleanEmail,
-      name: name || cleanEmail.split('@')[0],
-      avatarUrl: avatarUrl || null,
-      provider,
-    });
+/**
+ * POST /api/auth/oauth/register
+ * Completes new user onboarding with signed OAuth identity token and selected role
+ */
+router.post('/oauth/register', async (req: Request, res: Response) => {
+  const { onboardingToken, role, roleData } = req.body;
+
+  if (!onboardingToken || typeof onboardingToken !== 'string') {
+    return res.status(400).json({ error: { message: 'Valid OAuth onboarding token is required.' } });
   }
 
-  // 3. Create fresh OAuth account with selected role
+  if (!role || !['STUDENT', 'INDUSTRY', 'ACADEMICIAN', 'INSTITUTION_ADMIN'].includes(role)) {
+    return res.status(400).json({ error: { message: 'Valid role is required.' } });
+  }
+
+  let verifiedUser;
+  try {
+    verifiedUser = verifyOAuthOnboardingToken(onboardingToken);
+  } catch (err: any) {
+    return res.status(401).json({ error: { message: err.message } });
+  }
+
+  const cleanEmail = verifiedUser.email.toLowerCase().trim();
+
+  // Ensure user doesn't already exist
+  const existing = await prisma.user.findUnique({ where: { email: cleanEmail } });
+  if (existing) {
+    return res.status(409).json({ error: { message: 'An account with this verified email already exists.' } });
+  }
+
   const randomPassword = crypto.randomBytes(24).toString('hex');
   const passwordHash = await bcrypt.hash(randomPassword, 10);
-  const displayName = (name || cleanEmail.split('@')[0]).trim();
+  const displayName = verifiedUser.name.trim();
 
+  let user;
   if (role === 'STUDENT') {
     user = await prisma.user.create({
       data: {
@@ -408,7 +498,7 @@ router.post('/oauth/verify', async (req: Request, res: Response) => {
         passwordHash,
         name: displayName,
         role: 'STUDENT',
-        avatarUrl: avatarUrl || null,
+        avatarUrl: verifiedUser.avatarUrl || null,
         currentStreak: 1,
         longestStreak: 1,
         studentProfile: {
@@ -429,7 +519,7 @@ router.post('/oauth/verify', async (req: Request, res: Response) => {
         passwordHash,
         name: roleData?.companyName || displayName,
         role: 'INDUSTRY',
-        avatarUrl: avatarUrl || null,
+        avatarUrl: verifiedUser.avatarUrl || null,
         currentStreak: 1,
         longestStreak: 1,
         industryProfile: {
@@ -450,7 +540,7 @@ router.post('/oauth/verify', async (req: Request, res: Response) => {
         passwordHash,
         name: displayName,
         role: 'ACADEMICIAN',
-        avatarUrl: avatarUrl || null,
+        avatarUrl: verifiedUser.avatarUrl || null,
         currentStreak: 1,
         longestStreak: 1,
         academicianProfile: {
@@ -470,7 +560,7 @@ router.post('/oauth/verify', async (req: Request, res: Response) => {
         passwordHash,
         name: roleData?.institutionName || displayName,
         role: 'INSTITUTION_ADMIN',
-        avatarUrl: avatarUrl || null,
+        avatarUrl: verifiedUser.avatarUrl || null,
         currentStreak: 1,
         longestStreak: 1,
         institutionProfile: {
@@ -484,12 +574,17 @@ router.post('/oauth/verify', async (req: Request, res: Response) => {
     });
   }
 
-  // Connect integration
+  // Record integration
   await prisma.externalIntegration.create({
     data: {
       userId: user.id,
-      platform: provider.toUpperCase(),
-      profileDataJson: JSON.stringify({ provider, verifiedEmail: cleanEmail, initialAuthAt: new Date().toISOString() }),
+      platform: verifiedUser.provider.toUpperCase(),
+      profileDataJson: JSON.stringify({
+        provider: verifiedUser.provider,
+        providerId: verifiedUser.providerId,
+        verifiedEmail: cleanEmail,
+        initialAuthAt: new Date().toISOString(),
+      }),
     },
   });
 
@@ -508,7 +603,7 @@ router.post('/oauth/verify', async (req: Request, res: Response) => {
 
   const session = await buildUserSession(user.id);
   return res.status(201).json({
-    message: `Account created and verified with ${provider}`,
+    message: `Account created and verified with ${verifiedUser.provider}`,
     accessToken,
     user: session,
   });
@@ -570,11 +665,14 @@ router.post('/forgot-password', resetRateLimiter, async (req: Request, res: Resp
     const origin = req.headers.origin || 'http://localhost:3000';
     const resetUrl = `${origin}/reset-password?token=${token}`;
 
-    await sendPasswordResetEmail({ to: user.email, resetUrl, token });
+    const notifyRes = await sendPasswordResetEmail({ to: user.email, resetUrl, token });
 
     return res.json({
-      message: 'A secure password reset link valid for 15 minutes has been sent to your email.',
-      mode: 'email',
+      message: notifyRes.mode === 'provider'
+        ? 'A secure password reset link valid for 15 minutes has been sent to your email.'
+        : 'Password reset link generated (dev console fallback mode).',
+      mode: notifyRes.mode,
+      channel: 'email',
       resetUrl,
       token, // Provided in development response for rapid testing
     });
@@ -594,11 +692,14 @@ router.post('/forgot-password', resetRateLimiter, async (req: Request, res: Resp
       },
     });
 
-    await sendSmsOtp({ phone: user.phone!, otpCode });
+    const notifyRes = await sendSmsOtp({ phone: user.phone!, otpCode });
 
     return res.json({
-      message: 'A 6-digit OTP valid for 15 minutes has been dispatched to your mobile number.',
-      mode: 'phone',
+      message: notifyRes.mode === 'provider'
+        ? 'A 6-digit OTP valid for 15 minutes has been dispatched to your mobile number.'
+        : '6-digit OTP generated (dev console fallback mode).',
+      mode: notifyRes.mode,
+      channel: 'phone',
       phone: user.phone,
       otp: otpCode, // Provided in development response for rapid testing
     });

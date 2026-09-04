@@ -8,9 +8,10 @@ export interface ApiError {
 
 export async function apiRequest<T = any>(
   endpoint: string,
-  options: RequestInit = {}
+  options: RequestInit & { timeoutMs?: number } = {}
 ): Promise<T> {
   const token = localStorage.getItem('skillbridge_token');
+  const timeoutMs = options.timeoutMs ?? 25000;
 
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -26,29 +27,47 @@ export async function apiRequest<T = any>(
     delete headers['Content-Type'];
   }
 
-  const response = await fetch(`${BASE_URL}${endpoint}`, {
-    ...options,
-    headers,
-    credentials: 'include',
-  });
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), timeoutMs);
 
-  // Handle blob responses (e.g. PDF downloads)
-  if (headers['Accept'] === 'application/pdf' || endpoint.includes('export-pdf')) {
-    if (!response.ok) throw new Error('Failed to generate PDF');
-    return (await response.blob()) as unknown as T;
+  try {
+    const response = await fetch(`${BASE_URL}${endpoint}`, {
+      ...options,
+      headers,
+      credentials: 'include',
+      signal: options.signal || controller.signal,
+    });
+
+    clearTimeout(timeoutId);
+
+    // Handle blob responses (e.g. PDF downloads)
+    if (headers['Accept'] === 'application/pdf' || endpoint.includes('export-pdf')) {
+      if (!response.ok) throw new Error('Failed to generate PDF');
+      return (await response.blob()) as unknown as T;
+    }
+
+    const data = await response.json().catch(() => ({}));
+
+    if (!response.ok) {
+      const error: ApiError = data.error || {
+        code: `HTTP_${response.status}`,
+        message: data.message || 'An unexpected error occurred.',
+      };
+      throw error;
+    }
+
+    return data as T;
+  } catch (err: any) {
+    clearTimeout(timeoutId);
+    if (err.name === 'AbortError') {
+      const timeoutError: ApiError = {
+        code: 'REQUEST_TIMEOUT',
+        message: 'The server took longer than 25 seconds to respond. On free hosting (e.g. Render), instances may require 30-50 seconds to complete cold boot. Please try again in a few moments.',
+      };
+      throw timeoutError;
+    }
+    throw err;
   }
-
-  const data = await response.json().catch(() => ({}));
-
-  if (!response.ok) {
-    const error: ApiError = data.error || {
-      code: `HTTP_${response.status}`,
-      message: data.message || 'An unexpected error occurred.',
-    };
-    throw error;
-  }
-
-  return data as T;
 }
 
 export const api = {

@@ -111,22 +111,22 @@ export const AvatarUploadModal: React.FC<AvatarUploadModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-xs">
-      <div className="bg-white rounded-2xl border border-line shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-xs">
+      <div className="bg-console-panel rounded-2xl border border-console-border shadow-2xl w-full max-w-md overflow-hidden animate-in fade-in zoom-in-95 duration-200">
         {/* Header */}
-        <div className="px-6 py-4 border-b border-line flex items-center justify-between">
+        <div className="px-6 py-4 border-b border-console-border flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-bridge-teal/10 text-bridge-teal flex items-center justify-center">
               <ImageIcon className="w-4 h-4" />
             </div>
             <div>
-              <h3 className="font-serif font-bold text-base text-ink">Upload Profile Photo</h3>
-              <p className="text-[11px] text-ink-muted">PNG, JPG, or WEBP up to 5MB</p>
+              <h3 className="font-serif font-bold text-base text-console-text">Upload Profile Photo</h3>
+              <p className="text-[11px] text-console-muted">PNG, JPG, or WEBP up to 5MB</p>
             </div>
           </div>
           <button
             onClick={handleClose}
-            className="p-1 rounded-lg text-ink-muted hover:text-ink hover:bg-paper transition-colors"
+            className="p-1 rounded-lg text-console-muted hover:text-console-text hover:bg-console-bg transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
@@ -144,7 +144,7 @@ export const AvatarUploadModal: React.FC<AvatarUploadModalProps> = ({
           {previewUrl ? (
             /* Live Circular Crop Preview with Zoom Control */
             <div className="space-y-4 text-center">
-              <div className="relative w-40 h-40 mx-auto rounded-full overflow-hidden border-4 border-bridge-teal shadow-md bg-paper flex items-center justify-center">
+              <div className="relative w-40 h-40 mx-auto rounded-full overflow-hidden border-4 border-bridge-teal shadow-md bg-console-bg flex items-center justify-center">
                 <img
                   src={previewUrl}
                   alt="Avatar preview"
@@ -154,8 +154,8 @@ export const AvatarUploadModal: React.FC<AvatarUploadModalProps> = ({
               </div>
 
               {/* Zoom & Reset Controls */}
-              <div className="flex items-center justify-center gap-3 px-4 py-2 bg-paper rounded-xl border border-line text-xs">
-                <ZoomOut className="w-3.5 h-3.5 text-ink-muted" />
+              <div className="flex items-center justify-center gap-3 px-4 py-2 bg-console-bg rounded-xl border border-console-border text-xs">
+                <ZoomOut className="w-3.5 h-3.5 text-console-muted" />
                 <input
                   type="range"
                   min="1"
@@ -165,11 +165,11 @@ export const AvatarUploadModal: React.FC<AvatarUploadModalProps> = ({
                   onChange={(e) => setZoom(parseFloat(e.target.value))}
                   className="w-32 accent-bridge-teal cursor-pointer"
                 />
-                <ZoomIn className="w-3.5 h-3.5 text-ink-muted" />
+                <ZoomIn className="w-3.5 h-3.5 text-console-muted" />
                 <button
                   type="button"
                   onClick={() => setZoom(1)}
-                  className="ml-2 p-1 text-ink-muted hover:text-bridge-teal"
+                  className="ml-2 p-1 text-console-muted hover:text-bridge-teal"
                   title="Reset Zoom"
                 >
                   <RefreshCw className="w-3 h-3" />
@@ -194,16 +194,16 @@ export const AvatarUploadModal: React.FC<AvatarUploadModalProps> = ({
               className={`border-2 border-dashed rounded-2xl p-8 text-center cursor-pointer transition-all ${
                 isDragging
                   ? 'border-bridge-teal bg-bridge-teal/10 scale-98'
-                  : 'border-line hover:border-bridge-teal/60 hover:bg-paper'
+                  : 'border-console-border hover:border-bridge-teal/60 hover:bg-console-bg'
               }`}
             >
-              <div className="w-12 h-12 rounded-2xl bg-paper border border-line text-bridge-teal flex items-center justify-center mx-auto mb-3">
+              <div className="w-12 h-12 rounded-2xl bg-console-bg border border-console-border text-bridge-teal flex items-center justify-center mx-auto mb-3">
                 <Upload className="w-5 h-5" />
               </div>
-              <h4 className="font-semibold text-xs text-ink">
+              <h4 className="font-semibold text-xs text-console-text">
                 Drag & drop your photo here, or <span className="text-bridge-teal underline">browse</span>
               </h4>
-              <p className="text-[11px] text-ink-muted mt-1">
+              <p className="text-[11px] text-console-muted mt-1">
                 Square ratio recommended. Minimum 200x200px.
               </p>
             </div>
@@ -219,11 +219,11 @@ export const AvatarUploadModal: React.FC<AvatarUploadModalProps> = ({
         </div>
 
         {/* Footer Actions */}
-        <div className="px-6 py-4 bg-paper border-t border-line flex items-center justify-end gap-2.5">
+        <div className="px-6 py-4 bg-console-bg border-t border-console-border flex items-center justify-end gap-2.5">
           <button
             type="button"
             onClick={handleClose}
-            className="px-4 py-2 rounded-xl text-xs font-semibold text-ink-muted hover:text-ink hover:bg-line/40 transition-colors"
+            className="px-4 py-2 rounded-xl text-xs font-semibold text-console-muted hover:text-console-text hover:bg-console-panel transition-colors"
           >
             Cancel
           </button>

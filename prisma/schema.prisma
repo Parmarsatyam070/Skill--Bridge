@@ -209,6 +209,7 @@ model Question {
   expectedAnswerRubric String?          // For AI rubric scoring of written answers
   explanation         String?           // Explanation shown after grading
   starterCode         String?           // Default code template for coding questions
+  entryFunctionName   String?           // Explicit entry point function name to execute (e.g. solution, twoSum)
   testCasesJson       String?           // JSON array of [{ id, input, expectedOutput, isHidden, explanation }]
   constraints         String?           // Constraints text e.g. 1 <= n <= 10^5
   inputFormat         String?           // Description of input format
