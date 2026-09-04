@@ -42,7 +42,7 @@ export const LoginPage: React.FC = () => {
     }, 3500);
 
     try {
-      const loginPromise = login(identifier, password);
+      const loginPromise = login(identifier.trim(), password);
       const timeoutPromise = new Promise((_, reject) =>
         setTimeout(
           () =>
@@ -61,7 +61,7 @@ export const LoginPage: React.FC = () => {
       navigate(redirectPath);
     } catch (err: any) {
       clearTimeout(coldTimer);
-      setError(err.message || 'Invalid credentials. Please verify your details.');
+      setError(err.message || 'Authentication failed. Please verify your login credentials.');
     } finally {
       clearTimeout(coldTimer);
       setLoading(false);

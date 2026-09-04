@@ -39,11 +39,15 @@ export function getAuthorizationUrl(
   redirectUri: string,
   state: string = ''
 ): { authUrl: string; configured: boolean } {
-  const isConfigured = isOauthConfigured(provider);
+  if (!isOauthConfigured(provider)) {
+    throw new Error(
+      `OAuth provider '${provider}' is not configured on the server. Please set ${provider.toUpperCase()}_CLIENT_ID and ${provider.toUpperCase()}_CLIENT_SECRET in the Render Environment Variables.`
+    );
+  }
 
   switch (provider) {
     case 'google': {
-      const clientId = process.env.GOOGLE_CLIENT_ID || 'GOOGLE_CLIENT_ID_PLACEHOLDER';
+      const clientId = process.env.GOOGLE_CLIENT_ID!;
       const params = new URLSearchParams({
         client_id: clientId,
         redirect_uri: redirectUri,
@@ -55,12 +59,12 @@ export function getAuthorizationUrl(
       });
       return {
         authUrl: `https://accounts.google.com/o/oauth2/v2/auth?${params.toString()}`,
-        configured: isConfigured,
+        configured: true,
       };
     }
 
     case 'github': {
-      const clientId = process.env.GITHUB_CLIENT_ID || 'GITHUB_CLIENT_ID_PLACEHOLDER';
+      const clientId = process.env.GITHUB_CLIENT_ID!;
       const params = new URLSearchParams({
         client_id: clientId,
         redirect_uri: redirectUri,
@@ -69,12 +73,12 @@ export function getAuthorizationUrl(
       });
       return {
         authUrl: `https://github.com/login/oauth/authorize?${params.toString()}`,
-        configured: isConfigured,
+        configured: true,
       };
     }
 
     case 'microsoft': {
-      const clientId = process.env.MICROSOFT_CLIENT_ID || 'MICROSOFT_CLIENT_ID_PLACEHOLDER';
+      const clientId = process.env.MICROSOFT_CLIENT_ID!;
       const tenantId = process.env.MICROSOFT_TENANT_ID || 'common';
       const params = new URLSearchParams({
         client_id: clientId,
@@ -86,7 +90,7 @@ export function getAuthorizationUrl(
       });
       return {
         authUrl: `https://login.microsoftonline.com/${tenantId}/oauth2/v2.0/authorize?${params.toString()}`,
-        configured: isConfigured,
+        configured: true,
       };
     }
 

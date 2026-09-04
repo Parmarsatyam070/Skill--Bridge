@@ -63,6 +63,8 @@ model StudentProfile {
   resumes        Resume[]
   portfolioWebsite PortfolioWebsite?
   assessmentAttempts AssessmentAttempt[]
+  dsaAttempts    DSAAttempt[]
+  dailyPractices DailyPractice[]
 }
 
 model Domain {
@@ -428,15 +430,87 @@ model LearningResource {
   skillId      String?  // Associated Skill ID if specific e.g. skill-react
   topicTag     String   // Topic tag e.g. "DSA", "Dynamic Programming", "React", "TypeScript", "System Design"
   domain       String?  // Relevant domain e.g. "Full-Stack Web", "AI/Data Science", "Cloud/DevOps", "UI/UX Product Design"
-  type         String   // website | app | youtube_channel | youtube_playlist | course
+  category     String   @default("recommended") // recommended | videos | courses | documentation | articles | practice | projects | books | interview_prep
+  type         String   // website | app | youtube_channel | youtube_playlist | course | book | doc | github_repo
   title        String
   url          String
   provider     String   // e.g. "NeetCode", "freeCodeCamp", "takeUforward", "MDN Web Docs", "StatQuest", "TechWorld with Nana"
   description  String
   isFree       Boolean  @default(true)
   rating       Float?   @default(4.9)
+  difficulty   String?  // Beginner | Intermediate | Advanced | All Levels
+  authorityScore Float  @default(90.0) // 0 - 100 quality/authority ranking
+  tagsJson     String?  // JSON array of subtopics / keywords
   thumbnailUrl String?
   displayOrder Int      @default(0)
   createdAt    DateTime @default(now())
+
+  @@index([topicTag])
+  @@index([category])
 }
+
+model DSAQuestion {
+  id                String       @id @default(uuid())
+  title             String
+  slug              String       @unique
+  platform          String       // LEETCODE | GEEKSFORGEEKS | CSES | CODEFORCES
+  difficulty        String       // Easy | Medium | Hard
+  topic             String       // e.g. "Arrays", "Dynamic Programming", "Graphs", etc.
+  tagsJson          String       // JSON array of strings: ["two-pointers", "hash-table"]
+  canonicalUrl      String       // Authentic URL
+  estimatedMinutes  Int          @default(20)
+  description       String?      // Problem summary / prompt
+  starterCodeJson   String?      // JSON object or string with default templates per language
+  testCasesJson     String?      // JSON array of [{ id, input, expectedOutput, isHidden }]
+  entryFunctionName String?      // e.g. "twoSum", "maxSubArray"
+  companyTagsJson   String?      // JSON array: ["Google", "Amazon", "Microsoft"]
+  createdAt         DateTime     @default(now())
+
+  attempts          DSAAttempt[]
+
+  @@index([platform])
+  @@index([difficulty])
+  @@index([topic])
+}
+
+model DSAAttempt {
+  id               String         @id @default(uuid())
+  studentId        String
+  student          StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  questionId       String
+  question         DSAQuestion    @relation(fields: [questionId], references: [id], onDelete: Cascade)
+  status           String         @default("VIEWED") // VIEWED | ATTEMPTED | SOLVED | FAILED
+  timeSpentSeconds Int            @default(0)
+  codeSubmitted    String?
+  language         String?        @default("javascript")
+  attemptCount     Int            @default(1)
+  isDailyPractice  Boolean        @default(false)
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  @@unique([studentId, questionId])
+  @@index([studentId, status])
+  @@index([questionId])
+}
+
+model DailyPractice {
+  id                       String         @id @default(uuid())
+  studentId                String
+  student                  StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  date                     String         // Format: YYYY-MM-DD
+  questionCount            Int            @default(15)
+  questionIdsJson          String         // JSON array of DSAQuestion IDs in the daily set (15-30 items)
+  completedQuestionIdsJson  String         @default("[]") // JSON array of solved/completed question IDs
+  score                    Float          @default(0.0) // Completion score / points
+  status                   String         @default("PENDING") // PENDING | IN_PROGRESS | COMPLETED
+  timeSpentSeconds         Int            @default(0)
+  startedAt                DateTime?
+  completedAt              DateTime?
+  createdAt                DateTime       @default(now())
+  updatedAt                DateTime       @updatedAt
+
+  @@unique([studentId, date])
+  @@index([studentId, date])
+}
+
 

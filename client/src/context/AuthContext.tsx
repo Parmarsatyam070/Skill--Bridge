@@ -92,11 +92,15 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const initiateOAuth = async (provider: 'google' | 'github' | 'microsoft'): Promise<void> => {
     const redirectUri = `${window.location.origin}/auth/callback`;
-    const res = await api.get<{ authUrl: string; configured: boolean }>(
+    const res = await api.get<{ authUrl?: string; configured?: boolean }>(
       `/auth/oauth/${provider}/url?redirectUri=${encodeURIComponent(redirectUri)}`
     );
-    if (res.authUrl) {
+    if (res && res.authUrl && res.configured !== false) {
       window.location.href = res.authUrl;
+    } else {
+      throw new Error(
+        `${provider.toUpperCase()}_CLIENT_ID & ${provider.toUpperCase()}_CLIENT_SECRET are not configured in Render Environment Variables.`
+      );
     }
   };
 

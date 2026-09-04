@@ -220,3 +220,46 @@ export const SubmitPracticeSetSchema = z.object({
   answers: z.record(z.string(), z.string()), // questionId -> answer string (optionId for mcq, text for written)
 });
 
+export const GenerateDSAPracticeSchema = z.object({
+  questionCount: z.union([z.literal(15), z.literal(20), z.literal(25), z.literal(30)]).default(15),
+  difficulty: z.enum(['All', 'Easy', 'Medium', 'Hard']).optional().default('All'),
+  platform: z.enum(['All', 'LEETCODE', 'GEEKSFORGEEKS', 'CSES', 'CODEFORCES']).optional().default('All'),
+  topic: z.string().optional(),
+  includeWeakTopics: z.boolean().optional().default(false),
+  filterUnseenOnly: z.boolean().optional().default(false),
+});
+
+export const RecordDSAAttemptSchema = z.object({
+  questionId: z.string().min(1, 'Question ID is required'),
+  status: z.enum(['VIEWED', 'ATTEMPTED', 'SOLVED', 'FAILED']),
+  timeSpentSeconds: z.number().min(0).optional().default(0),
+  codeSubmitted: z.string().optional(),
+  language: z.string().optional().default('javascript'),
+  isDailyPractice: z.boolean().optional().default(false),
+});
+
+export const SubmitDailyDSAQuestionSchema = z.object({
+  questionId: z.string().min(1, 'Question ID is required'),
+  status: z.enum(['SOLVED', 'FAILED', 'ATTEMPTED']),
+  timeSpentSeconds: z.number().min(0).optional().default(0),
+  codeSubmitted: z.string().optional(),
+  language: z.string().optional().default('javascript'),
+});
+
+export const SearchLearningHubSchema = z.object({
+  q: z.string().optional().default(''),
+  category: z.enum([
+    'all',
+    'recommended',
+    'videos',
+    'courses',
+    'documentation',
+    'articles',
+    'practice',
+    'projects',
+    'books',
+    'interview_prep',
+  ]).optional().default('all'),
+});
+
+

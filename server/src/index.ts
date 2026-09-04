@@ -20,9 +20,13 @@ import portfoliosRoutes from './routes/portfolios.js';
 import assessmentsRoutes from './routes/assessments.js';
 import resourcesRoutes from './routes/resources.js';
 import notificationsRoutes from './routes/notifications.js';
+import dsaRoutes from './routes/dsa.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
+
+// Trust reverse proxy (e.g. Render, Cloudflare) for accurate client IP and rate limiting
+app.set('trust proxy', 1);
 
 // Serve static frontend assets from client/dist and fallback dist
 const clientDistPath = path.resolve(process.cwd(), 'client/dist');
@@ -80,6 +84,7 @@ app.use('/api/portfolios', portfoliosRoutes);
 app.use('/api/assessments', assessmentsRoutes);
 app.use('/api/resources', resourcesRoutes);
 app.use('/api/notifications', notificationsRoutes);
+app.use('/api/dsa', dsaRoutes);
 
 // Health check endpoint
 app.get('/api/health', (_req, res) => {

@@ -22,6 +22,7 @@ import {
   exchangeCodeForVerifiedUser,
   createOAuthOnboardingToken,
   verifyOAuthOnboardingToken,
+  isOauthConfigured,
   OAuthProvider,
 } from '../services/oauthService.js';
 
@@ -266,65 +267,89 @@ router.post('/register', async (req: Request, res: Response) => {
  * Real login with email or phone + password
  */
 router.post('/login', loginLimiter, async (req: Request, res: Response) => {
-  const parseResult = LoginSchema.safeParse(req.body);
-  if (!parseResult.success) {
-    return res.status(400).json({
-      error: { code: 'VALIDATION_ERROR', message: parseResult.error.errors[0]?.message || 'Invalid credentials' },
+  try {
+    const parseResult = LoginSchema.safeParse(req.body);
+    if (!parseResult.success) {
+      return res.status(400).json({
+        error: { code: 'VALIDATION_ERROR', message: parseResult.error.errors[0]?.message || 'Invalid credentials' },
+      });
+    }
+
+    const { email, phone, identifier, password } = parseResult.data;
+    const rawKey = (identifier || email || phone || '').trim();
+
+    if (!rawKey || !password) {
+      return res.status(400).json({
+        error: { code: 'VALIDATION_ERROR', message: 'Please enter your email or phone number and password.' },
+      });
+    }
+
+    const loginEmail = rawKey.toLowerCase();
+    const digitsOnly = rawKey.replace(/\D/g, '');
+    const last10Digits = digitsOnly.length >= 10 ? digitsOnly.slice(-10) : digitsOnly;
+
+    // Resilient phone matching across raw, stripped digits, international prefix variants
+    const phoneConditions: any[] = [{ phone: rawKey }];
+    if (digitsOnly && digitsOnly !== rawKey) {
+      phoneConditions.push({ phone: digitsOnly });
+      phoneConditions.push({ phone: `+${digitsOnly}` });
+    }
+    if (last10Digits.length === 10) {
+      phoneConditions.push({ phone: last10Digits });
+      phoneConditions.push({ phone: `+91${last10Digits}` });
+      phoneConditions.push({ phone: `+91 ${last10Digits.slice(0, 5)} ${last10Digits.slice(5)}` });
+      phoneConditions.push({ phone: `+91 ${last10Digits}` });
+    }
+
+    // Look up user by email OR any formatted phone variation
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { email: loginEmail },
+          ...phoneConditions,
+        ],
+      },
+    });
+
+    if (!user) {
+      return res.status(401).json({
+        error: { code: 'INVALID_CREDENTIALS', message: 'Invalid credentials. Please check your login details.' },
+      });
+    }
+
+    const isValid = await bcrypt.compare(password, user.passwordHash);
+    if (!isValid) {
+      return res.status(401).json({
+        error: { code: 'INVALID_CREDENTIALS', message: 'Invalid credentials. Please check your password.' },
+      });
+    }
+
+    // Record daily activity streak
+    await recordDailyActivity(user.id);
+
+    const tokenPayload = { userId: user.id, role: user.role, email: user.email };
+    const accessToken = generateAccessToken(tokenPayload);
+    const refreshToken = generateRefreshToken(tokenPayload);
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    const session = await buildUserSession(user.id);
+    return res.json({
+      message: 'Login successful',
+      accessToken,
+      user: session,
+    });
+  } catch (err: any) {
+    console.error('Login error:', err);
+    return res.status(500).json({
+      error: { code: 'INTERNAL_SERVER_ERROR', message: 'An unexpected server error occurred during login.' },
     });
   }
-
-  const { email, phone, identifier, password } = parseResult.data;
-  const loginKey = (identifier || email || phone || '').trim().toLowerCase();
-
-  if (!loginKey || !password) {
-    return res.status(400).json({
-      error: { code: 'VALIDATION_ERROR', message: 'Please enter your email or phone number and password.' },
-    });
-  }
-
-  // Look up user by email OR phone
-  const user = await prisma.user.findFirst({
-    where: {
-      OR: [
-        { email: loginKey },
-        { phone: loginKey },
-      ],
-    },
-  });
-
-  if (!user) {
-    return res.status(401).json({
-      error: { code: 'INVALID_CREDENTIALS', message: 'Invalid credentials. Please check your login details.' },
-    });
-  }
-
-  const isValid = await bcrypt.compare(password, user.passwordHash);
-  if (!isValid) {
-    return res.status(401).json({
-      error: { code: 'INVALID_CREDENTIALS', message: 'Invalid credentials. Please check your password.' },
-    });
-  }
-
-  // Record daily activity streak
-  await recordDailyActivity(user.id);
-
-  const tokenPayload = { userId: user.id, role: user.role, email: user.email };
-  const accessToken = generateAccessToken(tokenPayload);
-  const refreshToken = generateRefreshToken(tokenPayload);
-
-  res.cookie('refreshToken', refreshToken, {
-    httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
-    sameSite: 'lax',
-    maxAge: 7 * 24 * 60 * 60 * 1000,
-  });
-
-  const session = await buildUserSession(user.id);
-  return res.json({
-    message: 'Login successful',
-    accessToken,
-    user: session,
-  });
 });
 
 /**
@@ -337,14 +362,33 @@ router.get('/oauth/:provider/url', (req: Request, res: Response) => {
   const state = (req.query.state as string) || '';
 
   if (!['google', 'github', 'microsoft'].includes(provider)) {
-    return res.status(400).json({ error: { message: 'Supported providers: google, github, microsoft' } });
+    return res.status(400).json({
+      error: {
+        code: 'UNSUPPORTED_PROVIDER',
+        message: 'Supported OAuth providers: google, github, microsoft',
+      },
+    });
+  }
+
+  if (!isOauthConfigured(provider as OAuthProvider)) {
+    return res.status(400).json({
+      error: {
+        code: 'OAUTH_NOT_CONFIGURED',
+        message: `${provider.charAt(0).toUpperCase() + provider.slice(1)} OAuth is not configured on the server. Please set ${provider.toUpperCase()}_CLIENT_ID and ${provider.toUpperCase()}_CLIENT_SECRET in the Render Environment Variables.`,
+      },
+    });
   }
 
   try {
     const result = getAuthorizationUrl(provider as OAuthProvider, redirectUri, state);
     return res.json(result);
   } catch (err: any) {
-    return res.status(500).json({ error: { message: err.message } });
+    return res.status(400).json({
+      error: {
+        code: 'OAUTH_CONFIG_ERROR',
+        message: err.message,
+      },
+    });
   }
 });
 
@@ -808,8 +852,16 @@ router.post('/refresh', async (req: Request, res: Response) => {
  * POST /api/auth/logout
  */
 router.post('/logout', (req: Request, res: Response) => {
-  res.clearCookie('refreshToken');
-  res.clearCookie('accessToken');
+  res.clearCookie('refreshToken', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+  });
+  res.clearCookie('accessToken', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'lax',
+  });
   return res.json({ message: 'Logged out successfully.' });
 });
 

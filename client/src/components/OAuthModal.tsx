@@ -79,9 +79,9 @@ export const OAuthModal: React.FC<OAuthModalProps> = ({ isOpen, provider, onClos
           <div className="flex items-start gap-2 p-3 rounded-xl bg-status-red/10 border border-status-red/20 text-status-red text-xs">
             <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
             <div className="space-y-1">
-              <span className="font-semibold block">OAuth Provider Not Available</span>
+              <span className="font-semibold block">OAuth Provider Configuration Required</span>
               <span className="text-[11px] opacity-90 block">{error}</span>
-              <span className="text-[10px] font-mono opacity-75 block">Config required: {details.envVars}</span>
+              <span className="text-[10px] font-mono opacity-75 block">Add to Render Environment: {details.envVars}</span>
             </div>
           </div>
         )}

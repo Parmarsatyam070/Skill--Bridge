@@ -1,6 +1,8 @@
 import { PrismaClient } from '@prisma/client';
 import bcrypt from 'bcryptjs';
 import { seedDefaultLearningResources } from './learningResourceService.js';
+import { seedDSAQuestionsIfEmpty } from './questionSelectionService.js';
+import { seedSmartLearningResources } from './learningRecommendationService.js';
 
 /**
  * Seeds core reference catalog tables (Domains, Skills, Courses, PracticeSets, Questions, Learning Resources).
@@ -1381,8 +1383,10 @@ export async function seedCatalog(prisma: PrismaClient) {
     await prisma.academicOpportunity.create({ data: op });
   }
 
-  // 9. Seed Curated Learning Resources Catalog
+  // 9. Seed Curated Learning Resources Catalog & DSA Questions
   await seedDefaultLearningResources();
+  await seedSmartLearningResources();
+  await seedDSAQuestionsIfEmpty();
 
   console.log('✅ Catalog tables seeded successfully.');
 }

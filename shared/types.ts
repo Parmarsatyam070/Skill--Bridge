@@ -747,5 +747,123 @@ export interface HistoricalAttemptDetail {
   }[];
 }
 
+export type DSAPlatform =
+  | 'LEETCODE'
+  | 'GEEKSFORGEEKS'
+  | 'CSES'
+  | 'CODEFORCES'
+  | 'LeetCode'
+  | 'GeeksforGeeks'
+  | 'Codeforces';
+export type DSADifficulty = 'Easy' | 'Medium' | 'Hard';
+export type DSAAttemptStatus = 'UNSEEN' | 'VIEWED' | 'ATTEMPTED' | 'SOLVED' | 'FAILED';
 
+export interface DSAQuestionData {
+  id: string;
+  title: string;
+  slug: string;
+  platform: DSAPlatform;
+  difficulty: DSADifficulty;
+  topic: string;
+  tags: string[];
+  canonicalUrl: string;
+  estimatedMinutes: number;
+  description?: string;
+  starterCode?: Record<string, string> | string;
+  testCases?: TestCaseData[];
+  entryFunctionName?: string;
+  companyTags?: string[];
+  userAttemptStatus?: DSAAttemptStatus;
+  userLastCode?: string;
+}
 
+export interface DSAAttemptData {
+  id: string;
+  questionId: string;
+  status: DSAAttemptStatus;
+  timeSpentSeconds: number;
+  codeSubmitted?: string;
+  language?: string;
+  attemptCount: number;
+  isDailyPractice: boolean;
+  updatedAt: string;
+}
+
+export interface DailyPracticeData {
+  id: string;
+  date: string;
+  questionCount: number;
+  questions: DSAQuestionData[];
+  completedQuestionIds: string[];
+  score: number;
+  status: 'PENDING' | 'IN_PROGRESS' | 'COMPLETED';
+  timeSpentSeconds: number;
+  currentStreak: number;
+  longestStreak: number;
+  startedAt?: string;
+  completedAt?: string;
+}
+
+export interface DSAProgressSummary {
+  totalSolved: number;
+  totalAttempted: number;
+  easySolved: number;
+  easyTotal: number;
+  mediumSolved: number;
+  mediumTotal: number;
+  hardSolved: number;
+  hardTotal: number;
+  platformBreakdown: { platform: DSAPlatform; solved: number; total: number }[];
+  topicBreakdown: { topic: string; solved: number; total: number; accuracy: number }[];
+  currentStreak: number;
+  longestStreak: number;
+  weakTopics: string[];
+  strongTopics: string[];
+  recentActivity: { date: string; solvedCount: number; attemptCount: number }[];
+}
+
+export interface DSACustomSetRequest {
+  questionCount: 15 | 20 | 25 | 30;
+  difficulty?: 'All' | 'Easy' | 'Medium' | 'Hard';
+  platform?: 'All' | DSAPlatform;
+  topic?: string;
+  includeWeakTopics?: boolean;
+  filterUnseenOnly?: boolean;
+}
+
+export type LearningCategory =
+  | 'recommended'
+  | 'videos'
+  | 'courses'
+  | 'documentation'
+  | 'articles'
+  | 'practice'
+  | 'projects'
+  | 'books'
+  | 'interview_prep';
+
+export interface SmartLearningResource {
+  id: string;
+  topicTag: string;
+  domain?: string;
+  category: LearningCategory;
+  type: string;
+  title: string;
+  url: string;
+  provider: string;
+  description: string;
+  isFree: boolean;
+  rating: number;
+  difficulty?: string;
+  authorityScore: number;
+  tags: string[];
+  thumbnailUrl?: string;
+  relevanceScore?: number;
+}
+
+export interface LearningHubSearchResponse {
+  query: string;
+  totalResults: number;
+  personalizedWeakTopics?: string[];
+  categories: Record<LearningCategory, SmartLearningResource[]>;
+}

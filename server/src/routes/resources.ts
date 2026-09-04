@@ -1,9 +1,48 @@
 import { Router, Response } from 'express';
 import { prisma } from '../config/prisma.js';
 import { getLearningResources, getRecommendedResourcesForSkill } from '../services/learningResourceService.js';
+import { searchLearningHub, getPersonalizedRecommendations } from '../services/learningRecommendationService.js';
 import { authenticate, AuthRequest } from '../middleware/auth.js';
 
 const router = Router();
+
+/**
+ * GET /api/resources/search
+ * Comprehensive omni-topic search returning 9 categorized sections (Recommended, Videos, Courses, Documentation, Articles, Practice, Projects, Books, Interview Prep).
+ */
+router.get('/search', async (req, res: Response) => {
+  try {
+    const q = (req.query.q as string) || '';
+    const category = (req.query.category as string) || 'all';
+
+    const results = await searchLearningHub(q, category);
+    return res.json({ success: true, data: results });
+  } catch (error: any) {
+    console.error('Error in GET /api/resources/search:', error);
+    return res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: error.message } });
+  }
+});
+
+/**
+ * GET /api/resources/personalized
+ * Returns personalized recommendations based on student's weak areas in DSA and skill assessments.
+ */
+router.get('/personalized', authenticate, async (req: AuthRequest, res: Response) => {
+  try {
+    const studentId = req.user?.studentProfileId;
+    if (!studentId) {
+      // Fallback for general personalized results
+      const general = await searchLearningHub('DSA');
+      return res.json({ success: true, data: general });
+    }
+
+    const personalized = await getPersonalizedRecommendations(studentId);
+    return res.json({ success: true, data: personalized });
+  } catch (error: any) {
+    console.error('Error in GET /api/resources/personalized:', error);
+    return res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: error.message } });
+  }
+});
 
 /**
  * GET /api/resources
@@ -113,3 +152,4 @@ router.get('/gaps/:studentId', authenticate, async (req: AuthRequest, res: Respo
 });
 
 export default router;
+
