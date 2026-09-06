@@ -20,23 +20,23 @@ export const MatchBadge: React.FC<MatchBadgeProps> = ({
 
   const tierStyles = {
     high: {
-      bg: 'bg-status-green/15',
-      text: 'text-status-green',
-      border: 'border-status-green/30',
+      bg: 'bg-emerald-950/60',
+      text: 'text-emerald-400',
+      border: 'border-emerald-500/30',
       label: 'High Match',
       Icon: CheckCircle,
     },
     medium: {
-      bg: 'bg-status-amber/15',
-      text: 'text-status-amber',
-      border: 'border-status-amber/30',
+      bg: 'bg-amber-950/60',
+      text: 'text-amber-400',
+      border: 'border-amber-500/30',
       label: 'Good Fit',
       Icon: AlertTriangle,
     },
     low: {
-      bg: 'bg-console-panel-raised',
-      text: 'text-console-text-muted',
-      border: 'border-console-border',
+      bg: 'bg-slate-900',
+      text: 'text-slate-400',
+      border: 'border-slate-800',
       label: 'Skill Gap',
       Icon: HelpCircle,
     },
@@ -45,7 +45,7 @@ export const MatchBadge: React.FC<MatchBadgeProps> = ({
   const sizeStyles = {
     sm: 'text-[11px] px-2 py-0.5 gap-1',
     md: 'text-xs px-2.5 py-1 gap-1.5',
-    lg: 'text-sm px-3 py-1.5 gap-2 font-semibold',
+    lg: 'text-sm px-3.5 py-1.5 gap-2 font-semibold',
   }[size];
 
   const IconComponent = tierStyles.Icon;
@@ -63,3 +63,5 @@ export const MatchBadge: React.FC<MatchBadgeProps> = ({
     </div>
   );
 };
+
+export default MatchBadge;

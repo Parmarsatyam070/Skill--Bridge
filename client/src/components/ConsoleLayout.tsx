@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import React, { useState, useEffect, Suspense } from 'react';
+import { Link, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
   Radar,
@@ -16,60 +16,85 @@ import {
   ChevronLeft,
   ChevronRight,
   Search,
-  Bell,
   Sparkles,
   ExternalLink,
-  Shield,
-  Zap,
   Flame,
   Code2,
+  Menu,
+  X,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { BridgeBotWidget } from './BridgeBotWidget';
 import { NotificationDropdown } from './NotificationDropdown';
+import { ConsoleSkeleton } from './ConsoleSkeleton';
+import { ConsoleBackButton } from './ConsoleBackButton';
 import { Role } from '@shared/types';
+
+/* ─── Design System v2 Tokens (local) ─────────────────────────────────── */
+const C = {
+  canvas:    '#08090C', // void
+  s1:        '#111318', // panel
+  s2:        '#1A1D24', // panel-raised
+  s3:        '#1f242d',
+  hairline:  '#2A2E38', // border
+  hStrong:   '#3d4352',
+  primary:   '#2F8C82', // bridge-teal
+  pHover:    '#3aa398',
+  cyan:      '#2F8C82',
+  emerald:   '#4CC38A', // signal-green
+  success:   '#4CC38A',
+  ink:       '#F4F5F7', // text-primary
+  inkMuted:  '#8B90A0', // text-muted
+  inkSubtle: '#8B90A0',
+  amber:     '#E8A23C', // signal-amber
+  red:       '#E5637C', // signal-red
+} as const;
 
 interface NavItem {
   label: string;
-  path: string;
-  icon: React.ComponentType<{ className?: string }>;
+  path:  string;
+  icon:  React.ComponentType<{ className?: string }>;
   badge?: string;
 }
 
 export const ConsoleLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { user, logout } = useAuth();
   const location = useLocation();
-  const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  // Auto-close mobile drawer whenever route changes
+  useEffect(() => {
+    setMobileMenuOpen(false);
+  }, [location.pathname]);
 
   if (!user) return null;
 
-  // Define navigation items based on role
+  /* Navigation items by role */
   let navItems: NavItem[] = [];
-
   if (user.role === 'STUDENT') {
     navItems = [
-      { label: 'Career Profile', path: '/profile', icon: UserCheck, badge: 'Modern' },
-      { label: 'Overview', path: '/dashboard', icon: LayoutDashboard },
-      { label: 'Skill Profile', path: '/skill-profile', icon: Radar },
-      { label: 'Skill Assessment', path: '/assessment', icon: CheckSquare, badge: 'Daily + Sets' },
-      { label: 'DSA & Coding', path: '/dsa', icon: Code2, badge: 'Coding' },
-      { label: 'Learning Hub', path: '/learn', icon: BookOpen, badge: 'Resources' },
-      { label: 'Report Card', path: '/report-card', icon: Award, badge: 'History' },
-      { label: 'Matched Internships', path: '/internships', icon: Briefcase, badge: 'Live %' },
-      { label: 'Partner Courses', path: '/courses', icon: GraduationCap, badge: 'NPTEL' },
-      { label: 'AI Resume Builder', path: '/resume-builder', icon: FileText, badge: 'PDF' },
-      { label: 'Portfolio Website', path: '/portfolio', icon: Sparkles, badge: 'AI Builder' },
+      { label: 'Career Profile',     path: '/profile',       icon: UserCheck,      badge: 'Profile'    },
+      { label: 'Overview',           path: '/dashboard',     icon: LayoutDashboard                      },
+      { label: 'Skill Profile',      path: '/skill-profile', icon: Radar                                },
+      { label: 'Skill Assessment',   path: '/assessment',    icon: CheckSquare,    badge: 'Daily + Sets'},
+      { label: 'DSA & Coding',       path: '/dsa',           icon: Code2,          badge: 'Coding'     },
+      { label: 'Learning Hub',       path: '/learn',         icon: BookOpen,       badge: 'Resources'  },
+      { label: 'Report Card',        path: '/report-card',   icon: Award,          badge: 'History'    },
+      { label: 'Matched Internships',path: '/internships',   icon: Briefcase,      badge: 'Live %'     },
+      { label: 'Partner Courses',    path: '/courses',       icon: GraduationCap,  badge: 'NPTEL'      },
+      { label: 'AI Resume Builder',  path: '/resume-builder',icon: FileText,       badge: 'PDF'        },
+      { label: 'Portfolio Website',  path: '/portfolio',     icon: Sparkles,       badge: 'AI Builder' },
     ];
   } else if (user.role === 'INDUSTRY') {
     navItems = [
-      { label: 'Recruitment Hub', path: '/industry/dashboard', icon: LayoutDashboard },
-      { label: 'Post Internship', path: '/industry/post-job', icon: Briefcase },
+      { label: 'Recruitment Hub',    path: '/industry/dashboard',    icon: LayoutDashboard },
+      { label: 'Post Internship',    path: '/industry/post-job',     icon: Briefcase       },
     ];
   } else if (user.role === 'ACADEMICIAN') {
     navItems = [
-      { label: 'Academia Hub', path: '/academician/dashboard', icon: GraduationCap },
-      { label: 'FDP & Collaborations', path: '/academician/opportunities', icon: BookOpen },
+      { label: 'Academia Hub',       path: '/academician/dashboard',    icon: GraduationCap },
+      { label: 'FDP & Collaborations',path: '/academician/opportunities',icon: BookOpen      },
     ];
   } else {
     navItems = [
@@ -77,94 +102,169 @@ export const ConsoleLayout: React.FC<{ children: React.ReactNode }> = ({ childre
     ];
   }
 
-  const roleLabels: Record<Role, { title: string; color: string; badgeBg: string }> = {
-    STUDENT: { title: 'Student', color: 'text-bridge-teal', badgeBg: 'bg-bridge-teal/15 text-bridge-teal border-bridge-teal/30' },
-    INDUSTRY: { title: 'Industry Recruiter', color: 'text-industry-amber', badgeBg: 'bg-industry-amber/15 text-industry-amber border-industry-amber/30' },
-    ACADEMICIAN: { title: 'Academician', color: 'text-campus-blue', badgeBg: 'bg-campus-blue/20 text-[#8cb4e6] border-campus-blue/40' },
-    INSTITUTION_ADMIN: { title: 'Institution Admin', color: 'text-status-green', badgeBg: 'bg-status-green/15 text-status-green border-status-green/30' },
+  /* Role badge metadata */
+  const roleLabels: Record<Role, { title: string; badgeColor: string }> = {
+    STUDENT:          { title: 'Student',          badgeColor: C.primary  },
+    INDUSTRY:         { title: 'Industry',         badgeColor: C.amber    },
+    ACADEMICIAN:      { title: 'Academician',      badgeColor: '#5B9BD9'  },
+    INSTITUTION_ADMIN:{ title: 'Institution',      badgeColor: C.success  },
   };
-
-  const currentRoleInfo = roleLabels[user.role as Role] || roleLabels.STUDENT;
+  const roleInfo = roleLabels[user.role as Role] || roleLabels.STUDENT;
 
   return (
-    <div className="min-h-screen w-full bg-console-bg text-console-text flex font-sans antialiased selection:bg-bridge-teal selection:text-white">
-      {/* Persistent Left Sidebar */}
-      <aside
-        className={`bg-console-panel border-r border-console-border flex flex-col justify-between transition-all duration-200 z-30 sticky top-0 h-screen ${
-          collapsed ? 'w-[72px]' : 'w-[240px]'
+    <div
+      className="h-screen w-full flex font-sans antialiased overflow-hidden"
+      style={{
+        background: C.canvas,
+        color:      C.ink,
+      }}
+    >
+      {/* ── MOBILE BACKDROP OVERLAY ────────────────────────────────────── */}
+      <div
+        className={`fixed inset-0 bg-black/75 z-40 md:hidden backdrop-blur-xs transition-opacity duration-200 ${
+          mobileMenuOpen ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
         }`}
+        onClick={() => setMobileMenuOpen(false)}
+        aria-hidden="true"
+      />
+
+      {/* ── SIDEBAR (DOCKABLE ON DESKTOP, DRAWER ON MOBILE) ─────────────── */}
+      <aside
+        className={`fixed inset-y-0 left-0 z-50 md:static md:z-30 flex flex-col justify-between transition-transform duration-200 md:transition-all ease-in-out h-screen shrink-0 border-r border-[#23252a] ${
+          mobileMenuOpen ? 'translate-x-0 shadow-2xl' : '-translate-x-full md:translate-x-0'
+        }`}
+        style={{
+          background:   C.s1,
+          borderColor:  C.hairline,
+          width:        collapsed ? '64px' : '232px',
+        }}
       >
-        {/* Top Branding & Pinned Role Lockup */}
-        <div>
-          <div className="p-4 flex items-center justify-between border-b border-console-border">
-            <Link to="/" className="flex items-center gap-2.5 overflow-hidden">
-              <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-campus-blue via-bridge-teal to-industry-amber flex items-center justify-center text-white font-serif font-bold text-base flex-shrink-0 shadow-sm">
-                S
+        {/* Top: branding + user card + nav */}
+        <div className="overflow-y-auto flex-1 touch-scroll">
+          {/* Brand + collapse toggle */}
+          <div
+            className="h-14 px-4 flex items-center justify-between border-b"
+            style={{ borderColor: C.hairline }}
+          >
+            <Link
+              to="/"
+              onClick={() => setMobileMenuOpen(false)}
+              className="flex items-center gap-2 overflow-hidden group"
+            >
+              <div
+                className="w-7 h-7 rounded-lg flex items-center justify-center text-white font-bold text-xs flex-shrink-0 relative overflow-hidden transition-transform group-hover:scale-105"
+                style={{
+                  background: 'linear-gradient(135deg, #2F8C82 0%, #5B7FE0 100%)',
+                }}
+              >
+                <svg className="w-3.5 h-3.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+                  <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" />
+                </svg>
               </div>
               {!collapsed && (
-                <span className="font-serif text-lg font-bold tracking-tight text-console-text">
-                  Skill<span className="text-bridge-teal">Bridge</span>
-                </span>
+                <div className="flex items-center gap-1.5 truncate">
+                  <span
+                    className="font-sans font-semibold text-[15px] tracking-tight truncate"
+                    style={{ color: C.ink }}
+                  >
+                    SkillBridge
+                  </span>
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#4CC38A] shrink-0" title="Active Platform Status" />
+                </div>
               )}
             </Link>
+
+            {/* Desktop collapse button */}
             <button
-              onClick={() => setCollapsed(!collapsed)}
-              className="p-1.5 rounded-lg text-console-text-muted hover:text-console-text hover:bg-console-panel-raised transition-colors"
+              onClick={() => setCollapsed(v => !v)}
+              className="hidden md:flex p-1 rounded-md text-slate-400 hover:text-slate-100 hover:bg-slate-800 transition-colors"
               title={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
             >
-              {collapsed ? <ChevronRight className="w-4 h-4" /> : <ChevronLeft className="w-4 h-4" />}
+              {collapsed
+                ? <ChevronRight className="w-3.5 h-3.5" />
+                : <ChevronLeft  className="w-3.5 h-3.5" />
+              }
+            </button>
+
+            {/* Mobile drawer close button */}
+            <button
+              onClick={() => setMobileMenuOpen(false)}
+              className="md:hidden p-1.5 rounded-md text-slate-400 hover:text-slate-100 hover:bg-slate-800 transition-colors"
+              aria-label="Close navigation"
+            >
+              <X className="w-4 h-4" />
             </button>
           </div>
 
-          {/* User Role Card */}
-          <div className={`p-3.5 border-b border-console-border/60 ${collapsed ? 'text-center' : ''}`}>
+          {/* User role card */}
+          <div
+            className={`px-3 py-3 border-b ${collapsed ? 'flex justify-center' : ''}`}
+            style={{ borderColor: C.hairline }}
+          >
             <div className="flex items-center gap-2.5">
               <img
                 src={user.avatarUrl || `https://api.dicebear.com/7.x/initials/svg?seed=${encodeURIComponent(user.name || 'User')}`}
                 alt={user.name}
-                className="w-8 h-8 rounded-full border border-console-border object-cover flex-shrink-0"
+                className="w-7 h-7 rounded-full object-cover flex-shrink-0 border"
+                style={{ borderColor: C.hairline }}
               />
               {!collapsed && (
                 <div className="overflow-hidden min-w-0 flex-1">
-                  <div className="text-xs font-semibold text-console-text truncate" title={user.name}>{user.name}</div>
-                  <span className={`inline-block text-[10px] font-mono font-medium px-1.5 py-0.2 rounded border ${currentRoleInfo.badgeBg} truncate max-w-full`}>
-                    {currentRoleInfo.title}
+                  <div
+                    className="type-body-sm font-medium truncate"
+                    style={{ color: C.ink }}
+                    title={user.name}
+                  >
+                    {user.name}
+                  </div>
+                  <span
+                    className="inline-block text-[10px] font-mono px-2 py-[1px] rounded-full border mt-0.5"
+                    style={{
+                      background:  C.s2,
+                      color:       roleInfo.badgeColor,
+                      borderColor: `${roleInfo.badgeColor}40`,
+                    }}
+                  >
+                    {roleInfo.title}
                   </span>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Navigation Links */}
-          <nav className="p-2.5 space-y-1">
+          {/* Nav links */}
+          <nav className="p-2 space-y-0.5">
             {navItems.map(item => {
-              const Icon = item.icon;
+              const Icon     = item.icon;
               const isActive = location.pathname === item.path;
 
               return (
                 <Link
                   key={item.path}
                   to={item.path}
-                  className={`flex items-center gap-3 px-3 py-2.5 rounded-xl text-xs font-medium transition-all group ${
-                    isActive
-                      ? 'bg-bridge-teal text-white font-semibold shadow-sm'
-                      : 'text-console-text-muted hover:text-console-text hover:bg-console-panel-raised'
-                  } ${collapsed ? 'justify-center' : 'justify-between'}`}
+                  onClick={() => setMobileMenuOpen(false)}
                   title={collapsed ? item.label : undefined}
+                  className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-all duration-150 ${
+                    collapsed ? 'justify-center' : 'justify-between'
+                  } ${
+                    isActive
+                      ? 'bg-[#1A1D24] text-[#F4F5F7] border border-[#2A2E38]'
+                      : 'text-[#8B90A0] hover:bg-[#1A1D24]/50 hover:text-[#F4F5F7]'
+                  }`}
                 >
-                  <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2.5 min-w-0">
                     <Icon
-                      className={`w-4 h-4 flex-shrink-0 ${
-                        isActive ? 'text-white' : 'text-console-text-muted group-hover:text-bridge-teal transition-colors'
-                      }`}
+                      className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-[#2F8C82]' : 'text-[#8B90A0]'}`}
                     />
-                    {!collapsed && <span>{item.label}</span>}
+                    {!collapsed && <span className="truncate">{item.label}</span>}
                   </div>
 
                   {!collapsed && item.badge && (
                     <span
-                      className={`text-[9.5px] font-mono px-1.5 py-0.5 rounded ${
-                        isActive ? 'bg-white/20 text-white' : 'bg-console-panel-raised text-console-text-muted border border-console-border'
+                      className={`text-[9px] font-mono px-1.5 py-0.5 rounded-full border shrink-0 ${
+                        isActive
+                          ? 'bg-[#111318] text-[#2F8C82] border-[#2A2E38]'
+                          : 'bg-[#111318] text-[#8B90A0] border-[#2A2E38]'
                       }`}
                     >
                       {item.badge}
@@ -176,29 +276,32 @@ export const ConsoleLayout: React.FC<{ children: React.ReactNode }> = ({ childre
           </nav>
         </div>
 
-        {/* Bottom Actions */}
-        <div className="p-3 border-t border-console-border space-y-1">
-          {/* Quick Shareable Portfolio Link for Students */}
+        {/* Bottom actions */}
+        <div
+          className="p-2.5 border-t space-y-1 shrink-0"
+          style={{ borderColor: C.hairline }}
+        >
+          {/* Public portfolio link for students */}
           {user.role === 'STUDENT' && user.studentProfile && !collapsed && (
             <Link
               to={`/portfolio/${user.studentProfile.id}`}
               target="_blank"
-              className="flex items-center justify-between px-3 py-2 rounded-lg bg-console-panel-raised text-console-text-muted hover:text-bridge-teal text-xs transition-colors border border-console-border"
+              className="flex items-center justify-between px-3 py-2 rounded-xl border border-[#2A2E38] text-xs text-[#8B90A0] bg-[#1A1D24] hover:text-[#F4F5F7] hover:border-[#3d4352] transition-colors"
             >
               <div className="flex items-center gap-2">
                 <ExternalLink className="w-3.5 h-3.5" />
                 <span>Public Portfolio</span>
               </div>
-              <span className="text-[10px] font-mono text-status-green">Print-Ready</span>
+              <ChevronRight className="w-3 h-3 text-[#8B90A0]" />
             </Link>
           )}
 
           <button
             onClick={() => logout()}
-            className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-status-red/90 hover:bg-status-red/10 transition-colors ${
+            className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs text-[#E5637C] hover:bg-[#E5637C]/10 transition-colors ${
               collapsed ? 'justify-center' : ''
             }`}
-            title="Log Out"
+            title="Sign Out"
           >
             <LogOut className="w-4 h-4 flex-shrink-0" />
             {!collapsed && <span>Sign Out</span>}
@@ -206,45 +309,86 @@ export const ConsoleLayout: React.FC<{ children: React.ReactNode }> = ({ childre
         </div>
       </aside>
 
-      {/* Main Workspace Area */}
-      <div className="flex-1 flex flex-col min-w-0 min-h-screen bg-console-bg overflow-x-hidden">
-        {/* Top Header Bar */}
-        <header className="h-16 bg-console-panel/80 border-b border-console-border sticky top-0 z-20 backdrop-blur-md px-6 flex items-center justify-between">
-          {/* Global Search */}
-          <div className="flex items-center gap-3 w-72">
-            <div className="relative w-full">
-              <Search className="w-4 h-4 text-console-text-muted absolute left-3 top-1/2 -translate-y-1/2" />
-              <input
-                type="text"
-                placeholder="Search skills, internships, courses..."
-                className="w-full bg-console-bg border border-console-border rounded-xl pl-9 pr-3.5 py-1.5 text-xs text-console-text placeholder:text-console-text-muted focus:outline-none focus:border-bridge-teal"
-              />
+      {/* ── MAIN WORKSPACE ─────────────────────────────────────────────── */}
+      <div
+        className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden"
+        style={{ background: C.canvas }}
+      >
+        {/* Top header bar — Design System v2 height 56px */}
+        <header
+          className="shrink-0 z-20 px-3 sm:px-4 md:px-6 flex items-center justify-between border-b"
+          style={{
+            height:          '56px',
+            background:      'rgba(17, 19, 24, 0.85)',
+            borderColor:     C.hairline,
+            backdropFilter:  'blur(16px)',
+            WebkitBackdropFilter: 'blur(16px)',
+          }}
+        >
+          {/* Left: Mobile hamburger + search */}
+          <div className="flex items-center gap-2 sm:gap-3 flex-1 min-w-0 mr-2">
+            {/* Mobile hamburger menu toggle */}
+            <button
+              type="button"
+              onClick={() => setMobileMenuOpen(true)}
+              className="md:hidden p-1.5 rounded-lg text-slate-400 hover:text-slate-100 hover:bg-slate-800 transition-colors shrink-0"
+              aria-label="Open Navigation Menu"
+            >
+              <Menu className="w-5 h-5" />
+            </button>
+
+            {/* Global search */}
+            <div className="w-full max-w-[170px] sm:max-w-[240px] md:w-72">
+              <div className="relative">
+                <Search
+                  className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
+                />
+                <input
+                  type="text"
+                  placeholder="Search skills, jobs..."
+                  className="cyber-input w-full text-xs pl-8 sm:pl-9 pr-2.5 py-1.5"
+                  style={{ fontSize: '12px' }}
+                />
+              </div>
             </div>
           </div>
 
-          {/* Right Header Actions */}
-          <div className="flex items-center gap-3.5">
-            {/* Daily Activity Streak Badge */}
+          {/* Right actions */}
+          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+            {/* Streak badge */}
             <div
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-industry-amber/10 border border-industry-amber/30 text-industry-amber text-xs font-mono font-bold shadow-2xs transition-all hover:bg-industry-amber/15 cursor-help"
-              title="Daily Activity Streak: Requires at least 1 submitted practice set per day"
+              className="flex items-center gap-1 sm:gap-1.5 px-2 sm:px-2.5 py-1 rounded-full border text-[11px] sm:text-xs font-mono font-semibold"
+              style={{
+                background:  `${C.amber}12`,
+                borderColor: `${C.amber}30`,
+                color:       C.amber,
+              }}
+              title="Daily Activity Streak"
             >
-              <Flame className="w-4 h-4 fill-industry-amber text-industry-amber" />
-              <span>{user.currentStreak || 1}-day streak</span>
+              <Flame className="w-3.5 h-3.5 text-amber-400" />
+              <span>{user.currentStreak || 1}d</span>
             </div>
 
-            {/* Notification Bell Dropdown */}
             <NotificationDropdown />
           </div>
         </header>
 
-        {/* Content Body */}
-        <main className="flex-1 p-6 md:p-8 overflow-y-auto max-w-7xl w-full mx-auto bg-console-bg min-h-full">
-          {children}
+        {/* Content area with structural flex column and responsive padding */}
+        <main
+          id="console-main-content"
+          className="flex-1 flex flex-col min-h-0 p-3.5 sm:p-5 md:p-6 overflow-y-auto max-w-7xl w-full mx-auto touch-scroll"
+          style={{ background: C.canvas }}
+        >
+          <ConsoleBackButton />
+          <Suspense fallback={<ConsoleSkeleton />}>
+            <div key={location.pathname} className="animate-page-fade-in w-full flex-1 flex flex-col min-h-0">
+              {children}
+            </div>
+          </Suspense>
         </main>
       </div>
 
-      {/* Persistent Bridge Bot Floating Assistant */}
+      {/* BridgeBot floating assistant */}
       <BridgeBotWidget />
     </div>
   );

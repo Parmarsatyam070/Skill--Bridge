@@ -23,7 +23,7 @@ interface ChatMessage {
   timestamp: string;
 }
 
-export const BridgeBotWidget: React.FC = () => {
+const BridgeBotWidgetComponent: React.FC = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [isOpen, setIsOpen] = useState(false);
@@ -132,7 +132,7 @@ export const BridgeBotWidget: React.FC = () => {
   };
 
   return (
-    <div className="fixed bottom-5 right-5 z-50 font-sans">
+    <div className="fixed bottom-3 right-3 sm:bottom-5 sm:right-5 z-50 font-sans gpu-accel">
       {!isOpen ? (
         /* Collapsed Floating Trigger Button */
         <button
@@ -318,3 +318,5 @@ export const BridgeBotWidget: React.FC = () => {
     </div>
   );
 };
+
+export const BridgeBotWidget = React.memo(BridgeBotWidgetComponent);

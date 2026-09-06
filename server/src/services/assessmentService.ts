@@ -99,7 +99,7 @@ export async function getAllPracticeSets(
       type: s.type as any,
       title: s.title,
       description: s.description,
-      timeLimitMinutes: s.timeLimitMinutes,
+      timeLimitMinutes: s.timeLimitMinutes <= 15 ? 25 : s.timeLimitMinutes,
       passingScorePct: s.passingScorePct,
       difficulty: s.difficulty as any,
       displayOrder: s.displayOrder,
@@ -162,7 +162,7 @@ export async function getDailyPracticeStatus(studentProfileId: string): Promise<
       domainName: candidateSet.domainName,
       type: candidateSet.type as any,
       difficulty: candidateSet.difficulty as any,
-      timeLimitMinutes: candidateSet.timeLimitMinutes,
+      timeLimitMinutes: candidateSet.timeLimitMinutes <= 15 ? 25 : candidateSet.timeLimitMinutes,
       questionCount: candidateSet.questions.length,
       reason: `Recommended to strengthen your core competencies in ${candidateSet.domainName}`,
     };
@@ -431,6 +431,8 @@ export async function startPracticeSetAttempt(
     attemptId = attempt.id;
   }
 
+  const effectiveTimeLimit = set.timeLimitMinutes <= 15 ? 25 : set.timeLimitMinutes;
+
   const practiceSetData: PracticeSetData = {
     id: set.id,
     domainId: set.domainId || undefined,
@@ -438,7 +440,7 @@ export async function startPracticeSetAttempt(
     type: set.type as any,
     title: set.title,
     description: set.description,
-    timeLimitMinutes: set.timeLimitMinutes,
+    timeLimitMinutes: effectiveTimeLimit,
     passingScorePct: set.passingScorePct,
     difficulty: set.difficulty as any,
     displayOrder: set.displayOrder,
@@ -449,7 +451,7 @@ export async function startPracticeSetAttempt(
   return {
     attemptId,
     practiceSet: practiceSetData,
-    timeLimitMinutes: set.timeLimitMinutes,
+    timeLimitMinutes: effectiveTimeLimit,
     questions: sanitizedQuestions,
     previousBestScore,
   };

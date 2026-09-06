@@ -2,65 +2,392 @@
 @tailwind components;
 @tailwind utilities;
 
+/* ─── Design System v2: Verified Intelligence Direction ─────────────────── */
+:root {
+  color-scheme: dark;
+  --void:             #08090C;
+  --panel:            #111318;
+  --panel-raised:     #1A1D24;
+  --border:           #2A2E38;
+  --text-primary:     #F4F5F7;
+  --text-muted:       #8B90A0;
+  --bridge-teal:      #2F8C82;
+  --bridge-gradient:  linear-gradient(135deg, #2F8C82 0%, #5B7FE0 100%);
+  --signal-amber:     #E8A23C;
+  --signal-green:     #4CC38A;
+  --signal-red:       #E5637C;
+
+  /* Backward compatible mappings */
+  --canvas:           #08090C;
+  --surface-1:        #111318;
+  --surface-2:        #1A1D24;
+  --surface-3:        #1f242d;
+  --surface-glass:    rgba(17, 19, 24, 0.85);
+  --hairline:         #2A2E38;
+  --hairline-strong:  #3d4352;
+  --primary:          #2F8C82;
+  --primary-hover:    #3aa398;
+  --primary-focus:    #236b63;
+  --accent-cyan:      #2F8C82;
+  --accent-emerald:   #4CC38A;
+  --accent-violet:    #5B7FE0;
+  --accent-amber:     #E8A23C;
+  --ink:              #F4F5F7;
+  --ink-muted:        #8B90A0;
+  --ink-subtle:       #8B90A0;
+  --ink-tertiary:     #6b7280;
+  --success:          #4CC38A;
+}
+
 @layer base {
   html,
   body,
+  #__next,
   #root {
     min-height: 100%;
-    background-color: #12141C;
+    /* Design System v2 Void Canvas (#08090C) — prevents any white/slate FOUC frame */
+    background-color: #08090C !important;
+    color: #F4F5F7;
+    color-scheme: dark;
+  }
+
+  /* Smooth client-side page transition */
+  @keyframes pageFadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(4px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-page-fade-in {
+    animation: pageFadeIn 0.18s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    will-change: opacity, transform;
   }
 
   html {
     scroll-behavior: smooth;
-    font-family: 'Inter', sans-serif;
+    font-family: 'Inter', -apple-system, system-ui, 'Segoe UI', Roboto, sans-serif;
+    letter-spacing: -0.005em;
   }
 
-  /* Custom Focus Ring for Console Accessibility */
-  .dark :focus-visible,
-  .console-focus:focus-visible {
+  /* Design System v2 focus ring: 2px void canvas + 4px bridge teal */
+  :focus-visible {
     outline: none;
-    box-shadow: 0 0 0 2px #12141C, 0 0 0 4px #2F8C82;
+    box-shadow: 0 0 0 2px #08090C, 0 0 0 4px rgba(47, 140, 130, 0.7);
   }
 
-  /* Custom Scrollbar for dense Console dashboards */
+  /* Hairline scrollbar */
   ::-webkit-scrollbar {
-    width: 6px;
-    height: 6px;
+    width: 5px;
+    height: 5px;
   }
   ::-webkit-scrollbar-track {
-    background: #12141C;
+    background: #08090C;
   }
   ::-webkit-scrollbar-thumb {
-    background: #2E3241;
-    border-radius: 3px;
+    background: #2A2E38;
+    border-radius: 9999px;
   }
   ::-webkit-scrollbar-thumb:hover {
-    background: #5B6270;
+    background: #3d4352;
   }
 }
 
-/* Print CSS for shareable student portfolio */
-@media print {
-  body {
-    background: #FFFFFF !important;
-    color: #181B22 !important;
+/* ─── Linear Typography Utilities ───────────────────────────────────────── */
+@layer utilities {
+  /* Display scale — aggressive negative tracking per DESIGN.md */
+  .type-display-xl {
+    font-size: 80px;
+    font-weight: 600;
+    line-height: 1.05;
+    letter-spacing: -3px;
   }
-  .no-print {
-    display: none !important;
+  .type-display-lg {
+    font-size: clamp(40px, 5vw, 56px);
+    font-weight: 600;
+    line-height: 1.10;
+    letter-spacing: -1.8px;
   }
-  .print-only {
-    display: block !important;
+  .type-display-md {
+    font-size: clamp(28px, 4vw, 40px);
+    font-weight: 600;
+    line-height: 1.15;
+    letter-spacing: -1px;
   }
-  .print-page {
-    box-shadow: none !important;
-    border: none !important;
-    max-width: 100% !important;
-    margin: 0 !important;
-    padding: 0 !important;
+  .type-headline {
+    font-size: 28px;
+    font-weight: 600;
+    line-height: 1.20;
+    letter-spacing: -0.6px;
+  }
+  .type-card-title {
+    font-size: 22px;
+    font-weight: 500;
+    line-height: 1.25;
+    letter-spacing: -0.4px;
+  }
+  .type-subhead {
+    font-size: 20px;
+    font-weight: 400;
+    line-height: 1.40;
+    letter-spacing: -0.2px;
+  }
+  .type-body-lg {
+    font-size: 18px;
+    font-weight: 400;
+    line-height: 1.50;
+    letter-spacing: -0.1px;
+  }
+  .type-body {
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1.50;
+    letter-spacing: -0.05px;
+  }
+  .type-body-sm {
+    font-size: 14px;
+    font-weight: 400;
+    line-height: 1.50;
+    letter-spacing: 0;
+  }
+  .type-caption {
+    font-size: 12px;
+    font-weight: 400;
+    line-height: 1.40;
+    letter-spacing: 0;
+  }
+  .type-button {
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.20;
+    letter-spacing: 0;
+  }
+  /* Eyebrow: slight POSITIVE tracking for contrast against negative display */
+  .type-eyebrow {
+    font-size: 13px;
+    font-weight: 500;
+    line-height: 1.30;
+    letter-spacing: 0.4px;
+    text-transform: uppercase;
+  }
+  .type-mono {
+    font-family: 'IBM Plex Mono', 'JetBrains Mono', ui-monospace, monospace;
+    font-size: 13px;
+    font-weight: 400;
+    line-height: 1.50;
+    letter-spacing: 0;
+  }
+
+  /* ─── Cyber-Luminescent Component Helpers (from DESIGN.md) ───────── */
+  .cyber-card,
+  .linear-card {
+    background-color: #0b1222;
+    border: 1px solid #1e293b;
+    border-radius: 16px;
+    box-shadow: 0 4px 20px -4px rgba(0, 0, 0, 0.5);
+  }
+
+  .cyber-card-raised,
+  .linear-card-raised {
+    background-color: #0f172a;
+    border: 1px solid #334155;
+    border-radius: 16px;
+    box-shadow: 0 8px 32px -8px rgba(37, 99, 235, 0.15);
+  }
+
+  /* ─── Design System v2: Verified Intelligence Components ───────── */
+  /* Primary CTA: solid bridge-gradient fill, fully rounded (pill), white text, no shadow */
+  .bridge-btn-primary,
+  .cyber-btn-primary,
+  .linear-btn-primary {
+    background: linear-gradient(135deg, #2F8C82 0%, #5B7FE0 100%);
+    color: #ffffff;
+    border-radius: 9999px;
+    padding: 10px 24px;
+    font-size: 14px;
+    font-weight: 500;
+    border: none;
+    box-shadow: none;
+    transition: opacity 150ms ease, transform 150ms ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+  }
+
+  .bridge-btn-primary:hover,
+  .cyber-btn-primary:hover,
+  .linear-btn-primary:hover {
+    opacity: 0.92;
+    transform: translateY(-1px);
+    color: #ffffff;
+  }
+
+  .bridge-btn-primary:active,
+  .cyber-btn-primary:active,
+  .linear-btn-primary:active {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Secondary CTA: 1px border (#2A2E38), transparent fill, text-primary (#F4F5F7) */
+  .bridge-btn-secondary,
+  .cyber-btn-secondary,
+  .linear-btn-secondary {
+    background-color: transparent;
+    color: #F4F5F7;
+    border: 1px solid #2A2E38;
+    border-radius: 9999px;
+    padding: 10px 22px;
+    font-size: 14px;
+    font-weight: 500;
+    transition: all 150ms ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+  }
+
+  .bridge-btn-secondary:hover,
+  .cyber-btn-secondary:hover,
+  .linear-btn-secondary:hover {
+    background-color: #1A1D24;
+    border-color: #3d4352;
+    color: #ffffff;
+    transform: translateY(-1px);
+  }
+
+  /* Match Card Glass Panel (80% panel opacity, blur, thin border) */
+  .match-glass-panel,
+  .glass-card {
+    background-color: rgba(17, 19, 24, 0.82);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border: 1px solid #2A2E38;
+    border-radius: 16px;
+    box-shadow: 0 8px 30px -6px rgba(0, 0, 0, 0.5);
+  }
+
+  .match-glass-panel:hover,
+  .glass-card:hover {
+    border-color: #3d4352;
+  }
+
+  /* Small-Caps Eyebrow Label (Inter 500, 0.08em tracking, uppercase, text-muted) */
+  .small-caps-label {
+    font-family: 'Inter', -apple-system, sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #8B90A0;
+  }
+
+  /* Trust Badges (above the fold systems-status pill) */
+  .trust-badge-pill,
+  .tech-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 6.5px;
+    padding: 4px 12px;
+    border-radius: 9999px;
+    font-family: 'Inter', sans-serif;
+    font-size: 11px;
+    font-weight: 500;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    background-color: #111318;
+    color: #8B90A0;
+    border: 1px solid #2A2E38;
+    transition: border-color 150ms ease;
+  }
+
+  .trust-badge-pill:hover,
+  .tech-pill:hover {
+    border-color: #3d4352;
+    color: #F4F5F7;
+  }
+
+  .tech-pill-active {
+    background-color: rgba(37, 99, 235, 0.15);
+    color: #60a5fa;
+    border: 1px solid rgba(59, 130, 246, 0.4);
+    box-shadow: 0 0 14px rgba(37, 99, 235, 0.25);
+  }
+
+  .linear-status-badge {
+    background-color: #0f172a;
+    color: #cbd5e1;
+    font-size: 12px;
+    border: 1px solid #1e293b;
+    border-radius: 9999px;
+    padding: 2px 10px;
+    font-family: 'IBM Plex Mono', monospace;
+  }
+
+  /* Cyber Input Field */
+  .cyber-input,
+  .linear-input {
+    background-color: #0f172a;
+    color: #f8fafc;
+    border: 1px solid #1e293b;
+    border-radius: 12px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    padding-left: 14px;
+    padding-right: 14px;
+    font-size: 13px;
+    transition: all 0.15s ease;
+  }
+
+  .cyber-input-icon,
+  .cyber-input.has-icon {
+    padding-left: 44px !important;
+  }
+
+  .cyber-input:focus,
+  .linear-input:focus {
+    outline: none;
+    border-color: #06b6d4;
+    box-shadow: 0 0 0 2px #030712, 0 0 0 4px rgba(6, 182, 212, 0.4);
+  }
+
+  /* Sentry-Style Ambient Cobalt Spotlight */
+  .sentry-glow {
+    background: radial-gradient(circle at 80% 40%, rgba(37, 99, 235, 0.22) 0%, rgba(6, 182, 212, 0.08) 35%, transparent 70%);
+  }
+
+  /* Creation of Adam / Hacker ASCII subtle matrix texture */
+  .ascii-matrix {
+    background-image: radial-gradient(rgba(255, 255, 255, 0.06) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+
+  /* GPU Hardware Acceleration & Smooth Compositing */
+  .gpu-accel {
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    will-change: transform, opacity;
+  }
+
+  /* Content-visibility optimization for long scrollable lists */
+  .content-auto {
+    content-visibility: auto;
+    contain-intrinsic-size: 0 100px;
+  }
+
+  /* Smooth momentum touch scrolling for mobile devices */
+  .touch-scroll {
+    -webkit-overflow-scrolling: touch;
+    overscroll-behavior: contain;
   }
 }
 
-/* Bridge Line Animated SVG */
+/* ─── Bridge Line SVG Animation (unchanged) ─────────────────────────────── */
 .bridge-line-path {
   stroke-dasharray: 8 6;
   animation: bridgeFlow 25s linear infinite;
@@ -73,16 +400,27 @@
 }
 
 @keyframes bridgeFlow {
-  from {
-    stroke-dashoffset: 500;
-  }
-  to {
-    stroke-dashoffset: 0;
-  }
+  from { stroke-dashoffset: 500; }
+  to   { stroke-dashoffset: 0; }
 }
 
 @keyframes bridgeDrawSolid {
-  to {
-    stroke-dashoffset: 0;
+  to { stroke-dashoffset: 0; }
+}
+
+/* ─── Print CSS (unchanged) ─────────────────────────────────────────────── */
+@media print {
+  body {
+    background: #FFFFFF !important;
+    color: #181B22 !important;
+  }
+  .no-print        { display: none !important; }
+  .print-only      { display: block !important; }
+  .print-page {
+    box-shadow: none !important;
+    border: none !important;
+    max-width: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
   }
 }

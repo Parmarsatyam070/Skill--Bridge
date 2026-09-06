@@ -454,30 +454,22 @@ export const DsaPracticeRunner: React.FC<DsaPracticeRunnerProps> = ({
   if (!currentQ) return null;
 
   return (
-    <div className="max-w-6xl mx-auto space-y-6 font-sans p-4 sm:p-6 animate-fade-in">
-      {/* Sticky Top Nav Bar */}
-      <div className="p-4 rounded-2xl bg-slate-900 border border-slate-800 shadow-2xl flex flex-wrap items-center justify-between gap-4 sticky top-4 z-30 backdrop-blur-xl">
+    <div className="w-full flex-1 min-h-0 flex flex-col space-y-3 sm:space-y-4 font-sans animate-fade-in">
+      {/* Top Nav Bar (In-Flow Pinned Card, No Sticky Jitter) */}
+      <div className="p-3.5 sm:p-4 rounded-2xl bg-panel border border-border shadow-xl flex flex-wrap items-center justify-between gap-3 shrink-0">
         <div className="flex items-center gap-3">
-          <button
-            type="button"
-            onClick={onExit}
-            className="p-2 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-300 hover:text-white border border-slate-700 transition-colors"
-            title="Exit Runner"
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </button>
           <div>
             <div className="flex items-center gap-2">
-              <span className="text-[10px] font-mono uppercase tracking-wider text-bridge-teal font-bold">
+              <span className="small-caps-label text-[10px] text-bridge-teal font-bold">
                 {mode === 'daily'
                   ? 'Daily Mandatory Challenge'
                   : customSetTitle || 'Custom DSA Practice Set'}
               </span>
-              <span className="text-[10px] font-mono px-2 py-0.2 rounded-full bg-slate-800 text-slate-400 border border-slate-700">
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-panel-raised text-text-muted border border-border">
                 {questions.length} Questions
               </span>
             </div>
-            <h2 className="text-sm sm:text-base font-bold text-white font-serif">
+            <h2 className="text-sm sm:text-base font-bold text-text-primary font-sans mt-0.5">
               Q{currentIdx + 1}: {currentQ.title}
             </h2>
           </div>
@@ -485,40 +477,40 @@ export const DsaPracticeRunner: React.FC<DsaPracticeRunnerProps> = ({
 
         <div className="flex items-center gap-3">
           {/* Timer Clock */}
-          <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl font-mono text-xs font-bold bg-slate-850 text-bridge-teal border border-slate-750">
+          <div className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl font-mono text-xs font-bold bg-panel-raised text-bridge-teal border border-border">
             <Clock className="w-4 h-4" />
             <span>{formatTimer(timeSpentSeconds)}</span>
           </div>
 
           {/* Progress pill */}
-          <span className="text-xs font-mono text-slate-400 hidden sm:inline">
-            <strong className="text-white">{completedCount}</strong>/{questions.length} Solved
+          <span className="text-xs font-mono text-text-muted hidden sm:inline">
+            <strong className="text-text-primary">{completedCount}</strong>/{questions.length} Solved
           </span>
 
           <button
             type="button"
             onClick={onExit}
-            className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-750 text-slate-200 text-xs font-semibold border border-slate-700 transition-colors"
+            className="px-4 py-2 rounded-xl bg-panel-raised hover:bg-border text-text-primary text-xs font-semibold border border-border transition-colors cursor-pointer"
           >
             Exit Runner
           </button>
         </div>
       </div>
 
-      {/* Question Selector Pills Grid */}
-      <div className="space-y-2">
-        <div className="flex items-center justify-between text-xs font-mono text-slate-400">
+      {/* Question Selector Pills Grid & Progress (In-flow Pinned, Shrink-0) */}
+      <div className="px-4 py-2.5 rounded-2xl bg-panel/70 border border-border shadow-sm shrink-0 space-y-1.5">
+        <div className="flex items-center justify-between text-xs font-mono text-text-muted">
           <span>Practice Set Progress</span>
           <span>{progressPct}% Completed</span>
         </div>
-        <div className="w-full h-1.5 bg-slate-800 rounded-full overflow-hidden">
+        <div className="w-full h-1.5 bg-panel-raised rounded-full overflow-hidden">
           <div
-            className="h-full bg-gradient-to-r from-bridge-teal to-emerald-400 transition-all duration-300"
+            className="h-full bg-bridge-gradient transition-all duration-300"
             style={{ width: `${progressPct}%` }}
           />
         </div>
 
-        <div className="flex flex-wrap gap-1.5 pt-1">
+        <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-1 max-w-full touch-pan-x">
           {questions.map((q, idx) => {
             const isCurrent = idx === currentIdx;
             const isCompleted = completedMap[q.id];
@@ -532,12 +524,12 @@ export const DsaPracticeRunner: React.FC<DsaPracticeRunnerProps> = ({
                   setSubmissionFeedback(null);
                   setActiveTab('problem');
                 }}
-                className={`w-8 h-8 rounded-xl text-xs font-mono font-bold transition-all ${
+                className={`min-w-[2.25rem] h-8 w-8 flex items-center justify-center shrink-0 rounded-lg text-xs font-semibold font-mono transition-all cursor-pointer ${
                   isCurrent
-                    ? 'bg-bridge-teal text-slate-950 shadow-lg shadow-bridge-teal/20 scale-105'
+                    ? 'bg-bridge-teal text-slate-950 shadow-lg shadow-bridge-teal/20 font-bold ring-2 ring-bridge-teal/50'
                     : isCompleted
-                    ? 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/40'
-                    : 'bg-slate-850 text-slate-400 border border-slate-750 hover:text-white'
+                    ? 'bg-signal-green/20 text-signal-green border border-signal-green/40 font-bold'
+                    : 'bg-panel-raised text-text-muted border border-border hover:text-text-primary'
                 }`}
                 title={`Q${idx + 1}: ${q.title}`}
               >
@@ -549,58 +541,58 @@ export const DsaPracticeRunner: React.FC<DsaPracticeRunnerProps> = ({
       </div>
 
       {/* Main Dual-Column Sandbox View */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+      <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-5 overflow-hidden">
         {/* Left Column: Problem Details & Constraints (5 cols) */}
-        <div className="lg:col-span-5 rounded-2xl bg-slate-900 border border-slate-800 p-6 flex flex-col justify-between space-y-6 shadow-xl max-h-[640px] overflow-y-auto">
-          <div className="space-y-4">
+        <div className="lg:col-span-5 rounded-2xl bg-panel border border-border shadow-xl flex flex-col min-h-0 h-full overflow-hidden">
+          <div className="flex-1 min-h-0 p-5 sm:p-6 overflow-y-auto touch-scroll overscroll-contain space-y-6">
             {/* Header badges */}
             <div className="flex flex-wrap items-center gap-2">
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-amber-500/15 text-amber-400 border border-amber-500/30">
+              <span className="small-caps-label px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-signal-amber/15 text-signal-amber border border-signal-amber/30">
                 {currentQ.platform}
               </span>
               <span
-                className={`px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold border ${
+                className={`small-caps-label px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold border ${
                   currentQ.difficulty === 'Easy'
-                    ? 'bg-emerald-500/15 text-emerald-400 border-emerald-500/30'
+                    ? 'bg-signal-green/15 text-signal-green border-signal-green/30'
                     : currentQ.difficulty === 'Medium'
-                    ? 'bg-amber-500/15 text-amber-400 border-amber-500/30'
-                    : 'bg-rose-500/15 text-rose-400 border-rose-500/30'
+                    ? 'bg-signal-amber/15 text-signal-amber border-signal-amber/30'
+                    : 'bg-signal-red/15 text-signal-red border-signal-red/30'
                 }`}
               >
                 {currentQ.difficulty}
               </span>
-              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-slate-800 text-slate-300 border border-slate-700">
+              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-panel-raised text-text-muted border border-border">
                 {currentQ.topic}
               </span>
             </div>
 
             {/* Title & Description */}
             <div>
-              <h3 className="text-lg font-bold text-white mb-2 font-serif">{currentQ.title}</h3>
-              <p className="text-xs text-slate-300 leading-relaxed whitespace-pre-wrap font-sans">
+              <h3 className="text-lg font-bold text-text-primary mb-2 font-sans">{currentQ.title}</h3>
+              <p className="text-xs text-text-muted leading-relaxed whitespace-pre-wrap font-sans">
                 {currentQ.description}
               </p>
             </div>
 
             {/* Test Cases / Examples */}
             {testCases.length > 0 && (
-              <div className="space-y-2 pt-2 border-t border-slate-800">
-                <span className="text-[11px] font-mono text-slate-400 font-bold uppercase tracking-wider block">
+              <div className="space-y-2 pt-2 border-t border-border">
+                <span className="small-caps-label text-[11px] font-mono text-text-muted font-bold block">
                   Sample Test Cases:
                 </span>
                 <div className="space-y-2">
                   {testCases.slice(0, 3).map((tc, tcIdx) => (
                     <div
                       key={tc.id || tcIdx}
-                      className="p-2.5 rounded-xl bg-slate-950 border border-slate-800 font-mono text-[11px] space-y-1"
+                      className="p-2.5 rounded-xl bg-void border border-border font-mono text-[11px] space-y-1"
                     >
-                      <div className="text-slate-400">
+                      <div className="text-text-muted">
                         <span className="text-bridge-teal font-semibold">Input:</span>{' '}
-                        <code className="text-slate-200">{tc.input}</code>
+                        <code className="text-text-primary">{tc.input}</code>
                       </div>
-                      <div className="text-slate-400">
-                        <span className="text-emerald-400 font-semibold">Expected:</span>{' '}
-                        <code className="text-slate-200">{tc.expectedOutput}</code>
+                      <div className="text-text-muted">
+                        <span className="text-signal-green font-semibold">Expected:</span>{' '}
+                        <code className="text-text-primary">{tc.expectedOutput}</code>
                       </div>
                     </div>
                   ))}
@@ -610,48 +602,48 @@ export const DsaPracticeRunner: React.FC<DsaPracticeRunnerProps> = ({
 
             {/* Tags */}
             {currentQ.tags && currentQ.tags.length > 0 && (
-              <div className="flex flex-wrap gap-1.5 pt-2 border-t border-slate-800">
+              <div className="flex flex-wrap gap-1.5 pt-2 border-t border-border">
                 {currentQ.tags.map((tag) => (
                   <span
                     key={tag}
-                    className="text-[10px] font-mono text-slate-400 bg-slate-800 px-2 py-0.5 rounded border border-slate-750"
+                    className="text-[10px] font-mono text-text-muted bg-panel-raised px-2 py-0.5 rounded border border-border"
                   >
                     #{tag}
                   </span>
                 ))}
               </div>
             )}
-          </div>
 
-          {/* Authentic Outbound Link */}
-          <div className="pt-4 border-t border-slate-800">
-            <a
-              href={currentQ.canonicalUrl}
-              target="_blank"
-              rel="noopener noreferrer"
-              className="w-full inline-flex items-center justify-between p-3 rounded-xl bg-slate-800/80 hover:bg-slate-750 text-slate-200 border border-slate-700 text-xs font-semibold transition-all group"
-            >
-              <div className="flex items-center gap-2">
-                <ExternalLink className="w-4 h-4 text-bridge-teal group-hover:scale-110 transition-transform" />
-                <span>Open original problem on {currentQ.platform}</span>
-              </div>
-              <span className="text-[10px] font-mono text-slate-400 group-hover:text-white">
-                Platform Page →
-              </span>
-            </a>
+            {/* Authentic Outbound Link */}
+            <div className="pt-4 border-t border-border">
+              <a
+                href={currentQ.canonicalUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full inline-flex items-center justify-between p-3 rounded-xl bg-panel-raised hover:bg-border text-text-primary border border-border text-xs font-semibold transition-all group"
+              >
+                <div className="flex items-center gap-2">
+                  <ExternalLink className="w-4 h-4 text-bridge-teal group-hover:scale-110 transition-transform" />
+                  <span>Open original problem on {currentQ.platform}</span>
+                </div>
+                <span className="text-[10px] font-mono text-text-muted group-hover:text-text-primary">
+                  Platform Page →
+                </span>
+              </a>
+            </div>
           </div>
         </div>
 
         {/* Right Column: Code Editor & Multi-Language Sandbox Console (7 cols) */}
-        <div className="lg:col-span-7 rounded-2xl bg-slate-900 border border-slate-800 flex flex-col justify-between overflow-hidden shadow-xl min-h-[640px]">
+        <div className="lg:col-span-7 rounded-2xl bg-panel border border-border shadow-xl flex flex-col min-h-0 h-full overflow-hidden">
           {/* Header Controls with Language Selector */}
-          <div className="flex flex-wrap items-center justify-between gap-3 px-5 py-3.5 bg-slate-850 border-b border-slate-800">
+          <div className="shrink-0 flex flex-wrap items-center justify-between gap-3 px-4 sm:px-5 py-3 bg-panel-raised border-b border-border">
             <div className="flex flex-wrap items-center gap-2.5">
               {/* Language dropdown selector */}
               <div className="flex items-center gap-2">
                 <label
                   htmlFor="dsa-language-select"
-                  className="text-xs font-mono text-slate-400 font-bold flex items-center gap-1"
+                  className="small-caps-label text-xs font-mono text-text-muted font-bold flex items-center gap-1"
                 >
                   <Code2 className="w-3.5 h-3.5 text-bridge-teal" />
                   <span>Language:</span>
@@ -660,7 +652,7 @@ export const DsaPracticeRunner: React.FC<DsaPracticeRunnerProps> = ({
                   id="dsa-language-select"
                   value={selectedLanguage}
                   onChange={(e) => handleLanguageChange(e.target.value as SupportedLanguage)}
-                  className="px-2.5 py-1 rounded-lg bg-slate-900 border border-slate-700 text-xs font-mono font-bold text-bridge-teal hover:border-bridge-teal focus:outline-none focus:ring-2 focus:ring-bridge-teal/40 cursor-pointer transition-all shadow-inner"
+                  className="px-2.5 py-1 rounded-lg bg-panel border border-border text-xs font-mono font-bold text-bridge-teal hover:border-bridge-teal focus:outline-none focus:ring-2 focus:ring-bridge-teal/40 cursor-pointer transition-all shadow-inner"
                   aria-label="Select programming language"
                 >
                   <option value="javascript">JavaScript</option>
@@ -671,10 +663,10 @@ export const DsaPracticeRunner: React.FC<DsaPracticeRunnerProps> = ({
               </div>
 
               {/* Active runtime mode badge */}
-              <span className="text-xs font-mono font-bold text-white uppercase hidden md:inline">
+              <span className="text-xs font-mono font-bold text-text-primary uppercase hidden md:inline">
                 {activeLangConfig.badge}
               </span>
-              <span className="text-[10px] font-mono text-emerald-400 bg-emerald-950/40 px-2 py-0.5 rounded border border-emerald-800/40 hidden sm:inline">
+              <span className="text-[10px] font-mono text-signal-green bg-signal-green/10 px-2 py-0.5 rounded border border-signal-green/30 hidden sm:inline">
                 Isolated Sandbox
               </span>
             </div>
@@ -683,7 +675,7 @@ export const DsaPracticeRunner: React.FC<DsaPracticeRunnerProps> = ({
               <button
                 type="button"
                 onClick={handleResetCode}
-                className="px-2.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-750 text-slate-300 hover:text-white text-xs font-medium border border-slate-700 flex items-center gap-1.5 transition-colors"
+                className="px-2.5 py-1.5 rounded-lg bg-panel hover:bg-border text-text-muted hover:text-text-primary text-xs font-medium border border-border flex items-center gap-1.5 transition-colors cursor-pointer"
                 title={`Reset ${activeLangConfig.label} code`}
               >
                 <RotateCcw className="w-3.5 h-3.5" />
@@ -694,7 +686,7 @@ export const DsaPracticeRunner: React.FC<DsaPracticeRunnerProps> = ({
                 type="button"
                 onClick={handleRunCode}
                 disabled={isRunning}
-                className="px-4 py-1.5 rounded-lg bg-emerald-500 hover:bg-emerald-450 text-slate-950 text-xs font-bold shadow-md shadow-emerald-500/20 flex items-center gap-1.5 disabled:opacity-50 transition-all"
+                className="bridge-btn-primary px-4 py-1.5 rounded-lg text-xs font-bold shadow-md flex items-center gap-1.5 disabled:opacity-50 transition-all cursor-pointer"
               >
                 <Play className={`w-3.5 h-3.5 fill-slate-950 ${isRunning ? 'animate-spin' : ''}`} />
                 <span>
@@ -709,20 +701,20 @@ export const DsaPracticeRunner: React.FC<DsaPracticeRunnerProps> = ({
           </div>
 
           {/* Editor Textarea */}
-          <div className="p-4 flex-1 flex flex-col">
+          <div className="p-3 sm:p-4 flex-1 min-h-0 flex flex-col overflow-hidden">
             <textarea
-              rows={14}
+              rows={12}
               value={currentCode}
               onChange={(e) => handleCodeChange(e.target.value)}
               placeholder={activeLangConfig.placeholder}
-              className="w-full flex-1 p-4 rounded-xl bg-slate-950 border border-slate-800 text-xs font-mono text-emerald-300 focus:outline-none focus:border-bridge-teal resize-none leading-relaxed"
+              className="w-full flex-1 p-3.5 sm:p-4 rounded-xl bg-void border border-border text-xs font-mono text-emerald-300 focus:outline-none focus:border-bridge-teal resize-none leading-relaxed overscroll-contain"
               spellCheck={false}
               aria-label="Code Editor"
             />
           </div>
 
           {/* Test Runner Results & Feedback Console */}
-          <div className="p-5 border-t border-slate-800 bg-slate-950/90 space-y-4">
+          <div className="shrink-0 p-4 sm:p-5 border-t border-border bg-void/90 space-y-3.5 max-h-[240px] overflow-y-auto touch-scroll overscroll-contain">
             {/* Submission feedback alert */}
             {submissionFeedback && (
               <div

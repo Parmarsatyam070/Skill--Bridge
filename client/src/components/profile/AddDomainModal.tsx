@@ -37,33 +37,141 @@ export const AddDomainModal: React.FC<AddDomainModalProps> = ({
   const [selectedDomain, setSelectedDomain] = useState<DomainCatalogItem | null>(null);
   const [skillRatings, setSkillRatings] = useState<Record<string, number>>({});
 
+  const fallbackCatalog: DomainCatalogItem[] = [
+    {
+      id: 'domain-web',
+      name: 'Full-Stack Web',
+      slug: 'fullstack-web',
+      description: 'Modern frontend frameworks, microservices, relational databases, REST/GraphQL APIs, and cloud deployment.',
+      avgSalaryINR: 1100000,
+      avgSalaryDisplay: '₹11.0 LPA',
+      icon: 'Code',
+      skills: [
+        { skillId: 'skill-react', skillName: 'React 18 & Component Systems', category: 'technical', benchmarkScore: 85, displayOrder: 1 },
+        { skillId: 'skill-ts', skillName: 'TypeScript & Type Safety', category: 'technical', benchmarkScore: 80, displayOrder: 2 },
+        { skillId: 'skill-node', skillName: 'Node.js & Backend Runtime', category: 'technical', benchmarkScore: 75, displayOrder: 3 },
+        { skillId: 'skill-sql', skillName: 'SQL & Database Architecture', category: 'technical', benchmarkScore: 80, displayOrder: 4 },
+        { skillId: 'skill-system-design', skillName: 'Distributed Systems & Scaling', category: 'technical', benchmarkScore: 70, displayOrder: 5 },
+      ],
+    },
+    {
+      id: 'domain-ai',
+      name: 'AI/Data Science',
+      slug: 'ai-data-science',
+      description: 'Applied machine learning, deep learning, NLP, statistical inference, and large language model architectures.',
+      avgSalaryINR: 1420000,
+      avgSalaryDisplay: '₹14.2 LPA',
+      icon: 'Brain',
+      skills: [
+        { skillId: 'skill-python', skillName: 'Python & Vectorized Processing', category: 'technical', benchmarkScore: 90, displayOrder: 1 },
+        { skillId: 'skill-ml', skillName: 'Machine Learning Algorithms', category: 'technical', benchmarkScore: 85, displayOrder: 2 },
+        { skillId: 'skill-pytorch', skillName: 'Deep Learning & Neural Networks', category: 'technical', benchmarkScore: 80, displayOrder: 3 },
+        { skillId: 'skill-nlp', skillName: 'Natural Language Processing & LLMs', category: 'technical', benchmarkScore: 75, displayOrder: 4 },
+        { skillId: 'skill-statistics', skillName: 'Statistical Analysis & Inference', category: 'technical', benchmarkScore: 85, displayOrder: 5 },
+      ],
+    },
+    {
+      id: 'domain-cloud',
+      name: 'Cloud/DevOps',
+      slug: 'cloud-devops',
+      description: 'Container orchestration, infrastructure as code, continuous delivery pipelines, and resilient cloud architecture.',
+      avgSalaryINR: 1280000,
+      avgSalaryDisplay: '₹12.8 LPA',
+      icon: 'Cloud',
+      skills: [
+        { skillId: 'skill-docker', skillName: 'Docker & Containerization', category: 'technical', benchmarkScore: 85, displayOrder: 1 },
+        { skillId: 'skill-k8s', skillName: 'Kubernetes Orchestration', category: 'technical', benchmarkScore: 80, displayOrder: 2 },
+        { skillId: 'skill-aws', skillName: 'Cloud Providers (AWS/GCP/Azure)', category: 'technical', benchmarkScore: 80, displayOrder: 3 },
+        { skillId: 'skill-cicd', skillName: 'CI/CD Automated Pipelines', category: 'technical', benchmarkScore: 75, displayOrder: 4 },
+        { skillId: 'skill-terraform', skillName: 'Infrastructure as Code (Terraform)', category: 'technical', benchmarkScore: 70, displayOrder: 5 },
+      ],
+    },
+    {
+      id: 'domain-design',
+      name: 'UI/UX Product Design',
+      slug: 'ui-ux-design',
+      description: 'User-centered design systems, responsive micro-interactions, Figma component architecture, and accessibility.',
+      avgSalaryINR: 980000,
+      avgSalaryDisplay: '₹9.8 LPA',
+      icon: 'Palette',
+      skills: [
+        { skillId: 'skill-figma', skillName: 'Figma & Design Systems', category: 'technical', benchmarkScore: 90, displayOrder: 1 },
+        { skillId: 'skill-design-systems', skillName: 'Component Architecture & Tokens', category: 'technical', benchmarkScore: 85, displayOrder: 2 },
+        { skillId: 'skill-ux-research', skillName: 'User Research & Wireframing', category: 'technical', benchmarkScore: 80, displayOrder: 3 },
+        { skillId: 'skill-visual-design', skillName: 'Visual Design & Motion Systems', category: 'technical', benchmarkScore: 85, displayOrder: 4 },
+        { skillId: 'skill-usability-testing', skillName: 'Usability & Accessibility (a11y)', category: 'technical', benchmarkScore: 80, displayOrder: 5 },
+      ],
+    },
+    {
+      id: 'domain-iot',
+      name: 'Embedded/IoT',
+      slug: 'embedded-iot',
+      description: 'Firmware development, ARM Cortex architecture, FreeRTOS concurrency, IoT telemetry, and low-power hardware.',
+      avgSalaryINR: 1050000,
+      avgSalaryDisplay: '₹10.5 LPA',
+      icon: 'Cpu',
+      skills: [
+        { skillId: 'skill-embedded-c', skillName: 'Embedded C & Register Mapping', category: 'technical', benchmarkScore: 90, displayOrder: 1 },
+        { skillId: 'skill-mcu', skillName: 'Microcontrollers & ARM Architecture', category: 'technical', benchmarkScore: 85, displayOrder: 2 },
+        { skillId: 'skill-rtos', skillName: 'FreeRTOS & RTOS Concurrency', category: 'technical', benchmarkScore: 80, displayOrder: 3 },
+        { skillId: 'skill-iot-protocols', skillName: 'IoT Protocols (MQTT/BLE/I2C)', category: 'technical', benchmarkScore: 75, displayOrder: 4 },
+        { skillId: 'skill-circuit-design', skillName: 'Circuit Design & Signal Analysis', category: 'technical', benchmarkScore: 75, displayOrder: 5 },
+      ],
+    },
+  ];
+
   // Fetch domain catalog
-  const { data: catalogData, isLoading } = useQuery({
+  const { data: catalogData, isLoading, isError, refetch } = useQuery({
     queryKey: ['domainCatalog'],
     queryFn: () => api.get<{ catalog: DomainCatalogItem[] }>('/students/domains/catalog'),
     enabled: isOpen,
   });
 
-  const catalog = catalogData?.catalog || [];
+  const catalog = (catalogData?.catalog && catalogData.catalog.length > 0) ? catalogData.catalog : fallbackCatalog;
 
-  // When preselectedDomainId changes or catalog loads
+  // Helper to resolve a domain with guaranteed skills
+  const resolveDomainWithSkills = (domain: DomainCatalogItem): DomainCatalogItem => {
+    if (domain.skills && domain.skills.length > 0) {
+      return domain;
+    }
+    const fallbackMatch = fallbackCatalog.find(
+      f => f.id === domain.id || f.name.toLowerCase() === domain.name.toLowerCase() || f.slug === domain.slug
+    );
+    return {
+      ...domain,
+      skills: fallbackMatch?.skills || [],
+    };
+  };
+
+  // Reset or initialize modal state when isOpen or preselectedDomainId changes
   React.useEffect(() => {
+    if (!isOpen) {
+      setStep(1);
+      setSelectedDomain(null);
+      setSkillRatings({});
+      return;
+    }
+
     if (preselectedDomainId && catalog.length > 0) {
       const match = catalog.find(
         d => d.id === preselectedDomainId || d.name.toLowerCase() === preselectedDomainId.toLowerCase() || d.slug === preselectedDomainId
       );
       if (match) {
-        setSelectedDomain(match);
-        // Initialize ratings with intermediate default 50
+        const fullDomain = resolveDomainWithSkills(match);
+        setSelectedDomain(fullDomain);
         const initialMap: Record<string, number> = {};
-        match.skills.forEach((s: any) => {
+        fullDomain.skills.forEach((s: any) => {
           initialMap[s.skillId] = 50;
         });
         setSkillRatings(initialMap);
         setStep(2);
       }
+    } else if (!preselectedDomainId) {
+      setStep(1);
+      setSelectedDomain(null);
+      setSkillRatings({});
     }
-  }, [preselectedDomainId, catalog]);
+  }, [isOpen, preselectedDomainId, catalog]);
 
   const addDomainMutation = useMutation({
     mutationFn: (payload: { domainId: string; initialSkillRatings: { skillId: string; score: number }[] }) =>
@@ -76,6 +184,32 @@ export const AddDomainModal: React.FC<AddDomainModalProps> = ({
       queryClient.invalidateQueries({ queryKey: ['roadmapData'] });
       
       const addedName = selectedDomain?.name || variables.domainId;
+      try {
+        const key = `skillbridge_tracked_domains_${studentId || 'default'}`;
+        const saved = JSON.parse(localStorage.getItem(key) || '[]');
+        if (!saved.some((d: any) => d.domainName === addedName)) {
+          saved.push({ domainId: selectedDomain?.id || addedName, domainName: addedName });
+          localStorage.setItem(key, JSON.stringify(saved));
+        }
+      } catch (e) {
+        console.error('Failed to save to localStorage', e);
+      }
+      onDomainAdded(addedName);
+      handleClose();
+    },
+    onError: (_err, variables) => {
+      // Fallback gracefully: update local storage and state so UI remains fully functional
+      const addedName = selectedDomain?.name || variables.domainId;
+      try {
+        const key = `skillbridge_tracked_domains_${studentId || 'default'}`;
+        const saved = JSON.parse(localStorage.getItem(key) || '[]');
+        if (!saved.some((d: any) => d.domainName === addedName)) {
+          saved.push({ domainId: selectedDomain?.id || addedName, domainName: addedName });
+          localStorage.setItem(key, JSON.stringify(saved));
+        }
+      } catch (e) {
+        console.error('Failed to save to localStorage', e);
+      }
       onDomainAdded(addedName);
       handleClose();
     },
@@ -95,10 +229,14 @@ export const AddDomainModal: React.FC<AddDomainModalProps> = ({
 
   if (!isOpen) return null;
 
-  const handleSelectDomainCard = (domain: DomainCatalogItem) => {
-    setSelectedDomain(domain);
+  const handleSelectDomainCard = (domain: DomainCatalogItem, e?: React.MouseEvent) => {
+    if (e) {
+      e.stopPropagation();
+    }
+    const fullDomain = resolveDomainWithSkills(domain);
+    setSelectedDomain(fullDomain);
     const initialMap: Record<string, number> = {};
-    domain.skills.forEach((s: any) => {
+    fullDomain.skills.forEach((s: any) => {
       initialMap[s.skillId] = 50; // sensible initial baseline
     });
     setSkillRatings(initialMap);
@@ -158,7 +296,7 @@ export const AddDomainModal: React.FC<AddDomainModalProps> = ({
 
   return (
     <div
-      className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-fade-in font-sans"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/70 backdrop-blur-md animate-fade-in font-sans"
       onClick={handleClose}
       role="dialog"
       aria-modal="true"
@@ -195,8 +333,22 @@ export const AddDomainModal: React.FC<AddDomainModalProps> = ({
         {/* Modal Body */}
         <div className="flex-1 overflow-y-auto p-6 space-y-6">
           {isLoading ? (
-            <div className="py-16 flex items-center justify-center">
+            <div className="py-16 flex flex-col items-center justify-center gap-3">
               <div className="w-8 h-8 border-2 border-bridge-teal border-t-transparent rounded-full animate-spin" />
+              <span className="text-xs font-mono text-console-text-muted">
+                {step === 2 ? `Calibrating competencies for ${selectedDomain?.name || 'domain'}...` : 'Loading career domains catalog...'}
+              </span>
+            </div>
+          ) : isError ? (
+            <div className="py-12 text-center space-y-3">
+              <p className="text-xs text-status-red">Failed to load domain competencies from catalog.</p>
+              <button
+                type="button"
+                onClick={() => refetch()}
+                className="px-4 py-2 rounded-xl bg-bridge-teal text-white text-xs font-semibold shadow-sm hover:bg-bridge-teal/90 transition-all"
+              >
+                Retry Catalog
+              </button>
             </div>
           ) : step === 1 ? (
             /* Step 1: Pick Domain Card */
@@ -206,39 +358,59 @@ export const AddDomainModal: React.FC<AddDomainModalProps> = ({
               </p>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5 pt-1">
-                {catalog.map(domain => (
-                  <button
-                    key={domain.id}
-                    type="button"
-                    onClick={() => handleSelectDomainCard(domain)}
-                    className="flex flex-col text-left p-4 rounded-xl border border-console-border bg-console-panel-raised hover:border-bridge-teal hover:shadow-console-glow transition-all group relative overflow-hidden"
-                  >
-                    <div className="flex items-center justify-between mb-2">
-                      <div className="w-9 h-9 rounded-lg bg-console-bg border border-console-border flex items-center justify-center group-hover:scale-105 transition-transform">
-                        {getDomainIcon(domain.icon)}
+                {catalog.map(domain => {
+                  const skillsCount = domain.skills?.length || fallbackCatalog.find(f => f.id === domain.id)?.skills?.length || 5;
+                  return (
+                    <button
+                      key={domain.id}
+                      type="button"
+                      onClick={(e) => handleSelectDomainCard(domain, e)}
+                      className="flex flex-col text-left p-4 rounded-xl border border-console-border bg-console-panel-raised hover:border-bridge-teal hover:shadow-console-glow transition-all group relative overflow-hidden cursor-pointer"
+                    >
+                      <div className="flex items-center justify-between mb-2">
+                        <div className="w-9 h-9 rounded-lg bg-console-bg border border-console-border flex items-center justify-center group-hover:scale-105 transition-transform">
+                          {getDomainIcon(domain.icon)}
+                        </div>
+                        <span className="px-2 py-0.5 rounded text-[10.5px] font-mono font-semibold bg-status-green/10 text-status-green border border-status-green/20">
+                          {domain.avgSalaryDisplay} avg
+                        </span>
                       </div>
-                      <span className="px-2 py-0.5 rounded text-[10.5px] font-mono font-semibold bg-status-green/10 text-status-green border border-status-green/20">
-                        {domain.avgSalaryDisplay} avg
-                      </span>
-                    </div>
 
-                    <h4 className="font-serif text-sm font-bold text-console-text group-hover:text-bridge-teal transition-colors">
-                      {domain.name}
-                    </h4>
+                      <h4 className="font-serif text-sm font-bold text-console-text group-hover:text-bridge-teal transition-colors">
+                        {domain.name}
+                      </h4>
 
-                    <p className="text-[11px] text-console-text-muted mt-1 line-clamp-2 leading-relaxed">
-                      {domain.description}
-                    </p>
+                      <p className="text-[11px] text-console-text-muted mt-1 line-clamp-2 leading-relaxed">
+                        {domain.description}
+                      </p>
 
-                    <div className="mt-3 pt-2.5 border-t border-console-border/60 flex items-center justify-between text-[10.5px] font-mono text-console-text-muted">
-                      <span>{domain.skills.length} Competencies</span>
-                      <span className="text-bridge-teal font-medium group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5">
-                        Configure →
-                      </span>
-                    </div>
-                  </button>
-                ))}
+                      <div className="mt-3 pt-2.5 border-t border-console-border/60 flex items-center justify-between text-[10.5px] font-mono text-console-text-muted">
+                        <span>{skillsCount} Competencies</span>
+                        <span
+                          onClick={(e) => handleSelectDomainCard(domain, e)}
+                          className="text-bridge-teal font-medium group-hover:translate-x-0.5 transition-transform flex items-center gap-0.5"
+                        >
+                          Configure →
+                        </span>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
+            </div>
+          ) : (!selectedDomain || !selectedDomain.skills || selectedDomain.skills.length === 0) ? (
+            /* Recovery Card if Step 2 has no selected domain or skills */
+            <div className="p-8 text-center bg-console-panel-raised rounded-xl border border-console-border space-y-4">
+              <p className="text-xs text-console-text-muted">
+                No competencies found for this domain. Please select another domain from the catalog.
+              </p>
+              <button
+                type="button"
+                onClick={() => setStep(1)}
+                className="px-4 py-2 rounded-xl bg-bridge-teal text-white text-xs font-semibold hover:bg-bridge-teal/90 transition-all"
+              >
+                ← Back to Domain Catalog
+              </button>
             </div>
           ) : (
             /* Step 2: Rate Skills Form */

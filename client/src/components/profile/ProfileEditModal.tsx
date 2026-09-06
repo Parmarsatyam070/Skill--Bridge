@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Plus, Trash2, Save, Sparkles, Building, GraduationCap, Briefcase, Award, Code2, Link as LinkIcon } from 'lucide-react';
+import { UniversityAutocomplete } from '../UniversityAutocomplete';
 
 export type ModalType =
   | 'edit_profile'
@@ -102,12 +103,12 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
       aria-modal="true"
     >
       <div
-        className="bg-console-panel rounded-2xl border border-console-border max-w-lg w-full p-6 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9)] space-y-5 relative my-8 animate-in fade-in zoom-in-95 duration-150"
+        className="bg-[#0b1222] rounded-2xl border border-slate-800 max-w-lg w-full p-6 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9)] space-y-5 relative my-8 animate-in fade-in zoom-in-95 duration-150"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-console-border">
-          <h3 className="font-serif text-lg font-bold text-console-text">{getTitle()}</h3>
+        <div className="flex items-center justify-between pb-3 border-b border-slate-800">
+          <h3 className="text-base font-bold text-white tracking-tight">{getTitle()}</h3>
           <button
             type="button"
             onClick={onClose}
@@ -159,12 +160,11 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
 
               <div>
                 <label className="block font-semibold text-console-text mb-1">University / Current Organization</label>
-                <input
-                  type="text"
+                <UniversityAutocomplete
                   value={formData.institution || ''}
-                  onChange={(e) => setFormData({ ...formData, institution: e.target.value })}
+                  onChange={(val) => setFormData({ ...formData, institution: val })}
                   placeholder="e.g. Delhi Technological University"
-                  className="w-full bg-console-bg border border-console-border rounded-xl px-3.5 py-2 text-xs text-console-text placeholder-console-muted/50 focus:outline-hidden focus:border-bridge-teal"
+                  inputClassName="w-full bg-console-bg border border-console-border rounded-xl px-3.5 py-2 text-xs text-console-text placeholder-console-muted/50 focus:outline-hidden focus:border-bridge-teal"
                 />
               </div>
 
@@ -281,13 +281,12 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
 
               <div>
                 <label className="block font-semibold text-console-text mb-1">Institution Name</label>
-                <input
-                  type="text"
+                <UniversityAutocomplete
                   value={formData.institution || ''}
-                  onChange={(e) => setFormData({ ...formData, institution: e.target.value })}
+                  onChange={(val) => setFormData({ ...formData, institution: val })}
                   placeholder="e.g. Delhi Technological University"
                   required
-                  className="w-full bg-console-bg border border-console-border rounded-xl px-3.5 py-2 text-xs text-console-text placeholder-console-muted/50 focus:outline-hidden focus:border-bridge-teal"
+                  inputClassName="w-full bg-console-bg border border-console-border rounded-xl px-3.5 py-2 text-xs text-console-text placeholder-console-muted/50 focus:outline-hidden focus:border-bridge-teal"
                 />
               </div>
 
@@ -629,7 +628,7 @@ export const ProfileEditModal: React.FC<ProfileEditModalProps> = ({
             </button>
             <button
               type="submit"
-              className="flex items-center gap-1.5 px-5 py-2 rounded-xl bg-bridge-teal hover:bg-bridge-teal/90 text-white font-semibold text-xs shadow-xs transition-all"
+              className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-400 hover:to-blue-500 text-white font-semibold text-xs shadow-md shadow-blue-500/20 transition-all cursor-pointer"
             >
               <Save className="w-3.5 h-3.5" />
               <span>Save Changes</span>

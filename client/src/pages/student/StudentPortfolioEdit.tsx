@@ -16,7 +16,7 @@ import { useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 
 export const StudentPortfolioEdit: React.FC = () => {
-  const { user } = useAuth();
+  const { user, refreshUser } = useAuth();
   const queryClient = useQueryClient();
   const studentProfileId = user?.studentProfile?.id;
 
@@ -36,9 +36,10 @@ export const StudentPortfolioEdit: React.FC = () => {
 
   const updateMutation = useMutation({
     mutationFn: (payload: any) => api.put(`/students/${studentProfileId}`, payload),
-    onSuccess: () => {
+    onSuccess: async () => {
       setSaveSuccess(true);
       queryClient.invalidateQueries({ queryKey: ['studentProfile'] });
+      await refreshUser();
       setTimeout(() => setSaveSuccess(false), 3000);
     },
   });

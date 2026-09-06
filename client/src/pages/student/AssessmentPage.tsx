@@ -43,11 +43,15 @@ import {
 import { CodingSandbox } from '../../components/CodingSandbox';
 import { DailyPracticeBanner } from '../../components/DailyPracticeBanner';
 import { DsaDailyBanner } from '../../components/dsa/DsaDailyBanner';
-import { DsaCustomGenerator } from '../../components/dsa/DsaCustomGenerator';
-import { DsaProgressDashboard } from '../../components/dsa/DsaProgressDashboard';
-import { DsaProblemExplorer } from '../../components/dsa/DsaProblemExplorer';
-import { DsaPracticeRunner } from '../../components/dsa/DsaPracticeRunner';
+import { MatchCard } from '../../components/MatchCard';
+import { VerifiedActivityCard } from '../../components/VerifiedActivityCard';
 import { Code2 } from 'lucide-react';
+
+// Code-split heavy DSA sub-components to eliminate initial tab lag
+const DsaCustomGenerator = React.lazy(() => import('../../components/dsa/DsaCustomGenerator').then(m => ({ default: m.DsaCustomGenerator })));
+const DsaProgressDashboard = React.lazy(() => import('../../components/dsa/DsaProgressDashboard').then(m => ({ default: m.DsaProgressDashboard })));
+const DsaProblemExplorer = React.lazy(() => import('../../components/dsa/DsaProblemExplorer').then(m => ({ default: m.DsaProblemExplorer })));
+const DsaPracticeRunner = React.lazy(() => import('../../components/dsa/DsaPracticeRunner').then(m => ({ default: m.DsaPracticeRunner })));
 
 export const AssessmentPage: React.FC = () => {
   const { user } = useAuth();
@@ -91,7 +95,7 @@ export const AssessmentPage: React.FC = () => {
   const [selectedAnswers, setSelectedAnswers] = useState<Record<string, string>>({});
   const [writtenAnswers, setWrittenAnswers] = useState<Record<string, string>>({});
   const [codingAnswers, setCodingAnswers] = useState<Record<string, string>>({});
-  const [secondsRemaining, setSecondsRemaining] = useState<number>(0);
+  const [secondsRemaining, setSecondsRemaining] = useState<number>(1500); // 25 minutes (1500s) default
   const [isTimerRunning, setIsTimerRunning] = useState<boolean>(false);
   const [submissionResult, setSubmissionResult] = useState<AssessmentSubmitResult | null>(null);
 
@@ -141,7 +145,8 @@ export const AssessmentPage: React.FC = () => {
       setSelectedAnswers({});
       setWrittenAnswers({});
       setCodingAnswers({});
-      setSecondsRemaining(data.timeLimitMinutes * 60);
+      const limitMinutes = (!data.timeLimitMinutes || data.timeLimitMinutes <= 15) ? 25 : data.timeLimitMinutes;
+      setSecondsRemaining(limitMinutes * 60);
       setIsTimerRunning(true);
       setSubmissionResult(null);
       setPlaysUsed(0);
@@ -156,14 +161,77 @@ export const AssessmentPage: React.FC = () => {
     },
   });
 
-  // Auto-start set from search param ?set=...
+  // Auto-start set from search param ?set=... or switch domain from ?domain=...
   useEffect(() => {
     const setParam = searchParams.get('set');
     if (setParam && !activeSet && !submissionResult && !startingSetId) {
       startAttemptMutation.mutate(setParam);
       setSearchParams({}, { replace: true });
     }
-  }, [searchParams, activeSet, submissionResult, startingSetId]);
+    const domainParam = searchParams.get('domain');
+    if (domainParam && selectedDomain !== domainParam) {
+      setSelectedDomain(domainParam);
+      setMainCategory('domain');
+    }
+  }, [searchParams, activeSet, submissionResult, startingSetId, selectedDomain]);
+
+  // Open DSA Runner with URL searchParam synchronization
+  const openDsaRunner = (session: {
+    mode: 'daily' | 'custom' | 'single';
+    questions: DSAQuestionData[];
+    dailyData?: DailyPracticeData;
+    customTitle?: string;
+  }) => {
+    setDsaRunnerSession(session);
+    setSearchParams((prev) => {
+      const next = new URLSearchParams(prev);
+      next.set('tab', 'dsa');
+      next.set('runner', session.mode);
+      return next;
+    });
+  };
+
+  const handleExitDsaRunner = () => {
+    setDsaRunnerSession(null);
+    queryClient.invalidateQueries({ queryKey: ['dsaDailyPractice'] });
+    queryClient.invalidateQueries({ queryKey: ['dsaProgress'] });
+    queryClient.invalidateQueries({ queryKey: ['dsaQuestions'] });
+    queryClient.invalidateQueries({ queryKey: ['radarData'] });
+
+    if (searchParams.has('runner')) {
+      if (window.history.length > 1) {
+        navigate(-1);
+      } else {
+        setSearchParams((prev) => {
+          const next = new URLSearchParams(prev);
+          next.delete('runner');
+          return next;
+        });
+      }
+    }
+  };
+
+  // Auto-start runner if URL specifies runner=daily or sync when browser back button is pressed
+  useEffect(() => {
+    const runnerParam = searchParams.get('runner');
+    if (runnerParam === 'daily' && !dsaRunnerSession) {
+      api.get<{ dailyPractice: DailyPracticeData }>('/dsa/daily').then((res) => {
+        if (res.dailyPractice && res.dailyPractice.questions && res.dailyPractice.questions.length > 0) {
+          setDsaRunnerSession({
+            mode: 'daily',
+            questions: res.dailyPractice.questions,
+            dailyData: res.dailyPractice,
+            customTitle: "Today's Daily Practice",
+          });
+          setMainCategory('dsa');
+        }
+      }).catch((err) => {
+        console.error('Failed to auto-start daily runner from URL:', err);
+      });
+    } else if (!runnerParam && dsaRunnerSession) {
+      setDsaRunnerSession(null);
+    }
+  }, [searchParams, dsaRunnerSession]);
 
   // Submit Assessment Mutation
   const submitAttemptMutation = useMutation({
@@ -243,6 +311,8 @@ export const AssessmentPage: React.FC = () => {
         setQuestions(
           ms.questions.map((q) => ({
             id: q.id,
+            domain: (q as any).domain || 'Domain Core',
+            skillId: (q as any).skillId || q.id,
             type: q.sourceType as any,
             questionType: q.questionType,
             prompt: q.prompt,
@@ -394,8 +464,9 @@ export const AssessmentPage: React.FC = () => {
   };
 
   const formatTimer = (totalSecs: number) => {
-    const mins = Math.floor(totalSecs / 60);
-    const secs = totalSecs % 60;
+    const safeSecs = Math.max(0, totalSecs);
+    const mins = Math.floor(safeSecs / 60);
+    const secs = safeSecs % 60;
     return `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
   };
 
@@ -404,19 +475,15 @@ export const AssessmentPage: React.FC = () => {
   // ─────────────────────────────────────────────────────────────
   if (dsaRunnerSession) {
     return (
-      <DsaPracticeRunner
-        questions={dsaRunnerSession.questions}
-        mode={dsaRunnerSession.mode}
-        dailyPracticeData={dsaRunnerSession.dailyData}
-        customSetTitle={dsaRunnerSession.customTitle}
-        onExit={() => {
-          setDsaRunnerSession(null);
-          queryClient.invalidateQueries({ queryKey: ['dsaDailyPractice'] });
-          queryClient.invalidateQueries({ queryKey: ['dsaProgress'] });
-          queryClient.invalidateQueries({ queryKey: ['dsaQuestions'] });
-          queryClient.invalidateQueries({ queryKey: ['radarData'] });
-        }}
-      />
+      <React.Suspense fallback={<div className="p-8 text-center text-xs font-mono text-slate-400">Loading DSA coding runner...</div>}>
+        <DsaPracticeRunner
+          questions={dsaRunnerSession.questions}
+          mode={dsaRunnerSession.mode}
+          dailyPracticeData={dsaRunnerSession.dailyData}
+          customSetTitle={dsaRunnerSession.customTitle}
+          onExit={handleExitDsaRunner}
+        />
+      </React.Suspense>
     );
   }
 
@@ -430,7 +497,7 @@ export const AssessmentPage: React.FC = () => {
     const { aptitude, domain, dsa } = dailyMixedResult.categoryBreakdown;
 
     return (
-      <div className="max-w-4xl mx-auto space-y-8 font-sans animate-fade-in p-4 sm:p-6">
+      <div className="max-w-4xl mx-auto space-y-5 sm:space-y-6 font-sans animate-fade-in">
         {/* Banner */}
         <div
           className={`p-6 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-6 shadow-xl ${
@@ -488,58 +555,29 @@ export const AssessmentPage: React.FC = () => {
           </div>
         </div>
 
-        {/* 3 Distinct Category Score Cards */}
+        {/* 3 Distinct Category Match Cards */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-          {/* 1. Aptitude */}
-          <div className="p-5 rounded-2xl bg-console-panel border border-console-border space-y-2">
-            <div className="flex items-center justify-between text-xs">
-              <span className="font-semibold text-console-text flex items-center gap-1.5">
-                <Calculator className="w-4 h-4 text-purple-400" />
-                Aptitude (Maths & English)
-              </span>
-              <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${aptitude.passed ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'}`}>
-                {aptitude.passed ? 'PASSED' : 'RETRY'}
-              </span>
-            </div>
-            <div className="text-2xl font-bold text-white font-serif">{aptitude.score}%</div>
-            <div className="text-[11px] text-console-text-muted">
-              {aptitude.correct} of {aptitude.total} questions correct
-            </div>
-          </div>
-
-          {/* 2. Domain Core */}
-          <div className="p-5 rounded-2xl bg-console-panel border border-console-border space-y-2">
-            <div className="flex items-center justify-between text-xs">
-              <span className="font-semibold text-console-text flex items-center gap-1.5">
-                <BookOpen className="w-4 h-4 text-teal-400" />
-                Domain Core Subjects
-              </span>
-              <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${domain.passed ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'}`}>
-                {domain.passed ? 'PASSED' : 'RETRY'}
-              </span>
-            </div>
-            <div className="text-2xl font-bold text-white font-serif">{domain.score}%</div>
-            <div className="text-[11px] text-console-text-muted">
-              {domain.correct} of {domain.total} questions correct
-            </div>
-          </div>
-
-          {/* 3. DSA Coding */}
-          <div className="p-5 rounded-2xl bg-console-panel border border-console-border space-y-2">
-            <div className="flex items-center justify-between text-xs">
-              <span className="font-semibold text-console-text flex items-center gap-1.5">
-                <Code2 className="w-4 h-4 text-amber-400" />
-                DSA / Coding
-              </span>
-              <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${dsa.passed ? 'bg-emerald-500/20 text-emerald-300' : 'bg-rose-500/20 text-rose-300'}`}>
-                {dsa.passed ? 'PASSED' : 'RETRY'}
-              </span>
-            </div>
-            <div className="text-2xl font-bold text-white font-serif">{dsa.score}%</div>
-            <div className="text-[11px] text-console-text-muted">
-              {dsa.solved} of {dsa.total} problems solved
-            </div>
-          </div>
+          <MatchCard
+            label="APTITUDE (MATHS & ENGLISH)"
+            value={`${aptitude.score}%`}
+            subtitle={`${aptitude.correct} of ${aptitude.total} questions correct`}
+            status={aptitude.passed ? 'verified' : 'unverified'}
+            progress={aptitude.score}
+          />
+          <MatchCard
+            label="DOMAIN CORE SUBJECTS"
+            value={`${domain.score}%`}
+            subtitle={`${domain.correct} of ${domain.total} questions correct`}
+            status={domain.passed ? 'verified' : 'unverified'}
+            progress={domain.score}
+          />
+          <MatchCard
+            label="DSA / CODING"
+            value={`${dsa.score}%`}
+            subtitle={`${dsa.solved} of ${dsa.total} problems solved`}
+            status={dsa.passed ? 'verified' : 'unverified'}
+            progress={dsa.score}
+          />
         </div>
 
         {/* Detailed Question Review List */}
@@ -618,7 +656,7 @@ export const AssessmentPage: React.FC = () => {
     const questionBreakdown = submissionResult.questionBreakdown || (submissionResult.questionResults as any) || [];
 
     return (
-      <div className="max-w-4xl mx-auto space-y-8 font-sans animate-fade-in p-4 sm:p-6">
+      <div className="max-w-4xl mx-auto space-y-5 sm:space-y-6 font-sans animate-fade-in">
         {/* Banner */}
         <div
           className={`p-6 rounded-2xl border flex flex-col sm:flex-row sm:items-center justify-between gap-6 shadow-xl ${
@@ -690,7 +728,7 @@ export const AssessmentPage: React.FC = () => {
             <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
               {skillDeltas.map((delta, idx) => (
                 <div
-                  key={idx}
+                  key={delta.skillId || `delta-${idx}`}
                   className="p-3.5 rounded-xl bg-console-bg border border-console-border/80 flex items-center justify-between"
                 >
                   <div>
@@ -836,12 +874,17 @@ export const AssessmentPage: React.FC = () => {
   // VIEW 2: ACTIVE TIMED ASSESSMENT RUNNER SCREEN
   // ─────────────────────────────────────────────────────────────
   if (activeSet && currentQ) {
-    const answeredCount = Object.keys(selectedAnswers).length + Object.keys(writtenAnswers).length;
-    const progressPct = (answeredCount / questions.length) * 100;
+    const answeredCount = questions.filter(q => {
+      if (q.questionType === 'mcq') return Boolean(selectedAnswers[q.id]);
+      if (q.questionType === 'written') return Boolean(writtenAnswers[q.id]?.trim());
+      if (q.questionType === 'coding') return Boolean(codingAnswers[q.id]?.trim());
+      return Boolean(selectedAnswers[q.id] || writtenAnswers[q.id] || codingAnswers[q.id]);
+    }).length;
+    const progressPct = questions.length > 0 ? (answeredCount / questions.length) * 100 : 0;
     const isUrgent = secondsRemaining < 120;
 
     return (
-      <div className="max-w-4xl mx-auto space-y-6 font-sans p-4 sm:p-6 animate-fade-in">
+      <div className="max-w-4xl mx-auto space-y-4 sm:space-y-5 font-sans animate-fade-in">
         {/* Sticky Runner Top Bar */}
         <div className="p-4 rounded-2xl bg-console-panel border border-console-border shadow-xl flex flex-wrap items-center justify-between gap-4 sticky top-4 z-30">
           <div>
@@ -889,20 +932,26 @@ export const AssessmentPage: React.FC = () => {
             />
           </div>
 
-          <div className="flex flex-wrap gap-1.5 pt-2">
+          <div className="flex items-center gap-1.5 overflow-x-auto scrollbar-none py-1 max-w-full touch-pan-x">
             {questions.map((q, idx) => {
-              const isAnswered = selectedAnswers[q.id] || writtenAnswers[q.id];
+              const isAnswered = Boolean(
+                (q.questionType === 'mcq' && selectedAnswers[q.id]) ||
+                (q.questionType === 'written' && writtenAnswers[q.id]?.trim()) ||
+                (q.questionType === 'coding' && codingAnswers[q.id]?.trim()) ||
+                selectedAnswers[q.id] || writtenAnswers[q.id] || codingAnswers[q.id]
+              );
               const isCurrent = idx === currentQuestionIdx;
               return (
                 <button
                   key={q.id}
+                  type="button"
                   onClick={() => setCurrentQuestionIdx(idx)}
-                  className={`w-7 h-7 rounded-lg text-xs font-mono font-bold transition-all ${
+                  className={`min-w-[2.25rem] h-9 w-9 flex items-center justify-center shrink-0 rounded-lg text-xs font-semibold font-mono transition-all ${
                     isCurrent
-                      ? 'bg-bridge-teal text-slate-950 shadow-md shadow-bridge-teal/20'
+                      ? 'bg-bridge-teal text-slate-950 shadow-md shadow-bridge-teal/20 font-bold ring-2 ring-bridge-teal/50'
                       : isAnswered
-                      ? 'bg-status-green/20 text-status-green border border-status-green/40'
-                      : 'bg-console-panel text-console-text-muted border border-console-border hover:text-console-text'
+                      ? 'bg-status-green/20 text-status-green border border-status-green/40 font-bold'
+                      : 'bg-console-panel text-console-text-muted border border-console-border hover:text-console-text hover:border-console-text-muted'
                   }`}
                 >
                   {idx + 1}
@@ -1032,15 +1081,15 @@ export const AssessmentPage: React.FC = () => {
                     }
                     className={`p-4 rounded-xl cursor-pointer border transition-all flex items-center justify-between gap-4 ${
                       isSelected
-                        ? 'bg-bridge-teal/15 border-bridge-teal text-console-text shadow-sm'
+                        ? 'border-cyan-500 bg-cyan-950/20 text-cyan-200 shadow-sm ring-1 ring-cyan-500/30'
                         : 'bg-console-bg border-console-border hover:border-console-text-muted text-console-text-muted hover:text-console-text'
                     }`}
                   >
                     <span className="text-xs font-medium leading-relaxed">{opt.text}</span>
                     <div
-                      className={`w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0 ${
+                      className={`w-4 h-4 rounded-full border flex items-center justify-center flex-shrink-0 transition-colors ${
                         isSelected
-                          ? 'border-bridge-teal bg-bridge-teal'
+                          ? 'border-cyan-500 bg-cyan-500'
                           : 'border-console-border bg-console-panel-raised'
                       }`}
                     >
@@ -1058,16 +1107,23 @@ export const AssessmentPage: React.FC = () => {
               <textarea
                 rows={6}
                 value={writtenAnswers[currentQ.id] || ''}
-                onChange={e =>
-                  setWrittenAnswers(prev => ({ ...prev, [currentQ.id]: e.target.value }))
-                }
+                onChange={e => {
+                  const text = e.target.value;
+                  setWrittenAnswers(prev => ({ ...prev, [currentQ.id]: text }));
+                }}
                 placeholder="Write your structured technical explanation here. Be thorough with architecture concepts and tradeoffs..."
                 className="w-full p-4 rounded-xl bg-console-bg border border-console-border text-xs text-console-text focus:outline-none focus:border-bridge-teal leading-relaxed"
               />
 
               <div className="flex items-center justify-between text-[11px] font-mono text-console-text-muted">
                 <span>Evaluated on technical clarity, trade-off depth, and keyword accuracy.</span>
-                <span>{(writtenAnswers[currentQ.id] || '').split(/\s+/).filter(Boolean).length} words</span>
+                <span className="font-semibold text-cyan-400">
+                  {(() => {
+                    const text = writtenAnswers[currentQ.id] || '';
+                    const wordCount = text.trim() ? text.trim().split(/\s+/).length : 0;
+                    return `${wordCount} words`;
+                  })()}
+                </span>
               </div>
             </div>
           )}
@@ -1126,39 +1182,36 @@ export const AssessmentPage: React.FC = () => {
   ];
 
   return (
-    <div className="max-w-5xl mx-auto space-y-8 font-sans p-4 sm:p-6">
+    <div className="max-w-5xl mx-auto space-y-5 sm:space-y-6 font-sans">
       {/* Daily Practice Mandatory Requirement Nudge */}
       <DailyPracticeBanner
         onStartSet={(setId) => startAttemptMutation.mutate(setId)}
       />
 
       {/* Top Header */}
-      <div className="space-y-3 border-b border-console-border pb-6">
+      <div className="space-y-3 border-b border-slate-800 pb-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
-            <div className="flex items-center gap-2">
-              <span className="text-xs font-mono uppercase tracking-wider text-bridge-teal font-semibold">
-                Standardized Skill Verification
-              </span>
-              <span className="w-1.5 h-1.5 rounded-full bg-bridge-teal" />
-              <span className="text-xs font-mono text-console-text-muted">Timed Practice Sets & Aptitude</span>
+            <div className="tech-pill text-[10.5px]">
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+              <span>STANDARDIZED SKILL VERIFICATION</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold font-serif text-console-text">
+            <h1 className="text-2xl sm:text-3xl font-bold text-white tracking-tight">
               Assessment & Competency Calibration
             </h1>
           </div>
 
           <Link
             to="/report-card"
-            className="self-start sm:self-auto px-4 py-2.5 rounded-xl bg-console-panel hover:bg-console-panel-raised border border-console-border text-xs font-semibold text-console-text flex items-center gap-2 transition-all hover:border-bridge-teal/40 group shadow-md"
+            className="self-start sm:self-auto px-5 py-2.5 rounded-full bg-[#0b1222] hover:bg-[#0f172a] border border-slate-800 hover:border-cyan-500/40 text-xs font-semibold text-slate-300 hover:text-white flex items-center gap-2 transition-all group shadow-md"
           >
-            <FileText className="w-4 h-4 text-bridge-teal group-hover:scale-110 transition-transform" />
+            <FileText className="w-4 h-4 text-cyan-400 group-hover:scale-110 transition-transform" />
             <span>View Historical Report Card</span>
-            <ChevronRight className="w-3.5 h-3.5 text-console-text-muted" />
+            <ChevronRight className="w-3.5 h-3.5 text-slate-500" />
           </Link>
         </div>
 
-        <p className="text-xs text-console-text-muted max-w-2xl leading-relaxed">
+        <p className="text-xs text-slate-400 max-w-2xl leading-relaxed">
           Complete timed technical practice sets and standalone aptitude modules to calibrate your mathematical radar vector, increase internship match scores, and unlock verified badges.
         </p>
 
@@ -1166,10 +1219,10 @@ export const AssessmentPage: React.FC = () => {
         <div className="flex flex-wrap items-center gap-2 pt-2">
           <button
             onClick={() => setMainCategory('domain')}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
+            className={`px-5 py-2 rounded-full text-xs font-semibold transition-all ${
               mainCategory === 'domain'
                 ? 'bg-bridge-teal text-slate-950 shadow-md shadow-bridge-teal/20 font-bold'
-                : 'bg-console-panel hover:bg-console-panel-raised text-console-text-muted border border-console-border'
+                : 'bg-panel hover:bg-panel-raised text-text-muted hover:text-text-primary border border-border'
             }`}
           >
             Domain Competency Sets
@@ -1177,10 +1230,10 @@ export const AssessmentPage: React.FC = () => {
 
           <button
             onClick={() => setMainCategory('aptitude')}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all ${
+            className={`px-5 py-2 rounded-full text-xs font-semibold transition-all ${
               mainCategory === 'aptitude'
-                ? 'bg-campus-blue text-white shadow-md shadow-campus-blue/20 font-bold'
-                : 'bg-console-panel hover:bg-console-panel-raised text-console-text-muted border border-console-border'
+                ? 'bg-bridge-teal text-slate-950 shadow-md shadow-bridge-teal/20 font-bold'
+                : 'bg-panel hover:bg-panel-raised text-text-muted hover:text-text-primary border border-border'
             }`}
           >
             Dedicated Aptitude Module
@@ -1188,10 +1241,10 @@ export const AssessmentPage: React.FC = () => {
 
           <button
             onClick={() => setMainCategory('dsa')}
-            className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-1.5 ${
+            className={`px-5 py-2 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
               mainCategory === 'dsa'
-                ? 'bg-gradient-to-r from-bridge-teal to-emerald-400 text-slate-950 shadow-md shadow-bridge-teal/20 font-bold'
-                : 'bg-console-panel hover:bg-console-panel-raised text-console-text-muted border border-console-border'
+                ? 'bg-bridge-teal text-slate-950 shadow-md shadow-bridge-teal/20 font-bold'
+                : 'bg-panel hover:bg-panel-raised text-text-muted hover:text-text-primary border border-border'
             }`}
           >
             <Code2 className="w-3.5 h-3.5" />
@@ -1202,44 +1255,46 @@ export const AssessmentPage: React.FC = () => {
 
       {/* Main Tab Content */}
       {mainCategory === 'dsa' ? (
-        <div className="space-y-8 animate-fade-in">
-          {/* A. Daily Mandatory DSA Practice */}
-          <DsaDailyBanner
-            onStartDailyPractice={(daily) => {
-              setDsaRunnerSession({
-                mode: 'daily',
-                questions: daily.questions || [],
-                dailyData: daily,
-                customTitle: "Today's Daily Practice",
-              });
-            }}
-          />
+        <React.Suspense fallback={<div className="p-8 text-center text-xs font-mono text-text-muted">Loading DSA workspace...</div>}>
+          <div className="space-y-5 sm:space-y-6 animate-fade-in">
+            {/* A. Daily Mandatory DSA Practice */}
+            <DsaDailyBanner
+              onStartDailyPractice={(daily) => {
+                openDsaRunner({
+                  mode: 'daily',
+                  questions: daily.questions || [],
+                  dailyData: daily,
+                  customTitle: "Today's Daily Practice",
+                });
+              }}
+            />
 
-          {/* B. Custom DSA Practice Generator */}
-          <DsaCustomGenerator
-            onGenerateSet={(set) => {
-              setDsaRunnerSession({
-                mode: 'custom',
-                questions: (set.questions as any) || [],
-                customTitle: set.title,
-              });
-            }}
-          />
+            {/* B. Custom DSA Practice Generator */}
+            <DsaCustomGenerator
+              onGenerateSet={(set) => {
+                openDsaRunner({
+                  mode: 'custom',
+                  questions: ((set as any).questions as any) || [],
+                  customTitle: set.title,
+                });
+              }}
+            />
 
-          {/* E. DSA Progress Dashboard */}
-          <DsaProgressDashboard />
+            {/* E. DSA Progress Dashboard */}
+            <DsaProgressDashboard />
 
-          {/* C. DSA Problem Explorer */}
-          <DsaProblemExplorer
-            onPracticeQuestion={(q) => {
-              setDsaRunnerSession({
-                mode: 'single',
-                questions: [q],
-                customTitle: `Practice: ${q.title}`,
-              });
-            }}
-          />
-        </div>
+            {/* C. DSA Problem Explorer */}
+            <DsaProblemExplorer
+              onPracticeQuestion={(q) => {
+                openDsaRunner({
+                  mode: 'single',
+                  questions: [q],
+                  customTitle: `Practice: ${q.title}`,
+                });
+              }}
+            />
+          </div>
+        </React.Suspense>
       ) : (
         <>
           {/* Subcategory Pills */}
@@ -1249,10 +1304,10 @@ export const AssessmentPage: React.FC = () => {
                 <button
                   key={dom}
                   onClick={() => setSelectedDomain(dom)}
-                  className={`px-3.5 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
+                  className={`px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
                     selectedDomain === dom
-                      ? 'bg-console-panel-raised text-bridge-teal border border-bridge-teal/40 font-semibold'
-                      : 'bg-console-panel text-console-text-muted hover:text-console-text border border-console-border'
+                      ? 'bg-bridge-teal/15 text-bridge-teal border border-bridge-teal/40 font-semibold shadow-sm'
+                      : 'bg-panel text-text-muted hover:text-text-primary border border-border'
                   }`}
                 >
                   {dom}
@@ -1271,10 +1326,10 @@ export const AssessmentPage: React.FC = () => {
                   <button
                     key={apt.id}
                     onClick={() => setSelectedAptitudeType(apt.id as any)}
-                    className={`flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-medium whitespace-nowrap transition-all ${
+                    className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
                       selectedAptitudeType === apt.id
-                        ? 'bg-campus-blue/20 text-campus-blue border border-campus-blue/40 font-semibold'
-                        : 'bg-console-panel text-console-text-muted hover:text-console-text border border-console-border'
+                        ? 'bg-bridge-teal/15 text-bridge-teal border border-bridge-teal/40 font-semibold shadow-sm'
+                        : 'bg-panel text-text-muted hover:text-text-primary border border-border'
                     }`}
                   >
                     <Icon className="w-3.5 h-3.5" />
@@ -1289,12 +1344,12 @@ export const AssessmentPage: React.FC = () => {
           {loadingSets ? (
             <div className="text-center py-16 space-y-3">
               <div className="w-8 h-8 border-2 border-bridge-teal border-t-transparent rounded-full animate-spin mx-auto" />
-              <p className="text-xs font-mono text-console-text-muted">Loading available practice sets...</p>
+              <p className="text-xs font-mono text-text-muted">Loading available practice sets...</p>
             </div>
           ) : filteredSets.length === 0 ? (
-            <div className="p-8 rounded-2xl bg-console-panel border border-console-border text-center space-y-2">
-              <CheckSquare className="w-8 h-8 text-console-text-muted mx-auto" />
-              <p className="text-xs font-semibold text-console-text">No practice sets available in this category.</p>
+            <div className="p-8 rounded-2xl bg-panel border border-border text-center space-y-2">
+              <CheckSquare className="w-8 h-8 text-text-muted mx-auto" />
+              <p className="text-xs font-semibold text-text-primary">No practice sets available in this category.</p>
             </div>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -1306,44 +1361,44 @@ export const AssessmentPage: React.FC = () => {
                 return (
                   <div
                     key={set.id}
-                    className="p-6 rounded-2xl bg-console-panel border border-console-border hover:border-bridge-teal/40 transition-all duration-200 shadow-lg flex flex-col justify-between space-y-4 group"
+                    className="p-6 rounded-2xl bg-panel border border-border hover:border-bridge-teal/40 transition-all duration-200 shadow-xl flex flex-col justify-between space-y-4 group"
                   >
                     <div className="space-y-3">
                       <div className="flex items-center justify-between">
-                        <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-console-panel-raised border border-console-border text-console-text-muted">
+                        <span className="small-caps-label text-[10px] px-2.5 py-0.5 rounded-full bg-panel-raised border border-border text-text-muted">
                           {set.difficulty}
                         </span>
 
                         {hasPassed ? (
-                          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-status-green/15 text-status-green border border-status-green/30 flex items-center gap-1">
+                          <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-signal-green/15 text-signal-green border border-signal-green/30 flex items-center gap-1">
                             <CheckCircle2 className="w-3 h-3" />
                             <span>Best: {set.previousBestScore?.toFixed(0)}%</span>
                           </span>
                         ) : hasAttempted ? (
-                          <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-industry-amber/15 text-industry-amber border border-industry-amber/30">
+                          <span className="text-[10px] font-mono font-bold px-2.5 py-0.5 rounded-full bg-signal-amber/15 text-signal-amber border border-signal-amber/30">
                             Best: {set.previousBestScore?.toFixed(0)}%
                           </span>
                         ) : (
-                          <span className="text-[10px] font-mono text-console-text-muted">
+                          <span className="text-[10px] font-mono text-text-muted">
                             Unattempted
                           </span>
                         )}
                       </div>
 
-                      <h3 className="font-serif font-bold text-sm text-console-text group-hover:text-bridge-teal transition-colors">
+                      <h3 className="font-bold text-sm text-text-primary group-hover:text-bridge-teal transition-colors font-sans">
                         {set.title}
                       </h3>
 
-                      <p className="text-xs text-console-text-muted leading-relaxed line-clamp-3">
+                      <p className="text-xs text-text-muted leading-relaxed line-clamp-3 font-sans">
                         {set.description}
                       </p>
                     </div>
 
-                    <div className="space-y-3 pt-2 border-t border-console-border/60">
-                      <div className="flex items-center justify-between text-[11px] font-mono text-console-text-muted">
-                        <div className="flex items-center gap-1">
+                    <div className="space-y-3 pt-3 border-t border-border">
+                      <div className="flex items-center justify-between text-[11px] font-mono text-text-muted">
+                        <div className="flex items-center gap-1.5">
                           <Clock className="w-3.5 h-3.5 text-bridge-teal" />
-                          <span>{set.timeLimitMinutes} Mins</span>
+                          <span>{set.timeLimitMinutes <= 15 ? 25 : (set.timeLimitMinutes || 25)} Mins</span>
                         </div>
                         <div>Pass: {set.passingScorePct}%</div>
                       </div>
@@ -1351,7 +1406,7 @@ export const AssessmentPage: React.FC = () => {
                       <button
                         onClick={() => startAttemptMutation.mutate(set.id)}
                         disabled={startAttemptMutation.isPending}
-                        className="w-full py-2.5 rounded-xl bg-bridge-teal hover:bg-bridge-teal/90 text-slate-950 text-xs font-bold shadow-md shadow-bridge-teal/20 transition-all flex items-center justify-center gap-1.5 disabled:opacity-60"
+                        className="bridge-btn-primary w-full py-2.5 rounded-full text-xs font-bold transition-all flex items-center justify-center gap-2 disabled:opacity-60"
                       >
                         {isStartingThis ? (
                           <>

@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import {
   Radar,
   RadarChart,
@@ -8,7 +8,8 @@ import {
   ResponsiveContainer,
   Tooltip,
 } from 'recharts';
-import { Target, Award, AlertCircle } from 'lucide-react';
+import { Target, Award, AlertCircle, Activity } from 'lucide-react';
+import { MatchCard } from './MatchCard';
 
 interface SkillScoreItem {
   skillId: string;
@@ -29,62 +30,73 @@ interface SkillRadarCardProps {
   className?: string;
 }
 
-export const SkillRadarCard: React.FC<SkillRadarCardProps> = ({
+export const SkillRadarCard: React.FC<SkillRadarCardProps> = React.memo(({
   studentSkills,
   benchmarks,
   targetDomain,
   className = '',
 }) => {
-  const scoreMap = new Map(studentSkills.map(s => [s.skillId, s.score]));
+  const { chartData, isAllZero, totalGaps, strengths } = useMemo(() => {
+    const scoreMap = new Map(studentSkills.map(s => [s.skillId, s.score]));
 
-  const effectiveBenchmarks = benchmarks.length >= 3
-    ? benchmarks
-    : [
-        { skillId: 'def-1', skillName: 'Problem Solving & DSA', benchmarkScore: 80 },
-        { skillId: 'def-2', skillName: 'Core Architecture', benchmarkScore: 75 },
-        { skillId: 'def-3', skillName: 'API & Data Contracts', benchmarkScore: 75 },
-        { skillId: 'def-4', skillName: 'Code Quality & Testing', benchmarkScore: 70 },
-        { skillId: 'def-5', skillName: 'System Fundamentals', benchmarkScore: 80 },
-        { skillId: 'def-6', skillName: 'DevOps & Tooling', benchmarkScore: 70 },
-      ];
+    const effectiveBenchmarks = benchmarks.length >= 3
+      ? benchmarks
+      : [
+          { skillId: 'def-1', skillName: 'Problem Solving & DSA', benchmarkScore: 80 },
+          { skillId: 'def-2', skillName: 'Core Architecture', benchmarkScore: 75 },
+          { skillId: 'def-3', skillName: 'API & Data Contracts', benchmarkScore: 75 },
+          { skillId: 'def-4', skillName: 'Code Quality & Testing', benchmarkScore: 70 },
+          { skillId: 'def-5', skillName: 'System Fundamentals', benchmarkScore: 80 },
+          { skillId: 'def-6', skillName: 'DevOps & Tooling', benchmarkScore: 70 },
+        ];
 
-  const chartData = effectiveBenchmarks.map(b => {
-    const studentScore = scoreMap.get(b.skillId) || 0;
+    const data = effectiveBenchmarks.map(b => {
+      const studentScore = scoreMap.get(b.skillId) || 0;
+      return {
+        skill: b.skillName,
+        skillId: b.skillId,
+        studentScore,
+        benchmarkScore: b.benchmarkScore,
+        gap: Math.max(0, b.benchmarkScore - studentScore),
+      };
+    });
+
+    const allZero = data.every(d => d.studentScore === 0);
+    const gaps = data.filter(d => d.studentScore < d.benchmarkScore).length;
+    const str = data.filter(d => d.studentScore >= d.benchmarkScore).length;
+
     return {
-      skill: b.skillName,
-      studentScore,
-      benchmarkScore: b.benchmarkScore,
-      gap: Math.max(0, b.benchmarkScore - studentScore),
+      chartData: data,
+      isAllZero: allZero,
+      totalGaps: gaps,
+      strengths: str,
     };
-  });
-
-  const isAllZero = chartData.every(d => d.studentScore === 0);
-  const totalGaps = chartData.filter(d => d.studentScore < d.benchmarkScore).length;
-  const strengths = chartData.filter(d => d.studentScore >= d.benchmarkScore).length;
+  }, [studentSkills, benchmarks]);
 
   return (
-    <div className={`bg-console-panel border border-console-border rounded-xl p-5 shadow-sm ${className}`}>
+    <div className={`bg-[#111318] border border-[#2A2E38] rounded-2xl p-5 sm:p-6 shadow-xl backdrop-blur-md space-y-5 ${className}`}>
       {/* Header */}
-      <div className="flex items-center justify-between pb-4 mb-2 border-b border-console-border">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#2A2E38] gap-3">
         <div>
-          <span className="text-xs font-mono uppercase tracking-wider text-console-text-muted block">
-            Competency Vector vs Industry Benchmark
+          <span className="small-caps-label flex items-center gap-1.5 text-[#2F8C82] mb-1">
+            <Activity className="w-3 h-3 text-[#2F8C82]" />
+            Vector Calibration
           </span>
-          <h3 className="font-serif text-lg font-semibold text-console-text">
+          <h3 className="text-base sm:text-lg font-semibold text-[#F4F5F7] tracking-tight">
             {targetDomain} Skill Radar
           </h3>
         </div>
-        <div className="flex items-center gap-3">
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-status-green/10 border border-status-green/20">
-            <Award className="w-3.5 h-3.5 text-status-green" />
-            <span className="text-xs font-mono text-status-green font-medium">
+        <div className="flex items-center gap-2">
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#1A1D24] border border-[#2A2E38]">
+            <Award className="w-3.5 h-3.5 text-[#4CC38A]" />
+            <span className="text-xs font-mono text-[#4CC38A] font-medium">
               {strengths} Strengths
             </span>
           </div>
           {totalGaps > 0 && (
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-status-red/10 border border-status-red/20">
-              <AlertCircle className="w-3.5 h-3.5 text-status-red" />
-              <span className="text-xs font-mono text-status-red font-medium">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#1A1D24] border border-[#2A2E38]">
+              <AlertCircle className="w-3.5 h-3.5 text-[#E5637C]" />
+              <span className="text-xs font-mono text-[#E5637C] font-medium">
                 {totalGaps} Gaps
               </span>
             </div>
@@ -93,43 +105,43 @@ export const SkillRadarCard: React.FC<SkillRadarCardProps> = ({
       </div>
 
       {/* Radar Chart */}
-      <div className="w-full h-72">
+      <div className="w-full h-72 sm:h-80">
         <ResponsiveContainer width="100%" height="100%">
           <RadarChart cx="50%" cy="50%" outerRadius="75%" data={chartData}>
-            <PolarGrid gridType="polygon" stroke="#2E3241" />
+            <PolarGrid gridType="polygon" stroke="#2A2E38" />
             <PolarAngleAxis
               dataKey="skill"
-              tick={{ fill: '#EDEFF3', fontSize: 11, fontFamily: 'Inter' }}
+              tick={{ fill: '#8B90A0', fontSize: 11, fontFamily: 'Inter' }}
             />
             <PolarRadiusAxis
               angle={30}
               domain={[0, 100]}
               type="number"
               allowDataOverflow={false}
-              tick={{ fill: '#8A90A3', fontSize: 10, fontFamily: 'IBM Plex Mono' }}
+              tick={{ fill: '#8B90A0', fontSize: 10, fontFamily: 'IBM Plex Mono' }}
             />
             <Tooltip
               content={({ active, payload }) => {
                 if (active && payload && payload.length) {
                   const data = payload[0].payload;
                   return (
-                    <div className="bg-console-panel-raised border border-console-border p-3 rounded-lg shadow-lg font-sans text-xs">
-                      <div className="font-semibold text-console-text mb-1.5">{data.skill}</div>
-                      <div className="flex items-center justify-between gap-4 text-bridge-teal font-mono">
+                    <div className="bg-[#1A1D24] border border-[#2A2E38] p-3 rounded-xl shadow-xl font-sans text-xs space-y-1.5">
+                      <div className="font-semibold text-[#F4F5F7] pb-1 border-b border-[#2A2E38]">{data.skill}</div>
+                      <div className="flex items-center justify-between gap-4 text-[#2F8C82] font-mono">
                         <span>Your Score:</span>
                         <span className="font-bold">{data.studentScore}%</span>
                       </div>
-                      <div className="flex items-center justify-between gap-4 text-console-text-muted font-mono">
-                        <span>Industry Benchmark:</span>
+                      <div className="flex items-center justify-between gap-4 text-[#8B90A0] font-mono">
+                        <span>Industry Target:</span>
                         <span className="font-bold">{data.benchmarkScore}%</span>
                       </div>
                       {data.gap > 0 ? (
-                        <div className="mt-1.5 pt-1.5 border-t border-console-border text-status-red font-mono font-medium">
+                        <div className="mt-1 pt-1 border-t border-[#2A2E38] text-[#E5637C] font-mono font-medium">
                           Gap: -{data.gap}%
                         </div>
                       ) : (
-                        <div className="mt-1.5 pt-1.5 border-t border-console-border text-status-green font-mono font-medium">
-                          Benchmark Met (Strength)
+                        <div className="mt-1 pt-1 border-t border-[#2A2E38] text-[#4CC38A] font-mono font-medium">
+                          Benchmark Met
                         </div>
                       )}
                     </div>
@@ -138,48 +150,74 @@ export const SkillRadarCard: React.FC<SkillRadarCardProps> = ({
                 return null;
               }}
             />
-            {/* Industry Benchmark line in console-text-muted */}
+            {/* Industry Benchmark line */}
             <Radar
               name="Industry Benchmark"
               dataKey="benchmarkScore"
-              stroke="#8A90A3"
+              stroke="#8B90A0"
               strokeDasharray="4 4"
               strokeWidth={1.5}
-              fill="#8A90A3"
-              fillOpacity={0.08}
+              fill="#8B90A0"
+              fillOpacity={0.06}
             />
-            {/* Student Verified Score in bridge-teal */}
+            {/* Student Verified Score in Bridge Teal */}
             <Radar
               name="Verified Student Score"
               dataKey="studentScore"
               stroke="#2F8C82"
               strokeWidth={2.5}
               fill="#2F8C82"
-              fillOpacity={0.35}
+              fillOpacity={0.25}
             />
           </RadarChart>
         </ResponsiveContainer>
       </div>
 
       {/* Legend */}
-      <div className="flex items-center justify-center gap-6 mt-2 pt-3 border-t border-console-border/60 text-xs font-mono">
+      <div className="flex items-center justify-center gap-6 pt-3 border-t border-[#2A2E38] text-xs font-mono">
         <div className="flex items-center gap-2">
-          <div className="w-3 h-3 rounded-sm bg-bridge-teal opacity-90 border border-bridge-teal" />
-          <span className="text-console-text font-medium">Your Verified Score</span>
+          <div className="w-2.5 h-2.5 rounded-full bg-[#2F8C82]" />
+          <span className="text-[#F4F5F7] font-medium">Verified Vector</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-3 h-0.5 border-t-2 border-dashed border-console-text-muted" />
-          <span className="text-console-text-muted">Industry Target Benchmark</span>
+          <div className="w-4 h-0.5 border-t-2 border-dashed border-[#8B90A0]" />
+          <span className="text-[#8B90A0]">Industry Benchmark</span>
+        </div>
+      </div>
+
+      {/* Category breakdown via MatchCard components */}
+      <div className="pt-2">
+        <div className="small-caps-label text-[#8B90A0] mb-3">
+          Category Vectors & Benchmarks
+        </div>
+        <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+          {chartData.map((d) => (
+            <MatchCard
+              key={d.skillId}
+              label={d.skill}
+              value={`${d.studentScore}%`}
+              subValue={`Target: ${d.benchmarkScore}%`}
+              progress={(d.studentScore / (d.benchmarkScore || 100)) * 100}
+              trend={
+                d.gap > 0
+                  ? { direction: 'down', value: `-${d.gap}%` }
+                  : { direction: 'up', value: 'Passed' }
+              }
+              variant="raised"
+            />
+          ))}
         </div>
       </div>
 
       {isAllZero && (
-        <div className="mt-3 p-2.5 rounded-lg bg-canvas-subtle border border-console-border text-center">
-          <span className="text-[11px] text-console-text-muted font-sans">
-            ⚡ Calibration Pending: Complete domain assessments or course certifications to expand your verified polygon.
+        <div className="mt-4 p-3.5 rounded-xl bg-[#1A1D24] border border-[#2A2E38] text-center">
+          <span className="text-xs text-[#2F8C82] font-mono">
+            Calibration Pending: Complete domain assessments or course certifications to expand your verified polygon.
           </span>
         </div>
       )}
     </div>
   );
-};
+});
+
+export default SkillRadarCard;

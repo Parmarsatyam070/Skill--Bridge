@@ -31,6 +31,7 @@ import {
   HistoricalAttemptItem,
   HistoricalAttemptDetail,
 } from '@shared/types';
+import { MatchCard } from '../../components/MatchCard';
 
 export const ReportCardPage: React.FC = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
@@ -109,123 +110,85 @@ export const ReportCardPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-6xl mx-auto space-y-8 font-sans p-4 sm:p-6 animate-fade-in">
+    <div className="max-w-6xl mx-auto space-y-5 sm:space-y-6 font-sans animate-fade-in">
       {/* Top Header */}
-      <div className="space-y-3 border-b border-console-border pb-6">
+      <div className="space-y-3 border-b border-border pb-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div className="space-y-1">
             <div className="flex items-center gap-2">
-              <span className="text-xs font-mono uppercase tracking-wider text-bridge-teal font-semibold">
-                Permanent Academic Record
+              <span className="small-caps-label text-[11px] text-bridge-teal font-bold">
+                [● PERMANENT ACADEMIC RECORD]
               </span>
               <span className="w-1.5 h-1.5 rounded-full bg-bridge-teal" />
-              <span className="text-xs font-mono text-console-text-muted">Skill Assessment History</span>
+              <span className="text-xs font-mono text-text-muted">Skill Assessment History</span>
             </div>
-            <h1 className="text-2xl sm:text-3xl font-bold font-serif text-console-text">
+            <h1 className="text-2xl sm:text-3xl font-bold text-text-primary tracking-tight font-sans">
               Verified Assessment Report Card
             </h1>
           </div>
 
           <Link
             to="/assessment"
-            className="self-start sm:self-auto px-4 py-2.5 rounded-xl bg-bridge-teal hover:bg-bridge-teal/90 text-slate-950 text-xs font-bold transition-all shadow-md shadow-bridge-teal/20 flex items-center gap-2"
+            className="bridge-btn-primary self-start sm:self-auto px-4 py-2.5 rounded-full text-xs font-bold transition-all shadow-md flex items-center gap-2"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>Take New Assessment</span>
           </Link>
         </div>
 
-        <p className="text-xs text-console-text-muted max-w-2xl leading-relaxed">
+        <p className="text-xs text-text-muted max-w-2xl leading-relaxed font-sans">
           Comprehensive historical transcript of all completed domain competency sets and aptitude examinations. Serves as the authoritative source of truth for verified skills and internship matching calibrations.
         </p>
       </div>
 
-      {/* KPI Summary Cards */}
+      {/* KPI Summary Cards using MatchCard */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {/* Total Assessments */}
-        <div className="p-5 rounded-2xl bg-console-panel border border-console-border shadow-lg space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-mono text-console-text-muted uppercase tracking-wider font-semibold">
-              Total Attempts
-            </span>
-            <div className="w-8 h-8 rounded-xl bg-console-panel-raised border border-console-border text-bridge-teal flex items-center justify-center">
-              <FileText className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="text-2xl font-serif font-bold text-console-text">
-            {report?.totalAttempts ?? 0}
-          </div>
-          <div className="text-[11px] font-mono text-console-text-muted">
-            {report?.passedAttempts ?? 0} Passed ({report?.passRate ?? 0}% Pass Rate)
-          </div>
-        </div>
-
-        {/* Overall Pass Rate */}
-        <div className="p-5 rounded-2xl bg-console-panel border border-console-border shadow-lg space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-mono text-console-text-muted uppercase tracking-wider font-semibold">
-              Pass Rate
-            </span>
-            <div className="w-8 h-8 rounded-xl bg-status-green/15 border border-status-green/30 text-status-green flex items-center justify-center">
-              <CheckCircle2 className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="text-2xl font-serif font-bold text-status-green">
-            {report?.passRate ?? 0}%
-          </div>
-          <div className="w-full bg-console-bg h-1.5 rounded-full overflow-hidden border border-console-border">
-            <div
-              className="bg-status-green h-full rounded-full transition-all duration-500"
-              style={{ width: `${Math.min(100, report?.passRate ?? 0)}%` }}
-            />
-          </div>
-        </div>
-
-        {/* Average Score */}
-        <div className="p-5 rounded-2xl bg-console-panel border border-console-border shadow-lg space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-mono text-console-text-muted uppercase tracking-wider font-semibold">
-              Average Score
-            </span>
-            <div className="w-8 h-8 rounded-xl bg-campus-blue/15 border border-campus-blue/30 text-campus-blue flex items-center justify-center">
-              <Award className="w-4 h-4" />
-            </div>
-          </div>
-          <div className="text-2xl font-serif font-bold text-console-text">
-            {report?.averageScore ?? 0}%
-          </div>
-          <div className="text-[11px] font-mono text-console-text-muted">
-            Across all technical & aptitude sets
-          </div>
-        </div>
-
-        {/* Performance Trend */}
-        <div className="p-5 rounded-2xl bg-console-panel border border-console-border shadow-lg space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-mono text-console-text-muted uppercase tracking-wider font-semibold">
-              Performance Trend
-            </span>
-            <div className="w-8 h-8 rounded-xl bg-console-panel-raised border border-console-border text-console-text flex items-center justify-center">
-              {report?.performanceTrend === 'improving' ? (
-                <TrendingUp className="w-4 h-4 text-status-green" />
-              ) : report?.performanceTrend === 'declining' ? (
-                <TrendingDown className="w-4 h-4 text-status-red" />
-              ) : (
-                <Minus className="w-4 h-4 text-bridge-teal" />
-              )}
-            </div>
-          </div>
-          <div className="text-2xl font-serif font-bold capitalize text-console-text">
-            {report?.performanceTrend === 'improving'
-              ? 'Improving ↗'
+        <MatchCard
+          label="TOTAL ATTEMPTS"
+          value={report?.totalAttempts ?? 0}
+          subtitle={`${report?.passedAttempts ?? 0} Passed (${report?.passRate ?? 0}% Pass Rate)`}
+          icon={FileText}
+        />
+        <MatchCard
+          label="OVERALL PASS RATE"
+          value={`${report?.passRate ?? 0}%`}
+          progress={report?.passRate ?? 0}
+          status={(report?.passRate ?? 0) >= 60 ? 'verified' : 'unverified'}
+          icon={CheckCircle2}
+        />
+        <MatchCard
+          label="AVERAGE SCORE"
+          value={`${report?.averageScore ?? 0}%`}
+          progress={report?.averageScore ?? 0}
+          subtitle="Across all technical & aptitude sets"
+          icon={Award}
+        />
+        <MatchCard
+          label="PERFORMANCE TREND"
+          value={
+            report?.performanceTrend === 'improving'
+              ? 'IMPROVING'
               : report?.performanceTrend === 'declining'
-              ? 'Needs Focus ↘'
-              : 'Steady →'}
-          </div>
-          <div className="text-[11px] font-mono text-console-text-muted">
-            On consecutive attempt retakes
-          </div>
-        </div>
+              ? 'NEEDS FOCUS'
+              : 'STEADY'
+          }
+          trend={{
+            direction:
+              report?.performanceTrend === 'improving'
+                ? 'up'
+                : report?.performanceTrend === 'declining'
+                ? 'down'
+                : 'neutral',
+            value:
+              report?.performanceTrend === 'improving'
+                ? 'Momentum ↗'
+                : report?.performanceTrend === 'declining'
+                ? 'Focus ↘'
+                : 'Stable',
+          }}
+          subtitle="On consecutive retakes"
+          icon={TrendingUp}
+        />
       </div>
 
       {/* Filter & Controls Bar */}
@@ -247,10 +210,10 @@ export const ReportCardPage: React.FC = () => {
             <button
               key={cat.id}
               onClick={() => setSelectedCategory(cat.id)}
-              className={`px-3.5 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap transition-all ${
+              className={`px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
                 selectedCategory === cat.id
                   ? 'bg-bridge-teal text-slate-950 font-bold shadow-md shadow-bridge-teal/20'
-                  : 'bg-console-panel text-console-text-muted hover:text-console-text border border-console-border'
+                  : 'bg-panel text-text-muted hover:text-text-primary border border-border'
               }`}
             >
               {cat.label}
@@ -259,24 +222,24 @@ export const ReportCardPage: React.FC = () => {
         </div>
 
         {/* Search & Sort Row */}
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-console-panel p-3.5 rounded-2xl border border-console-border">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-panel p-3.5 rounded-2xl border border-border">
           <div className="relative flex-1">
-            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-console-text-muted" />
+            <Search className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-text-muted" />
             <input
               type="text"
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="Search assessment attempts by topic, practice set title, or domain..."
-              className="w-full pl-10 pr-4 py-2 bg-console-bg border border-console-border rounded-xl text-xs text-console-text placeholder:text-console-text-muted focus:outline-none focus:border-bridge-teal"
+              className="w-full pl-10 pr-4 py-2 bg-void border border-border rounded-xl text-xs text-text-primary placeholder:text-text-muted focus:outline-none focus:border-bridge-teal"
             />
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="text-xs font-mono text-console-text-muted whitespace-nowrap">Sort:</span>
+            <span className="small-caps-label text-xs font-mono text-text-muted whitespace-nowrap">SORT:</span>
             <select
               value={sortBy}
               onChange={e => setSortBy(e.target.value as any)}
-              className="px-3 py-2 bg-console-bg border border-console-border rounded-xl text-xs text-console-text focus:outline-none focus:border-bridge-teal"
+              className="px-3 py-2 bg-void border border-border rounded-xl text-xs text-text-primary focus:outline-none focus:border-bridge-teal cursor-pointer"
             >
               <option value="date_desc">Latest Attempt First</option>
               <option value="date_asc">Oldest Attempt First</option>
@@ -316,15 +279,15 @@ export const ReportCardPage: React.FC = () => {
             <div
               key={att.id}
               onClick={() => setActiveModalAttemptId(att.id)}
-              className="p-5 rounded-2xl bg-console-panel border border-console-border hover:border-bridge-teal/50 transition-all duration-200 shadow-md hover:shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer group"
+              className="p-5 rounded-2xl bg-panel border border-border hover:border-bridge-teal/40 transition-all duration-200 shadow-xl flex flex-col md:flex-row md:items-center justify-between gap-4 cursor-pointer group"
             >
               {/* Left Column: Title & Domain Badges */}
               <div className="space-y-2 flex-1">
                 <div className="flex items-center gap-2 flex-wrap">
-                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-console-panel-raised border border-console-border text-console-text">
+                  <span className="small-caps-label text-[10px] font-bold px-2.5 py-0.5 rounded-full bg-panel-raised border border-border text-text-primary">
                     {att.domainName}
                   </span>
-                  <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-console-panel-raised border border-console-border text-console-text-muted">
+                  <span className="small-caps-label text-[10px] px-2.5 py-0.5 rounded-full bg-panel-raised border border-border text-text-muted">
                     {att.difficulty}
                   </span>
                   {att.isBestScore && (
@@ -335,11 +298,11 @@ export const ReportCardPage: React.FC = () => {
                   )}
                 </div>
 
-                <h3 className="font-serif font-bold text-sm text-console-text group-hover:text-bridge-teal transition-colors">
+                <h3 className="font-bold text-sm text-text-primary group-hover:text-bridge-teal transition-colors font-sans">
                   {att.practiceSetTitle}
                 </h3>
 
-                <div className="flex items-center gap-4 text-[11px] font-mono text-console-text-muted">
+                <div className="flex items-center gap-4 text-[11px] font-mono text-text-muted">
                   <span>Taken: {formatDate(att.submittedAt)}</span>
                   <span>•</span>
                   <div className="flex items-center gap-1">
@@ -350,23 +313,23 @@ export const ReportCardPage: React.FC = () => {
               </div>
 
               {/* Right Column: Score, Pass/Fail & Action */}
-              <div className="flex items-center gap-6 justify-between md:justify-end border-t md:border-t-0 pt-3 md:pt-0 border-console-border/60">
+              <div className="flex items-center gap-6 justify-between md:justify-end border-t md:border-t-0 pt-3 md:pt-0 border-border">
                 <div className="text-right space-y-1">
                   <div className="flex items-center gap-2 justify-end">
-                    <span className="text-lg font-bold font-mono text-console-text">
+                    <span className="text-xl font-bold font-mono text-text-primary">
                       {att.score}%
                     </span>
                     {att.passed ? (
-                      <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-status-green/15 text-status-green border border-status-green/30">
+                      <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-signal-green/15 text-signal-green border border-signal-green/30">
                         Passed
                       </span>
                     ) : (
-                      <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-status-red/15 text-status-red border border-status-red/30">
+                      <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded-full bg-signal-red/15 text-signal-red border border-signal-red/30">
                         Below Pass Mark
                       </span>
                     )}
                   </div>
-                  <div className="text-[10px] font-mono text-console-text-muted">
+                  <div className="text-[10px] font-mono text-text-muted">
                     Pass Mark: {att.passingScorePct}%
                   </div>
                 </div>
@@ -376,7 +339,7 @@ export const ReportCardPage: React.FC = () => {
                     e.stopPropagation();
                     setActiveModalAttemptId(att.id);
                   }}
-                  className="px-3.5 py-2 rounded-xl bg-console-panel-raised hover:bg-bridge-teal/20 text-console-text hover:text-bridge-teal border border-console-border hover:border-bridge-teal/40 text-xs font-semibold flex items-center gap-1.5 transition-all"
+                  className="px-3.5 py-2 rounded-xl bg-panel-raised hover:bg-border text-text-primary hover:text-bridge-teal border border-border text-xs font-semibold flex items-center gap-1.5 transition-all cursor-pointer"
                 >
                   <Eye className="w-3.5 h-3.5" />
                   <span>Review</span>

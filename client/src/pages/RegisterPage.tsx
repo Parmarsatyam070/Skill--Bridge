@@ -17,6 +17,7 @@ import { useAuth, getRoleRedirect } from '../context/AuthContext';
 import { Role } from '@shared/types';
 import { PublicNavbar } from '../components/PublicNavbar';
 import { OAuthModal } from '../components/OAuthModal';
+import { UniversityAutocomplete } from '../components/UniversityAutocomplete';
 
 export const RegisterPage: React.FC = () => {
   const { register } = useAuth();
@@ -128,23 +129,33 @@ export const RegisterPage: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-paper text-ink font-sans flex flex-col justify-between">
+    <div className="min-h-screen bg-[#030712] text-slate-100 font-sans flex flex-col justify-between relative overflow-hidden">
+      {/* Sentry ambient cobalt spotlight */}
+      <div
+        className="absolute -top-32 right-0 w-[600px] h-[600px] rounded-full pointer-events-none -z-10 opacity-70 blur-3xl"
+        style={{
+          background: 'radial-gradient(circle, rgba(37, 99, 235, 0.25) 0%, rgba(6, 182, 212, 0.10) 40%, transparent 70%)',
+        }}
+      />
+      <div className="absolute inset-0 ascii-matrix opacity-30 pointer-events-none -z-20" />
+
       <PublicNavbar />
 
-      <div className="flex-1 max-w-4xl w-full mx-auto p-6 my-6">
-        <div className="text-center space-y-2 mb-8">
-          <span className="text-xs font-mono uppercase tracking-widest text-bridge-teal font-semibold">
-            Registration Portal
-          </span>
-          <h1 className="font-serif text-3xl sm:text-4xl font-bold text-ink">
+      <div className="flex-1 max-w-4xl w-full mx-auto p-4 sm:p-6 my-6 relative z-10">
+        <div className="text-center space-y-2.5 mb-8">
+          <div className="tech-pill text-[10.5px]">
+            <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+            <span>REGISTRATION PORTAL</span>
+          </div>
+          <h1 className="text-2xl sm:text-4xl font-bold tracking-tight text-white">
             Create Your SkillBridge Account
           </h1>
-          <p className="text-xs text-ink-muted">
+          <p className="text-xs sm:text-sm text-slate-400 max-w-md mx-auto">
             Select your account type to configure your personalized, verified workspace.
           </p>
         </div>
 
-        {/* 1. Card-Based Role Selector */}
+        {/* 1. Card-Based Role Selector (Traders Hub & Sentry rounded card style) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
           {roleCards.map(rc => {
             const Icon = rc.icon;
@@ -155,22 +166,26 @@ export const RegisterPage: React.FC = () => {
                 key={rc.id}
                 type="button"
                 onClick={() => setSelectedRole(rc.id)}
-                className={`p-4 rounded-2xl border text-left transition-all relative ${
+                className={`p-4 sm:p-5 rounded-2xl border text-left transition-all relative ${
                   isSelected
-                    ? `bg-white shadow-campus-card ${rc.accent} border-2`
-                    : 'bg-white/60 border-line hover:border-ink-muted'
+                    ? 'bg-[#0f172a] border-cyan-500/60 shadow-lg shadow-cyan-950/40 text-white'
+                    : 'bg-[#0b1222]/80 border-slate-800/80 hover:border-slate-700 text-slate-400 hover:text-slate-200'
                 }`}
               >
                 {isSelected && (
-                  <CheckCircle2 className="w-4 h-4 absolute top-3 right-3 text-current" />
+                  <CheckCircle2 className="w-4 h-4 absolute top-3.5 right-3.5 text-cyan-400" />
                 )}
-                <div className="w-10 h-10 rounded-xl bg-paper flex items-center justify-center mb-3">
+                <div
+                  className={`w-10 h-10 rounded-xl flex items-center justify-center mb-3 ${
+                    isSelected ? 'bg-blue-600/20 text-cyan-300' : 'bg-slate-900 text-slate-400'
+                  }`}
+                >
                   <Icon className="w-5 h-5" />
                 </div>
-                <div className="font-serif font-bold text-sm text-ink mb-1">
+                <div className="font-bold text-sm text-white mb-1">
                   {rc.title}
                 </div>
-                <div className="text-[11px] text-ink-muted leading-relaxed">
+                <div className="text-[11px] text-slate-400 leading-relaxed">
                   {rc.desc}
                 </div>
               </button>
@@ -179,96 +194,96 @@ export const RegisterPage: React.FC = () => {
         </div>
 
         {/* 2. Registration Form */}
-        <div className="bg-white border border-line rounded-2xl p-8 shadow-campus-card max-w-2xl mx-auto space-y-6">
-          <div className="border-b border-line pb-4 flex items-center justify-between">
+        <div className="bg-[#0b1222]/90 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-blue-950/40 backdrop-blur-md max-w-2xl mx-auto space-y-6">
+          <div className="border-b border-slate-800 pb-4 flex items-center justify-between">
             <div>
-              <h2 className="font-serif text-xl font-bold text-ink">
+              <h2 className="text-xl font-bold text-white tracking-tight">
                 {roleCards.find(r => r.id === selectedRole)?.title} Registration
               </h2>
-              <span className="text-xs text-ink-muted">
+              <span className="text-xs text-slate-400">
                 Fill in the details below to complete your registration
               </span>
             </div>
           </div>
 
-            {/* Quick OAuth Alternative Row */}
-            <div className="space-y-3">
-              <div className="text-center text-[11px] font-mono text-ink-muted uppercase tracking-wider font-medium">
-                Sign up with single sign-on
-              </div>
-              <div className="grid grid-cols-3 gap-2.5">
-                <button
-                  type="button"
-                  onClick={() => setOauthProvider('google')}
-                  className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border border-line hover:border-bridge-teal text-xs font-semibold text-ink transition-all bg-paper hover:bg-white shadow-2xs hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-bridge-teal"
-                  title="Sign up with Google"
-                >
-                  <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24">
-                    <path
-                      fill="#4285F4"
-                      d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"
-                    />
-                    <path
-                      fill="#34A853"
-                      d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"
-                    />
-                    <path
-                      fill="#FBBC05"
-                      d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.98 0 12s.45 3.82 1.25 5.42l4.03-3.15z"
-                    />
-                    <path
-                      fill="#EA4335"
-                      d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
-                    />
-                  </svg>
-                  <span className="text-[11px] font-semibold">Google</span>
-                </button>
+          {/* Quick OAuth Alternative Row */}
+          <div className="space-y-3">
+            <div className="text-center text-[10.5px] font-mono text-slate-500 uppercase tracking-wider font-medium">
+              Sign up with single sign-on
+            </div>
+            <div className="grid grid-cols-3 gap-2.5">
+              <button
+                type="button"
+                onClick={() => setOauthProvider('google')}
+                className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border border-slate-800 hover:border-blue-500/60 text-xs font-semibold text-slate-200 transition-all bg-[#0f172a] hover:bg-[#1e293b]"
+                title="Sign up with Google"
+              >
+                <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24">
+                  <path
+                    fill="#4285F4"
+                    d="M23.745 12.27c0-.7-.06-1.4-.19-2.07H12v4.51h6.6c-.29 1.52-1.14 2.82-2.4 3.68v3.05h3.88c2.27-2.09 3.665-5.17 3.665-9.17z"
+                  />
+                  <path
+                    fill="#34A853"
+                    d="M12 24c3.24 0 5.95-1.08 7.93-2.91l-3.88-3.05c-1.08.72-2.45 1.16-4.05 1.16-3.12 0-5.77-2.1-6.72-4.93H1.25v3.15C3.26 21.36 7.33 24 12 24z"
+                  />
+                  <path
+                    fill="#FBBC05"
+                    d="M5.28 14.27c-.25-.72-.38-1.49-.38-2.27s.13-1.55.38-2.27V6.58H1.25C.45 8.18 0 9.98 0 12s.45 3.82 1.25 5.42l4.03-3.15z"
+                  />
+                  <path
+                    fill="#EA4335"
+                    d="M12 4.75c1.77 0 3.35.61 4.6 1.8l3.42-3.42C17.95 1.19 15.24 0 12 0 7.33 0 3.26 2.64 1.25 6.58l4.03 3.15c.95-2.83 3.6-4.98 6.72-4.98z"
+                  />
+                </svg>
+                <span className="text-[11px] font-semibold">Google</span>
+              </button>
 
-                <button
-                  type="button"
-                  onClick={() => setOauthProvider('github')}
-                  className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border border-line hover:border-bridge-teal text-xs font-semibold text-ink transition-all bg-paper hover:bg-white shadow-2xs hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-bridge-teal"
-                  title="Sign up with GitHub"
-                >
-                  <Github className="w-4 h-4 flex-shrink-0" />
-                  <span className="text-[11px] font-semibold">GitHub</span>
-                </button>
+              <button
+                type="button"
+                onClick={() => setOauthProvider('github')}
+                className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border border-slate-800 hover:border-blue-500/60 text-xs font-semibold text-slate-200 transition-all bg-[#0f172a] hover:bg-[#1e293b]"
+                title="Sign up with GitHub"
+              >
+                <Github className="w-4 h-4 flex-shrink-0" />
+                <span className="text-[11px] font-semibold">GitHub</span>
+              </button>
 
-                <button
-                  type="button"
-                  onClick={() => setOauthProvider('microsoft')}
-                  className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border border-line hover:border-bridge-teal text-xs font-semibold text-ink transition-all bg-paper hover:bg-white shadow-2xs hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-bridge-teal"
-                  title="Sign up with Microsoft 365"
-                >
-                  <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 23 23">
-                    <path fill="#f35325" d="M1 1h10v10H1z" />
-                    <path fill="#81bc06" d="M12 1h10v10H12z" />
-                    <path fill="#05a6f0" d="M1 12h10v10H1z" />
-                    <path fill="#ffba08" d="M12 12h10v10H12z" />
-                  </svg>
-                  <span className="text-[11px] font-semibold">Microsoft</span>
-                </button>
-              </div>
-
-              <div className="relative my-4">
-                <div className="absolute inset-0 flex items-center">
-                  <div className="w-full border-t border-line" />
-                </div>
-                <div className="relative flex justify-center text-[10.5px] font-mono uppercase tracking-wider bg-white px-2 text-ink-muted font-medium">
-                  or register with email
-                </div>
-              </div>
+              <button
+                type="button"
+                onClick={() => setOauthProvider('microsoft')}
+                className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border border-slate-800 hover:border-blue-500/60 text-xs font-semibold text-slate-200 transition-all bg-[#0f172a] hover:bg-[#1e293b]"
+                title="Sign up with Microsoft 365"
+              >
+                <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 23 23">
+                  <path fill="#f35325" d="M1 1h10v10H1z" />
+                  <path fill="#81bc06" d="M12 1h10v10H12z" />
+                  <path fill="#05a6f0" d="M1 12h10v10H1z" />
+                  <path fill="#ffba08" d="M12 12h10v10H12z" />
+                </svg>
+                <span className="text-[11px] font-semibold">Microsoft</span>
+              </button>
             </div>
 
-            {error && (
-              <div
-                className="flex items-start gap-2.5 p-3.5 rounded-xl bg-status-red/10 border border-status-red/30 text-status-red text-xs font-medium"
-                role="alert"
-              >
-                <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
-                <span className="leading-relaxed">{error}</span>
+            <div className="relative my-4">
+              <div className="absolute inset-0 flex items-center">
+                <div className="w-full border-t border-slate-800" />
               </div>
-            )}
+              <div className="relative flex justify-center text-[10.5px] font-mono uppercase tracking-wider bg-[#0b1222] px-2 text-slate-500 font-medium">
+                or register with email
+              </div>
+            </div>
+          </div>
+
+          {error && (
+            <div
+              className="flex items-start gap-2.5 p-3.5 rounded-xl bg-red-950/40 border border-red-500/40 text-red-400 text-xs font-medium"
+              role="alert"
+            >
+              <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
+              <span className="leading-relaxed">{error}</span>
+            </div>
+          )}
 
           <form onSubmit={handleSubmit} className="space-y-4 text-xs">
             {/* Student Fields */}
@@ -276,39 +291,37 @@ export const RegisterPage: React.FC = () => {
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block font-semibold text-ink mb-1.5">Full Name</label>
+                    <label className="block font-semibold text-slate-300 mb-1.5">Full Name</label>
                     <input
                       type="text"
                       value={name}
                       onChange={e => setName(e.target.value)}
                       placeholder="e.g. Aarav Sharma"
                       required
-                      className="w-full bg-paper border border-line rounded-xl px-3.5 py-2.5 text-xs text-ink focus:outline-none focus:border-bridge-teal"
+                      className="cyber-input w-full bg-[#0f172a] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-slate-500"
                     />
                   </div>
                   <div>
-                    <label className="block font-semibold text-ink mb-1.5">Target Engineering Domain</label>
+                    <label className="block font-semibold text-slate-300 mb-1.5">Target Engineering Domain</label>
                     <select
                       value={targetDomain}
                       onChange={e => setTargetDomain(e.target.value)}
-                      className="w-full bg-paper border border-line rounded-xl px-3.5 py-2.5 text-xs text-ink focus:outline-none focus:border-bridge-teal"
+                      className="cyber-input w-full bg-[#0f172a] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white"
                     >
                       {domainOptions.map(d => (
-                        <option key={d} value={d}>{d}</option>
+                        <option key={d} value={d} className="bg-slate-900 text-white">{d}</option>
                       ))}
                     </select>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-ink mb-1.5">College / University Name</label>
-                  <input
-                    type="text"
+                  <label className="block font-semibold text-slate-300 mb-1.5">College / University Name</label>
+                  <UniversityAutocomplete
                     value={institution}
-                    onChange={e => setInstitution(e.target.value)}
+                    onChange={setInstitution}
                     placeholder="e.g. National Institute of Technology, Trichy"
                     required
-                    className="w-full bg-paper border border-line rounded-xl px-3.5 py-2.5 text-xs text-ink focus:outline-none focus:border-bridge-teal"
                   />
                 </div>
               </>
@@ -319,40 +332,40 @@ export const RegisterPage: React.FC = () => {
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block font-semibold text-ink mb-1.5">Company / Entity Name</label>
+                    <label className="block font-semibold text-slate-300 mb-1.5">Company / Entity Name</label>
                     <input
                       type="text"
                       value={companyName}
                       onChange={e => setCompanyName(e.target.value)}
                       placeholder="e.g. TechCorp Labs"
                       required
-                      className="w-full bg-paper border border-line rounded-xl px-3.5 py-2.5 text-xs text-ink focus:outline-none focus:border-bridge-teal"
+                      className="cyber-input w-full bg-[#0f172a] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-slate-500"
                     />
                   </div>
                   <div>
-                    <label className="block font-semibold text-ink mb-1.5">Industry Sector</label>
+                    <label className="block font-semibold text-slate-300 mb-1.5">Industry Sector</label>
                     <input
                       type="text"
                       value={industrySector}
                       onChange={e => setIndustrySector(e.target.value)}
                       placeholder="e.g. Enterprise Cloud & AI"
                       required
-                      className="w-full bg-paper border border-line rounded-xl px-3.5 py-2.5 text-xs text-ink focus:outline-none focus:border-bridge-teal"
+                      className="cyber-input w-full bg-[#0f172a] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-slate-500"
                     />
                   </div>
                 </div>
 
                 <div>
-                  <label className="block font-semibold text-ink mb-1.5">Company Size</label>
+                  <label className="block font-semibold text-slate-300 mb-1.5">Company Size</label>
                   <select
                     value={companySize}
                     onChange={e => setCompanySize(e.target.value)}
-                    className="w-full bg-paper border border-line rounded-xl px-3.5 py-2.5 text-xs text-ink focus:outline-none focus:border-bridge-teal"
+                    className="cyber-input w-full bg-[#0f172a] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white"
                   >
-                    <option value="1-50 employees">1–50 employees (Early Stage)</option>
-                    <option value="50-250 employees">50–250 employees (Growth)</option>
-                    <option value="250-1000 employees">250–1000 employees (Scaleup)</option>
-                    <option value="10,000+ employees">10,000+ employees (Enterprise)</option>
+                    <option value="1-50 employees" className="bg-slate-900">1–50 employees (Early Stage)</option>
+                    <option value="50-250 employees" className="bg-slate-900">50–250 employees (Growth)</option>
+                    <option value="250-1000 employees" className="bg-slate-900">250–1000 employees (Scaleup)</option>
+                    <option value="10,000+ employees" className="bg-slate-900">10,000+ employees (Enterprise)</option>
                   </select>
                 </div>
               </>
@@ -363,50 +376,48 @@ export const RegisterPage: React.FC = () => {
               <>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block font-semibold text-ink mb-1.5">Full Name & Title</label>
+                    <label className="block font-semibold text-slate-300 mb-1.5">Full Name & Title</label>
                     <input
                       type="text"
                       value={name}
                       onChange={e => setName(e.target.value)}
                       placeholder="e.g. Dr. Rajeshwar Sharma"
                       required
-                      className="w-full bg-paper border border-line rounded-xl px-3.5 py-2.5 text-xs text-ink focus:outline-none focus:border-bridge-teal"
+                      className="cyber-input w-full bg-[#0f172a] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-slate-500"
                     />
                   </div>
                   <div>
-                    <label className="block font-semibold text-ink mb-1.5">Designation</label>
+                    <label className="block font-semibold text-slate-300 mb-1.5">Designation</label>
                     <input
                       type="text"
                       value={designation}
                       onChange={e => setDesignation(e.target.value)}
                       placeholder="e.g. Professor & HOD"
                       required
-                      className="w-full bg-paper border border-line rounded-xl px-3.5 py-2.5 text-xs text-ink focus:outline-none focus:border-bridge-teal"
+                      className="cyber-input w-full bg-[#0f172a] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-slate-500"
                     />
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block font-semibold text-ink mb-1.5">Institution Name</label>
-                    <input
-                      type="text"
+                    <label className="block font-semibold text-slate-300 mb-1.5">Institution Name</label>
+                    <UniversityAutocomplete
                       value={institution}
-                      onChange={e => setInstitution(e.target.value)}
+                      onChange={setInstitution}
                       placeholder="e.g. NIT Trichy"
                       required
-                      className="w-full bg-paper border border-line rounded-xl px-3.5 py-2.5 text-xs text-ink focus:outline-none focus:border-bridge-teal"
                     />
                   </div>
                   <div>
-                    <label className="block font-semibold text-ink mb-1.5">Department</label>
+                    <label className="block font-semibold text-slate-300 mb-1.5">Department</label>
                     <input
                       type="text"
                       value={department}
                       onChange={e => setDepartment(e.target.value)}
                       placeholder="e.g. Computer Science"
                       required
-                      className="w-full bg-paper border border-line rounded-xl px-3.5 py-2.5 text-xs text-ink focus:outline-none focus:border-bridge-teal"
+                      className="cyber-input w-full bg-[#0f172a] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-slate-500"
                     />
                   </div>
                 </div>
@@ -417,57 +428,55 @@ export const RegisterPage: React.FC = () => {
             {selectedRole === 'INSTITUTION_ADMIN' && (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block font-semibold text-ink mb-1.5">Institution / University Name</label>
-                  <input
-                    type="text"
+                  <label className="block font-semibold text-slate-300 mb-1.5">Institution / University Name</label>
+                  <UniversityAutocomplete
                     value={institutionName}
-                    onChange={e => setInstitutionName(e.target.value)}
+                    onChange={setInstitutionName}
                     placeholder="e.g. Delhi Technological University"
                     required
-                    className="w-full bg-paper border border-line rounded-xl px-3.5 py-2.5 text-xs text-ink focus:outline-none focus:border-bridge-teal"
                   />
                 </div>
                 <div>
-                  <label className="block font-semibold text-ink mb-1.5">Admin Designation</label>
+                  <label className="block font-semibold text-slate-300 mb-1.5">Admin Designation</label>
                   <input
                     type="text"
                     value={adminDesignation}
                     onChange={e => setAdminDesignation(e.target.value)}
                     placeholder="e.g. Dean of Placement Cell"
                     required
-                    className="w-full bg-paper border border-line rounded-xl px-3.5 py-2.5 text-xs text-ink focus:outline-none focus:border-bridge-teal"
+                    className="cyber-input w-full bg-[#0f172a] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-slate-500"
                   />
                 </div>
               </div>
             )}
 
             {/* Email and Optional Phone */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-2 border-t border-line">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 border-t border-slate-800">
               <div>
-                <label className="block font-semibold text-ink mb-1.5">Email Address</label>
+                <label className="block font-semibold text-slate-300 mb-1.5">Email Address</label>
                 <div className="relative">
-                  <Mail className="w-4 h-4 text-ink-muted absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
                     type="email"
                     value={email}
                     onChange={e => setEmail(e.target.value)}
                     placeholder="e.g. candidate@university.edu"
                     required
-                    className="w-full bg-paper border border-line rounded-xl pl-10 pr-3.5 py-2.5 text-xs text-ink focus:outline-none focus:border-bridge-teal focus:ring-1 focus:ring-bridge-teal transition-all"
+                    className="cyber-input has-icon w-full !pl-11 pr-3.5 py-2.5 text-xs text-white placeholder:text-slate-500 bg-[#0f172a] border border-slate-800 rounded-xl focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block font-semibold text-ink mb-1.5">Phone Number (Optional)</label>
+                <label className="block font-semibold text-slate-300 mb-1.5">Phone Number (Optional)</label>
                 <div className="relative">
-                  <Phone className="w-4 h-4 text-ink-muted absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <Phone className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
                     type="tel"
                     value={phone}
                     onChange={e => setPhone(e.target.value)}
                     placeholder="e.g. +91 98765 43210"
-                    className="w-full bg-paper border border-line rounded-xl pl-10 pr-3.5 py-2.5 text-xs text-ink focus:outline-none focus:border-bridge-teal focus:ring-1 focus:ring-bridge-teal transition-all"
+                    className="cyber-input has-icon w-full !pl-11 pr-3.5 py-2.5 text-xs text-white placeholder:text-slate-500 bg-[#0f172a] border border-slate-800 rounded-xl focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50"
                   />
                 </div>
               </div>
@@ -476,31 +485,31 @@ export const RegisterPage: React.FC = () => {
             {/* Passwords */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block font-semibold text-ink mb-1.5">Password</label>
+                <label className="block font-semibold text-slate-300 mb-1.5">Password</label>
                 <div className="relative">
-                  <Lock className="w-4 h-4 text-ink-muted absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
                     type="password"
                     value={password}
                     onChange={e => setPassword(e.target.value)}
                     placeholder="Min 6 characters"
                     required
-                    className="w-full bg-paper border border-line rounded-xl pl-10 pr-3.5 py-2.5 text-xs text-ink focus:outline-none focus:border-bridge-teal focus:ring-1 focus:ring-bridge-teal transition-all"
+                    className="cyber-input has-icon w-full !pl-11 pr-3.5 py-2.5 text-xs text-white placeholder:text-slate-500 bg-[#0f172a] border border-slate-800 rounded-xl focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block font-semibold text-ink mb-1.5">Confirm Password</label>
+                <label className="block font-semibold text-slate-300 mb-1.5">Confirm Password</label>
                 <div className="relative">
-                  <Lock className="w-4 h-4 text-ink-muted absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
                     type="password"
                     value={confirmPassword}
                     onChange={e => setConfirmPassword(e.target.value)}
                     placeholder="Confirm password"
                     required
-                    className="w-full bg-paper border border-line rounded-xl pl-10 pr-3.5 py-2.5 text-xs text-ink focus:outline-none focus:border-bridge-teal focus:ring-1 focus:ring-bridge-teal transition-all"
+                    className="cyber-input has-icon w-full !pl-11 pr-3.5 py-2.5 text-xs text-white placeholder:text-slate-500 bg-[#0f172a] border border-slate-800 rounded-xl focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50"
                   />
                 </div>
               </div>
@@ -509,23 +518,23 @@ export const RegisterPage: React.FC = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-bridge-teal hover:bg-bridge-teal/90 active:bg-[#20635c] text-white font-bold text-xs shadow-md transition-all mt-4 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-bridge-teal"
+              className="cyber-btn-primary w-full py-3 rounded-full text-xs font-bold tracking-wide transition-all mt-4 disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {loading ? (
                 <span className="font-mono">Creating Account...</span>
               ) : (
-                <>
-                  <span>Create Account & Start</span>
+                <div className="flex items-center justify-center gap-2">
+                  <span>Create Account &amp; Start</span>
                   <ArrowRight className="w-4 h-4" />
-                </>
+                </div>
               )}
             </button>
           </form>
         </div>
 
-        <div className="text-center text-xs text-ink-muted mt-6">
+        <div className="text-center text-xs text-slate-400 mt-6">
           Already registered?{' '}
-          <Link to="/login" className="font-semibold text-bridge-teal hover:underline">
+          <Link to="/login" className="font-semibold text-cyan-400 hover:underline">
             Sign In here
           </Link>
         </div>

@@ -15,6 +15,9 @@ client/dist
 .env.development.local
 .env.test.local
 .env.production.local
+*-firebase-adminsdk-*.json
+service-account*.json
+
 
 # SQLite Database
 prisma/*.db

@@ -23,6 +23,7 @@ import {
   Award,
   AlertCircle,
   HelpCircle,
+  Flame,
 } from 'lucide-react';
 import {
   DSAQuestionData,
@@ -244,10 +245,20 @@ export const DsaCodingPage: React.FC = () => {
       setLastExecutionResult({
         status: 'RUNTIME_ERROR',
         passed: false,
-        totalCases: 0,
-        passedCases: 0,
+        compilationSuccess: false,
+        executionCompleted: false,
+        compilationTimeMs: null,
+        executionTimeMs: null,
+        testsTotal: 0,
+        testsExecuted: 0,
+        testsPassed: 0,
+        allTestsPassed: false,
+        totalTestCases: 0,
+        passedTestCases: 0,
+        failedTestCases: 0,
         error: err.message || 'Execution failed. Check your network or syntax.',
         testResults: [],
+        testCaseResults: [],
       });
     } finally {
       setIsRunning(false);
@@ -322,10 +333,10 @@ export const DsaCodingPage: React.FC = () => {
   const visibleTestCases = activeQuestion?.testCases?.filter((tc) => !tc.isHidden) || [];
 
   return (
-    <div className="min-h-screen bg-[#0d1117] text-gray-100 flex flex-col font-sans selection:bg-teal-500/30">
+    <div className="flex-1 min-h-0 flex flex-col bg-[#0d1117] text-gray-100 font-sans selection:bg-teal-500/30 rounded-2xl border border-gray-800 overflow-hidden">
       {/* Top Navigation Bar */}
-      <header className="h-14 border-b border-gray-800 bg-[#161b22] px-4 flex items-center justify-between z-20">
-        <div className="flex items-center gap-3">
+      <header className="h-14 border-b border-gray-800 bg-[#161b22] px-4 flex items-center justify-between z-20 shrink-0">
+        <div className="flex items-center gap-2 sm:gap-3 flex-wrap">
           <Link to="/assessment" className="text-gray-400 hover:text-gray-200 text-xs flex items-center gap-1">
             <span>Assessments</span>
             <ChevronRight className="w-3 h-3" />
@@ -337,7 +348,7 @@ export const DsaCodingPage: React.FC = () => {
 
           <button
             onClick={() => setShowDrawer(!showDrawer)}
-            className="ml-3 px-2.5 py-1 text-xs rounded-md bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 flex items-center gap-1.5 transition cursor-pointer"
+            className="ml-2 px-2.5 py-1 text-xs rounded-md bg-gray-800 hover:bg-gray-700 text-gray-300 border border-gray-700 flex items-center gap-1.5 transition cursor-pointer"
           >
             <Layers className="w-3.5 h-3.5 text-teal-400" />
             <span>Problem Explorer</span>
@@ -345,6 +356,15 @@ export const DsaCodingPage: React.FC = () => {
               {filteredQuestions.length}
             </span>
           </button>
+
+          <Link
+            to="/assessment?tab=dsa&runner=daily"
+            className="ml-1.5 px-2.5 py-1 text-xs rounded-md bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 flex items-center gap-1.5 transition font-medium"
+            title="Start Daily Mandatory Challenge"
+          >
+            <Flame className="w-3.5 h-3.5 text-amber-400 fill-amber-400" />
+            <span>Daily Challenge</span>
+          </Link>
         </div>
 
         {/* Global Progress Pill & Outbound Link indicator */}

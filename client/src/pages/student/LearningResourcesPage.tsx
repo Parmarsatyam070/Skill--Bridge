@@ -240,48 +240,48 @@ export const LearningResourcesPage: React.FC = () => {
       {/* Daily Practice Mandatory Banner */}
       <DailyPracticeBanner />
 
-      {/* Hero Banner */}
-      <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-indigo-950/70 via-slate-900/90 to-slate-950 border border-indigo-500/20 p-6 sm:p-8 shadow-2xl backdrop-blur-xl">
-        <div className="absolute -top-24 -right-24 w-72 h-72 bg-indigo-500/10 rounded-full blur-3xl pointer-events-none" />
-        <div className="absolute -bottom-24 -left-24 w-72 h-72 bg-bridge-teal/10 rounded-full blur-3xl pointer-events-none" />
-
-        <div className="relative z-10 max-w-3xl space-y-3">
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-indigo-500/20 border border-indigo-500/40 text-indigo-300 text-xs font-bold uppercase tracking-wider">
-            <Sparkles className="w-3.5 h-3.5" />
-            Smart Technical Learning Hub & Knowledge Graph
+      {/* Top Header */}
+      <div className="space-y-3 border-b border-border pb-6">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <span className="small-caps-label text-[11px] text-bridge-teal font-bold">
+              [● VERIFIED KNOWLEDGE GRAPH & SMART LEARNING HUB]
+            </span>
+            <span className="w-1.5 h-1.5 rounded-full bg-bridge-teal" />
+            <span className="text-xs font-mono text-text-muted">Authoritative Technical Syllabus</span>
           </div>
-
-          <h1 className="text-2xl sm:text-4xl font-extrabold text-white tracking-tight font-serif">
+          <h1 className="text-2xl sm:text-3xl font-bold text-text-primary tracking-tight font-sans">
             Universal Technical Learning Hub
           </h1>
-          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-            Search any computer science, software engineering, or technical domain. Verified official documentation, high-quality university courses, interactive sandboxes, and personalized guidance for your weak practice areas.
-          </p>
         </div>
+
+        <p className="text-xs text-text-muted max-w-2xl leading-relaxed font-sans">
+          Search any computer science, software engineering, or technical domain. Verified official documentation, high-quality university courses, interactive sandboxes, and personalized guidance for your weak practice areas.
+        </p>
       </div>
 
       {/* Personalized Weak Topic Recommendations Card */}
       {personalizedWeakTopics.length > 0 && personalizedList.length > 0 && (
-        <div className="rounded-3xl bg-gradient-to-br from-amber-950/20 via-slate-900 to-slate-950 border border-amber-500/30 p-6 shadow-2xl space-y-4">
+        <div className="rounded-2xl bg-panel border border-border p-6 shadow-xl space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400">
+              <div className="w-10 h-10 rounded-xl bg-signal-amber/15 border border-signal-amber/30 flex items-center justify-center text-signal-amber">
                 <Brain className="w-5 h-5" />
               </div>
               <div>
-                <h3 className="text-sm sm:text-base font-bold text-white font-serif flex items-center gap-2">
+                <h3 className="text-sm sm:text-base font-bold text-text-primary font-sans flex items-center gap-2">
                   <span>Recommended for your weak practice areas</span>
-                  <span className="text-xs font-mono text-amber-400 font-normal">
+                  <span className="text-xs font-mono text-signal-amber font-normal">
                     ({personalizedWeakTopics.join(', ')})
                   </span>
                 </h3>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-text-muted font-sans">
                   Targeted learning accelerators to bridge your algorithmic and domain skill gaps
                 </p>
               </div>
             </div>
 
-            <span className="text-xs font-mono font-bold px-3 py-1 rounded-full bg-amber-500/15 text-amber-300 border border-amber-500/30">
+            <span className="small-caps-label text-[10px] font-mono font-bold px-3 py-1 rounded-full bg-signal-amber/15 text-signal-amber border border-signal-amber/30">
               Personalized Calibration
             </span>
           </div>
@@ -293,24 +293,24 @@ export const LearningResourcesPage: React.FC = () => {
                 href={res.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="p-4 rounded-2xl bg-slate-900/90 hover:bg-slate-850 border border-slate-800 hover:border-amber-500/40 transition-all flex flex-col justify-between space-y-3 group shadow-lg"
+                className="p-4 rounded-2xl bg-panel-raised hover:bg-border border border-border hover:border-bridge-teal/40 transition-all flex flex-col justify-between space-y-3 group shadow-lg"
               >
                 <div className="space-y-2">
                   <div className="flex items-center justify-between gap-2">
                     {getCategoryBadge(res.category)}
-                    <span className="text-[10px] font-mono text-slate-400">{res.provider}</span>
+                    <span className="text-[10px] font-mono text-text-muted">{res.provider}</span>
                   </div>
-                  <h4 className="text-xs sm:text-sm font-bold text-white group-hover:text-amber-300 transition-colors line-clamp-2">
+                  <h4 className="text-xs sm:text-sm font-bold text-text-primary group-hover:text-bridge-teal transition-colors line-clamp-2 font-sans">
                     {res.title}
                   </h4>
-                  <p className="text-xs text-slate-400 leading-relaxed line-clamp-2">
+                  <p className="text-xs text-text-muted leading-relaxed line-clamp-2 font-sans">
                     {res.description}
                   </p>
                 </div>
 
-                <div className="flex items-center justify-between text-[11px] font-mono text-slate-400 pt-2 border-t border-slate-800">
-                  <span className="text-amber-400 font-bold">{res.topicTag}</span>
-                  <div className="flex items-center gap-1 group-hover:text-amber-300">
+                <div className="flex items-center justify-between text-[11px] font-mono text-text-muted pt-2 border-t border-border">
+                  <span className="text-signal-amber font-bold">{res.topicTag}</span>
+                  <div className="flex items-center gap-1 group-hover:text-bridge-teal">
                     <span>Open Resource</span>
                     <ExternalLink className="w-3 h-3" />
                   </div>
@@ -325,7 +325,7 @@ export const LearningResourcesPage: React.FC = () => {
       <div className="space-y-4">
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3">
           <div className="relative flex-1 max-w-xl">
-            <Search className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-text-muted absolute left-4 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchQuery}
@@ -336,7 +336,7 @@ export const LearningResourcesPage: React.FC = () => {
                 }
               }}
               placeholder="Search ANY technical topic (Dynamic Programming, React, System Design, SQL...)"
-              className="w-full pl-11 pr-4 py-3 rounded-2xl bg-slate-900 border border-slate-750 text-sm text-slate-100 placeholder-slate-500 focus:outline-none focus:border-bridge-teal transition-all shadow-inner"
+              className="w-full pl-11 pr-4 py-3 rounded-2xl bg-void border border-border text-sm text-text-primary placeholder-text-muted focus:outline-none focus:border-bridge-teal transition-all shadow-inner"
               aria-label="Search technical resources"
             />
           </div>
@@ -345,31 +345,31 @@ export const LearningResourcesPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setIsFreeOnly((prev) => !prev)}
-            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl border text-xs font-semibold transition-all ${
+            className={`inline-flex items-center gap-2 px-4 py-2.5 rounded-2xl border text-xs font-semibold transition-all cursor-pointer ${
               isFreeOnly
-                ? 'bg-emerald-500/20 text-emerald-300 border-emerald-500/40 shadow-md shadow-emerald-500/10'
-                : 'bg-slate-900 text-slate-400 border-slate-750 hover:text-slate-200'
+                ? 'bg-signal-green/20 text-signal-green border-signal-green/40 shadow-md'
+                : 'bg-panel text-text-muted border-border hover:text-text-primary'
             }`}
           >
-            <CheckCircle2 className={`w-4 h-4 ${isFreeOnly ? 'text-emerald-400' : 'text-slate-500'}`} />
+            <CheckCircle2 className={`w-4 h-4 ${isFreeOnly ? 'text-signal-green' : 'text-text-muted'}`} />
             <span>100% Free Resources Only</span>
           </button>
         </div>
 
         {/* Quick Suggestion Topic Pills */}
         <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
-          <span className="text-[11px] font-mono text-slate-400 uppercase font-semibold flex-shrink-0">
-            Suggested:
+          <span className="small-caps-label text-[11px] font-mono text-text-muted uppercase font-semibold flex-shrink-0">
+            SUGGESTED:
           </span>
           {QUICK_TOPICS.map((topic) => (
             <button
               key={topic}
               type="button"
               onClick={() => handleSuggestedClick(topic)}
-              className={`px-3 py-1 rounded-xl text-xs font-medium whitespace-nowrap transition-all ${
+              className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap transition-all cursor-pointer ${
                 searchQuery.toLowerCase() === topic.toLowerCase()
                   ? 'bg-bridge-teal text-slate-950 font-bold shadow-md shadow-bridge-teal/20'
-                  : 'bg-slate-900 text-slate-400 hover:text-white border border-slate-800 hover:border-slate-700'
+                  : 'bg-panel text-text-muted hover:text-text-primary border border-border'
               }`}
             >
               {topic}
@@ -378,7 +378,7 @@ export const LearningResourcesPage: React.FC = () => {
         </div>
 
         {/* 9 Category Tabs */}
-        <div className="flex gap-2 overflow-x-auto pb-2 border-b border-slate-800 scrollbar-none">
+        <div className="flex gap-2 overflow-x-auto pb-2 border-b border-border scrollbar-none">
           {CATEGORY_TABS.map((tab) => {
             const Icon = tab.icon;
             let count = 0;
@@ -399,16 +399,16 @@ export const LearningResourcesPage: React.FC = () => {
                 key={tab.id}
                 type="button"
                 onClick={() => setActiveCategory(tab.id)}
-                className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${
+                className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
                   activeCategory === tab.id
-                    ? 'bg-slate-800 text-white border border-slate-700 shadow-md font-bold'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-900/60'
+                    ? 'bg-bridge-teal text-slate-950 font-bold shadow-md shadow-bridge-teal/20'
+                    : 'bg-panel text-text-muted hover:text-text-primary border border-border'
                 }`}
               >
-                <Icon className="w-3.5 h-3.5 text-bridge-teal" />
+                <Icon className="w-3.5 h-3.5" />
                 <span>{tab.label}</span>
                 {categories && (
-                  <span className="text-[10px] font-mono px-1.5 py-0.2 rounded-full bg-slate-850 text-slate-400">
+                  <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full ${activeCategory === tab.id ? 'bg-slate-900/40 text-slate-950' : 'bg-panel-raised text-text-muted'}`}>
                     {count}
                   </span>
                 )}
@@ -420,18 +420,18 @@ export const LearningResourcesPage: React.FC = () => {
 
       {/* Resources Grid / State Management */}
       {isSearchError ? (
-        <div className="py-16 text-center rounded-3xl bg-rose-950/20 border border-rose-800/40 space-y-4">
-          <AlertCircle className="w-10 h-10 text-rose-400 mx-auto" />
-          <h3 className="text-sm sm:text-base font-bold text-rose-200 font-serif">
+        <div className="py-16 text-center rounded-2xl bg-panel border border-signal-red/30 space-y-4">
+          <AlertCircle className="w-10 h-10 text-signal-red mx-auto" />
+          <h3 className="text-sm sm:text-base font-bold text-signal-red font-sans">
             Unable to load learning resources.
           </h3>
-          <p className="text-xs text-slate-400 max-w-sm mx-auto">
+          <p className="text-xs text-text-muted max-w-sm mx-auto">
             There was an error communicating with the learning resources service. Please check your connection and try again.
           </p>
           <button
             type="button"
             onClick={() => refetchSearch()}
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-bridge-teal hover:bg-bridge-teal/90 text-slate-950 text-xs font-bold shadow-lg transition-all"
+            className="bridge-btn-primary inline-flex items-center gap-2 px-5 py-2.5 rounded-full text-xs font-bold shadow-lg transition-all"
           >
             <RefreshCw className="w-3.5 h-3.5" />
             <span>Try Again</span>
@@ -440,19 +440,19 @@ export const LearningResourcesPage: React.FC = () => {
       ) : isSearchLoading ? (
         <div className="py-20 text-center space-y-3">
           <div className="w-8 h-8 border-2 border-bridge-teal border-t-transparent rounded-full animate-spin mx-auto" />
-          <p className="text-xs font-mono text-slate-400">Searching authoritative knowledge bases...</p>
+          <p className="text-xs font-mono text-text-muted">Searching authoritative knowledge bases...</p>
         </div>
       ) : displayedResources.length === 0 ? (
-        <div className="py-16 text-center rounded-3xl bg-slate-900/60 border border-slate-800 space-y-3">
-          <BookOpen className="w-10 h-10 text-slate-600 mx-auto" />
-          <h3 className="text-sm font-bold text-slate-300">No resources matched your query</h3>
-          <p className="text-xs text-slate-500 max-w-sm mx-auto">
+        <div className="py-16 text-center rounded-2xl bg-panel border border-border space-y-3">
+          <BookOpen className="w-10 h-10 text-text-muted mx-auto" />
+          <h3 className="text-sm font-bold text-text-primary font-sans">No resources matched your query</h3>
+          <p className="text-xs text-text-muted max-w-sm mx-auto">
             Try searching for terms like "Dynamic Programming", "React", "System Design", "SQL", or reset your active filters.
           </p>
           <button
             type="button"
             onClick={handleResetFilters}
-            className="px-4 py-2 rounded-xl bg-slate-800 text-xs font-semibold text-slate-300 hover:text-white border border-slate-700 transition-colors"
+            className="px-4 py-2 rounded-xl bg-panel-raised text-xs font-semibold text-text-muted hover:text-text-primary border border-border transition-colors cursor-pointer"
           >
             Reset All Filters
           </button>
@@ -462,44 +462,44 @@ export const LearningResourcesPage: React.FC = () => {
           {displayedResources.map((res) => (
             <div
               key={res.id}
-              className="flex flex-col justify-between rounded-3xl bg-slate-900/90 border border-slate-800 hover:border-bridge-teal/40 p-5 sm:p-6 shadow-xl transition-all duration-200 hover:-translate-y-1 hover:shadow-2xl hover:shadow-slate-950/40 group"
+              className="flex flex-col justify-between rounded-2xl bg-panel border border-border hover:border-bridge-teal/40 p-5 sm:p-6 shadow-xl transition-all duration-200 group"
             >
               <div className="space-y-3.5">
                 {/* Header row: Badge and Provider */}
                 <div className="flex items-center justify-between gap-2">
                   {getCategoryBadge(res.category)}
-                  <span className="text-xs font-bold text-slate-300 bg-slate-850 px-2.5 py-0.5 rounded-lg border border-slate-750 truncate max-w-[140px]">
+                  <span className="text-xs font-bold text-text-muted bg-panel-raised px-2.5 py-0.5 rounded-lg border border-border truncate max-w-[140px]">
                     {res.provider}
                   </span>
                 </div>
 
                 {/* Title & Description */}
                 <div>
-                  <h4 className="text-sm sm:text-base font-bold text-white group-hover:text-bridge-teal transition-colors leading-snug">
+                  <h4 className="text-sm sm:text-base font-bold text-text-primary group-hover:text-bridge-teal transition-colors leading-snug font-sans">
                     {res.title}
                   </h4>
-                  <p className="text-xs text-slate-400 mt-2 leading-relaxed line-clamp-3">
+                  <p className="text-xs text-text-muted mt-2 leading-relaxed line-clamp-3 font-sans">
                     {res.description}
                   </p>
                 </div>
 
                 {/* Topic Tags, Difficulty, Authority Score */}
                 <div className="flex flex-wrap items-center gap-1.5 pt-1">
-                  <span className="text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-slate-800 text-slate-300 border border-slate-750">
+                  <span className="small-caps-label text-[10px] font-mono font-semibold px-2 py-0.5 rounded bg-panel-raised text-text-muted border border-border">
                     #{res.topicTag}
                   </span>
                   {res.difficulty && (
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-slate-850 text-slate-400">
+                    <span className="small-caps-label text-[10px] font-mono px-2 py-0.5 rounded bg-panel-raised text-text-muted border border-border">
                       {res.difficulty}
                     </span>
                   )}
                   {res.authorityScore && (
-                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-indigo-950/40 text-indigo-300 border border-indigo-800/40">
+                    <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-bridge-teal/10 text-bridge-teal border border-bridge-teal/30">
                       ★ {res.authorityScore}/100 Auth
                     </span>
                   )}
                   {res.isFree && (
-                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-signal-green/10 text-signal-green border border-signal-green/20">
                       100% FREE
                     </span>
                   )}
@@ -507,12 +507,12 @@ export const LearningResourcesPage: React.FC = () => {
               </div>
 
               {/* Action Button: Authentic Outbound Link */}
-              <div className="pt-4 mt-4 border-t border-slate-800">
+              <div className="pt-4 mt-4 border-t border-border">
                 <a
                   href={res.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="w-full inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-bridge-teal text-slate-200 hover:text-slate-950 text-xs font-bold border border-slate-700 hover:border-bridge-teal shadow-sm transition-all duration-200"
+                  className="bridge-btn-primary w-full py-2.5 rounded-full text-xs font-bold transition-all flex items-center justify-center gap-2"
                 >
                   <span>Open Resource</span>
                   <ExternalLink className="w-3.5 h-3.5" />

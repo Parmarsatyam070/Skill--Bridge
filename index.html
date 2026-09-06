@@ -1,19 +1,33 @@
 <!doctype html>
-<html lang="en">
+<html lang="en" class="dark" style="background-color: #08090C; color-scheme: dark;">
   <head>
     <meta charset="UTF-8" />
     <link rel="icon" type="image/svg+xml" href="/logo.svg" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>SkillBridge — Academia-Industry Collaboration Platform</title>
-    <meta name="description" content="Closing the skill gap between academic learning and industry demand with authoritative matching, gap analysis, and verified portfolios." />
+    <meta name="theme-color" content="#08090C" />
+    <meta name="color-scheme" content="dark" />
+    <title>SkillBridge — Verified Intelligence Platform</title>
+    <meta name="description" content="Turning unverified student claims into verified, measurable proof with authoritative matching, gap analysis, and verified credentials." />
     
+    <!-- Critical Dark Theme Canvas CSS — eliminates any white FOUC frame -->
+    <style>
+      html, body, #__next, #root {
+        background-color: #08090C !important;
+        color: #F4F5F7;
+        color-scheme: dark;
+        min-height: 100vh;
+        margin: 0;
+        padding: 0;
+      }
+    </style>
+
     <!-- Google Fonts: Fraunces (serif display), Inter (sans UI), IBM Plex Mono (tabular numeric data) -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;0,9..144,700;1,9..144,600&family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   </head>
-  <body class="bg-console-bg text-console-text font-sans antialiased selection:bg-bridge-teal selection:text-white">
-    <div id="root"></div>
+  <body class="bg-[#08090C] text-[#F4F5F7] font-sans antialiased selection:bg-[#2F8C82] selection:text-white" style="background-color: #08090C; color-scheme: dark;">
+    <div id="root" style="background-color: #08090C; min-height: 100vh;"></div>
     <script type="module" src="/client/src/main.tsx"></script>
   </body>
 </html>

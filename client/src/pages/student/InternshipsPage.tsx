@@ -102,14 +102,18 @@ export const InternshipsPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-full space-y-8 font-sans bg-console-bg">
+    <div className="min-h-full space-y-5 sm:space-y-6 font-sans">
       {/* Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-console-border">
-        <div>
-          <span className="text-xs font-mono uppercase tracking-wider text-console-text-muted block">
-            Authoritative Match Pipeline
-          </span>
-          <h1 className="font-serif text-2xl sm:text-3xl font-bold text-console-text">
+      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-4 border-b border-border">
+        <div className="space-y-1">
+          <div className="flex items-center gap-2">
+            <span className="small-caps-label text-[11px] text-bridge-teal font-bold">
+              [● AUTHORITATIVE MATCH PIPELINE]
+            </span>
+            <span className="w-1.5 h-1.5 rounded-full bg-bridge-teal" />
+            <span className="text-xs font-mono text-text-muted">Verified Hiring Matches</span>
+          </div>
+          <h1 className="text-2xl sm:text-3xl font-bold text-text-primary tracking-tight font-sans">
             Matched Internships & Openings
           </h1>
         </div>
@@ -117,20 +121,20 @@ export const InternshipsPage: React.FC = () => {
         {/* Filter controls */}
         <div className="flex flex-wrap items-center gap-3">
           <div className="relative">
-            <Search className="w-4 h-4 text-console-text-muted absolute left-3 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-text-muted absolute left-3 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchQuery}
               onChange={e => setSearchQuery(e.target.value)}
               placeholder="Filter by title or company..."
-              className="bg-console-panel-raised border border-console-border rounded-xl pl-9 pr-3.5 py-1.5 text-xs text-console-text placeholder:text-console-text-muted focus:outline-none focus:border-bridge-teal"
+              className="bg-void border border-border rounded-xl pl-9 pr-3.5 py-1.5 text-xs text-text-primary placeholder:text-text-muted focus:outline-none focus:border-bridge-teal"
             />
           </div>
 
           <select
             value={selectedTier}
             onChange={e => setSelectedTier(e.target.value)}
-            className="bg-console-panel-raised border border-console-border rounded-xl px-3 py-1.5 text-xs font-semibold text-console-text focus:outline-none focus:border-bridge-teal font-mono"
+            className="bg-void border border-border rounded-xl px-3 py-1.5 text-xs font-semibold text-text-primary focus:outline-none focus:border-bridge-teal font-mono cursor-pointer"
           >
             <option value="all">All Match Tiers</option>
             <option value="high">High Match (≥80%)</option>
@@ -146,44 +150,44 @@ export const InternshipsPage: React.FC = () => {
           <div className="w-8 h-8 border-2 border-bridge-teal border-t-transparent rounded-full animate-spin" />
         </div>
       ) : filteredMatches.length === 0 ? (
-        <div className="bg-console-panel border border-console-border rounded-2xl p-12 text-center space-y-3">
-          <Briefcase className="w-10 h-10 text-console-text-muted mx-auto opacity-50" />
-          <h3 className="font-serif text-lg font-bold text-console-text">No Internships Found</h3>
-          <p className="text-xs text-console-text-muted">
+        <div className="bg-panel border border-border rounded-2xl p-8 sm:p-12 text-center space-y-3">
+          <Briefcase className="w-10 h-10 text-text-muted mx-auto opacity-50" />
+          <h3 className="font-bold text-lg text-text-primary font-sans">No Internships Found</h3>
+          <p className="text-xs text-text-muted font-sans">
             Try adjusting your search criteria or tier filters.
           </p>
         </div>
       ) : (
-        <div className="space-y-6">
+        <div className="space-y-4 sm:space-y-5">
           {filteredMatches.map(job => {
             const isApplied = appliedJobIds.has(job.internshipId);
 
             return (
               <div
                 key={job.internshipId}
-                className="bg-console-panel border border-console-border rounded-2xl p-6 shadow-sm hover:border-console-text-muted transition-all space-y-5"
+                className="bg-panel border border-border rounded-2xl p-5 sm:p-6 shadow-xl hover:border-bridge-teal/40 transition-all duration-200 space-y-4 content-auto"
               >
                 {/* Top Title & Match Badge */}
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                   <div className="space-y-1">
                     <div className="flex items-center gap-2">
-                      <h3 className="font-serif text-xl font-bold text-console-text">
+                      <h3 className="text-lg sm:text-xl font-bold text-text-primary font-sans">
                         {job.internshipTitle}
                       </h3>
                       {isApplied && (
-                        <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-status-green/15 text-status-green border border-status-green/30">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-signal-green/15 text-signal-green border border-signal-green/30">
                           ✓ Applied
                         </span>
                       )}
                     </div>
-                    <div className="text-xs text-console-text-muted flex flex-wrap items-center gap-3 font-mono">
-                      <span className="text-console-text font-semibold">{job.companyName}</span>
+                    <div className="text-xs text-text-muted flex flex-wrap items-center gap-3 font-mono">
+                      <span className="text-text-primary font-semibold">{job.companyName}</span>
                       <span>•</span>
                       <span>{job.location}</span>
                       <span>•</span>
                       <span>{job.workMode}</span>
                       <span>•</span>
-                      <span className="text-status-green font-semibold">{job.stipend}</span>
+                      <span className="text-signal-green font-semibold">{job.stipend}</span>
                     </div>
                   </div>
 
@@ -192,14 +196,14 @@ export const InternshipsPage: React.FC = () => {
                     {isApplied ? (
                       <button
                         disabled
-                        className="px-4 py-2 rounded-xl bg-console-panel-raised border border-console-border text-console-text-muted text-xs font-mono font-medium cursor-not-allowed"
+                        className="px-4 py-2 rounded-full bg-panel-raised border border-border text-text-muted text-xs font-mono font-medium cursor-not-allowed"
                       >
                         Application Submitted
                       </button>
                     ) : (
                       <button
                         onClick={() => handleOpenApplyModal(job)}
-                        className="px-5 py-2.5 rounded-xl bg-bridge-teal hover:bg-bridge-teal/90 text-white text-xs font-semibold shadow-sm transition-all"
+                        className="bridge-btn-primary px-5 py-2.5 rounded-full text-xs font-bold shadow-sm transition-all"
                       >
                         Apply with Resume →
                       </button>
@@ -218,8 +222,8 @@ export const InternshipsPage: React.FC = () => {
 
                 {/* Required Skills Matrix */}
                 <div className="space-y-2 pt-1">
-                  <span className="text-[11px] font-mono uppercase tracking-wider text-console-text-muted block">
-                    Competency Breakdown
+                  <span className="small-caps-label text-[11px] font-mono text-text-muted font-bold block">
+                    COMPETENCY BREAKDOWN
                   </span>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                     {job.breakdown.matchedSkills.map((sk: any) => (
@@ -227,11 +231,11 @@ export const InternshipsPage: React.FC = () => {
                         key={sk.skillId}
                         className={`p-2.5 rounded-xl border text-xs font-mono ${
                           sk.isMet
-                            ? 'bg-status-green/10 border-status-green/25 text-status-green'
-                            : 'bg-console-panel-raised border-console-border text-console-text-muted'
+                            ? 'bg-signal-green/10 border-signal-green/25 text-signal-green'
+                            : 'bg-panel-raised border-border text-text-muted'
                         }`}
                       >
-                        <div className="font-sans font-medium text-console-text text-xs truncate">
+                        <div className="font-sans font-medium text-text-primary text-xs truncate">
                           {sk.skillName}
                         </div>
                         <div className="text-[11px] mt-0.5 flex items-center justify-between">
@@ -244,8 +248,8 @@ export const InternshipsPage: React.FC = () => {
                 </div>
 
                 {/* Outbound Cross-Posting Deep Links */}
-                <div className="pt-3 border-t border-console-border flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
-                  <span className="text-console-text-muted">
+                <div className="pt-3 border-t border-border flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-sans">
+                  <span className="text-text-muted">
                     Also search or cross-check this role on external partner portals:
                   </span>
                   <div className="flex flex-wrap items-center gap-2">

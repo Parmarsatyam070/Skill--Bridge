@@ -70,29 +70,39 @@ export const LoginPage: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-paper text-ink font-sans flex flex-col justify-between">
+    <div className="min-h-screen bg-[#030712] text-slate-100 font-sans flex flex-col justify-between relative overflow-hidden">
+      {/* Sentry ambient cobalt spotlight */}
+      <div
+        className="absolute -top-32 right-0 w-[550px] h-[550px] rounded-full pointer-events-none -z-10 opacity-70 blur-3xl"
+        style={{
+          background: 'radial-gradient(circle, rgba(37, 99, 235, 0.25) 0%, rgba(6, 182, 212, 0.10) 40%, transparent 70%)',
+        }}
+      />
+      <div className="absolute inset-0 ascii-matrix opacity-30 pointer-events-none -z-20" />
+
       <PublicNavbar />
 
-      <div className="flex-1 flex items-center justify-center p-6 my-8">
+      <div className="flex-1 flex items-center justify-center p-4 sm:p-6 my-6 relative z-10">
         <div className="w-full max-w-md space-y-6">
           {/* Header */}
-          <div className="text-center space-y-2">
-            <span className="text-xs font-mono uppercase tracking-widest text-bridge-teal font-semibold">
-              SkillBridge Console Access
-            </span>
-            <h1 className="font-serif text-3xl font-bold text-ink">
+          <div className="text-center space-y-2.5">
+            <div className="tech-pill text-[10.5px]">
+              <span className="w-1.5 h-1.5 rounded-full bg-cyan-400 animate-pulse" />
+              <span>VERIFIED CONSOLE ACCESS</span>
+            </div>
+            <h1 className="text-2xl sm:text-3xl font-bold tracking-tight text-white">
               Welcome back
             </h1>
-            <p className="text-xs text-ink-muted">
+            <p className="text-xs text-slate-400">
               Enter your credentials to access your verified career workspace.
             </p>
           </div>
 
           {/* Main Login Form */}
-          <div className="bg-white border border-line rounded-2xl p-7 shadow-campus-card space-y-5">
+          <div className="bg-[#0b1222]/90 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl shadow-blue-950/40 backdrop-blur-md space-y-5">
             {error && (
               <div
-                className="flex items-start gap-2.5 p-3.5 rounded-xl bg-status-red/10 border border-status-red/30 text-status-red text-xs font-medium"
+                className="flex items-start gap-2.5 p-3.5 rounded-xl bg-red-950/40 border border-red-500/40 text-red-400 text-xs font-medium"
                 role="alert"
               >
                 <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5" />
@@ -102,49 +112,49 @@ export const LoginPage: React.FC = () => {
 
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-ink mb-1.5">
+                <label className="block text-xs font-semibold text-slate-300 mb-1.5">
                   Email Address or Phone Number
                 </label>
                 <div className="relative">
-                  <Mail className="w-4 h-4 text-ink-muted absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
                     type="text"
                     value={identifier}
                     onChange={e => setIdentifier(e.target.value)}
                     placeholder="e.g. name@university.edu or +91 98765 43210"
                     required
-                    className="w-full bg-paper border border-line rounded-xl pl-10 pr-4 py-2.5 text-xs text-ink placeholder:text-ink-muted focus:outline-none focus:border-bridge-teal focus:ring-1 focus:ring-bridge-teal transition-all"
+                    className="cyber-input has-icon w-full !pl-11 pr-4 py-2.5 text-xs text-white placeholder:text-slate-500 bg-[#0f172a] border border-slate-800 rounded-xl focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50"
                   />
                 </div>
               </div>
 
               <div>
                 <div className="flex items-center justify-between mb-1.5">
-                  <label className="text-xs font-semibold text-ink">
+                  <label className="text-xs font-semibold text-slate-300">
                     Password
                   </label>
                   <Link
                     to="/forgot-password"
-                    className="text-[11px] font-mono text-bridge-teal hover:underline font-medium"
+                    className="text-[11px] font-mono text-cyan-400 hover:underline font-medium"
                   >
                     Forgot password?
                   </Link>
                 </div>
                 <div className="relative">
-                  <Lock className="w-4 h-4 text-ink-muted absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
                   <input
                     type="password"
                     value={password}
                     onChange={e => setPassword(e.target.value)}
                     placeholder="••••••••••••"
                     required
-                    className="w-full bg-paper border border-line rounded-xl pl-10 pr-4 py-2.5 text-xs text-ink placeholder:text-ink-muted focus:outline-none focus:border-bridge-teal focus:ring-1 focus:ring-bridge-teal transition-all"
+                    className="cyber-input has-icon w-full !pl-11 pr-4 py-2.5 text-xs text-white placeholder:text-slate-500 bg-[#0f172a] border border-slate-800 rounded-xl focus:border-cyan-400 focus:ring-1 focus:ring-cyan-400/50"
                   />
                 </div>
               </div>
 
               {coldStartNotice && loading && (
-                <div className="flex items-center gap-2.5 p-3 rounded-xl bg-bridge-teal/10 border border-bridge-teal/30 text-bridge-teal text-xs animate-in fade-in duration-200">
+                <div className="flex items-center gap-2.5 p-3 rounded-xl bg-blue-950/40 border border-blue-500/40 text-cyan-400 text-xs animate-in fade-in duration-200">
                   <RefreshCw className="w-4 h-4 animate-spin flex-shrink-0" />
                   <span>Waking up server backend (Render cold-start)... Hang tight!</span>
                 </div>
@@ -153,27 +163,27 @@ export const LoginPage: React.FC = () => {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full flex items-center justify-center gap-2 px-4 py-3 rounded-xl bg-bridge-teal hover:bg-bridge-teal/90 active:bg-[#20635c] text-white font-bold text-xs shadow-md transition-all disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-bridge-teal"
+                className="cyber-btn-primary w-full py-3 rounded-full text-xs font-bold tracking-wide transition-all disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? (
-                  <span className="font-mono flex items-center gap-1.5">
+                  <span className="font-mono flex items-center justify-center gap-1.5">
                     <RefreshCw className="w-3.5 h-3.5 animate-spin" />
                     <span>Signing in...</span>
                   </span>
                 ) : (
-                  <>
+                  <div className="flex items-center justify-center gap-2">
                     <span>Log in</span>
                     <ArrowRight className="w-4 h-4" />
-                  </>
+                  </div>
                 )}
               </button>
             </form>
 
             <div className="relative my-4">
               <div className="absolute inset-0 flex items-center">
-                <div className="w-full border-t border-line" />
+                <div className="w-full border-t border-slate-800" />
               </div>
-              <div className="relative flex justify-center text-[10.5px] font-mono uppercase tracking-wider bg-white px-2 text-ink-muted font-medium">
+              <div className="relative flex justify-center text-[10.5px] font-mono uppercase tracking-wider bg-[#0b1222] px-2 text-slate-500 font-medium">
                 or continue with
               </div>
             </div>
@@ -183,7 +193,7 @@ export const LoginPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setOauthProvider('google')}
-                className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border border-line hover:border-bridge-teal text-xs font-semibold text-ink transition-all bg-paper hover:bg-white shadow-2xs hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-bridge-teal"
+                className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border border-slate-800 hover:border-blue-500/60 text-xs font-semibold text-slate-200 transition-all bg-[#0f172a] hover:bg-[#1e293b]"
                 title="Sign in with Google"
               >
                 <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24">
@@ -210,7 +220,7 @@ export const LoginPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setOauthProvider('github')}
-                className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border border-line hover:border-bridge-teal text-xs font-semibold text-ink transition-all bg-paper hover:bg-white shadow-2xs hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-bridge-teal"
+                className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border border-slate-800 hover:border-blue-500/60 text-xs font-semibold text-slate-200 transition-all bg-[#0f172a] hover:bg-[#1e293b]"
                 title="Sign in with GitHub"
               >
                 <Github className="w-4 h-4 flex-shrink-0" />
@@ -220,7 +230,7 @@ export const LoginPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setOauthProvider('microsoft')}
-                className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border border-line hover:border-bridge-teal text-xs font-semibold text-ink transition-all bg-paper hover:bg-white shadow-2xs hover:shadow-sm focus:outline-none focus:ring-2 focus:ring-bridge-teal"
+                className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border border-slate-800 hover:border-blue-500/60 text-xs font-semibold text-slate-200 transition-all bg-[#0f172a] hover:bg-[#1e293b]"
                 title="Sign in with Microsoft 365"
               >
                 <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 23 23">
@@ -234,9 +244,9 @@ export const LoginPage: React.FC = () => {
             </div>
           </div>
 
-          <div className="text-center text-xs text-ink-muted">
+          <div className="text-center text-xs text-slate-400">
             Don't have an account?{' '}
-            <Link to="/register" className="font-semibold text-bridge-teal hover:underline">
+            <Link to="/register" className="font-semibold text-cyan-400 hover:underline">
               Sign up
             </Link>
           </div>

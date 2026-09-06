@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import {
@@ -94,6 +94,15 @@ export const PortfolioBuilderPage: React.FC = () => {
   const [showMessagesModal, setShowMessagesModal] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
   const [saveToast, setSaveToast] = useState<string | null>(null);
+
+  // Independent pane scroll references for local scroll management
+  const editorScrollRef = useRef<HTMLDivElement>(null);
+  const previewScrollRef = useRef<HTMLDivElement>(null);
+
+  const handleTabChange = (tabId: 'hero' | 'services' | 'projects' | 'about' | 'stats' | 'contact' | 'theme') => {
+    setActiveTab(tabId);
+    editorScrollRef.current?.scrollTo({ top: 0, behavior: 'smooth' });
+  };
 
   // AI Wizard State
   const [wizardStep, setWizardStep] = useState(1);
@@ -266,7 +275,7 @@ export const PortfolioBuilderPage: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-console-bg flex flex-col items-center justify-center p-6">
+      <div className="flex-1 min-h-[300px] flex flex-col items-center justify-center p-6">
         <div className="w-8 h-8 border-2 border-bridge-teal border-t-transparent rounded-full animate-spin mb-3" />
         <span className="text-xs font-mono text-console-text-muted">Loading portfolio editor...</span>
       </div>
@@ -274,27 +283,30 @@ export const PortfolioBuilderPage: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-console-bg text-console-text flex flex-col font-sans">
+    <div className="flex-1 min-h-0 flex flex-col w-full text-bridge-text font-sans space-y-3 sm:space-y-4">
       {/* ── TOP HEADER ACTION BAR ── */}
-      <header className="bg-console-panel border-b border-console-border px-4 py-3 sticky top-0 z-30 flex flex-wrap items-center justify-between gap-4">
+      <div className="bg-bridge-panel rounded-2xl border border-bridge-border px-4 py-3 shrink-0 flex flex-wrap items-center justify-between gap-4 shadow-2xs">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-bridge-teal to-campus-blue text-white flex items-center justify-center font-bold text-sm shadow-sm">
+          <div className="w-8 h-8 rounded-lg bg-bridge-teal/10 border border-bridge-teal/30 text-bridge-teal flex items-center justify-center font-bold text-sm shadow-sm">
             <Globe className="w-4 h-4" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-sm font-bold text-console-text font-serif">Portfolio Website Builder</h1>
+              <span className="text-[10px] font-mono tracking-widest text-bridge-teal uppercase font-semibold">
+                [● LIVE STUDIO]
+              </span>
+              <h1 className="text-sm font-bold text-bridge-text">Portfolio Website Builder</h1>
               <span
                 className={`text-[10px] font-mono px-2 py-0.5 rounded-full border ${
                   website.status === 'PUBLISHED'
-                    ? 'bg-status-green/15 text-status-green border-status-green/30 font-semibold'
-                    : 'bg-console-panel-raised text-console-text-muted border-console-border'
+                    ? 'bg-signal-green/10 text-signal-green border-signal-green/30 font-semibold'
+                    : 'bg-bridge-panel-raised text-bridge-text-muted border-bridge-border'
                 }`}
               >
                 {website.status === 'PUBLISHED' ? '● Published' : '○ Draft'}
               </span>
             </div>
-            <div className="text-[11px] font-mono text-console-text-muted flex items-center gap-1">
+            <div className="text-[11px] font-mono text-bridge-text-muted flex items-center gap-1 mt-0.5">
               <span>Public URL:</span>
               <span className="text-bridge-teal font-semibold">/p/{website.slug || 'slug'}</span>
             </div>
@@ -313,12 +325,12 @@ export const PortfolioBuilderPage: React.FC = () => {
 
           <button
             onClick={() => setShowMessagesModal(true)}
-            className="relative flex items-center gap-1.5 px-3 py-2 rounded-xl bg-console-panel-raised hover:bg-console-border text-console-text text-xs font-medium border border-console-border transition-colors"
+            className="relative flex items-center gap-1.5 px-3 py-2 rounded-xl bg-bridge-panel-raised hover:bg-bridge-panel text-bridge-text text-xs font-medium border border-bridge-border transition-colors"
           >
             <MessageSquare className="w-3.5 h-3.5 text-bridge-teal" />
             <span>Visitor Inbox</span>
             {unreadMessagesCount > 0 && (
-              <span className="w-4 h-4 rounded-full bg-status-red text-white text-[9px] font-bold flex items-center justify-center ml-1">
+              <span className="w-4 h-4 rounded-full bg-signal-red text-white text-[9px] font-bold flex items-center justify-center ml-1">
                 {unreadMessagesCount}
               </span>
             )}
@@ -326,26 +338,26 @@ export const PortfolioBuilderPage: React.FC = () => {
 
           <button
             onClick={handleCopyLink}
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-console-panel-raised hover:bg-console-border text-console-text text-xs font-medium border border-console-border transition-colors"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-bridge-panel-raised hover:bg-bridge-panel text-bridge-text text-xs font-medium border border-bridge-border transition-colors"
             title="Copy Public Link"
           >
-            {copiedLink ? <Check className="w-3.5 h-3.5 text-status-green" /> : <Copy className="w-3.5 h-3.5" />}
+            {copiedLink ? <Check className="w-3.5 h-3.5 text-signal-green" /> : <Copy className="w-3.5 h-3.5" />}
             <span>{copiedLink ? 'Copied!' : 'Share URL'}</span>
           </button>
 
           <Link
             to={`/p/${website.slug || 'satyam-singh'}`}
             target="_blank"
-            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-console-panel-raised hover:bg-console-border text-console-text text-xs font-medium border border-console-border transition-colors"
+            className="flex items-center gap-1.5 px-3 py-2 rounded-xl bg-bridge-panel-raised hover:bg-bridge-panel text-bridge-text text-xs font-medium border border-bridge-border transition-colors"
           >
-            <Eye className="w-3.5 h-3.5 text-campus-blue" />
+            <Eye className="w-3.5 h-3.5 text-bridge-teal" />
             <span>View Live</span>
           </Link>
 
           <button
             onClick={() => saveMutation.mutate(website)}
             disabled={saveMutation.isPending}
-            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-console-panel-raised hover:bg-console-border text-console-text text-xs font-semibold border border-console-border transition-colors"
+            className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-bridge-panel-raised hover:bg-bridge-panel text-bridge-text text-xs font-semibold border border-bridge-border transition-colors"
           >
             <Save className="w-3.5 h-3.5 text-bridge-teal" />
             <span>{saveMutation.isPending ? 'Saving...' : 'Save Draft'}</span>
@@ -354,13 +366,13 @@ export const PortfolioBuilderPage: React.FC = () => {
           <button
             onClick={() => publishMutation.mutate()}
             disabled={publishMutation.isPending}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-bridge-teal hover:bg-bridge-teal/90 text-slate-950 text-xs font-bold shadow-md shadow-bridge-teal/20 transition-all"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-bridge-teal hover:bg-bridge-teal-hover text-white text-xs font-bold shadow-xs transition-all"
           >
             <Send className="w-3.5 h-3.5" />
             <span>{publishMutation.isPending ? 'Publishing...' : 'Publish'}</span>
           </button>
         </div>
-      </header>
+      </div>
 
       {/* Save / Toast Alert */}
       {saveToast && (
@@ -371,11 +383,11 @@ export const PortfolioBuilderPage: React.FC = () => {
       )}
 
       {/* ── MAIN SPLIT VIEW (EDITOR LEFT + LIVE PREVIEW RIGHT) ── */}
-      <div className="flex-1 grid grid-cols-1 lg:grid-cols-12 gap-0 overflow-hidden">
+      <div className="flex-1 min-h-0 grid grid-cols-1 lg:grid-cols-12 gap-4 lg:gap-5 overflow-hidden">
         {/* ── LEFT PANEL: SECTION-BY-SECTION EDITOR ── */}
-        <div className="lg:col-span-5 bg-console-panel border-r border-console-border flex flex-col h-[calc(100vh-61px)] overflow-y-auto">
+        <div className="lg:col-span-5 bg-bridge-panel rounded-2xl border border-bridge-border flex flex-col min-h-0 h-full overflow-hidden shadow-2xs">
           {/* Section Navigation Tabs */}
-          <div className="p-3 border-b border-console-border bg-console-panel/80 sticky top-0 z-20 backdrop-blur-sm">
+          <div className="p-3 border-b border-bridge-border bg-bridge-panel/90 backdrop-blur-sm shrink-0">
             <div className="flex items-center gap-1.5 overflow-x-auto pb-1 scrollbar-none">
               {[
                 { id: 'hero', label: '1. Hero' },
@@ -388,11 +400,11 @@ export const PortfolioBuilderPage: React.FC = () => {
               ].map(t => (
                 <button
                   key={t.id}
-                  onClick={() => setActiveTab(t.id as any)}
-                  className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all ${
+                  onClick={() => handleTabChange(t.id as any)}
+                  className={`px-3 py-1.5 rounded-lg text-xs font-mono transition-all ${
                     activeTab === t.id
-                      ? 'bg-bridge-teal text-slate-950 font-semibold shadow-sm'
-                      : 'text-console-text-muted hover:text-console-text hover:bg-console-panel-raised'
+                      ? 'bg-bridge-teal text-white font-semibold shadow-xs'
+                      : 'text-bridge-text-muted hover:text-bridge-text hover:bg-bridge-panel-raised'
                   }`}
                 >
                   {t.label}
@@ -402,7 +414,7 @@ export const PortfolioBuilderPage: React.FC = () => {
           </div>
 
           {/* Tab Contents */}
-          <div className="p-5 space-y-6 flex-1">
+          <div ref={editorScrollRef} className="p-5 space-y-6 flex-1 min-h-0 overflow-y-auto touch-scroll overscroll-contain">
             {/* 1. HERO TAB */}
             {activeTab === 'hero' && (
               <div className="space-y-4">
@@ -937,34 +949,36 @@ export const PortfolioBuilderPage: React.FC = () => {
         </div>
 
         {/* ── RIGHT PANEL: LIVE INTERACTIVE PREVIEW ── */}
-        <div className="lg:col-span-7 bg-black/40 flex flex-col h-[calc(100vh-61px)] overflow-hidden">
+        <div className="lg:col-span-7 bg-bridge-panel rounded-2xl border border-bridge-border flex flex-col min-h-0 h-full overflow-hidden shadow-2xs">
           {/* Viewport bar */}
-          <div className="px-4 py-2 bg-console-panel/90 border-b border-console-border flex items-center justify-between">
+          <div className="px-4 py-2.5 bg-bridge-panel border-b border-bridge-border flex items-center justify-between shrink-0">
             <div className="flex items-center gap-2">
-              <span className="text-[11px] font-mono text-console-text-muted">Live Preview:</span>
-              <span className="text-[11px] font-mono font-semibold text-bridge-teal">
+              <span className="text-[11px] font-mono tracking-widest uppercase text-bridge-teal font-semibold">
+                [● PREVIEW ENGINE]
+              </span>
+              <span className="text-[11px] font-mono font-semibold text-bridge-text-muted">
                 {THEME_OPTIONS.find(t => t.id === website.theme)?.name}
               </span>
             </div>
 
-            <div className="flex items-center gap-1.5 bg-console-bg p-1 rounded-lg border border-console-border">
+            <div className="flex items-center gap-1.5 bg-bridge-panel-raised p-1 rounded-lg border border-bridge-border">
               <button
                 onClick={() => setPreviewDevice('desktop')}
-                className={`p-1.5 rounded ${previewDevice === 'desktop' ? 'bg-bridge-teal text-slate-950' : 'text-console-text-muted hover:text-console-text'}`}
+                className={`p-1.5 rounded transition-colors ${previewDevice === 'desktop' ? 'bg-bridge-teal text-white shadow-xs' : 'text-bridge-text-muted hover:text-bridge-text'}`}
                 title="Desktop View"
               >
                 <Laptop className="w-3.5 h-3.5" />
               </button>
               <button
                 onClick={() => setPreviewDevice('tablet')}
-                className={`p-1.5 rounded ${previewDevice === 'tablet' ? 'bg-bridge-teal text-slate-950' : 'text-console-text-muted hover:text-console-text'}`}
+                className={`p-1.5 rounded transition-colors ${previewDevice === 'tablet' ? 'bg-bridge-teal text-white shadow-xs' : 'text-bridge-text-muted hover:text-bridge-text'}`}
                 title="Tablet View"
               >
                 <Tablet className="w-3.5 h-3.5" />
               </button>
               <button
                 onClick={() => setPreviewDevice('mobile')}
-                className={`p-1.5 rounded ${previewDevice === 'mobile' ? 'bg-bridge-teal text-slate-950' : 'text-console-text-muted hover:text-console-text'}`}
+                className={`p-1.5 rounded transition-colors ${previewDevice === 'mobile' ? 'bg-bridge-teal text-white shadow-xs' : 'text-bridge-text-muted hover:text-bridge-text'}`}
                 title="Mobile View"
               >
                 <Smartphone className="w-3.5 h-3.5" />
@@ -973,7 +987,7 @@ export const PortfolioBuilderPage: React.FC = () => {
           </div>
 
           {/* Scaled Preview Frame */}
-          <div className="flex-1 p-4 sm:p-6 overflow-y-auto flex justify-center items-start">
+          <div ref={previewScrollRef} className="flex-1 min-h-0 p-4 sm:p-6 overflow-y-auto flex justify-center items-start touch-scroll overscroll-contain bg-black/40">
             <div
               className={`w-full transition-all duration-300 rounded-2xl overflow-hidden border border-slate-700 shadow-2xl bg-[#0B1120] ${
                 previewDevice === 'mobile'
@@ -1137,7 +1151,7 @@ export const PortfolioBuilderPage: React.FC = () => {
               </div>
 
               <div className="space-y-1.5">
-                <label className="text-xs font-mono text-console-text">Preferred Colorway Theme</label>
+                <label className="text-xs font-mono text-bridge-text">Preferred Colorway Theme</label>
                 <div className="grid grid-cols-2 gap-2">
                   {THEME_OPTIONS.map(th => (
                     <button
@@ -1147,7 +1161,7 @@ export const PortfolioBuilderPage: React.FC = () => {
                       className={`p-2 rounded-xl text-xs border text-left flex items-center justify-between transition-all ${
                         wizardTheme === th.id
                           ? 'bg-purple-600/20 border-purple-500 text-purple-300 font-semibold'
-                          : 'bg-console-bg border-console-border text-console-text-muted hover:text-console-text'
+                          : 'bg-bridge-panel-raised border border-bridge-border text-bridge-text-muted hover:text-bridge-text'
                       }`}
                     >
                       <span>{th.name}</span>
@@ -1162,7 +1176,7 @@ export const PortfolioBuilderPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setShowAiWizard(false)}
-                className="px-4 py-2 rounded-xl text-xs text-console-text-muted hover:text-console-text"
+                className="px-4 py-2 rounded-xl text-xs text-bridge-text-muted hover:text-bridge-text"
               >
                 Cancel
               </button>
@@ -1199,22 +1213,25 @@ export const PortfolioBuilderPage: React.FC = () => {
           aria-modal="true"
         >
           <div
-            className="max-w-2xl w-full rounded-2xl bg-console-panel border border-console-border shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9)] p-6 space-y-4 max-h-[85vh] flex flex-col animate-in fade-in zoom-in-95 duration-150"
+            className="max-w-2xl w-full rounded-2xl bg-bridge-panel border border-bridge-border shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9)] p-6 space-y-4 max-h-[85vh] flex flex-col animate-in fade-in zoom-in-95 duration-150"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="flex items-center justify-between border-b border-console-border pb-3">
+            <div className="flex items-center justify-between border-b border-bridge-border pb-3">
               <div className="flex items-center gap-2.5">
-                <div className="w-8 h-8 rounded-lg bg-bridge-teal/20 text-bridge-teal flex items-center justify-center">
+                <div className="w-8 h-8 rounded-lg bg-bridge-teal/15 text-bridge-teal flex items-center justify-center">
                   <MessageSquare className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-sm font-bold text-console-text">Visitor Inquiries Inbox</h3>
-                  <p className="text-[11px] text-console-text-muted">Messages sent by recruiters on your public portfolio</p>
+                  <span className="text-[10px] font-mono tracking-widest uppercase text-bridge-teal font-semibold block mb-0.5">
+                    [● INQUIRIES TELEMETRY]
+                  </span>
+                  <h3 className="text-sm font-bold text-bridge-text">Visitor Inquiries Inbox</h3>
+                  <p className="text-[11px] text-bridge-text-muted">Messages sent by recruiters on your public portfolio</p>
                 </div>
               </div>
               <button
                 onClick={() => setShowMessagesModal(false)}
-                className="p-1 rounded-lg text-console-text-muted hover:text-console-text"
+                className="p-1 rounded-lg text-bridge-text-muted hover:text-bridge-text"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -1223,21 +1240,21 @@ export const PortfolioBuilderPage: React.FC = () => {
             <div className="flex-1 overflow-y-auto space-y-3 pr-1">
               {messagesList.length === 0 ? (
                 <div className="text-center py-12 space-y-2">
-                  <Mail className="w-8 h-8 text-console-text-muted mx-auto" />
-                  <p className="text-xs text-console-text-muted">No visitor messages received yet.</p>
+                  <Mail className="w-8 h-8 text-bridge-text-muted mx-auto opacity-50" />
+                  <p className="text-xs text-bridge-text-muted">No visitor messages received yet.</p>
                 </div>
               ) : (
                 messagesList.map(msg => (
                   <div
                     key={msg.id}
-                    className="p-4 rounded-xl bg-console-bg border border-console-border space-y-2"
+                    className="p-4 rounded-xl bg-bridge-panel-raised border border-bridge-border space-y-2"
                   >
                     <div className="flex items-center justify-between text-xs">
-                      <span className="font-bold text-console-text flex items-center gap-1.5">
+                      <span className="font-bold text-bridge-text flex items-center gap-1.5">
                         <User className="w-3.5 h-3.5 text-bridge-teal" />
                         <span>{msg.senderName}</span>
                       </span>
-                      <span className="text-[10px] font-mono text-console-text-muted">
+                      <span className="text-[10px] font-mono text-bridge-text-muted">
                         {new Date(msg.createdAt).toLocaleDateString()}
                       </span>
                     </div>
@@ -1246,7 +1263,7 @@ export const PortfolioBuilderPage: React.FC = () => {
                       {msg.senderEmail}
                     </div>
 
-                    <p className="text-xs text-console-text-muted leading-relaxed bg-console-panel-raised p-3 rounded-lg border border-console-border">
+                    <p className="text-xs text-bridge-text-muted leading-relaxed bg-bridge-panel p-3 rounded-lg border border-bridge-border">
                       {msg.message}
                     </p>
                   </div>

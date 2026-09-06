@@ -5,6 +5,49 @@ import { authenticate, requireRole, AuthRequest } from '../middleware/auth.js';
 const router = Router();
 
 /**
+ * GET /api/institutions/search?q=query
+ * Autocomplete type-ahead endpoint for Indian universities & colleges
+ */
+router.get('/search', async (req, res) => {
+  const query = (req.query.q as string || '').trim();
+
+  try {
+    let institutions = [];
+    if (query.length > 0) {
+      institutions = await prisma.institution.findMany({
+        where: {
+          OR: [
+            { name: { contains: query } },
+            { code: { contains: query } },
+            { state: { contains: query } },
+          ],
+        },
+        orderBy: { name: 'asc' },
+        take: 20,
+      });
+    } else {
+      institutions = await prisma.institution.findMany({
+        orderBy: { name: 'asc' },
+        take: 20,
+      });
+    }
+
+    return res.json({
+      institutions: institutions.map(i => ({
+        id: i.id,
+        name: i.name,
+        code: i.code,
+        state: i.state,
+        type: i.type,
+      })),
+    });
+  } catch (error) {
+    console.error('Error fetching institutions search:', error);
+    return res.json({ institutions: [] });
+  }
+});
+
+/**
  * GET /api/institutions/:id/analytics
  * Computes institutional metrics: skill heatmap, placement readiness, curriculum gaps
  */

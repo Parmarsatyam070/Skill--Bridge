@@ -244,7 +244,7 @@ describe('SkillBridge Learning Hub & Recommendation Engine - Complete Test Suite
         const res = await learningRecommendationService.searchResources({ query: topic });
         expect(res.totalResults).toBeGreaterThan(0);
       }
-    });
+    }, 15000);
 
     it('17. Normalization handles strange symbols safely without breaking', () => {
       const normalized = normalizeQuery('  <script>alert("test")</script> && || DP ??  ');

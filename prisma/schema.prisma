@@ -374,7 +374,7 @@ model PracticeSet {
   type             String              // domain | aptitude_quant | aptitude_english_reading | aptitude_english_listening
   title            String              // e.g. "Practice Set 1: Core Fundamentals"
   description      String
-  timeLimitMinutes Int                 @default(15)
+  timeLimitMinutes Int                 @default(25)
   passingScorePct  Float               @default(60.0)
   difficulty       String              @default("Intermediate") // Beginner | Intermediate | Advanced
   displayOrder     Int                 @default(1)
@@ -513,4 +513,13 @@ model DailyPractice {
   @@index([studentId, date])
 }
 
+model Institution {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  code      String?
+  state     String?
+  type      String?
+  createdAt DateTime @default(now())
 
+  @@index([name])
+}
