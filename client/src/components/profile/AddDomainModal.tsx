@@ -467,6 +467,7 @@ export const AddDomainModal: React.FC<AddDomainModalProps> = ({
                           step="5"
                           value={currentVal}
                           onChange={e => handleRatingChange(skill.skillId, parseInt(e.target.value))}
+                          aria-label={`${skill.skillName} proficiency: ${currentVal}%`}
                           className="w-full h-1.5 bg-console-border rounded-lg appearance-none cursor-pointer accent-bridge-teal"
                         />
 

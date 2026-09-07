@@ -4,7 +4,7 @@ import { ShieldCheck, ExternalLink, Activity, Terminal } from 'lucide-react';
 
 export const PublicFooter: React.FC = () => {
   return (
-    <footer className="border-t border-slate-800 bg-[#030712] font-sans text-slate-400 py-16 px-6 sm:px-10 relative overflow-hidden">
+    <footer className="border-t border-slate-800 bg-[#030712] font-sans text-slate-300 py-16 px-6 sm:px-10 relative overflow-hidden">
       {/* Subtle bottom ambient glow */}
       <div
         className="absolute bottom-0 left-1/2 -translate-x-1/2 w-[800px] h-[250px] pointer-events-none -z-10 blur-3xl opacity-20"
@@ -30,7 +30,7 @@ export const PublicFooter: React.FC = () => {
             </div>
           </div>
 
-          <p className="text-xs text-slate-400 max-w-sm leading-relaxed">
+          <p className="text-xs text-slate-300 max-w-sm leading-relaxed">
             Unified Academia–Industry Collaboration Platform closing the skill gap with authoritative vector matching, accredited course remediation, and verified digital credentials.
           </p>
 
@@ -51,7 +51,7 @@ export const PublicFooter: React.FC = () => {
               <li key={l}>
                 <Link
                   to="/register"
-                  className="text-slate-400 hover:text-cyan-400 transition-colors"
+                  className="text-slate-300 hover:text-cyan-400 transition-colors"
                 >
                   {l}
                 </Link>
@@ -71,7 +71,7 @@ export const PublicFooter: React.FC = () => {
               <li key={l}>
                 <Link
                   to="/register"
-                  className="text-slate-400 hover:text-cyan-400 transition-colors"
+                  className="text-slate-300 hover:text-cyan-400 transition-colors"
                 >
                   {l}
                 </Link>
@@ -88,7 +88,7 @@ export const PublicFooter: React.FC = () => {
           </div>
           <ul className="space-y-2.5 text-xs">
             {['NPTEL (IITs/IISc)', 'SWAYAM (Govt of India)', 'HCL TechBee & GUVI', 'Coursera & upGrad'].map(l => (
-              <li key={l} className="flex items-center gap-1.5 text-slate-400">
+              <li key={l} className="flex items-center gap-1.5 text-slate-300">
                 <ExternalLink className="w-3 h-3 text-cyan-500 flex-shrink-0" />
                 <span>{l}</span>
               </li>
@@ -98,11 +98,11 @@ export const PublicFooter: React.FC = () => {
       </div>
 
       {/* Bottom bar */}
-      <div className="max-w-7xl mx-auto mt-14 pt-6 border-t border-slate-850 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-500">
+      <div className="max-w-7xl mx-auto mt-14 pt-6 border-t border-slate-850 flex flex-col sm:flex-row items-center justify-between gap-4 text-xs text-slate-300">
         <div className="flex items-center gap-2">
           <span>© 2026 SkillBridge Platform. All rights reserved.</span>
           <span className="hidden sm:inline">·</span>
-          <span className="text-slate-400 font-mono text-[11px] hidden sm:inline">AICTE & MoE Compliant</span>
+          <span className="text-slate-300 font-mono text-[11px] hidden sm:inline">AICTE & MoE Compliant</span>
         </div>
 
         <div className="flex items-center gap-4 font-mono text-[11px]">

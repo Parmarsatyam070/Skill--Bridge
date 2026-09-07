@@ -56,6 +56,8 @@ export const LandingPage: React.FC = () => {
     >
       <PublicNavbar />
 
+      <main>
+
       {/* ── HERO SECTION: SENTRY AMBIENT SPOTLIGHT + ZK.LINK CONSTELLATION ── */}
       <section className="relative pt-10 sm:pt-14 md:pt-20 pb-14 sm:pb-18 md:pb-24 px-4 sm:px-6 max-w-[1280px] mx-auto overflow-hidden">
         {/* Ambient Electric Cobalt Radial Spotlight (Reference 4: Sentry) */}
@@ -141,7 +143,7 @@ export const LandingPage: React.FC = () => {
               ].map(m => (
                 <div key={m.label}>
                   <div className="text-xl sm:text-2xl font-bold tracking-tight" style={{ color: m.color }}>{m.value}</div>
-                  <div className="text-xs mt-1 font-sans text-slate-400">{m.label}</div>
+                  <div className="text-xs mt-1 font-sans text-slate-300">{m.label}</div>
                 </div>
               ))}
             </div>
@@ -193,11 +195,11 @@ export const LandingPage: React.FC = () => {
                 {[
                   { label: 'React.js Competency',   val: reactScore, set: setReactScore, color: '#3b82f6', min: 30 },
                   { label: 'TypeScript Systems',    val: tsScore,    set: setTsScore,    color: '#06b6d4', min: 20 },
-                  { label: 'Node.js Architecture',  val: nodeScore,  set: setNodeScore,  color: '#8b5cf6', min: 20 },
+                  { label: 'Node.js Architecture',  val: nodeScore,  set: setNodeScore,  color: '#10b981', min: 20 },
                 ].map(({ label, val, set, color, min }) => (
                   <div key={label}>
                     <div className="flex items-center justify-between font-mono mb-1 text-xs">
-                      <span className="text-slate-400">{label}</span>
+                      <span className="text-slate-300">{label}</span>
                       <span className="font-bold" style={{ color }}>{val}%</span>
                     </div>
                     <input
@@ -206,6 +208,7 @@ export const LandingPage: React.FC = () => {
                       max={100}
                       value={val}
                       onChange={e => set(Number(e.target.value))}
+                      aria-label={`${label} proficiency: ${val}%`}
                       className="w-full cursor-pointer h-1.5 rounded-lg bg-slate-800 accent-blue-500"
                     />
                   </div>
@@ -215,7 +218,7 @@ export const LandingPage: React.FC = () => {
                   className="pt-2.5 flex items-center justify-between border-t"
                   style={{ borderColor: C.hairline }}
                 >
-                  <span className="text-xs text-slate-400">Match Fulfillment:</span>
+                  <span className="text-xs text-slate-300">Match Fulfillment:</span>
                   <span
                     className="font-mono font-bold text-xs sm:text-sm"
                     style={{ color: simScore >= 80 ? C.emerald : '#f59e0b' }}
@@ -230,7 +233,7 @@ export const LandingPage: React.FC = () => {
 
         {/* Sentry-Style Trusted Partners Ticker (Reference 4) */}
         <div className="mt-14 sm:mt-18 pt-6 border-t border-slate-800/80 flex flex-col md:flex-row items-center justify-between gap-4">
-          <span className="text-xs font-mono uppercase tracking-wider text-slate-400">
+          <span className="text-xs font-mono uppercase tracking-wider text-slate-300">
             TRUSTED BY NATIONAL BENCHMARKS & CAMPUS TEAMS
           </span>
           <div className="flex flex-wrap items-center justify-center gap-6 sm:gap-10 text-slate-400 font-mono text-xs sm:text-sm font-semibold tracking-wider">
@@ -256,7 +259,7 @@ export const LandingPage: React.FC = () => {
             <h2 className="text-3xl sm:text-4xl font-bold tracking-tight text-white">
               Focused on reliability, regulation, and real local support
             </h2>
-            <p className="text-sm sm:text-base text-slate-400">
+            <p className="text-sm sm:text-base text-slate-300">
               Built on transparent mathematical algorithms, national compliance frameworks, and verified talent pipelines.
             </p>
           </div>
@@ -316,7 +319,7 @@ export const LandingPage: React.FC = () => {
               <div className="pt-6 relative z-10">
                 <Link
                   to="/register"
-                  className="inline-flex items-center justify-center rounded-full px-5 py-2 text-xs font-semibold text-white bg-teal-600 hover:bg-teal-500 shadow-lg shadow-teal-900/50 transition-all"
+                  className="inline-flex items-center justify-center rounded-full px-5 py-2 text-xs font-semibold text-white bg-teal-700 hover:bg-teal-600 shadow-lg shadow-teal-900/50 transition-all"
                 >
                   Explore Benchmarks
                 </Link>
@@ -326,17 +329,17 @@ export const LandingPage: React.FC = () => {
             {/* Card 3: 10,000+ Metrics & Dotted Waveform Graph (Traders Hub Right Card) */}
             <div className="rounded-3xl p-7 border border-slate-700/60 bg-[#090d16] flex flex-col justify-between min-h-[340px] relative overflow-hidden group hover:border-blue-500/50 transition-all">
               <div className="space-y-3">
-                <span className="text-xs font-mono uppercase text-slate-400">Assessments Evaluated</span>
+                <span className="text-xs font-mono uppercase text-slate-300">Assessments Evaluated</span>
                 <div className="text-3xl sm:text-4xl font-bold text-white font-mono tracking-tight">
                   10,000+
                 </div>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-slate-300">
                   Students, partners, institutions — benchmarked nationwide across tech domains.
                 </p>
 
                 {/* Dotted Waveform Visual Graph (Traders Hub) */}
                 <div className="pt-3 pb-2">
-                  <div className="flex items-center justify-between text-[10px] font-mono text-slate-500 mb-1">
+                  <div className="flex items-center justify-between text-[10px] font-mono text-slate-300 mb-1">
                     <span>100</span>
                     <span>MATCH SPECTRUM</span>
                   </div>
@@ -353,7 +356,7 @@ export const LandingPage: React.FC = () => {
                       />
                     ))}
                   </div>
-                  <div className="flex items-center justify-between text-[10px] font-mono text-slate-500 mt-1">
+                  <div className="flex items-center justify-between text-[10px] font-mono text-slate-300 mt-1">
                     <span>0</span>
                     <span>VERIFIED DISTRIBUTION</span>
                   </div>
@@ -361,7 +364,7 @@ export const LandingPage: React.FC = () => {
               </div>
 
               <div className="pt-4 flex items-center justify-between border-t border-slate-800/80">
-                <span className="text-xs font-mono text-slate-400">No bias. No delays.</span>
+                <span className="text-xs font-mono text-slate-300">No bias. No delays.</span>
                 <Link
                   to="/register"
                   className="cyber-btn-primary type-button text-xs py-2 px-4"
@@ -526,6 +529,8 @@ export const LandingPage: React.FC = () => {
           </div>
         </div>
       </section>
+
+      </main>
 
       <PublicFooter />
     </div>

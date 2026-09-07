@@ -14,6 +14,7 @@ const ResetPasswordPage = React.lazy(() => import('./pages/ResetPasswordPage').t
 const OAuthCallbackPage = React.lazy(() => import('./pages/OAuthCallbackPage').then(m => ({ default: m.OAuthCallbackPage })));
 const PublicPortfolioSite = React.lazy(() => import('./pages/portfolio/PublicPortfolioSite').then(m => ({ default: m.PublicPortfolioSite })));
 const PortfolioBuilderPage = React.lazy(() => import('./pages/portfolio/PortfolioBuilderPage').then(m => ({ default: m.PortfolioBuilderPage })));
+const SliderTestPage = React.lazy(() => import('./pages/SliderTestPage').then(m => ({ default: m.SliderTestPage })));
 
 // Code-split Profile & Resume Builder
 const CareerProfileDashboard = React.lazy(() => import('./pages/profile/CareerProfileDashboard').then(m => ({ default: m.CareerProfileDashboard })));
@@ -60,6 +61,7 @@ export const App: React.FC = () => {
         <Routes>
           {/* Public Campus Theme Pages & Shareable Personal Portfolios */}
           <Route path="/" element={<LandingPage />} />
+          <Route path="/test-sliders" element={<SliderTestPage />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />

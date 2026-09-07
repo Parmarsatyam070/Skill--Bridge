@@ -185,6 +185,7 @@ export const AvatarUploadModal: React.FC<AvatarUploadModalProps> = ({
                   step="0.05"
                   value={zoom}
                   onChange={(e) => setZoom(parseFloat(e.target.value))}
+                  aria-label={`Avatar zoom level: ${zoom}x`}
                   className="w-32 accent-bridge-teal cursor-pointer"
                 />
                 <ZoomIn className="w-3.5 h-3.5 text-console-muted" />

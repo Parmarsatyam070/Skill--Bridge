@@ -246,6 +246,7 @@ export const PostJobPage: React.FC = () => {
                         updated[index].weight = Number(e.target.value);
                         setSelectedSkills(updated);
                       }}
+                      aria-label={`${availableSkills.find(s => s.id === sk.skillId)?.name || 'Skill'} weight: ${sk.weight}x`}
                       className="w-full accent-industry-amber cursor-pointer"
                     />
                   </div>
@@ -264,6 +265,7 @@ export const PostJobPage: React.FC = () => {
                         updated[index].minScore = Number(e.target.value);
                         setSelectedSkills(updated);
                       }}
+                      aria-label={`${availableSkills.find(s => s.id === sk.skillId)?.name || 'Skill'} target score: ${sk.minScore}%`}
                       className="w-full accent-bridge-teal cursor-pointer"
                     />
                   </div>

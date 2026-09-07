@@ -1,0 +1,33 @@
+# SkillBridge — Academia-Industry Collaboration Platform
+
+> Unified platform connecting Students, Recruiters, Academicians, and Institutions through server-side vector matching, verified NPTEL/HCL certifications, and zero-bias skill telemetry. Built for Smart India Hackathon (SIH 2024–2026).
+
+## Public Pages
+
+- [Landing Page](https://skillbridge.app/): Overview of the platform, live match engine demo, stakeholder features, and methodology.
+- [Sign In](https://skillbridge.app/login): Authenticate as Student, Industry, Academician, or Institution Admin.
+- [Register](https://skillbridge.app/register): Create a new account and select your role.
+
+## Core Features
+
+- [Skill Assessment](https://skillbridge.app/assessment): Standardized domain assessments stored as verified competency vectors.
+- [Skill Radar & Gap Analysis](https://skillbridge.app/skill-profile): Visualize skill gaps with radar charts and get personalized course recommendations.
+- [Matched Internships](https://skillbridge.app/internships): Server-computed weighted cosine similarity matching against industry requirements.
+- [AI Resume Builder](https://skillbridge.app/resume-builder): Generate ATS-optimized resumes from verified skill data.
+- [Portfolio Website](https://skillbridge.app/portfolio): AI-generated public portfolio showcasing verified credentials.
+- [DSA & Coding Practice](https://skillbridge.app/dsa): Coding challenges and data structure problem sets.
+- [Learning Hub](https://skillbridge.app/learn): Curated courses from NPTEL, SWAYAM, HCL GUVI, and partner platforms.
+
+## Stakeholder Dashboards
+
+- [Student Dashboard](https://skillbridge.app/dashboard): Career profile, skill radar, assessment history, and matched opportunities.
+- [Industry Dashboard](https://skillbridge.app/industry/dashboard): Recruitment hub with ranked candidate pools and skill vector matching.
+- [Academician Dashboard](https://skillbridge.app/academician/dashboard): Faculty development programs, joint research grants, and curriculum insights.
+- [Institution Dashboard](https://skillbridge.app/institution/dashboard): Batch skill heatmaps, placement readiness indices, and syllabus gap analysis.
+
+## Content Partners
+
+- NPTEL (IITs/IISc)
+- SWAYAM (Government of India)
+- HCL TechBee & GUVI
+- Coursera & upGrad

@@ -76,7 +76,7 @@ export const BridgeLine: React.FC<BridgeLineProps> = ({
             {matchScore}% Match
           </span>
         </div>
-        <span className="text-[9px] font-mono text-[#2F8C82]/90">
+        <span className="text-[9px] font-mono text-[#5BC4B8]">
           {isApplied ? 'Application Linked' : 'Bridge Path Active'}
         </span>
       </div>
