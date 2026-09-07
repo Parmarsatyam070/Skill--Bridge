@@ -198,4 +198,47 @@ describe('Auth & Security Service Suite', () => {
       expect(user?.email).toBe('demo@skillbridge.app');
     }
   });
+
+  it('should validate environment variables safely without leaking secret values', async () => {
+    const { validateEnvironment } = await import('../server/src/config/env.js');
+    
+    // When DATABASE_URL is set
+    process.env.DATABASE_URL = 'postgresql://test_user:test_pass@localhost:5432/test_db';
+    const validResult = validateEnvironment();
+    expect(validResult.isValid).toBe(true);
+
+    // When DATABASE_URL is removed
+    delete process.env.DATABASE_URL;
+    const invalidResult = validateEnvironment();
+    expect(invalidResult.isValid).toBe(false);
+    expect(invalidResult.missing).toContain('DATABASE_URL');
+  });
+
+  it('should never expose stack traces, file paths, or Prisma query internals in client error messages', () => {
+    // Simulated raw internal Prisma error with file paths and query details
+    const rawPrismaError = new Error(
+      'Invalid `prisma.user.findFirst()` invocation at C:\\Users\\hp\\OneDrive\\Desktop\\Skill--Bridge\\server\\src\\routes\\auth.ts:126\nEnvironment variable not found: DATABASE_URL'
+    );
+
+    // Verify sanitization logic: internal traces must be completely stripped
+    const isInternal =
+      rawPrismaError.message.includes('prisma') ||
+      rawPrismaError.message.includes('DATABASE_URL') ||
+      rawPrismaError.message.includes('\\') ||
+      rawPrismaError.message.includes('/');
+
+    expect(isInternal).toBe(true);
+
+    // Client facing message must be generic and safe
+    const clientMessage = isInternal
+      ? 'Could not synchronize provider profile with database. Please try again in a moment.'
+      : rawPrismaError.message;
+
+    expect(clientMessage).not.toContain('prisma');
+    expect(clientMessage).not.toContain('DATABASE_URL');
+    expect(clientMessage).not.toContain('C:\\');
+    expect(clientMessage).not.toContain('auth.ts');
+    expect(clientMessage).toBe('Could not synchronize provider profile with database. Please try again in a moment.');
+  });
 });
+

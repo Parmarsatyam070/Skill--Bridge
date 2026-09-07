@@ -1,11 +1,9 @@
+import './config/env.js';
 import express, { Request, Response, NextFunction } from 'express';
 import cors from 'cors';
 import cookieParser from 'cookie-parser';
 import path from 'path';
 import fs from 'fs';
-import dotenv from 'dotenv';
-
-dotenv.config();
 
 import authRoutes from './routes/auth.js';
 import studentsRoutes from './routes/students.js';
@@ -122,14 +120,21 @@ app.get('*', (req: Request, res: Response, next: NextFunction) => {
   return next();
 });
 
-// Global Error Handler
+// Global Error Handler - catches unhandled errors and returns safe, generic messages to the client
 app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
   console.error('Unhandled server error:', err);
-  const status = err.status || 500;
+  const status = typeof err.status === 'number' && err.status >= 400 && err.status < 600 ? err.status : 500;
+  const isClientSafe = status < 500 && err.isOperational && typeof err.message === 'string' &&
+    !err.message.includes('prisma') &&
+    !err.message.includes('Prisma') &&
+    !err.message.includes('DATABASE_URL') &&
+    !err.message.includes('\\') &&
+    !err.message.includes('/');
+
   res.status(status).json({
     error: {
-      code: err.code || 'INTERNAL_SERVER_ERROR',
-      message: err.message || 'An unexpected error occurred.',
+      code: err.code || (status === 500 ? 'INTERNAL_SERVER_ERROR' : 'BAD_REQUEST'),
+      message: isClientSafe ? err.message : 'Something went wrong. Please try again in a moment.',
     }
   });
 });

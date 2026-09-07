@@ -91,7 +91,21 @@ export const RegisterPage: React.FC = () => {
       const redirectPath = getRoleRedirect(user.role as Role);
       navigate(redirectPath);
     } catch (err: any) {
-      setError(err.message || 'Registration failed. Please review your details.');
+      const rawMsg = err.message || '';
+      const isInternalError =
+        rawMsg.includes('prisma') ||
+        rawMsg.includes('Prisma') ||
+        rawMsg.includes('DATABASE_URL') ||
+        rawMsg.includes('at ') ||
+        rawMsg.includes('\\') ||
+        rawMsg.includes('/') ||
+        rawMsg.includes('node_modules');
+
+      setError(
+        isInternalError
+          ? 'Registration service is temporarily unavailable. Please try again in a moment.'
+          : (rawMsg || 'Registration failed. Please review your details.')
+      );
     } finally {
       setLoading(false);
     }

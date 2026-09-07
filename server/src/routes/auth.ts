@@ -261,8 +261,11 @@ router.post('/sync', async (req: Request, res: Response) => {
     return res.status(201).json({ user: session, isNewUser: true });
   } catch (err: any) {
     console.error('Auth sync error:', err);
-    return res.status(401).json({
-      error: { code: 'SYNC_FAILED', message: err.message || 'Failed to authenticate and synchronize session.' },
+    return res.status(500).json({
+      error: {
+        code: 'SYNC_FAILED',
+        message: 'Could not synchronize provider profile with database. Please try again in a moment.',
+      },
     });
   }
 });
@@ -649,10 +652,11 @@ router.get('/oauth/:provider/url', (req: Request, res: Response) => {
     const result = getAuthorizationUrl(provider as OAuthProvider, redirectUri, state);
     return res.json(result);
   } catch (err: any) {
+    console.error(`[OAUTH URL ERROR] ${provider}:`, err);
     return res.status(400).json({
       error: {
         code: 'OAUTH_CONFIG_ERROR',
-        message: err.message,
+        message: 'OAuth service is temporarily unavailable. Please try again later.',
       },
     });
   }
@@ -756,11 +760,11 @@ router.post('/oauth/:provider/callback', async (req: Request, res: Response) => 
       },
     });
   } catch (err: any) {
-    console.error(`[OAUTH ERROR] ${provider} exchange failed:`, err.message);
+    console.error(`[OAUTH ERROR] ${provider} exchange failed:`, err);
     return res.status(400).json({
       error: {
         code: 'OAUTH_VERIFICATION_FAILED',
-        message: err.message || 'OAuth identity verification failed.',
+        message: 'OAuth identity verification failed. Please try signing in again.',
       },
     });
   }
@@ -785,7 +789,8 @@ router.post('/oauth/register', async (req: Request, res: Response) => {
   try {
     verifiedUser = verifyOAuthOnboardingToken(onboardingToken);
   } catch (err: any) {
-    return res.status(401).json({ error: { message: err.message } });
+    console.error('OAuth token verification error:', err);
+    return res.status(401).json({ error: { message: 'Invalid or expired onboarding session. Please sign in again.' } });
   }
 
   const cleanEmail = verifiedUser.email.toLowerCase().trim();

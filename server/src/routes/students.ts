@@ -931,7 +931,7 @@ router.get('/:id/daily-target', authenticate, async (req: AuthRequest, res: Resp
     return res.json({ target });
   } catch (err: any) {
     console.error('❌ [DAILY_TARGET] Failed to get/create daily target:', err);
-    return res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: err.message } });
+    return res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to process daily target. Please try again.' } });
   }
 });
 
@@ -948,7 +948,7 @@ router.post('/:id/daily-target/complete', authenticate, async (req: AuthRequest,
     return res.json({ success: true, target: updated });
   } catch (err: any) {
     console.error('❌ [DAILY_TARGET] Failed to complete daily target:', err);
-    return res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: err.message } });
+    return res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to complete daily target. Please try again.' } });
   }
 });
 
