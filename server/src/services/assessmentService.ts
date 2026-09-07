@@ -12,9 +12,12 @@ import {
   TestCaseData,
   ExternalPlatformLink,
   CodeExecutionResult,
+  FocusAreaItem,
 } from '../../../shared/types.js';
 import { executeCodeSandbox } from './codeRunnerService.js';
 import { recordPracticeSetSubmissionStreak, hasCompletedPracticeSetToday } from './streakService.js';
+import { generateFocusAreas } from './focusAreasService.js';
+import { syncTargetCompletionFromActivity } from './dailyTargetService.js';
 
 /**
  * Parses JSON safely with fallback.
@@ -778,6 +781,13 @@ export async function submitPracticeSetAttempt(
   // Update daily practice streak
   await recordPracticeSetSubmissionStreak(studentProfileId);
 
+  // Sync daily target completion if this practice set matches today's goal
+  syncTargetCompletionFromActivity(studentProfileId, {
+    type: 'practice_set',
+    refId: practiceSetId,
+    topic: practiceSet.domainName,
+  }).catch(() => {/* non-blocking — never fail the submission */});
+
   // Persist attempt record
   if (attemptId) {
     try {
@@ -879,10 +889,10 @@ export async function submitPracticeSetAttempt(
 }
 
 /**
- * Retrieves the complete persistent Report Card summary for a student.
+ * Retrieves the complete persistent Report Card summary for a student across all modalities.
  */
 export async function getReportCardSummary(studentProfileId: string): Promise<ReportCardSummaryData> {
-  const [attempts, dailyPractices] = await Promise.all([
+  const [attempts, dailyPractices, dsaAttempts, student] = await Promise.all([
     prisma.assessmentAttempt.findMany({
       where: {
         studentId: studentProfileId,
@@ -900,9 +910,26 @@ export async function getReportCardSummary(studentProfileId: string): Promise<Re
       },
       orderBy: { completedAt: 'desc' },
     }),
+    prisma.dSAAttempt.findMany({
+      where: {
+        studentId: studentProfileId,
+        status: { in: ['ATTEMPTED', 'SOLVED', 'FAILED'] },
+      },
+      include: {
+        question: true,
+      },
+      orderBy: { updatedAt: 'desc' },
+    }),
+    prisma.studentProfile.findUnique({
+      where: { id: studentProfileId },
+      include: {
+        user: true,
+        skillScores: { include: { skill: true } },
+      },
+    }),
   ]);
 
-  if (attempts.length === 0 && dailyPractices.length === 0) {
+  if (attempts.length === 0 && dailyPractices.length === 0 && dsaAttempts.length === 0) {
     return {
       totalAttempts: 0,
       passedAttempts: 0,
@@ -910,6 +937,21 @@ export async function getReportCardSummary(studentProfileId: string): Promise<Re
       averageScore: 0,
       performanceTrend: 'neutral',
       attempts: [],
+      categoryBreakdown: {
+        domain: { totalAttempts: 0, passedAttempts: 0, passRate: 0, averageScore: 0 },
+        aptitude: { totalAttempts: 0, passedAttempts: 0, passRate: 0, averageScore: 0 },
+        dsa: { totalAttempts: 0, passedAttempts: 0, passRate: 0, averageScore: 0 },
+        dailyMixed: { totalAttempts: 0, passedAttempts: 0, passRate: 0, averageScore: 0 },
+      },
+      streakHistory: {
+        currentStreak: student?.user?.currentStreak || 0,
+        longestStreak: student?.user?.longestStreak || 0,
+        lastActiveDate: student?.user?.lastActiveDate || null,
+        activeDaysLast30: 0,
+        activityHeatmap: [],
+      },
+      radarProgression: [],
+      focusAreas: [],
     };
   }
 
@@ -992,13 +1034,129 @@ export async function getReportCardSummary(studentProfileId: string): Promise<Re
     };
   });
 
-  const combinedAttempts = [...attemptItems, ...dailyItems].sort(
+  const dsaItems: HistoricalAttemptItem[] = dsaAttempts.map(da => {
+    const isSolved = da.status === 'SOLVED';
+    const isFailed = da.status === 'FAILED';
+    const score = isSolved ? 100 : (isFailed ? 30 : 60);
+    const passed = isSolved;
+    if (passed) passedCount++;
+    totalScoreSum += score;
+
+    return {
+      id: `dsa-${da.id}`,
+      practiceSetId: `dsa-q-${da.question.id}`,
+      practiceSetTitle: da.question.title,
+      domainName: `DSA: ${da.question.topic}`,
+      type: 'dsa' as any,
+      difficulty: (da.question.difficulty as any) || 'Intermediate',
+      score,
+      passed,
+      passingScorePct: 70,
+      timeSpentSeconds: da.timeSpentSeconds || 600,
+      timeLimitMinutes: da.question.estimatedMinutes || 20,
+      startedAt: da.createdAt ? da.createdAt.toISOString() : new Date().toISOString(),
+      submittedAt: da.updatedAt ? da.updatedAt.toISOString() : new Date().toISOString(),
+      isBestScore: isSolved,
+      totalQuestions: 1,
+      strongSkills: isSolved ? ['Problem Solving', da.question.topic] : ['Problem Solving'],
+      weakSkills: !isSolved ? [da.question.topic] : [],
+    };
+  });
+
+  const combinedAttempts = [...attemptItems, ...dailyItems, ...dsaItems].sort(
     (a, b) => new Date(b.submittedAt).getTime() - new Date(a.submittedAt).getTime()
   );
 
   const totalAttempts = combinedAttempts.length;
   const passRate = totalAttempts > 0 ? Math.round((passedCount / totalAttempts) * 100) : 0;
   const averageScore = totalAttempts > 0 ? Math.round(totalScoreSum / totalAttempts) : 0;
+
+  // Category breakdown calculation
+  const calcCategoryStats = (items: HistoricalAttemptItem[]) => {
+    const total = items.length;
+    const passed = items.filter(i => i.passed).length;
+    const rate = total > 0 ? Math.round((passed / total) * 100) : 0;
+    const avg = total > 0 ? Math.round(items.reduce((sum, i) => sum + i.score, 0) / total) : 0;
+    return { totalAttempts: total, passedAttempts: passed, passRate: rate, averageScore: avg };
+  };
+
+  const categoryBreakdown = {
+    domain: calcCategoryStats(combinedAttempts.filter(a => a.type === 'domain')),
+    aptitude: calcCategoryStats(combinedAttempts.filter(a => a.type.startsWith('aptitude_'))),
+    dsa: calcCategoryStats(combinedAttempts.filter(a => a.type === 'dsa')),
+    dailyMixed: calcCategoryStats(combinedAttempts.filter(a => a.type === 'daily_mixed')),
+  };
+
+  // Streak history calculation
+  let streakHistory = {
+    currentStreak: student?.user?.currentStreak || 0,
+    longestStreak: student?.user?.longestStreak || 0,
+    lastActiveDate: student?.user?.lastActiveDate || null,
+    activeDaysLast30: 0,
+    activityHeatmap: [] as { date: string; count: number }[],
+  };
+
+  if (student?.user) {
+    const activityLogs = await prisma.activityLog.findMany({
+      where: { userId: student.user.id },
+      orderBy: { date: 'desc' },
+      take: 30,
+    });
+
+    streakHistory = {
+      currentStreak: student.user.currentStreak || 0,
+      longestStreak: student.user.longestStreak || 0,
+      lastActiveDate: student.user.lastActiveDate || null,
+      activeDaysLast30: activityLogs.length,
+      activityHeatmap: activityLogs.map(l => ({ date: l.date, count: l.count })),
+    };
+  }
+
+  // Skill Radar progression over time
+  const targetDomainName = student?.targetDomain || 'Full-Stack Web';
+  const domainRecord = await prisma.domain.findFirst({
+    where: {
+      OR: [{ name: targetDomainName }, { slug: targetDomainName }],
+    },
+    include: {
+      requirements: { include: { skill: true } },
+    },
+  });
+
+  const benchmarkMap = new Map<string, number>();
+  if (domainRecord?.requirements) {
+    for (const req of domainRecord.requirements) {
+      benchmarkMap.set(req.skillId, req.benchmarkScore);
+    }
+  }
+
+  const radarProgression = (student?.skillScores || []).map(sk => {
+    const historyList = safeJsonParse<any[]>(sk.scoreHistoryJson, []);
+    const benchmark = benchmarkMap.get(sk.skillId) || 75;
+    return {
+      skillId: sk.skillId,
+      skillName: sk.skill.name,
+      category: sk.skill.category,
+      currentScore: Math.round(sk.score),
+      benchmarkScore: benchmark,
+      inactivityDecayPct: sk.inactivityDecayPct || 0,
+      decayDaysCount: sk.decayDaysCount || 0,
+      lastAttemptDate: sk.lastAttemptDate ? sk.lastAttemptDate.toISOString() : null,
+      history: historyList.map(h => ({
+        date: h.date || '',
+        score: Math.round(h.score || 0),
+        delta: Math.round(h.delta || 0),
+      })),
+    };
+  });
+
+  // Actionable Focus Areas
+  let focusAreas: FocusAreaItem[] = [];
+  try {
+    focusAreas = await generateFocusAreas(studentProfileId);
+  } catch (err) {
+    console.warn('⚠️ [ReportCard] Focus areas generation warning:', err);
+  }
 
   let performanceTrend: 'improving' | 'steady' | 'declining' | 'neutral' = 'steady';
   if (combinedAttempts.length >= 2) {
@@ -1025,6 +1183,10 @@ export async function getReportCardSummary(studentProfileId: string): Promise<Re
     averageScore,
     performanceTrend,
     attempts: combinedAttempts,
+    categoryBreakdown,
+    streakHistory,
+    radarProgression,
+    focusAreas,
   };
 }
 
@@ -1035,6 +1197,55 @@ export async function getAttemptDetail(
   attemptId: string,
   studentProfileId: string
 ): Promise<HistoricalAttemptDetail> {
+  if (attemptId.startsWith('dsa-')) {
+    const dsaId = attemptId.replace('dsa-', '');
+    const dsaAttempt = await prisma.dSAAttempt.findUnique({
+      where: { id: dsaId },
+      include: { question: true },
+    });
+
+    if (!dsaAttempt || dsaAttempt.studentId !== studentProfileId) {
+      throw new Error('DSA attempt record not found');
+    }
+
+    const isSolved = dsaAttempt.status === 'SOLVED';
+    return {
+      id: `dsa-${dsaAttempt.id}`,
+      practiceSetId: dsaAttempt.question.id,
+      practiceSetTitle: dsaAttempt.question.title,
+      domainName: `DSA: ${dsaAttempt.question.topic}`,
+      type: 'dsa' as any,
+      difficulty: dsaAttempt.question.difficulty,
+      score: isSolved ? 100 : (dsaAttempt.status === 'FAILED' ? 30 : 60),
+      passed: isSolved,
+      passingScorePct: 70,
+      timeSpentSeconds: dsaAttempt.timeSpentSeconds || 600,
+      timeLimitMinutes: dsaAttempt.question.estimatedMinutes || 20,
+      submittedAt: dsaAttempt.updatedAt ? dsaAttempt.updatedAt.toISOString() : new Date().toISOString(),
+      skillBreakdown: [
+        {
+          skillId: 'dsa',
+          skillName: dsaAttempt.question.topic,
+          scoreDelta: isSolved ? 5 : -2,
+        },
+      ],
+      questionResults: [
+        {
+          questionId: dsaAttempt.question.id,
+          prompt: dsaAttempt.question.description || `${dsaAttempt.question.title} (${dsaAttempt.question.topic})`,
+          questionType: 'coding',
+          userAnswer: dsaAttempt.codeSubmitted || '[No code submitted]',
+          correctAnswerText: `Authentic ${dsaAttempt.question.platform} problem: ${dsaAttempt.question.canonicalUrl}`,
+          isCorrect: isSolved,
+          score: isSolved ? 100 : (dsaAttempt.status === 'FAILED' ? 30 : 60),
+          maxScore: 100,
+          aiFeedback: isSolved ? 'All test cases passed cleanly.' : 'Solution failed or has not passed all test cases.',
+          explanation: `Platform topic: ${dsaAttempt.question.topic}. Solve more problems on ${dsaAttempt.question.platform} to reinforce this pattern.`,
+        },
+      ],
+    };
+  }
+
   if (attemptId.startsWith('daily-')) {
     const dailyId = attemptId.replace('daily-', '');
     const dailyRecord = await prisma.dailyPractice.findUnique({

@@ -3,6 +3,7 @@ import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
 import rateLimit from 'express-rate-limit';
 import { prisma } from '../config/prisma.js';
+import { adminAuth } from '../config/firebase.js';
 import {
   RegisterSchema,
   LoginSchema,
@@ -28,7 +29,7 @@ import {
 
 const router = Router();
 
-// Rate limiter for login: 20 attempts per 15 minutes per IP
+// Rate limiter for login: 25 attempts per 15 minutes per IP
 const loginLimiter = rateLimit({
   windowMs: 15 * 60 * 1000,
   max: 25,
@@ -89,6 +90,262 @@ async function buildUserSession(userId: string) {
     institutionProfile: user.institutionProfile || undefined,
   };
 }
+
+/**
+ * POST /api/auth/sync
+ * Verifies Firebase ID token and returns / links / provisions the user session in PostgreSQL.
+ * Note: NOT rate-limited by loginLimiter because it runs on every page load/token refresh by design.
+ */
+router.post('/sync', async (req: Request, res: Response) => {
+  let token: string | undefined;
+  const authHeader = req.headers.authorization;
+  if (authHeader && authHeader.startsWith('Bearer ')) {
+    token = authHeader.substring(7);
+  } else if (req.body?.idToken) {
+    token = req.body.idToken;
+  }
+
+  if (!token) {
+    return res.status(401).json({
+      error: { code: 'UNAUTHORIZED', message: 'Valid Firebase ID token required.' },
+    });
+  }
+
+  try {
+    const decodedToken = await adminAuth.verifyIdToken(token);
+    const cleanEmail = decodedToken.email?.toLowerCase().trim();
+    const uid = decodedToken.uid;
+
+    if (!cleanEmail && !uid) {
+      return res.status(400).json({
+        error: { code: 'INVALID_TOKEN', message: 'Token lacks email or UID identifier.' },
+      });
+    }
+
+    // 1. Check for existing user by firebaseUid or email
+    let user: any = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { firebaseUid: uid },
+          ...(cleanEmail ? [{ email: cleanEmail }] : []),
+        ],
+      },
+      include: {
+        studentProfile: true,
+        industryProfile: true,
+        academicianProfile: true,
+        institutionProfile: true,
+      },
+    });
+
+    if (user) {
+      // If user found by email but firebaseUid wasn't linked yet, link it now!
+      if (!user.firebaseUid) {
+        user = await prisma.user.update({
+          where: { id: user.id },
+          data: {
+            firebaseUid: uid,
+            avatarUrl: user.avatarUrl || decodedToken.picture || null,
+          },
+          include: {
+            studentProfile: true,
+            industryProfile: true,
+            academicianProfile: true,
+            institutionProfile: true,
+          },
+        });
+      }
+
+      await recordDailyActivity(user.id);
+      const session = await buildUserSession(user.id);
+      return res.json({ user: session, isNewUser: false });
+    }
+
+    // 2. New user provisioning in PostgreSQL
+    const { role = 'STUDENT', name, roleData } = req.body || {};
+    const displayName = (name || decodedToken.name || cleanEmail?.split('@')[0] || 'User').trim();
+    const avatarUrl = decodedToken.picture || null;
+
+    if (role === 'STUDENT') {
+      user = await prisma.user.create({
+        data: {
+          email: cleanEmail || `${uid}@firebase.user`,
+          firebaseUid: uid,
+          name: displayName,
+          role: 'STUDENT',
+          avatarUrl,
+          currentStreak: 1,
+          longestStreak: 1,
+          studentProfile: {
+            create: {
+              institution: roleData?.institution?.trim() || 'Unspecified University',
+              targetDomain: roleData?.targetDomain?.trim() || 'Full-Stack Web',
+              cgpa: roleData?.cgpa ? Number(roleData.cgpa) : null,
+              bio: roleData?.bio?.trim() || null,
+            },
+          },
+        },
+        include: { studentProfile: true },
+      });
+    } else if (role === 'INDUSTRY') {
+      user = await prisma.user.create({
+        data: {
+          email: cleanEmail || `${uid}@firebase.user`,
+          firebaseUid: uid,
+          name: roleData?.companyName?.trim() || displayName,
+          role: 'INDUSTRY',
+          avatarUrl,
+          currentStreak: 1,
+          longestStreak: 1,
+          industryProfile: {
+            create: {
+              companyName: roleData?.companyName?.trim() || displayName,
+              companySize: roleData?.companySize || '50-200 employees',
+              industrySector: roleData?.industrySector?.trim() || 'Technology',
+              website: roleData?.website || '',
+              verified: true,
+            },
+          },
+        },
+        include: { industryProfile: true },
+      });
+    } else if (role === 'ACADEMICIAN') {
+      user = await prisma.user.create({
+        data: {
+          email: cleanEmail || `${uid}@firebase.user`,
+          firebaseUid: uid,
+          name: displayName,
+          role: 'ACADEMICIAN',
+          avatarUrl,
+          currentStreak: 1,
+          longestStreak: 1,
+          academicianProfile: {
+            create: {
+              institution: roleData?.institution?.trim() || 'Academic Institute',
+              department: roleData?.department?.trim() || 'Computer Science',
+              designation: roleData?.designation?.trim() || 'Faculty Member',
+            },
+          },
+        },
+        include: { academicianProfile: true },
+      });
+    } else {
+      user = await prisma.user.create({
+        data: {
+          email: cleanEmail || `${uid}@firebase.user`,
+          firebaseUid: uid,
+          name: roleData?.institutionName?.trim() || displayName,
+          role: 'INSTITUTION_ADMIN',
+          avatarUrl,
+          currentStreak: 1,
+          longestStreak: 1,
+          institutionProfile: {
+            create: {
+              institutionName: roleData?.institutionName?.trim() || 'University Administration',
+              adminDesignation: roleData?.adminDesignation?.trim() || 'Administrator',
+            },
+          },
+        },
+        include: { institutionProfile: true },
+      });
+    }
+
+    if (!user) {
+      return res.status(500).json({
+        error: { code: 'PROVISIONING_FAILED', message: 'Failed to provision user profile in database.' },
+      });
+    }
+
+    await recordDailyActivity(user.id);
+    const session = await buildUserSession(user.id);
+    return res.status(201).json({ user: session, isNewUser: true });
+  } catch (err: any) {
+    console.error('Auth sync error:', err);
+    return res.status(401).json({
+      error: { code: 'SYNC_FAILED', message: err.message || 'Failed to authenticate and synchronize session.' },
+    });
+  }
+});
+
+/**
+ * POST /api/auth/firebase-login-fallback
+ * Rate-limited endpoint for existing PostgreSQL users whose accounts are not yet provisioned in Firebase Auth.
+ * If credentials match in PostgreSQL, generates a custom Firebase token so the client can establish a persistent session.
+ */
+router.post('/firebase-login-fallback', loginLimiter, async (req: Request, res: Response) => {
+  const { identifier, password } = req.body || {};
+  const rawKey = (identifier || '').trim();
+
+  if (!rawKey || !password) {
+    return res.status(400).json({
+      error: { code: 'VALIDATION_ERROR', message: 'Email/phone and password are required.' },
+    });
+  }
+
+  const loginEmail = rawKey.toLowerCase();
+  const digitsOnly = rawKey.replace(/\D/g, '');
+  const last10Digits = digitsOnly.length >= 10 ? digitsOnly.slice(-10) : digitsOnly;
+
+  const phoneConditions: any[] = [{ phone: rawKey }];
+  if (digitsOnly && digitsOnly !== rawKey) {
+    phoneConditions.push({ phone: digitsOnly });
+    phoneConditions.push({ phone: `+${digitsOnly}` });
+  }
+  if (last10Digits.length === 10) {
+    phoneConditions.push({ phone: last10Digits });
+    phoneConditions.push({ phone: `+91${last10Digits}` });
+  }
+
+  const user = await prisma.user.findFirst({
+    where: {
+      OR: [
+        { email: loginEmail },
+        ...phoneConditions,
+      ],
+    },
+  });
+
+  if (!user) {
+    return res.status(401).json({
+      error: { code: 'INVALID_CREDENTIALS', message: 'Invalid credentials. Please check your login details.' },
+    });
+  }
+
+  // Explicitly reject OAuth-only accounts with null passwordHash
+  if (!user.passwordHash) {
+    return res.status(400).json({
+      error: {
+        code: 'OAUTH_ACCOUNT',
+        message: 'This account was registered via social sign-in (Google/GitHub/Microsoft). Please sign in using your social provider.',
+      },
+    });
+  }
+
+  const isValid = await bcrypt.compare(password, user.passwordHash);
+  if (!isValid) {
+    return res.status(401).json({
+      error: { code: 'INVALID_CREDENTIALS', message: 'Invalid credentials. Please check your password.' },
+    });
+  }
+
+  try {
+    // Generate custom token for this user so Firebase Client SDK can sign in and establish a persistent session
+    const customToken = await adminAuth.createCustomToken(user.firebaseUid || user.id);
+    await recordDailyActivity(user.id);
+    const session = await buildUserSession(user.id);
+
+    return res.json({
+      customToken,
+      user: session,
+      message: 'Authentication verified. Establishing Firebase persistent session.',
+    });
+  } catch (err: any) {
+    console.error('Firebase custom token error:', err);
+    return res.status(500).json({
+      error: { code: 'TOKEN_CREATION_FAILED', message: 'Could not generate session token.' },
+    });
+  }
+});
 
 /**
  * POST /api/auth/register
@@ -314,6 +571,15 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
     if (!user) {
       return res.status(401).json({
         error: { code: 'INVALID_CREDENTIALS', message: 'Invalid credentials. Please check your login details.' },
+      });
+    }
+
+    if (!user.passwordHash) {
+      return res.status(400).json({
+        error: {
+          code: 'OAUTH_ACCOUNT',
+          message: 'This account was created with social login. Please sign in using your social provider.',
+        },
       });
     }
 

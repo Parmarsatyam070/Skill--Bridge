@@ -362,6 +362,20 @@ export interface RoadmapMilestoneAction {
   isDone?: boolean;
 }
 
+export interface CuratedRoadmapResource {
+  id: string;
+  title: string;
+  type: 'book' | 'youtube_channel' | 'youtube_playlist' | 'course' | 'website';
+  category: 'books' | 'videos' | 'recommended' | 'courses';
+  author?: string;
+  provider: string;
+  url: string;
+  whyRecommended: string;
+  rating?: number;
+  isFree?: boolean;
+  topicTag: string;
+}
+
 export interface RoadmapMilestone {
   id: string;
   phase: string;
@@ -371,6 +385,7 @@ export interface RoadmapMilestone {
   status: 'completed' | 'current' | 'upcoming';
   accentColor: 'campus-blue' | 'bridge-teal' | 'industry-amber';
   actions: RoadmapMilestoneAction[];
+  skillTags?: string[];
   recommendedCourses?: {
     id: string;
     title: string;
@@ -379,6 +394,8 @@ export interface RoadmapMilestone {
     pointsGain: number;
     externalUrl: string;
   }[];
+  recommendedBooks?: CuratedRoadmapResource[];
+  recommendedYoutube?: CuratedRoadmapResource[];
 }
 
 export interface RoadmapResponse {
@@ -388,6 +405,10 @@ export interface RoadmapResponse {
   projectedSalaryRange?: string;
   readinessScore?: number;
   milestones: RoadmapMilestone[];
+  isRoleSpecific?: boolean;
+  internshipId?: string;
+  companyName?: string;
+  mockInterviewWeakAreas?: string[];
 }
 
 export type PortfolioTheme = 'teal_dark' | 'slate_clean' | 'indigo_creative' | 'cyber_amber';
@@ -485,7 +506,8 @@ export type PracticeSetCategory =
   | 'aptitude_quant'
   | 'aptitude_english_reading'
   | 'aptitude_english_listening'
-  | 'daily_mixed';
+  | 'daily_mixed'
+  | 'dsa';
 
 export interface PracticeSetData {
   id: string;
@@ -635,7 +657,7 @@ export interface InAppNotification {
   createdAt: string;
 }
 
-export type LearningResourceType = 'website' | 'app' | 'youtube_channel' | 'youtube_playlist' | 'course';
+export type LearningResourceType = 'website' | 'app' | 'youtube_channel' | 'youtube_playlist' | 'course' | 'book';
 
 export interface LearningResource {
   id: string;
@@ -646,7 +668,9 @@ export interface LearningResource {
   title: string;
   url: string;
   provider: string;
+  author?: string;
   description: string;
+  whyRecommended?: string;
   isFree: boolean;
   rating?: number;
   thumbnailUrl?: string;
@@ -745,6 +769,28 @@ export interface HistoricalAttemptItem {
   weakSkills: string[];
 }
 
+export interface FocusAreaItem {
+  topic: string;
+  category: 'dsa' | 'domain' | 'aptitude';
+  failureSummary: string; // e.g. "3 missed questions out of 4 (25% accuracy)"
+  explanation: string; // AI-generated pattern explanation
+  practiceSet: {
+    id: string;
+    title: string;
+    url: string;
+    type: string;
+    estimatedMinutes?: number;
+    difficulty?: string;
+  };
+  tips: string[]; // 2-3 practical "tips & tricks" bullets specific to topic
+  metrics: {
+    accuracyPct: number;
+    attemptsCount: number;
+    failedCount?: number;
+    lastAttemptDate?: string | null;
+  };
+}
+
 export interface ReportCardSummaryData {
   totalAttempts: number;
   passedAttempts: number;
@@ -752,6 +798,35 @@ export interface ReportCardSummaryData {
   averageScore: number; // e.g. 82.5
   performanceTrend: 'improving' | 'steady' | 'declining' | 'neutral';
   attempts: HistoricalAttemptItem[];
+  // Category-wise score breakdowns
+  categoryBreakdown?: {
+    domain: { totalAttempts: number; passedAttempts: number; passRate: number; averageScore: number };
+    aptitude: { totalAttempts: number; passedAttempts: number; passRate: number; averageScore: number };
+    dsa: { totalAttempts: number; passedAttempts: number; passRate: number; averageScore: number };
+    dailyMixed: { totalAttempts: number; passedAttempts: number; passRate: number; averageScore: number };
+  };
+  // Streak and activity history
+  streakHistory?: {
+    currentStreak: number;
+    longestStreak: number;
+    lastActiveDate?: string | null;
+    activeDaysLast30: number;
+    activityHeatmap: { date: string; count: number }[];
+  };
+  // Skill radar progression over time
+  radarProgression?: {
+    skillId: string;
+    skillName: string;
+    category: string;
+    currentScore: number;
+    benchmarkScore: number;
+    inactivityDecayPct: number;
+    decayDaysCount: number;
+    lastAttemptDate?: string | null;
+    history: { date: string; score: number; delta: number }[];
+  }[];
+  // Actionable Focus Areas
+  focusAreas?: FocusAreaItem[];
 }
 
 export interface HistoricalAttemptDetail {
@@ -880,6 +955,8 @@ export interface DailyMixedQuestionItem {
   externalLinks?: ExternalPlatformLink[];
   styleTag?: string;
   outboundUrl?: string;
+  isRoleTargeted?: boolean;
+  targetRoleSkill?: string;
 }
 
 export interface DailyMixedPracticeSetData {
@@ -908,6 +985,9 @@ export interface DailyMixedPracticeSetData {
   timeSpentSeconds: number;
   startedAt?: string;
   completedAt?: string;
+  isTargetRoleWeighted?: boolean;
+  targetRole?: string;
+  targetRoleGaps?: string[];
 }
 
 export interface DailyMixedSubmitResult {
@@ -984,7 +1064,9 @@ export interface SmartLearningResource {
   title: string;
   url: string;
   provider: string;
+  author?: string;
   description: string;
+  whyRecommended?: string;
   isFree: boolean;
   rating: number;
   difficulty?: string;
@@ -999,4 +1081,125 @@ export interface LearningHubSearchResponse {
   totalResults: number;
   personalizedWeakTopics?: string[];
   categories: Record<LearningCategory, SmartLearningResource[]>;
+}
+
+// ── Daily Target Types ──
+export interface DailyTargetData {
+  id: string;
+  studentId: string;
+  date: string; // Format: YYYY-MM-DD
+  title: string;
+  targetGoal: string;
+  actionLabel: string;
+  targetType: 'dsa' | 'practice_set' | 'resource' | 'roadmap_phase';
+  targetUrl: string;
+  targetRefId?: string;
+  roadmapPhase: string;
+  focusTopic: string;
+  rationale: string;
+  completed: boolean;
+  completedAt?: string;
+  createdAt: string;
+}
+
+// ── Mock Interview Types ──
+export interface MockInterviewQuestionItem {
+  id: string;
+  questionIndex: number;
+  category: 'technical' | 'behavioral';
+  skillTag: string;
+  questionText: string;
+  tips?: string;
+}
+
+export interface MockInterviewAnswerItem {
+  questionIndex: number;
+  questionText: string;
+  category: 'technical' | 'behavioral';
+  skillTag: string;
+  studentAnswer: string;
+  timeTakenSeconds: number;
+  isSkipped?: boolean;
+}
+
+export interface QuestionFeedbackItem {
+  questionIndex: number;
+  score: number;
+  maxScore: number;
+  relevanceScore: number;
+  clarityScore: number;
+  grammarScore: number;
+  structureScore: number;
+  feedback: string;
+  quotedSnippet?: string;
+  improvements?: string;
+}
+
+export interface MockInterviewEvaluation {
+  overallScore: number;
+  communicationScore: number;
+  technicalScore: number;
+  structureScore: number;
+  readinessTier: 'High Readiness' | 'Interview Ready' | 'Developing' | 'Needs Work';
+  overallSummary: string;
+  strengths: string[];
+  weakAreas: string[];
+  questionFeedback: QuestionFeedbackItem[];
+}
+
+export interface MockInterviewSessionData {
+  id: string;
+  studentId: string;
+  internshipId?: string;
+  targetRole: string;
+  companyName?: string;
+  date: string;
+  status: 'IN_PROGRESS' | 'COMPLETED' | 'ABANDONED';
+  durationSeconds: number;
+  overallScore: number;
+  communicationScore: number;
+  technicalScore: number;
+  structureScore: number;
+  readinessTier: string;
+  questions: MockInterviewQuestionItem[];
+  transcript: MockInterviewAnswerItem[];
+  feedback?: MockInterviewEvaluation;
+  identifiedGaps: string[];
+  retakeNumber: number;
+  isTimedOut: boolean;
+  startedAt: string;
+  completedAt?: string;
+}
+
+export interface MockInterviewHistoryItem {
+  id: string;
+  internshipId?: string;
+  targetRole: string;
+  companyName?: string;
+  date: string;
+  durationSeconds: number;
+  overallScore: number;
+  communicationScore: number;
+  technicalScore: number;
+  structureScore: number;
+  readinessTier: string;
+  retakeNumber: number;
+  identifiedGaps: string[];
+  strengths: string[];
+  completedAt: string;
+}
+
+export interface MockInterviewHistoryResponse {
+  sessions: MockInterviewHistoryItem[];
+  totalSessions: number;
+  averageScore: number;
+  overallTrend: 'improving' | 'declining' | 'steady' | 'neutral';
+  scoreTrend: {
+    retakeNumber: number;
+    date: string;
+    score: number;
+    targetRole: string;
+  }[];
+  commonWeakAreas: string[];
+  latestSession?: MockInterviewHistoryItem;
 }

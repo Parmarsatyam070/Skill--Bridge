@@ -14,7 +14,7 @@ import { PublicNavbar } from '../components/PublicNavbar';
 import { OAuthModal } from '../components/OAuthModal';
 
 export const LoginPage: React.FC = () => {
-  const { login } = useAuth();
+  const { login, signInWithProvider } = useAuth();
   const navigate = useNavigate();
 
   const [identifier, setIdentifier] = useState('');
@@ -23,8 +23,23 @@ export const LoginPage: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [coldStartNotice, setColdStartNotice] = useState(false);
 
-  // OAuth Modal state
+  // OAuth Modal state (kept for fallback)
   const [oauthProvider, setOauthProvider] = useState<'google' | 'github' | 'microsoft' | null>(null);
+
+  const handleOAuthSignIn = async (provider: 'google' | 'github' | 'microsoft') => {
+    setError(null);
+    setLoading(true);
+    setColdStartNotice(false);
+    try {
+      const user = await signInWithProvider(provider);
+      const redirectPath = getRoleRedirect(user.role as Role);
+      navigate(redirectPath);
+    } catch (err: any) {
+      setError(err.message || `Failed to sign in with ${provider}.`);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -192,8 +207,9 @@ export const LoginPage: React.FC = () => {
             <div className="grid grid-cols-3 gap-2.5">
               <button
                 type="button"
-                onClick={() => setOauthProvider('google')}
-                className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border border-slate-800 hover:border-blue-500/60 text-xs font-semibold text-slate-200 transition-all bg-[#0f172a] hover:bg-[#1e293b]"
+                disabled={loading}
+                onClick={() => handleOAuthSignIn('google')}
+                className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border border-slate-800 hover:border-blue-500/60 text-xs font-semibold text-slate-200 transition-all bg-[#0f172a] hover:bg-[#1e293b] disabled:opacity-50 disabled:cursor-not-allowed"
                 title="Sign in with Google"
               >
                 <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 24 24">
@@ -219,8 +235,9 @@ export const LoginPage: React.FC = () => {
 
               <button
                 type="button"
-                onClick={() => setOauthProvider('github')}
-                className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border border-slate-800 hover:border-blue-500/60 text-xs font-semibold text-slate-200 transition-all bg-[#0f172a] hover:bg-[#1e293b]"
+                disabled={loading}
+                onClick={() => handleOAuthSignIn('github')}
+                className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border border-slate-800 hover:border-blue-500/60 text-xs font-semibold text-slate-200 transition-all bg-[#0f172a] hover:bg-[#1e293b] disabled:opacity-50 disabled:cursor-not-allowed"
                 title="Sign in with GitHub"
               >
                 <Github className="w-4 h-4 flex-shrink-0" />
@@ -229,8 +246,9 @@ export const LoginPage: React.FC = () => {
 
               <button
                 type="button"
-                onClick={() => setOauthProvider('microsoft')}
-                className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border border-slate-800 hover:border-blue-500/60 text-xs font-semibold text-slate-200 transition-all bg-[#0f172a] hover:bg-[#1e293b]"
+                disabled={loading}
+                onClick={() => handleOAuthSignIn('microsoft')}
+                className="flex items-center justify-center gap-1.5 px-3 py-2.5 rounded-xl border border-slate-800 hover:border-blue-500/60 text-xs font-semibold text-slate-200 transition-all bg-[#0f172a] hover:bg-[#1e293b] disabled:opacity-50 disabled:cursor-not-allowed"
                 title="Sign in with Microsoft 365"
               >
                 <svg className="w-4 h-4 flex-shrink-0" viewBox="0 0 23 23">

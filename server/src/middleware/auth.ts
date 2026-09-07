@@ -1,6 +1,7 @@
 import { Request, Response, NextFunction } from 'express';
 import { verifyAccessToken } from '../services/tokenService.js';
 import { prisma } from '../config/prisma.js';
+import { adminAuth } from '../config/firebase.js';
 
 export interface AuthRequest extends Request {
   user?: {
@@ -31,47 +32,95 @@ export async function authenticate(req: AuthRequest, res: Response, next: NextFu
     });
   }
 
-  const payload = verifyAccessToken(token);
-  if (!payload) {
-    return res.status(401).json({
-      error: { code: 'INVALID_TOKEN', message: 'Session expired or invalid token. Please log in again.' }
-    });
-  }
-
+  // 1. Primary: Verify Firebase ID token
   try {
-    const user = await prisma.user.findUnique({
-      where: { id: payload.userId },
+    const decodedToken = await adminAuth.verifyIdToken(token);
+    const cleanEmail = decodedToken.email?.toLowerCase().trim();
+
+    // Find user in Postgres by Firebase UID OR by verified email
+    let user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { firebaseUid: decodedToken.uid },
+          ...(cleanEmail ? [{ email: cleanEmail }] : []),
+        ],
+      },
       include: {
         studentProfile: true,
         industryProfile: true,
         academicianProfile: true,
         institutionProfile: true,
+      },
+    });
+
+    if (user) {
+      // Auto-link Firebase UID if not yet saved on the PostgreSQL record
+      if (!user.firebaseUid) {
+        user = await prisma.user.update({
+          where: { id: user.id },
+          data: { firebaseUid: decodedToken.uid },
+          include: {
+            studentProfile: true,
+            industryProfile: true,
+            academicianProfile: true,
+            institutionProfile: true,
+          },
+        });
       }
-    });
 
-    if (!user) {
-      return res.status(401).json({
-        error: { code: 'USER_NOT_FOUND', message: 'User no longer exists.' }
-      });
+      req.user = {
+        id: user.id,
+        email: user.email,
+        role: user.role,
+        studentProfileId: user.studentProfile?.id,
+        industryProfileId: user.industryProfile?.id,
+        academicianProfileId: user.academicianProfile?.id,
+        institutionProfileId: user.institutionProfile?.id,
+      };
+
+      return next();
     }
-
-    req.user = {
-      id: user.id,
-      email: user.email,
-      role: user.role,
-      studentProfileId: user.studentProfile?.id,
-      industryProfileId: user.industryProfile?.id,
-      academicianProfileId: user.academicianProfile?.id,
-      institutionProfileId: user.institutionProfile?.id,
-    };
-
-    next();
-  } catch (error) {
-    console.error('Auth middleware error:', error);
-    return res.status(500).json({
-      error: { code: 'INTERNAL_ERROR', message: 'Internal server error during authentication.' }
-    });
+  } catch (firebaseErr: any) {
+    // Firebase verification failed or threw. Fall through to check if test-only fallback is allowed.
   }
+
+  // 2. Fallback: Legacy JWT verification (STRICTLY gated to test / internal script environments)
+  const isTestOrScript = process.env.NODE_ENV === 'test' || process.env.ALLOW_LEGACY_AUTH === 'true';
+  if (isTestOrScript) {
+    const payload = verifyAccessToken(token);
+    if (payload) {
+      try {
+        const user = await prisma.user.findUnique({
+          where: { id: payload.userId },
+          include: {
+            studentProfile: true,
+            industryProfile: true,
+            academicianProfile: true,
+            institutionProfile: true,
+          },
+        });
+
+        if (user) {
+          req.user = {
+            id: user.id,
+            email: user.email,
+            role: user.role,
+            studentProfileId: user.studentProfile?.id,
+            industryProfileId: user.industryProfile?.id,
+            academicianProfileId: user.academicianProfile?.id,
+            institutionProfileId: user.institutionProfile?.id,
+          };
+          return next();
+        }
+      } catch (dbErr) {
+        console.error('Legacy auth database error:', dbErr);
+      }
+    }
+  }
+
+  return res.status(401).json({
+    error: { code: 'INVALID_TOKEN', message: 'Session expired or invalid token. Please log in again.' }
+  });
 }
 
 export async function optionalAuthenticate(req: AuthRequest, _res: Response, next: NextFunction) {
@@ -89,13 +138,16 @@ export async function optionalAuthenticate(req: AuthRequest, _res: Response, nex
   }
 
   try {
-    const payload = verifyAccessToken(token);
-    if (!payload) {
-      return next();
-    }
+    const decodedToken = await adminAuth.verifyIdToken(token);
+    const cleanEmail = decodedToken.email?.toLowerCase().trim();
 
-    const user = await prisma.user.findUnique({
-      where: { id: payload.userId },
+    const user = await prisma.user.findFirst({
+      where: {
+        OR: [
+          { firebaseUid: decodedToken.uid },
+          ...(cleanEmail ? [{ email: cleanEmail }] : []),
+        ],
+      },
       include: {
         studentProfile: true,
         industryProfile: true,
@@ -114,9 +166,42 @@ export async function optionalAuthenticate(req: AuthRequest, _res: Response, nex
         academicianProfileId: user.academicianProfile?.id,
         institutionProfileId: user.institutionProfile?.id,
       };
+      return next();
     }
-  } catch (err) {
-    console.warn('Optional auth error:', err);
+  } catch {
+    // Firebase verification failed. Check test/legacy fallback.
+  }
+
+  const isTestOrScript = process.env.NODE_ENV === 'test' || process.env.ALLOW_LEGACY_AUTH === 'true';
+  if (isTestOrScript) {
+    try {
+      const payload = verifyAccessToken(token);
+      if (payload) {
+        const user = await prisma.user.findUnique({
+          where: { id: payload.userId },
+          include: {
+            studentProfile: true,
+            industryProfile: true,
+            academicianProfile: true,
+            institutionProfile: true,
+          },
+        });
+
+        if (user) {
+          req.user = {
+            id: user.id,
+            email: user.email,
+            role: user.role,
+            studentProfileId: user.studentProfile?.id,
+            industryProfileId: user.industryProfile?.id,
+            academicianProfileId: user.academicianProfile?.id,
+            institutionProfileId: user.institutionProfile?.id,
+          };
+        }
+      }
+    } catch (err) {
+      console.warn('Optional auth error:', err);
+    }
   }
 
   return next();

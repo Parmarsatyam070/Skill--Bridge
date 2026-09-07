@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Flag, CheckCircle2, ChevronRight, BookOpen, Briefcase, Award, Sparkles, AlertCircle } from 'lucide-react';
+import { Flag, CheckCircle2, ChevronRight, BookOpen, Briefcase, Award, Sparkles, AlertCircle, Youtube, ExternalLink } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { api } from '../lib/api';
@@ -8,17 +8,22 @@ import { RoadmapResponse, RoadmapMilestone } from '@shared/types';
 
 interface CareerRoadmapProps {
   targetDomain: string;
+  internshipId?: string;
 }
 
-export const CareerRoadmap: React.FC<CareerRoadmapProps> = ({ targetDomain }) => {
+export const CareerRoadmap: React.FC<CareerRoadmapProps> = ({ targetDomain, internshipId }) => {
   const { user } = useAuth();
   const studentProfileId = user?.studentProfile?.id;
   const [selectedMilestoneId, setSelectedMilestoneId] = useState<string>('m2');
 
+  const queryUrl = internshipId
+    ? `/students/${studentProfileId}/roadmap?internshipId=${encodeURIComponent(internshipId)}`
+    : `/students/${studentProfileId}/roadmap?domain=${encodeURIComponent(targetDomain)}`;
+
   const { data: roadmapData, isLoading } = useQuery({
-    queryKey: ['roadmapData', studentProfileId, targetDomain],
-    queryFn: () => api.get<RoadmapResponse>(`/students/${studentProfileId}/roadmap?domain=${encodeURIComponent(targetDomain)}`),
-    enabled: !!studentProfileId && !!targetDomain,
+    queryKey: ['roadmapData', studentProfileId, targetDomain, internshipId],
+    queryFn: () => api.get<RoadmapResponse>(queryUrl),
+    enabled: !!studentProfileId,
   });
 
   const milestones: RoadmapMilestone[] = roadmapData?.milestones || [];
@@ -53,9 +58,16 @@ export const CareerRoadmap: React.FC<CareerRoadmapProps> = ({ targetDomain }) =>
         </div>
 
         <div className="flex items-center gap-2">
-          <span className="text-xs font-mono text-bridge-teal bg-bridge-teal/15 px-3 py-1 rounded-full border border-bridge-teal/30">
-            Domain: {targetDomain}
-          </span>
+          {roadmapData?.isRoleSpecific ? (
+            <span className="text-xs font-mono text-bridge-teal bg-bridge-teal/15 px-3 py-1 rounded-full border border-bridge-teal/30 font-semibold flex items-center gap-1.5">
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>Target Role Scoped</span>
+            </span>
+          ) : (
+            <span className="text-xs font-mono text-bridge-teal bg-bridge-teal/15 px-3 py-1 rounded-full border border-bridge-teal/30">
+              Domain: {targetDomain}
+            </span>
+          )}
         </div>
       </div>
 
@@ -86,6 +98,29 @@ export const CareerRoadmap: React.FC<CareerRoadmapProps> = ({ targetDomain }) =>
               />
             </div>
           </div>
+        </div>
+      )}
+
+      {/* Sash Mock Interview Weak Areas Callout (If active role roadmap) */}
+      {roadmapData?.mockInterviewWeakAreas && roadmapData.mockInterviewWeakAreas.length > 0 && (
+        <div className="p-3.5 rounded-xl bg-purple-500/10 border border-purple-500/25 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-purple-200">
+          <div className="flex items-center gap-2.5">
+            <Sparkles className="w-4 h-4 text-purple-300 flex-shrink-0" />
+            <div>
+              <span className="font-bold text-purple-300">Sash Mock Interview Gaps Detected: </span>
+              <span className="opacity-90">{roadmapData.mockInterviewWeakAreas.join(', ')}</span>
+              <span className="text-[11px] opacity-75 block sm:inline sm:ml-1">
+                — Action items prioritized in Phase 2 & 3 below.
+              </span>
+            </div>
+          </div>
+          <Link
+            to="/report-card"
+            className="font-mono text-[11px] text-purple-300 hover:underline flex items-center gap-1 flex-shrink-0"
+          >
+            <span>View Interview Feedback</span>
+            <ChevronRight className="w-3.5 h-3.5" />
+          </Link>
         </div>
       )}
 
@@ -220,6 +255,84 @@ export const CareerRoadmap: React.FC<CareerRoadmapProps> = ({ targetDomain }) =>
                       Enroll +{c.pointsGain}
                     </Link>
                   </div>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Curated Books for this Phase */}
+          {current.recommendedBooks && current.recommendedBooks.length > 0 && (
+            <div className="pt-3 border-t border-console-border/60 space-y-2">
+              <span className="text-[11px] font-mono font-semibold text-[#E8A23C] flex items-center gap-1.5">
+                <BookOpen className="w-3.5 h-3.5" />
+                Recommended Books · {current.phase}
+              </span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {current.recommendedBooks.map((book, i) => (
+                  <a
+                    key={i}
+                    href={book.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group flex items-start gap-2.5 p-3 rounded-lg bg-console-bg border border-console-border hover:border-[#E8A23C]/50 transition-colors text-xs"
+                  >
+                    <BookOpen className="w-4 h-4 text-[#E8A23C] flex-shrink-0 mt-0.5" />
+                    <div className="min-w-0">
+                      <span className="font-semibold text-console-text group-hover:text-[#E8A23C] transition-colors line-clamp-1 block">
+                        {book.title}
+                      </span>
+                      {book.author && (
+                        <span className="text-[10px] font-mono text-console-text-muted">
+                          {book.author}
+                        </span>
+                      )}
+                      {book.whyRecommended && (
+                        <span className="text-[10px] text-console-text-muted block mt-0.5 line-clamp-2 leading-relaxed">
+                          {book.whyRecommended}
+                        </span>
+                      )}
+                    </div>
+                    <ExternalLink className="w-3 h-3 text-console-text-muted flex-shrink-0 mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </a>
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* Curated YouTube Channels/Playlists for this Phase */}
+          {current.recommendedYoutube && current.recommendedYoutube.length > 0 && (
+            <div className="pt-3 border-t border-console-border/60 space-y-2">
+              <span className="text-[11px] font-mono font-semibold text-[#E5637C] flex items-center gap-1.5">
+                <Youtube className="w-3.5 h-3.5" />
+                YouTube Channels &amp; Playlists · {current.phase}
+              </span>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                {current.recommendedYoutube.map((yt, i) => (
+                  <a
+                    key={i}
+                    href={yt.url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="group flex items-start gap-2.5 p-3 rounded-lg bg-console-bg border border-console-border hover:border-[#E5637C]/50 transition-colors text-xs"
+                  >
+                    <Youtube className="w-4 h-4 text-[#E5637C] flex-shrink-0 mt-0.5" />
+                    <div className="min-w-0">
+                      <span className="font-semibold text-console-text group-hover:text-[#E5637C] transition-colors line-clamp-1 block">
+                        {yt.title}
+                      </span>
+                      {yt.author && (
+                        <span className="text-[10px] font-mono text-console-text-muted">
+                          {yt.author}
+                        </span>
+                      )}
+                      {yt.whyRecommended && (
+                        <span className="text-[10px] text-console-text-muted block mt-0.5 line-clamp-2 leading-relaxed">
+                          {yt.whyRecommended}
+                        </span>
+                      )}
+                    </div>
+                    <ExternalLink className="w-3 h-3 text-console-text-muted flex-shrink-0 mt-0.5 opacity-0 group-hover:opacity-100 transition-opacity" />
+                  </a>
                 ))}
               </div>
             </div>

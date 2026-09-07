@@ -22,6 +22,7 @@ import { BridgeLine } from '../../components/BridgeLine';
 import { DailyPracticeBanner } from '../../components/DailyPracticeBanner';
 import { MatchCard } from '../../components/MatchCard';
 import { VerifiedActivityCard, VerifiedActivityItem } from '../../components/VerifiedActivityCard';
+import { TodayTargetCard } from '../../components/TodayTargetCard';
 
 export const StudentDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -132,6 +133,9 @@ export const StudentDashboard: React.FC = () => {
     <div className="space-y-6 font-sans">
       {/* Mandatory Daily Practice Set Banner */}
       <DailyPracticeBanner />
+
+      {/* Sash Daily Target — compact strip */}
+      <TodayTargetCard variant="compact" />
 
       {/* Welcome Banner - Design System v2 Void & Panel */}
       <div className="bg-[#111318] border border-[#2A2E38] rounded-2xl p-6 sm:p-7 flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden backdrop-blur-md">

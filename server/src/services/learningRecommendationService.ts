@@ -9,7 +9,9 @@ export interface RawLearningResource {
   title: string;
   url: string;
   provider: string;
+  author?: string;
   description: string;
+  whyRecommended?: string;
   isFree: boolean;
   rating: number;
   difficulty?: string;
@@ -936,6 +938,452 @@ export const AUTHENTIC_LEARNING_RESOURCES: RawLearningResource[] = [
     authorityScore: 100,
     tags: ['nextjs', 'next', 'react', 'ssr', 'vercel', 'frontend', 'official'],
   },
+
+  // ─── CURATED BOOKS (type: 'book', category: 'books') ───────────────
+  // 1. DSA & Algorithms
+  {
+    topicTag: 'Dynamic Programming',
+    domain: 'Full-Stack Web',
+    category: 'books',
+    type: 'book',
+    title: 'Introduction to Algorithms (CLRS)',
+    url: 'https://mitpress.mit.edu/9780262046305/introduction-to-algorithms/',
+    provider: 'MIT Press',
+    author: 'Thomas H. Cormen, Charles E. Leiserson, Ronald L. Rivest, Clifford Stein',
+    description: 'The definitive algorithmic analysis textbook covering dynamic programming optimal substructure, greedy algorithms, and graph theory.',
+    whyRecommended: 'Provides the rigorous theoretical foundation and optimal substructure proofs for all dynamic programming patterns.',
+    isFree: false,
+    rating: 4.9,
+    difficulty: 'Advanced',
+    authorityScore: 100,
+    tags: ['dsa', 'algorithms', 'dynamic programming', 'dp', 'clrs', 'graphs', 'math'],
+  },
+  {
+    topicTag: 'Dynamic Programming',
+    domain: 'Full-Stack Web',
+    category: 'books',
+    type: 'book',
+    title: 'Grokking Algorithms: An Illustrated Guide for Programmers',
+    url: 'https://www.manning.com/books/grokking-algorithms',
+    provider: 'Manning Publications',
+    author: 'Aditya Bhargava',
+    description: 'A fully illustrated, friendly guide that teaches you how to apply common algorithms to practical software problems.',
+    whyRecommended: 'Uses intuitive visual diagrams to clarify recursion, dynamic programming knapsack problems, and Big-O notation.',
+    isFree: false,
+    rating: 4.8,
+    difficulty: 'Beginner',
+    authorityScore: 94,
+    tags: ['dsa', 'algorithms', 'dynamic programming', 'dp', 'visual', 'beginners'],
+  },
+  {
+    topicTag: 'DSA',
+    domain: 'Full-Stack Web',
+    category: 'books',
+    type: 'book',
+    title: 'Cracking the Coding Interview: 189 Programming Questions & Solutions',
+    url: 'https://www.crackingthecodinginterview.com/',
+    provider: 'CareerCup',
+    author: 'Gayle Laakmann McDowell',
+    description: '189 programming questions and solutions covering core data structures, algorithms, system design, and interview strategies.',
+    whyRecommended: 'The industry-standard interview preparation book with step-by-step problem-solving heuristics used by FAANG engineers.',
+    isFree: false,
+    rating: 4.9,
+    difficulty: 'Intermediate',
+    authorityScore: 98,
+    tags: ['dsa', 'interview_prep', 'algorithms', 'coding', 'faang', 'system design'],
+  },
+
+  // 2. Full-Stack Web & System Design Books
+  {
+    topicTag: 'System Design',
+    domain: 'Full-Stack Web',
+    category: 'books',
+    type: 'book',
+    title: 'Designing Data-Intensive Applications',
+    url: 'https://www.oreilly.com/library/view/designing-data-intensive-applications/9781491903063/',
+    provider: "O'Reilly Media",
+    author: 'Martin Kleppmann',
+    description: 'The definitive architectural guide to data models, distributed storage, replication, partitioning, and stream processing.',
+    whyRecommended: 'Essential reading for any engineer building scalable backend systems, microservices, and high-availability architectures.',
+    isFree: false,
+    rating: 5.0,
+    difficulty: 'Advanced',
+    authorityScore: 100,
+    tags: ['system design', 'distributed systems', 'databases', 'backend', 'scalability', 'web'],
+  },
+  {
+    topicTag: 'System Design',
+    domain: 'Full-Stack Web',
+    category: 'books',
+    type: 'book',
+    title: 'System Design Interview – An Insider\'s Guide',
+    url: 'https://bytebytego.com/',
+    provider: 'ByteByteGo',
+    author: 'Alex Xu',
+    description: 'An actionable, visual framework for designing real-world distributed systems like rate limiters, chat servers, and YouTube.',
+    whyRecommended: 'Breaks complex distributed architecture into clear, repeatable 4-step interview designs with precise capacity estimates.',
+    isFree: false,
+    rating: 4.9,
+    difficulty: 'Intermediate',
+    authorityScore: 97,
+    tags: ['system design', 'architecture', 'interview_prep', 'scalability', 'backend'],
+  },
+  {
+    topicTag: 'React',
+    domain: 'Full-Stack Web',
+    category: 'books',
+    type: 'book',
+    title: 'Learning React: Modern Patterns for Developing React Apps',
+    url: 'https://www.oreilly.com/library/view/learning-react-2nd/9781492051718/',
+    provider: "O'Reilly Media",
+    author: 'Alex Banks and Eve Porcello',
+    description: 'Modern patterns for building declarative user interfaces with React Hooks, functional programming, and state management.',
+    whyRecommended: 'Focuses on modern React idioms, component composition, and unidirectional data flow best practices.',
+    isFree: false,
+    rating: 4.8,
+    difficulty: 'Intermediate',
+    authorityScore: 92,
+    tags: ['react', 'frontend', 'javascript', 'hooks', 'web', 'ui'],
+  },
+  {
+    topicTag: 'JavaScript',
+    domain: 'Full-Stack Web',
+    category: 'books',
+    type: 'book',
+    title: 'You Don\'t Know JS Yet: Get Started',
+    url: 'https://github.com/getify/You-Dont-Know-JS',
+    provider: 'Leanpub / Open Source',
+    author: 'Kyle Simpson (getify)',
+    description: 'Deep dive into the core mechanisms of JavaScript: lexical scope, closures, this keyword, object prototypes, and async execution.',
+    whyRecommended: 'Demystifies JavaScript runtime internals and empowers engineers to write bug-free idiomatic JavaScript.',
+    isFree: true,
+    rating: 4.9,
+    difficulty: 'Intermediate',
+    authorityScore: 96,
+    tags: ['javascript', 'web', 'frontend', 'closures', 'es6', 'backend'],
+  },
+  {
+    topicTag: 'Clean Code',
+    domain: 'Full-Stack Web',
+    category: 'books',
+    type: 'book',
+    title: 'Clean Code: A Handbook of Agile Software Craftsmanship',
+    url: 'https://www.oreilly.com/library/view/clean-code-a/9780136083238/',
+    provider: 'Prentice Hall',
+    author: 'Robert C. Martin',
+    description: 'Practical handbook on writing clean, readable, maintainable, and refactor-friendly code across any programming language.',
+    whyRecommended: 'Instills professional engineering discipline: naming conventions, single responsibility, and rigorous refactoring habits.',
+    isFree: false,
+    rating: 4.8,
+    difficulty: 'Intermediate',
+    authorityScore: 95,
+    tags: ['clean code', 'best practices', 'refactoring', 'software engineering', 'web'],
+  },
+
+  // 3. AI & Data Science Books
+  {
+    topicTag: 'Machine Learning',
+    domain: 'AI/Data Science',
+    category: 'books',
+    type: 'book',
+    title: 'Hands-On Machine Learning with Scikit-Learn, Keras, and TensorFlow',
+    url: 'https://www.oreilly.com/library/view/hands-on-machine-learning/9781098125967/',
+    provider: "O'Reilly Media",
+    author: 'Aurélien Géron',
+    description: 'Concrete examples, minimal theory, and production-ready Python frameworks for building intelligent systems.',
+    whyRecommended: 'The gold standard practical machine learning book bridging foundational scikit-learn pipelines with deep learning models.',
+    isFree: false,
+    rating: 4.9,
+    difficulty: 'Intermediate',
+    authorityScore: 99,
+    tags: ['machine learning', 'ai', 'python', 'scikit-learn', 'deep learning', 'tensorflow'],
+  },
+  {
+    topicTag: 'Deep Learning',
+    domain: 'AI/Data Science',
+    category: 'books',
+    type: 'book',
+    title: 'Deep Learning',
+    url: 'https://www.deeplearningbook.org/',
+    provider: 'MIT Press',
+    author: 'Ian Goodfellow, Yoshua Bengio, and Aaron Courville',
+    description: 'The definitive textbook on deep learning covering linear algebra, optimization algorithms, convolutional networks, and generative models.',
+    whyRecommended: 'Written by deep learning pioneers, offering the complete mathematical bedrock for contemporary AI practitioners.',
+    isFree: true,
+    rating: 4.9,
+    difficulty: 'Advanced',
+    authorityScore: 100,
+    tags: ['deep learning', 'ai', 'neural networks', 'mit', 'math', 'transformers'],
+  },
+  {
+    topicTag: 'MLOps',
+    domain: 'AI/Data Science',
+    category: 'books',
+    type: 'book',
+    title: 'Designing Machine Learning Systems',
+    url: 'https://www.oreilly.com/library/view/designing-machine-learning/9781098107956/',
+    provider: "O'Reilly Media",
+    author: 'Chip Huyen',
+    description: 'Holistic engineering approach to ML systems design: training data, feature engineering, model deployment, monitoring, and continual learning.',
+    whyRecommended: 'Essential for shipping AI models into real-world production with robust telemetry and low latency.',
+    isFree: false,
+    rating: 4.9,
+    difficulty: 'Advanced',
+    authorityScore: 97,
+    tags: ['mlops', 'ai', 'system design', 'data science', 'production'],
+  },
+
+  // 4. Cloud & DevOps Books
+  {
+    topicTag: 'DevOps',
+    domain: 'Cloud/DevOps',
+    category: 'books',
+    type: 'book',
+    title: 'The DevOps Handbook: How to Create World-Class Agility, Reliability, and Security',
+    url: 'https://itrevolution.com/product/the-devops-handbook-second-edition/',
+    provider: 'IT Revolution',
+    author: 'Gene Kim, Jez Humble, Patrick Debois, John Willis',
+    description: 'A comprehensive guide to continuous delivery, fast feedback loops, culture, and security in modern technology organizations.',
+    whyRecommended: 'The foundational blueprint for engineering teams transitioning to automated CI/CD and reliable production deployments.',
+    isFree: false,
+    rating: 4.9,
+    difficulty: 'Intermediate',
+    authorityScore: 98,
+    tags: ['devops', 'ci-cd', 'cloud', 'architecture', 'agile'],
+  },
+  {
+    topicTag: 'Kubernetes',
+    domain: 'Cloud/DevOps',
+    category: 'books',
+    type: 'book',
+    title: 'Kubernetes: Up and Running: Dive into the Future of Infrastructure',
+    url: 'https://www.oreilly.com/library/view/kubernetes-up-and/9781098110192/',
+    provider: "O'Reilly Media",
+    author: 'Brendan Burns, Joe Beda, Kelsey Hightower',
+    description: 'Written by Kubernetes co-founders, this guide explains how containers and Kubernetes can help you achieve velocity, agility, and reliability.',
+    whyRecommended: 'Direct insights from Kubernetes creators on container orchestration, service discovery, and declarative manifests.',
+    isFree: false,
+    rating: 4.9,
+    difficulty: 'Intermediate',
+    authorityScore: 98,
+    tags: ['kubernetes', 'docker', 'containers', 'cloud', 'infrastructure', 'devops'],
+  },
+  {
+    topicTag: 'Site Reliability Engineering',
+    domain: 'Cloud/DevOps',
+    category: 'books',
+    type: 'book',
+    title: 'Site Reliability Engineering: How Google Runs Production Systems',
+    url: 'https://sre.google/sre-book/table-of-contents/',
+    provider: "O'Reilly Media / Google",
+    author: 'Betsy Beyer, Chris Jones, Jennifer Petoff, Niall Richard Murphy',
+    description: 'Google engineers explain how their engineering teams maintain planetary-scale services with high velocity and reliability.',
+    whyRecommended: 'Teaches Service Level Objectives (SLOs), error budgets, blameless postmortems, and distributed monitoring in practice.',
+    isFree: true,
+    rating: 5.0,
+    difficulty: 'Advanced',
+    authorityScore: 100,
+    tags: ['sre', 'google', 'reliability', 'cloud', 'devops', 'monitoring'],
+  },
+
+  // 5. UI/UX Product Design Books
+  {
+    topicTag: 'UI/UX Design',
+    domain: 'UI/UX Product Design',
+    category: 'books',
+    type: 'book',
+    title: 'The Design of Everyday Things',
+    url: 'https://www.basicbooks.com/titles/don-norman/the-design-of-everyday-things/9780465050659/',
+    provider: 'Basic Books',
+    author: 'Don Norman',
+    description: 'The foundational classic on cognitive psychology, human affordances, signifiers, conceptual models, and user-centered design.',
+    whyRecommended: 'Mandatory reading for understanding how humans interact with digital and physical interfaces.',
+    isFree: false,
+    rating: 4.9,
+    difficulty: 'All Levels',
+    authorityScore: 100,
+    tags: ['ui/ux', 'design thinking', 'psychology', 'human-centered-design'],
+  },
+  {
+    topicTag: 'UI Design',
+    domain: 'UI/UX Product Design',
+    category: 'books',
+    type: 'book',
+    title: 'Refactoring UI',
+    url: 'https://www.refactoringui.com/',
+    provider: 'Tailwind Labs',
+    author: 'Adam Wathan & Steve Schoger',
+    description: 'A design crash course for developers packed with actionable advice, visual hierarchy tactics, and spacing systems.',
+    whyRecommended: 'Practical, immediate visual styling rules that elevate developer-built interfaces to production design agency quality.',
+    isFree: false,
+    rating: 5.0,
+    difficulty: 'Beginner',
+    authorityScore: 97,
+    tags: ['ui', 'visual-design', 'tailwind', 'typography', 'design systems'],
+  },
+  {
+    topicTag: 'Usability',
+    domain: 'UI/UX Product Design',
+    category: 'books',
+    type: 'book',
+    title: 'Don\'t Make Me Think, Revisited: A Common Sense Approach to Web Usability',
+    url: 'https://www.oreilly.com/library/view/dont-make-me/9780133597271/',
+    provider: 'New Riders',
+    author: 'Steve Krug',
+    description: 'Witty, commonsense, and indispensable guide to website usability, intuitive navigation, and effortless scanning.',
+    whyRecommended: 'Teaches how to craft digital experiences where users accomplish their intent with zero cognitive confusion.',
+    isFree: false,
+    rating: 4.9,
+    difficulty: 'All Levels',
+    authorityScore: 96,
+    tags: ['usability', 'ux', 'web-design', 'heuristics', 'navigation'],
+  },
+
+  // ─── CURATED YOUTUBE CHANNELS & PLAYLISTS ─────────────────────────
+  {
+    topicTag: 'DSA',
+    domain: 'Full-Stack Web',
+    category: 'videos',
+    type: 'youtube_channel',
+    title: 'NeetCode Algorithms & System Design',
+    url: 'https://www.youtube.com/@NeetCode',
+    provider: 'NeetCode',
+    description: 'The top visual algorithm walkthrough channel covering Blind 75, NeetCode 150, and system design fundamentals.',
+    whyRecommended: 'High-density visual algorithm explanations in Python and JavaScript with optimal Big-O complexity analysis.',
+    isFree: true,
+    rating: 4.9,
+    difficulty: 'All Levels',
+    authorityScore: 99,
+    tags: ['dsa', 'algorithms', 'neetcode', 'blind75', 'coding-interviews', 'python'],
+  },
+  {
+    topicTag: 'DSA',
+    domain: 'Full-Stack Web',
+    category: 'videos',
+    type: 'youtube_channel',
+    title: 'takeUforward / Striver Complete A-Z DSA',
+    url: 'https://www.youtube.com/@takeUforward',
+    provider: 'takeUforward (Striver)',
+    description: 'Deep, comprehensive multi-hour masterclasses on dynamic programming, graph algorithms, and trees with optimal intuition.',
+    whyRecommended: 'Complete curriculum from basic arrays to advanced graph DP, perfect for coding interview preparation.',
+    isFree: true,
+    rating: 4.9,
+    difficulty: 'All Levels',
+    authorityScore: 99,
+    tags: ['dsa', 'algorithms', 'striver', 'takeuforward', 'dp', 'graphs', 'cpp', 'java'],
+  },
+  {
+    topicTag: 'System Design',
+    domain: 'Full-Stack Web',
+    category: 'videos',
+    type: 'youtube_channel',
+    title: 'ByteByteGo - Alex Xu Distributed Systems',
+    url: 'https://www.youtube.com/@ByteByteGo',
+    provider: 'ByteByteGo',
+    description: 'Visual, high-density breakdowns of distributed systems, message queues, API gateways, database sharding, and caching.',
+    whyRecommended: 'Animated system architecture videos breaking down real-world high-throughput designs.',
+    isFree: true,
+    rating: 5.0,
+    difficulty: 'Intermediate',
+    authorityScore: 98,
+    tags: ['system design', 'architecture', 'distributed systems', 'scalability', 'backend'],
+  },
+  {
+    topicTag: 'Backend',
+    domain: 'Full-Stack Web',
+    category: 'videos',
+    type: 'youtube_channel',
+    title: 'Hussein Nasser - Backend Engineering & Protocols',
+    url: 'https://www.youtube.com/@hnasr',
+    provider: 'Hussein Nasser',
+    description: 'Deep technical deep-dives into database internals, TCP/HTTP protocols, reverse proxies, and connection pooling.',
+    whyRecommended: 'Unparalleled clarity on backend protocol internals, networking, and relational database execution engines.',
+    isFree: true,
+    rating: 4.9,
+    difficulty: 'Advanced',
+    authorityScore: 97,
+    tags: ['backend', 'networking', 'databases', 'postgresql', 'http', 'system design'],
+  },
+  {
+    topicTag: 'Web Development',
+    domain: 'Full-Stack Web',
+    category: 'videos',
+    type: 'youtube_channel',
+    title: 'Traversy Media - Web Development & Modern Stacks',
+    url: 'https://www.youtube.com/@TraversyMedia',
+    provider: 'Traversy Media (Brad Traversy)',
+    description: 'Hands-on practical full-stack courses in React, Node.js, Express, Next.js, and modern TypeScript application engineering.',
+    whyRecommended: 'Project-first approach that gets you building working full-stack applications with clean structure.',
+    isFree: true,
+    rating: 4.9,
+    difficulty: 'Beginner',
+    authorityScore: 96,
+    tags: ['web', 'react', 'node', 'full-stack', 'javascript', 'typescript'],
+  },
+  {
+    topicTag: 'Machine Learning',
+    domain: 'AI/Data Science',
+    category: 'videos',
+    type: 'youtube_channel',
+    title: 'StatQuest with Josh Starmer',
+    url: 'https://www.youtube.com/@statquest',
+    provider: 'Josh Starmer (StatQuest)',
+    description: 'Clearly breaks down complicated statistics, machine learning, and neural network algorithms into bite-sized, intuitive pieces.',
+    whyRecommended: 'Eliminates jargon and uses step-by-step visual calculations for linear regression, trees, and neural networks.',
+    isFree: true,
+    rating: 5.0,
+    difficulty: 'All Levels',
+    authorityScore: 100,
+    tags: ['ai', 'machine learning', 'statistics', 'neural networks', 'transformers', 'data science'],
+  },
+  {
+    topicTag: 'Deep Learning',
+    domain: 'AI/Data Science',
+    category: 'videos',
+    type: 'youtube_channel',
+    title: '3Blue1Brown - Essence of Linear Algebra & Neural Networks',
+    url: 'https://www.youtube.com/@3blue1brown',
+    provider: 'Grant Sanderson (3Blue1Brown)',
+    description: 'Unmatched animated visual intuition for linear algebra, calculus, backpropagation, and transformer attention mechanisms.',
+    whyRecommended: 'World-class visual animations providing deep geometric intuition for matrix transformations and neural backprop.',
+    isFree: true,
+    rating: 5.0,
+    difficulty: 'All Levels',
+    authorityScore: 100,
+    tags: ['math', 'linear algebra', 'neural networks', 'deep learning', 'transformers', 'ai'],
+  },
+  {
+    topicTag: 'Cloud/DevOps',
+    domain: 'Cloud/DevOps',
+    category: 'videos',
+    type: 'youtube_channel',
+    title: 'TechWorld with Nana - DevOps, Docker & Kubernetes',
+    url: 'https://www.youtube.com/@TechWorldwithNana',
+    provider: 'Nana Janashia',
+    description: 'World-renowned beginner-to-pro DevOps tutorials covering Docker, Kubernetes, Terraform, CI/CD pipelines, and Prometheus.',
+    whyRecommended: 'Comprehensive, structured visual tutorials explaining containerization and cluster management from scratch.',
+    isFree: true,
+    rating: 4.9,
+    difficulty: 'All Levels',
+    authorityScore: 98,
+    tags: ['devops', 'docker', 'kubernetes', 'cloud', 'ci-cd', 'terraform'],
+  },
+  {
+    topicTag: 'UI/UX Design',
+    domain: 'UI/UX Product Design',
+    category: 'videos',
+    type: 'youtube_channel',
+    title: 'DesignCourse - Gary Simon UI/UX & Figma',
+    url: 'https://www.youtube.com/@DesignCourse',
+    provider: 'Gary Simon',
+    description: 'Real-time UI redesigns, Figma component architecture, visual hierarchy, typography, and frontend design critiques.',
+    whyRecommended: 'Practical, highly applicable feedback on UI contrast, whitespace, visual hierarchy, and modern component systems.',
+    isFree: true,
+    rating: 4.9,
+    difficulty: 'All Levels',
+    authorityScore: 96,
+    tags: ['ui', 'ux', 'figma', 'design systems', 'product design', 'frontend'],
+  },
 ];
 
 /**
@@ -1162,11 +1610,20 @@ export function rankResources(resources: SmartLearningResource[]): SmartLearning
 /**
  * Ensures all authentic learning resources are present in the database.
  */
+// Process-level guard: seed runs at most once per server/test-runner process.
+// This prevents 19 sequential test calls from each doing 20+ remote DB round-trips.
+let _seedComplete = false;
+
 export async function seedSmartLearningResources(): Promise<number> {
+  if (_seedComplete) return 0;
+
   for (const item of AUTHENTIC_LEARNING_RESOURCES) {
     const existing = await prisma.learningResource.findFirst({
       where: { url: item.url },
     });
+
+    const providerValue = item.author ? `${item.author} (${item.provider})` : item.provider;
+    const descValue = item.whyRecommended ? `${item.description} Why Recommended: ${item.whyRecommended}` : item.description;
 
     if (!existing) {
       await prisma.learningResource.create({
@@ -1177,8 +1634,8 @@ export async function seedSmartLearningResources(): Promise<number> {
           type: item.type,
           title: item.title,
           url: item.url,
-          provider: item.provider,
-          description: item.description,
+          provider: providerValue,
+          description: descValue,
           isFree: item.isFree,
           rating: item.rating,
           difficulty: item.difficulty || 'All Levels',
@@ -1195,8 +1652,8 @@ export async function seedSmartLearningResources(): Promise<number> {
           category: item.category,
           type: item.type,
           title: item.title,
-          provider: item.provider,
-          description: item.description,
+          provider: providerValue,
+          description: descValue,
           isFree: item.isFree,
           rating: item.rating,
           difficulty: item.difficulty || 'All Levels',
@@ -1207,6 +1664,7 @@ export async function seedSmartLearningResources(): Promise<number> {
     }
   }
 
+  _seedComplete = true;
   return await prisma.learningResource.count();
 }
 
@@ -1290,7 +1748,11 @@ export async function searchLearningHub(
       title: r.title,
       url: r.url,
       provider: r.provider,
+      author: r.provider.includes('(') ? r.provider.split('(')[0].trim() : undefined,
       description: r.description,
+      whyRecommended: r.description.includes('Why Recommended:')
+        ? r.description.split('Why Recommended:')[1].trim()
+        : r.description,
       isFree: r.isFree,
       rating: r.rating || 4.8,
       difficulty: r.difficulty || 'All Levels',
@@ -1386,12 +1848,127 @@ export async function getPersonalizedRecommendations(
   return list;
 }
 
+/**
+ * Fetches curated books and YouTube recommendations for a specific roadmap milestone.
+ * Reuses the existing LearningResource table with tag matching and fallback by domain/DSA.
+ */
+export async function getCuratedRoadmapResources(
+  skillTags: string[] = [],
+  domain: string = 'Full-Stack Web'
+): Promise<{ books: import('../../../shared/types.js').CuratedRoadmapResource[]; youtube: import('../../../shared/types.js').CuratedRoadmapResource[] }> {
+  await seedSmartLearningResources();
+
+  const allResources = await prisma.learningResource.findMany();
+
+  const normalizedTags = skillTags.map(t => t.toLowerCase().trim());
+  const normalizedDomain = domain.toLowerCase().trim();
+
+  const books: import('../../../shared/types.js').CuratedRoadmapResource[] = [];
+  const youtube: import('../../../shared/types.js').CuratedRoadmapResource[] = [];
+
+  for (const r of allResources) {
+    let tags: string[] = [];
+    try {
+      tags = JSON.parse(r.tagsJson || '[]').map((t: string) => t.toLowerCase());
+    } catch {}
+    const rTopic = r.topicTag.toLowerCase();
+    const rDomain = (r.domain || '').toLowerCase();
+    const rTitle = r.title.toLowerCase();
+
+    // Check if matches any of the milestone's skillTags or domain
+    const tagMatch = normalizedTags.some(tag =>
+      rTopic.includes(tag) || tags.includes(tag) || rTitle.includes(tag) || tag.includes(rTopic)
+    );
+    const domainMatch = rDomain && (rDomain.includes(normalizedDomain) || normalizedDomain.includes(rDomain));
+
+    if (tagMatch || domainMatch) {
+      const whyRecommended = r.description.includes('Why Recommended:')
+        ? r.description.split('Why Recommended:')[1].trim()
+        : r.description;
+      const author = r.provider.includes('(') ? r.provider.split('(')[0].trim() : undefined;
+
+      const item: import('../../../shared/types.js').CuratedRoadmapResource = {
+        id: r.id,
+        title: r.title,
+        type: r.type as any,
+        category: (r.category as any) || 'recommended',
+        author,
+        provider: r.provider,
+        url: r.url,
+        whyRecommended,
+        rating: r.rating || 4.9,
+        isFree: r.isFree,
+        topicTag: r.topicTag,
+      };
+
+      if (r.type === 'book' || r.category === 'books') {
+        if (!books.some(b => b.id === item.id)) {
+          books.push(item);
+        }
+      } else if (r.type === 'youtube_channel' || r.type === 'youtube_playlist' || r.category === 'videos') {
+        if (!youtube.some(y => y.id === item.id)) {
+          youtube.push(item);
+        }
+      }
+    }
+  }
+
+  // Fallbacks if no exact tag match was found
+  if (books.length === 0) {
+    const defaultBooks = allResources
+      .filter(r => r.type === 'book' || r.category === 'books')
+      .slice(0, 3)
+      .map(r => ({
+        id: r.id,
+        title: r.title,
+        type: 'book' as const,
+        category: 'books' as const,
+        author: r.provider.includes('(') ? r.provider.split('(')[0].trim() : undefined,
+        provider: r.provider,
+        url: r.url,
+        whyRecommended: r.description.includes('Why Recommended:')
+          ? r.description.split('Why Recommended:')[1].trim()
+          : r.description,
+        rating: r.rating || 4.9,
+        isFree: r.isFree,
+        topicTag: r.topicTag,
+      }));
+    books.push(...defaultBooks);
+  }
+
+  if (youtube.length === 0) {
+    const defaultYoutube = allResources
+      .filter(r => r.type === 'youtube_channel' || r.type === 'youtube_playlist' || r.category === 'videos')
+      .slice(0, 3)
+      .map(r => ({
+        id: r.id,
+        title: r.title,
+        type: (r.type as any) || 'youtube_channel',
+        category: 'videos' as const,
+        author: undefined,
+        provider: r.provider,
+        url: r.url,
+        whyRecommended: r.description,
+        rating: r.rating || 4.9,
+        isFree: r.isFree,
+        topicTag: r.topicTag,
+      }));
+    youtube.push(...defaultYoutube);
+  }
+
+  return {
+    books: books.slice(0, 3),
+    youtube: youtube.slice(0, 3),
+  };
+}
+
 export const searchResources = searchLearningHub;
 
 export const learningRecommendationService = {
   searchLearningHub,
   searchResources,
   getPersonalizedRecommendations,
+  getCuratedRoadmapResources,
   seedSmartLearningResources,
   normalizeQuery,
   matchesResource,

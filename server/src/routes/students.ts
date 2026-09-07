@@ -4,10 +4,12 @@ import path from 'path';
 import fs from 'fs';
 import { prisma } from '../config/prisma.js';
 import { authenticate, AuthRequest } from '../middleware/auth.js';
-import { calculateStudentMatches } from '../services/matchingEngine.js';
+import { calculateStudentMatches, calculateSingleMatch } from '../services/matchingEngine.js';
 import { gradeAssessment, getDerivedPortfolio } from '../services/skillEngine.js';
 import { AssessmentSubmitSchema, UpdateProfileSchema, SaveStudentProfileSchema, AddStudentDomainSchema } from '../../../shared/validation.js';
 import { recordDailyActivity, calculateStudentActivityPoints, getUserActivityHeatmap } from '../services/streakService.js';
+import { getCuratedRoadmapResources } from '../services/learningRecommendationService.js';
+import { getOrCreateDailyTarget, markDailyTargetComplete } from '../services/dailyTargetService.js';
 
 const router = Router();
 
@@ -508,17 +510,77 @@ router.get('/:id/recommendations', authenticate, async (req: AuthRequest, res: R
 });
 
 /**
- * GET /api/students/:id/roadmap?domain=UI%2FUX+Product+Design
- * Generates dynamic domain-specific 2-Year Roadmap from live gap analysis and real course catalog
+ * POST /api/students/:id/target-internship
+ * Sets the student's active target internship posting
+ */
+router.post('/:id/target-internship', authenticate, async (req: AuthRequest, res: Response) => {
+  const studentId = req.params.id;
+  const { internshipId } = req.body;
+
+  if (!internshipId) {
+    return res.status(400).json({ error: { code: 'BAD_REQUEST', message: 'internshipId is required.' } });
+  }
+
+  const internship = await prisma.internship.findUnique({
+    where: { id: internshipId },
+    include: { industry: true },
+  });
+
+  if (!internship) {
+    return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Internship posting not found.' } });
+  }
+
+  const updated = await prisma.studentProfile.update({
+    where: { id: studentId },
+    data: { targetInternshipId: internshipId },
+    include: {
+      targetInternship: {
+        include: { industry: true },
+      },
+    },
+  });
+
+  return res.json({
+    message: 'Target internship set successfully',
+    targetInternshipId: updated.targetInternshipId,
+    targetInternship: updated.targetInternship,
+  });
+});
+
+/**
+ * DELETE /api/students/:id/target-internship
+ * Clears the student's active target internship
+ */
+router.delete('/:id/target-internship', authenticate, async (req: AuthRequest, res: Response) => {
+  const studentId = req.params.id;
+
+  await prisma.studentProfile.update({
+    where: { id: studentId },
+    data: { targetInternshipId: null },
+  });
+
+  return res.json({
+    message: 'Target internship cleared successfully',
+    targetInternshipId: null,
+  });
+});
+
+/**
+ * GET /api/students/:id/roadmap?domain=...&internshipId=...
+ * Generates dynamic 2-Year Roadmap from live gap analysis and real course catalog.
+ * When internshipId is passed or active on profile, generates a role-scoped roadmap
+ * tailored specifically to the target posting's requirements and mock interview gaps.
  */
 router.get('/:id/roadmap', authenticate, async (req: AuthRequest, res: Response) => {
   const studentId = req.params.id;
-  const targetDomain = (req.query.domain as string);
+  const targetDomainQuery = req.query.domain as string | undefined;
+  const requestedInternshipId = (req.query.internshipId as string) || undefined;
 
   const student = await prisma.studentProfile.findUnique({
     where: { id: studentId },
     include: {
       skillScores: { include: { skill: true } },
+      targetInternship: { include: { industry: true } },
     },
   });
 
@@ -526,7 +588,194 @@ router.get('/:id/roadmap', authenticate, async (req: AuthRequest, res: Response)
     return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Student profile not found.' } });
   }
 
-  const domainName = targetDomain || student.targetDomain || 'Full-Stack Web';
+  const activeInternshipId = requestedInternshipId || student.targetInternshipId;
+  const studentScoreMap = new Map(student.skillScores.map(ss => [ss.skillId, ss.score]));
+
+  // Fetch all real courses from DB for recommendation
+  const allCourses = await prisma.course.findMany({
+    include: { provider: true },
+  });
+
+  // Fetch all skills for name lookup
+  const allSkills = await prisma.skill.findMany();
+  const skillMap = new Map(allSkills.map(s => [s.id, s.name]));
+
+  // ── BRANCH A: Role-Specific Roadmap for Active Target Internship ──
+  if (activeInternshipId) {
+    const targetInternship = await prisma.internship.findUnique({
+      where: { id: activeInternshipId },
+      include: { industry: true },
+    });
+
+    if (targetInternship) {
+      let requiredSkills: any[] = [];
+      try {
+        requiredSkills = JSON.parse(targetInternship.requiredSkillsJson || '[]');
+      } catch {}
+
+      // Calculate gaps specifically against target role requirements
+      const roleGaps = requiredSkills.map(r => {
+        const skillName = skillMap.get(r.skillId) || 'Core Skill';
+        const currentScore = studentScoreMap.get(r.skillId) || 0;
+        const targetScore = r.minScore || 70;
+        const gap = Math.max(0, targetScore - currentScore);
+        const weight = r.weight || 1;
+        return {
+          skillId: r.skillId,
+          skillName,
+          currentScore,
+          benchmarkScore: targetScore,
+          gap,
+          weight,
+        };
+      }).filter(g => g.gap > 0).sort((a, b) => (b.gap * b.weight) - (a.gap * a.weight));
+
+      // Check for identified weak areas from previous mock interviews for this student & role
+      const latestMock = await prisma.mockInterviewSession.findFirst({
+        where: {
+          studentId,
+          internshipId: targetInternship.id,
+          status: 'COMPLETED',
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+
+      let mockWeakAreas: string[] = [];
+      if (latestMock?.identifiedGapsJson) {
+        try {
+          mockWeakAreas = JSON.parse(latestMock.identifiedGapsJson);
+        } catch {}
+      }
+
+      // Find remediation courses matching top role gaps
+      const topGapSkillIds = new Set(roleGaps.slice(0, 3).map(g => g.skillId));
+      const relevantCourses = allCourses.filter(c => {
+        try {
+          const skillsCovered = JSON.parse(c.skillsCoveredJson);
+          return skillsCovered.some((sc: any) => topGapSkillIds.has(sc.skillId));
+        } catch {
+          return false;
+        }
+      });
+
+      // Compute current live match breakdown for this target role
+      const matchBreakdown = await calculateSingleMatch(studentId, targetInternship.id);
+      const currentMatchScore = matchBreakdown ? matchBreakdown.overallScore : 65;
+
+      const company = targetInternship.industry.companyName;
+      const roleTitle = targetInternship.title;
+
+      const milestones = [
+        {
+          id: 'm1',
+          phase: 'Phase 01',
+          timeframe: 'Month 1–2',
+          title: `${roleTitle} Skill Baseline & Alignment`,
+          description: `Benchmark your verified competency baseline specifically against ${company} hiring requirements.`,
+          status: 'completed' as const,
+          accentColor: 'campus-blue' as const,
+          skillTags: ['DSA', 'Baseline', ...roleGaps.slice(0, 2).map(g => g.skillName)],
+          actions: [
+            { text: `Complete baseline diagnostic for ${company} required skills`, link: '/assessment', isDone: true },
+            { text: `Review ${roleGaps.length} identified prerequisite competency gaps for this posting`, link: '/skill-profile', isDone: true },
+          ],
+        },
+        {
+          id: 'm2',
+          phase: 'Phase 02',
+          timeframe: 'Month 3–6',
+          title: `Role-Specific Targeted Remediation (${company})`,
+          description: roleGaps.length > 0
+            ? `Close prioritized gaps in ${roleGaps.slice(0, 2).map(g => g.skillName).join(' & ')} required for ${roleTitle}.`
+            : `Deepen advanced mastery in ${roleTitle} core technologies.`,
+          status: 'current' as const,
+          accentColor: 'bridge-teal' as const,
+          skillTags: roleGaps.length > 0 ? roleGaps.slice(0, 3).map(g => g.skillName) : ['React', 'Node.js', 'Dynamic Programming'],
+          actions: [
+            ...(relevantCourses.length > 0
+              ? relevantCourses.slice(0, 2).map(c => ({
+                  text: `Complete ${c.title} (${c.provider.name})`,
+                  link: '/courses',
+                  isDone: false,
+                }))
+              : [{ text: `Explore accredited courses aligned to ${roleTitle}`, link: '/courses', isDone: false }]),
+            ...(mockWeakAreas.length > 0
+              ? [{
+                  text: `Remediate Sash Mock Interview weak areas: ${mockWeakAreas.slice(0, 2).join(' & ')}`,
+                  link: '/report-card',
+                  isDone: false,
+                }]
+              : []),
+            { text: `Solve Daily Practice sets weighted to ${roleTitle} gaps`, link: '/assessment?category=daily_mixed', isDone: false },
+          ],
+          recommendedCourses: relevantCourses.slice(0, 3).map(c => ({
+            id: c.id,
+            title: c.title,
+            provider: c.provider.name,
+            duration: c.duration,
+            pointsGain: 20,
+            externalUrl: c.externalUrl,
+          })),
+        },
+        {
+          id: 'm3',
+          phase: 'Phase 03',
+          timeframe: 'Month 7–12',
+          title: `${roleTitle} Capstone & Verified Artifacts`,
+          description: `Build a production-grade showcase project tailored to ${company}'s technology stack.`,
+          status: 'upcoming' as const,
+          accentColor: 'bridge-teal' as const,
+          skillTags: ['System Design', 'Clean Code', ...roleGaps.slice(0, 2).map(g => g.skillName)],
+          actions: [
+            { text: `Publish portfolio project demonstrating ${roleGaps.map(g => g.skillName).slice(0, 2).join(' & ') || 'core stack'} to GitHub`, link: '/portfolio', isDone: false },
+            { text: `Generate ATS-tailored resume specifically targeted to ${roleTitle}`, link: '/resume-builder', isDone: false },
+            {
+              text: `Pass Sash AI Mock Interview (Score ≥75%) for ${roleTitle}`,
+              link: '/internships',
+              isDone: latestMock ? latestMock.overallScore >= 75 : false,
+            },
+          ],
+        },
+        {
+          id: 'm4',
+          phase: 'Phase 04',
+          timeframe: 'Month 13–24',
+          title: `${company} Direct Fast-Track & Hiring`,
+          description: `Achieve ≥80% match tier and submit verified snapshot application directly to ${company}.`,
+          status: 'upcoming' as const,
+          accentColor: 'industry-amber' as const,
+          skillTags: ['Interview Prep', 'System Design', 'DSA', 'Cracking the Coding Interview'],
+          actions: [
+            { text: `Submit verified application with match score snapshot to ${company}`, link: '/internships', isDone: false },
+            { text: `Track recruiter review status and technical interview rounds`, link: '/dashboard', isDone: false },
+          ],
+        },
+      ];
+
+      // Populate curated books and YouTube recommendations for each milestone
+      for (const m of milestones) {
+        const { books, youtube } = await getCuratedRoadmapResources(m.skillTags, student.targetDomain);
+        (m as any).recommendedBooks = books;
+        (m as any).recommendedYoutube = youtube;
+      }
+
+      return res.json({
+        domain: student.targetDomain,
+        targetRole: `${roleTitle} @ ${company}`,
+        companyName: company,
+        projectedSalaryRange: targetInternship.stipend,
+        readinessScore: currentMatchScore,
+        studentGapsCount: roleGaps.length,
+        isRoleSpecific: true,
+        internshipId: targetInternship.id,
+        mockInterviewWeakAreas: mockWeakAreas,
+        milestones,
+      });
+    }
+  }
+
+  // ── BRANCH B: Standard Domain-Wide Roadmap ──
+  const domainName = targetDomainQuery || student.targetDomain || 'Full-Stack Web';
 
   // Find domain requirements
   const domainRecord = await prisma.domain.findFirst({
@@ -542,7 +791,6 @@ router.get('/:id/roadmap', authenticate, async (req: AuthRequest, res: Response)
   });
 
   const requirements = domainRecord ? domainRecord.requirements : [];
-  const studentScoreMap = new Map(student.skillScores.map(ss => [ss.skillId, ss.score]));
 
   // Calculate gaps for this domain
   const gaps = requirements.map(r => {
@@ -556,11 +804,6 @@ router.get('/:id/roadmap', authenticate, async (req: AuthRequest, res: Response)
       gap,
     };
   }).filter(g => g.gap > 0).sort((a, b) => b.gap - a.gap);
-
-  // Fetch real courses from DB
-  const allCourses = await prisma.course.findMany({
-    include: { provider: true },
-  });
 
   // Find courses that match the top gap skills
   const topGapSkillIds = new Set(gaps.slice(0, 3).map(g => g.skillId));
@@ -591,8 +834,9 @@ router.get('/:id/roadmap', authenticate, async (req: AuthRequest, res: Response)
       timeframe: 'Month 1–2',
       title: `${domainName} Baseline Assessment`,
       description: `Establish your verified competency baseline against ${domainName} industry benchmarks.`,
-      status: 'completed',
-      accentColor: 'campus-blue',
+      status: 'completed' as const,
+      accentColor: 'campus-blue' as const,
+      skillTags: [domainName, 'DSA', 'Fundamentals', requirements[0]?.skill.name || 'Core'],
       actions: [
         { text: `Complete standardized ${domainName} MCQ assessment`, link: `/assessment?domain=${encodeURIComponent(domainName)}`, isDone: true },
         { text: `Review ${gaps.length} identified competency gaps against benchmark standard`, link: '/skill-profile', isDone: true },
@@ -606,8 +850,9 @@ router.get('/:id/roadmap', authenticate, async (req: AuthRequest, res: Response)
       description: gaps.length > 0
         ? `Close identified gaps in ${gaps.slice(0, 2).map(g => g.skillName).join(' & ')} through accredited partner certifications.`
         : `Expand advanced mastery in ${domainName} core competencies with enterprise certifications.`,
-      status: 'current',
-      accentColor: 'bridge-teal',
+      status: 'current' as const,
+      accentColor: 'bridge-teal' as const,
+      skillTags: gaps.length > 0 ? gaps.slice(0, 3).map(g => g.skillName) : [domainName, 'React', 'Node.js', 'Machine Learning'],
       actions: [
         ...(relevantCourses.length > 0
           ? relevantCourses.slice(0, 2).map(c => ({
@@ -633,8 +878,9 @@ router.get('/:id/roadmap', authenticate, async (req: AuthRequest, res: Response)
       timeframe: 'Month 7–12',
       title: `${domainName} Capstone & Portfolio`,
       description: `Build and showcase verified portfolio artifacts: ${projectFocus}`,
-      status: 'upcoming',
-      accentColor: 'bridge-teal',
+      status: 'upcoming' as const,
+      accentColor: 'bridge-teal' as const,
+      skillTags: ['System Design', 'Clean Code', domainName, 'Architecture'],
       actions: [
         { text: `Publish ${domainName} capstone project repository to GitHub`, link: '/portfolio', isDone: false },
         { text: `Generate ATS-optimized PDF resume tailored to ${domainName} roles`, link: '/resume-builder', isDone: false },
@@ -646,8 +892,9 @@ router.get('/:id/roadmap', authenticate, async (req: AuthRequest, res: Response)
       timeframe: 'Month 13–24',
       title: `${domainName} Industry Fast-Track`,
       description: `Achieve >=80% match tier and submit verified applications to top ${domainName} recruiters.`,
-      status: 'upcoming',
-      accentColor: 'industry-amber',
+      status: 'upcoming' as const,
+      accentColor: 'industry-amber' as const,
+      skillTags: ['Interview Prep', 'System Design', 'DSA', 'Cracking the Coding Interview'],
       actions: [
         { text: `Apply to top-ranked matched openings for ${domainName}`, link: '/internships', isDone: false },
         { text: 'Track recruiter shortlisting and technical interviews', link: '/dashboard', isDone: false },
@@ -655,12 +902,56 @@ router.get('/:id/roadmap', authenticate, async (req: AuthRequest, res: Response)
     },
   ];
 
+  // Populate curated books and YouTube recommendations for each milestone
+  for (const m of milestones) {
+    const { books, youtube } = await getCuratedRoadmapResources(m.skillTags, domainName);
+    (m as any).recommendedBooks = books;
+    (m as any).recommendedYoutube = youtube;
+  }
+
   return res.json({
     domain: domainName,
     studentGapsCount: gaps.length,
+    isRoleSpecific: false,
     milestones,
   });
 });
+
+/**
+ * GET /api/students/:id/daily-target?date=YYYY-MM-DD
+ * Retrieves or generates the AI-powered Daily Target for the student.
+ * Once-per-calendar-day regeneration guarantee.
+ */
+router.get('/:id/daily-target', authenticate, async (req: AuthRequest, res: Response) => {
+  try {
+    const studentId = req.params.id;
+    const dateQuery = req.query.date as string | undefined;
+
+    const target = await getOrCreateDailyTarget(studentId, dateQuery);
+    return res.json({ target });
+  } catch (err: any) {
+    console.error('❌ [DAILY_TARGET] Failed to get/create daily target:', err);
+    return res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: err.message } });
+  }
+});
+
+/**
+ * POST /api/students/:id/daily-target/complete
+ * Explicitly marks the student's daily target for today as completed.
+ */
+router.post('/:id/daily-target/complete', authenticate, async (req: AuthRequest, res: Response) => {
+  try {
+    const studentId = req.params.id;
+    const dateQuery = req.body?.date as string | undefined;
+
+    const updated = await markDailyTargetComplete(studentId, dateQuery);
+    return res.json({ success: true, target: updated });
+  } catch (err: any) {
+    console.error('❌ [DAILY_TARGET] Failed to complete daily target:', err);
+    return res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: err.message } });
+  }
+});
+
 
 
 /**
@@ -686,6 +977,9 @@ router.get('/:id', authenticate, async (req: AuthRequest, res: Response) => {
       },
       resumes: true,
       applications: true,
+      targetInternship: {
+        include: { industry: true },
+      },
     },
   });
 
@@ -763,6 +1057,15 @@ router.get('/:id', authenticate, async (req: AuthRequest, res: Response) => {
       headline: student.headline,
       location: student.location,
       resumeFileName: student.resumeFileName,
+      targetInternshipId: student.targetInternshipId,
+      targetInternship: student.targetInternship ? {
+        id: student.targetInternship.id,
+        title: student.targetInternship.title,
+        companyName: student.targetInternship.industry.companyName,
+        stipend: student.targetInternship.stipend,
+        location: student.targetInternship.location,
+        workMode: student.targetInternship.workMode,
+      } : null,
       experiences,
       educations,
       projects,

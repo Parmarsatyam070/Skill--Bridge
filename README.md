@@ -54,9 +54,9 @@ Built as a **Smart India Hackathon (SIH)** project.
 
 ---
 
-# 🤖 Bridge Bot — AI Career Assistant
+# 🤖 Sash — AI Career Navigator
 
-SkillBridge includes a context-aware AI assistant called **Bridge Bot**.
+SkillBridge includes a context-aware AI assistant called **Sash**.
 
 The assistant can:
 
@@ -436,7 +436,7 @@ SkillBridge/
 ├── client/
 │   └── src/
 │       ├── components/
-│       │   ├── BridgeBotWidget.tsx
+│       │   ├── SashWidget.tsx
 │       │   ├── BridgeLine.tsx
 │       │   ├── CareerRoadmap.tsx
 │       │   ├── CodingSandbox.tsx

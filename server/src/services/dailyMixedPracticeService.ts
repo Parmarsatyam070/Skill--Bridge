@@ -36,6 +36,8 @@ interface StoredRawQuestion {
   externalLinks?: any[];
   styleTag?: string;
   outboundUrl?: string;
+  isRoleTargeted?: boolean;
+  targetRoleSkill?: string;
 }
 
 /**
@@ -96,7 +98,10 @@ export async function getOrCreateDailyMixedPractice(
 
   const student = await prisma.studentProfile.findUnique({
     where: { id: studentProfileId },
-    include: { user: true },
+    include: {
+      user: true,
+      targetInternship: { include: { industry: true } },
+    },
   });
 
   if (!student) {
@@ -136,6 +141,8 @@ export async function getOrCreateDailyMixedPractice(
           externalLinks: q.externalLinks,
           styleTag: q.styleTag,
           outboundUrl: q.outboundUrl,
+          isRoleTargeted: q.isRoleTargeted,
+          targetRoleSkill: q.targetRoleSkill,
         }));
 
         let categoryScores = {
@@ -179,6 +186,9 @@ export async function getOrCreateDailyMixedPractice(
           timeSpentSeconds: existing.timeSpentSeconds || 0,
           startedAt: existing.startedAt ? existing.startedAt.toISOString() : undefined,
           completedAt: existing.completedAt ? existing.completedAt.toISOString() : undefined,
+          isTargetRoleWeighted: stored.isTargetRoleWeighted || false,
+          targetRole: stored.targetRole,
+          targetRoleGaps: stored.targetRoleGaps || [],
         };
       }
     } catch (e) {
@@ -231,7 +241,72 @@ export async function getOrCreateDailyMixedPractice(
   const candidateApt = unseenApt.length >= 7 ? unseenApt : aptitudePool;
   const selectedApt = shuffle(candidateApt).slice(0, 7);
 
-  // ── B. DOMAIN CORE QUESTIONS ──
+  // ── B. DOMAIN CORE QUESTIONS (Weighted by Target Role Gaps & Mock Weak Areas) ──
+  let targetRoleGaps: string[] = [];
+  let roleTargetedQuestions: any[] = [];
+
+  if (student.targetInternship) {
+    const allSkills = await prisma.skill.findMany();
+    const skillMap = new Map(allSkills.map(s => [s.id, s.name]));
+
+    const studentScores = await prisma.studentSkillScore.findMany({
+      where: { studentId: studentProfileId },
+    });
+    const studentScoreMap = new Map(studentScores.map(ss => [ss.skillId, ss.score]));
+
+    let requiredSkills: any[] = [];
+    try {
+      requiredSkills = JSON.parse(student.targetInternship.requiredSkillsJson || '[]');
+    } catch {}
+
+    const identifiedGaps = requiredSkills
+      .map(r => ({
+        skillId: r.skillId,
+        skillName: skillMap.get(r.skillId) || 'Core Skill',
+        gap: Math.max(0, (r.minScore || 70) - (studentScoreMap.get(r.skillId) || 0)),
+      }))
+      .filter(g => g.gap > 0);
+
+    // Also inspect student's latest completed mock interview session
+    const latestMock = await prisma.mockInterviewSession.findFirst({
+      where: {
+        studentId: studentProfileId,
+        internshipId: student.targetInternship.id,
+        status: 'COMPLETED',
+      },
+      orderBy: { createdAt: 'desc' },
+    });
+
+    let mockWeakAreas: string[] = [];
+    if (latestMock?.identifiedGapsJson) {
+      try {
+        mockWeakAreas = JSON.parse(latestMock.identifiedGapsJson);
+      } catch {}
+    }
+
+    targetRoleGaps = [
+      ...identifiedGaps.map(g => g.skillName),
+      ...mockWeakAreas,
+    ];
+
+    // Query questions specifically testing these gap skills
+    const gapSkillIds = identifiedGaps.map(g => g.skillId);
+    if (gapSkillIds.length > 0 || mockWeakAreas.length > 0) {
+      const targetedPool = await prisma.question.findMany({
+        where: {
+          OR: [
+            { skillId: { in: gapSkillIds } },
+            ...identifiedGaps.map(g => ({ prompt: { contains: g.skillName } })),
+            ...mockWeakAreas.map(w => ({ prompt: { contains: w } })),
+          ],
+        },
+      });
+
+      const unseenTargeted = targetedPool.filter((q) => !recentQuestionIds.has(q.id));
+      roleTargetedQuestions = shuffle(unseenTargeted.length > 0 ? unseenTargeted : targetedPool).slice(0, 7);
+    }
+  }
+
   const domainPool = await prisma.question.findMany({
     where: {
       OR: [
@@ -244,7 +319,11 @@ export async function getOrCreateDailyMixedPractice(
 
   const unseenDomain = domainPool.filter((q) => !recentQuestionIds.has(q.id));
   const candidateDomain = unseenDomain.length >= 12 ? unseenDomain : domainPool;
-  const selectedDomain = shuffle(candidateDomain).slice(0, 12);
+
+  // Combine role-targeted questions + regular domain questions to equal 12 total
+  const remainingCount = Math.max(0, 12 - roleTargetedQuestions.length);
+  const selectedRegularDomain = shuffle(candidateDomain.filter(q => !roleTargetedQuestions.some(t => t.id === q.id))).slice(0, remainingCount);
+  const selectedDomain = [...roleTargetedQuestions, ...selectedRegularDomain];
 
   // ── C. DSA / CODING QUESTIONS ──
   const dsaPool = await prisma.dSAQuestion.findMany({
@@ -325,10 +404,14 @@ export async function getOrCreateDailyMixedPractice(
       if (correctOpt) correctOptionId = correctOpt.id;
     } catch {}
 
+    const isTargeted = roleTargetedQuestions.some(t => t.id === q.id);
+
     rawItems.push({
       id: q.id,
       sourceType: 'domain',
-      categoryLabel: `${targetDomain} Core`,
+      categoryLabel: isTargeted && student.targetInternship
+        ? `Target Role Prep: ${student.targetInternship.title}`
+        : `${targetDomain} Core`,
       questionType: (q.questionType as any) || 'mcq',
       prompt: q.prompt,
       difficulty: 'Medium',
@@ -337,6 +420,8 @@ export async function getOrCreateDailyMixedPractice(
       correctOptionId,
       expectedAnswerRubric: q.expectedAnswerRubric || undefined,
       explanation: q.explanation || undefined,
+      isRoleTargeted: isTargeted,
+      targetRoleSkill: isTargeted && student.targetInternship ? student.targetInternship.title : undefined,
     });
   }
 
@@ -368,10 +453,15 @@ export async function getOrCreateDailyMixedPractice(
   // Randomize question presentation order
   const shuffledRawItems = shuffle(rawItems);
 
-  // Save in DailyPractice
+  // Save in DailyPractice with role target weighting metadata
   const payloadToStore = {
     mixed: true,
     questions: shuffledRawItems,
+    isTargetRoleWeighted: Boolean(student.targetInternship),
+    targetRole: student.targetInternship
+      ? `${student.targetInternship.title} @ ${student.targetInternship.industry.companyName}`
+      : undefined,
+    targetRoleGaps: targetRoleGaps.length > 0 ? targetRoleGaps : undefined,
   };
 
   const created = await prisma.dailyPractice.upsert({
@@ -416,6 +506,8 @@ export async function getOrCreateDailyMixedPractice(
     externalLinks: q.externalLinks,
     styleTag: q.styleTag,
     outboundUrl: q.outboundUrl,
+    isRoleTargeted: q.isRoleTargeted,
+    targetRoleSkill: q.targetRoleSkill,
   }));
 
   const aptCount = sanitizedQuestions.filter((q) => q.sourceType === 'aptitude').length;
@@ -446,6 +538,11 @@ export async function getOrCreateDailyMixedPractice(
     currentStreak: student.user?.currentStreak || 0,
     longestStreak: student.user?.longestStreak || 0,
     timeSpentSeconds: 0,
+    isTargetRoleWeighted: Boolean(student.targetInternship),
+    targetRole: student.targetInternship
+      ? `${student.targetInternship.title} @ ${student.targetInternship.industry.companyName}`
+      : undefined,
+    targetRoleGaps: targetRoleGaps.length > 0 ? targetRoleGaps : undefined,
   };
 }
 

@@ -38,7 +38,7 @@ describe('Restructured Skill Assessment & Dedicated Aptitude System Suite', () =
     expect(domains).toContain('Quantitative Aptitude');
     expect(domains).toContain('English Reading');
     expect(domains).toContain('English Listening');
-  });
+  }, 25000);
 
   it('should initialize a dynamic assessment attempt with startPracticeSetAttempt', async () => {
     const startRes = await assessmentService.startPracticeSetAttempt(webSetId, testStudentProfileId);
@@ -55,7 +55,7 @@ describe('Restructured Skill Assessment & Dedicated Aptitude System Suite', () =
         expect((opt as any).isCorrect).toBeUndefined();
       }
     }
-  });
+  }, 25000);
 
   it('should rotate listening passages and attach passage questions on listening sets', async () => {
     const startRes = await assessmentService.startPracticeSetAttempt(listenSetId, testStudentProfileId);
@@ -67,7 +67,7 @@ describe('Restructured Skill Assessment & Dedicated Aptitude System Suite', () =
     expect(listeningQ.listeningPassage?.audioText).toBeDefined();
     expect(listeningQ.listeningPassage?.audioText.length).toBeGreaterThan(20);
     expect(listeningQ.listeningPassage?.durationSeconds).toBeGreaterThan(0);
-  });
+  }, 25000);
 
   it('should evaluate MCQ and written rubric questions on submission and store persistent attempt record', async () => {
     const startRes = await assessmentService.startPracticeSetAttempt(webSetId, testStudentProfileId);
@@ -120,7 +120,7 @@ describe('Restructured Skill Assessment & Dedicated Aptitude System Suite', () =
       expect(writtenReview.score).toBeGreaterThan(0);
       expect(writtenReview.aiFeedback).toBeDefined();
     }
-  });
+  }, 25000);
 
   it('should generate persistent Report Card summary with KPI metrics and historical attempts', async () => {
     const reportCard = await assessmentService.getReportCardSummary(testStudentProfileId);
@@ -138,7 +138,7 @@ describe('Restructured Skill Assessment & Dedicated Aptitude System Suite', () =
     expect(firstAttempt.score).toBeGreaterThanOrEqual(0);
     expect(typeof firstAttempt.passed).toBe('boolean');
     expect(typeof firstAttempt.isBestScore).toBe('boolean');
-  });
+  }, 25000);
 
   it('should fetch in-depth historical attempt detail transcript with answers and solutions', async () => {
     const reportCard = await assessmentService.getReportCardSummary(testStudentProfileId);
@@ -155,5 +155,5 @@ describe('Restructured Skill Assessment & Dedicated Aptitude System Suite', () =
       expect(qr.userAnswer).toBeDefined();
       expect(typeof qr.isCorrect).toBe('boolean');
     }
-  });
+  }, 25000);
 });

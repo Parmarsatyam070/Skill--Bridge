@@ -24,7 +24,7 @@ import {
   X,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
-import { BridgeBotWidget } from './BridgeBotWidget';
+import { SashWidget } from './SashWidget';
 import { NotificationDropdown } from './NotificationDropdown';
 import { ConsoleSkeleton } from './ConsoleSkeleton';
 import { ConsoleBackButton } from './ConsoleBackButton';
@@ -388,8 +388,8 @@ export const ConsoleLayout: React.FC<{ children: React.ReactNode }> = ({ childre
         </main>
       </div>
 
-      {/* BridgeBot floating assistant */}
-      <BridgeBotWidget />
+      {/* Sash floating assistant */}
+      <SashWidget />
     </div>
   );
 };

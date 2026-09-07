@@ -1,3 +1,5 @@
+import { auth } from './firebase';
+
 const BASE_URL = '/api';
 
 export interface ApiError {
@@ -10,7 +12,17 @@ export async function apiRequest<T = any>(
   endpoint: string,
   options: RequestInit & { timeoutMs?: number } = {}
 ): Promise<T> {
-  const token = localStorage.getItem('skillbridge_token');
+  let token: string | null = null;
+  try {
+    if (auth.currentUser) {
+      token = await auth.currentUser.getIdToken();
+    } else {
+      token = localStorage.getItem('skillbridge_token');
+    }
+  } catch {
+    token = localStorage.getItem('skillbridge_token');
+  }
+
   const timeoutMs = options.timeoutMs ?? 25000;
 
   const headers: Record<string, string> = {

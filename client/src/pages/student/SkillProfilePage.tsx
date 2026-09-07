@@ -22,6 +22,7 @@ import { CareerRoadmap } from '../../components/CareerRoadmap';
 import { AddDomainModal } from '../../components/profile/AddDomainModal';
 import { DailyPracticeBanner } from '../../components/DailyPracticeBanner';
 import { MatchCard } from '../../components/MatchCard';
+import { TodayTargetCard } from '../../components/TodayTargetCard';
 import { DomainRecommendation } from '@shared/types';
 
 const DEFAULT_DOMAINS = [
@@ -158,6 +159,9 @@ export const SkillProfilePage: React.FC = () => {
   return (
     <div className="space-y-8 font-sans pb-12">
       <DailyPracticeBanner />
+
+      {/* Sash Daily Target — full-detail card */}
+      <TodayTargetCard variant="full" />
 
       {/* Header & Tracked Domains Pill Bar */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-3 border-b border-[#2A2E38]">

@@ -21,6 +21,7 @@ import assessmentsRoutes from './routes/assessments.js';
 import resourcesRoutes from './routes/resources.js';
 import notificationsRoutes from './routes/notifications.js';
 import dsaRoutes from './routes/dsa.js';
+import mockInterviewRoutes from './routes/mockInterview.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -85,6 +86,7 @@ app.use('/api/assessments', assessmentsRoutes);
 app.use('/api/resources', resourcesRoutes);
 app.use('/api/notifications', notificationsRoutes);
 app.use('/api/dsa', dsaRoutes);
+app.use('/api/mock-interview', mockInterviewRoutes);
 
 // Health check endpoint
 app.get('/api/health', (_req, res) => {

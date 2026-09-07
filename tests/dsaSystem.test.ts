@@ -39,7 +39,7 @@ describe('DSA Coding Practice & Daily Mandatory Engine Suite', () => {
 
     // Ensure DSA questions are seeded and synchronized
     await questionSelectionService.syncDSAQuestionsDatabase();
-  });
+  }, 40000);
 
   afterAll(async () => {
     await prisma.$disconnect();

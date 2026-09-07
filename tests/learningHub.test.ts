@@ -8,6 +8,7 @@ import {
   calculateQualityScore,
   deduplicateResources,
   rankResources,
+  seedSmartLearningResources,
 } from '../server/src/services/learningRecommendationService';
 
 const prisma = new PrismaClient();
@@ -16,17 +17,25 @@ describe('SkillBridge Learning Hub & Recommendation Engine - Complete Test Suite
   let testStudentId: string;
 
   beforeAll(async () => {
+    // Pre-seed the learning resources ONCE before any test runs.
+    // The process-level guard in seedSmartLearningResources means subsequent
+    // calls (made internally by searchLearningHub) return immediately (no DB work).
+    // Without this, each of the 19 tests would trigger a full 20+ row upsert
+    // against the remote DB, causing all to timeout.
+    await seedSmartLearningResources();
+
     let student = await prisma.studentProfile.findFirst({
       where: { user: { email: 'demo@skillbridge.app' } },
     });
     if (student) {
       testStudentId = student.id;
     }
-  });
+  }, 120_000); // 2-min budget for the one-time seed against remote Neon DB
 
   afterAll(async () => {
     await prisma.$disconnect();
   });
+
 
   // ─────────────────────────────────────────────────────────────
   // 1-4. BASIC SEARCH QUERIES

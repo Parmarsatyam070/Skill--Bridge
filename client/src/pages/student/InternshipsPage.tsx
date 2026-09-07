@@ -20,6 +20,8 @@ import { api } from '../../lib/api';
 import { MatchBadge } from '../../components/MatchBadge';
 import { BridgeLine } from '../../components/BridgeLine';
 import { ExternalApplyButton } from '../../components/ExternalApplyButton';
+import { MockInterviewModal } from '../../components/interview/MockInterviewModal';
+import { Link } from 'react-router-dom';
 
 export const InternshipsPage: React.FC = () => {
   const { user } = useAuth();
@@ -32,6 +34,34 @@ export const InternshipsPage: React.FC = () => {
   const [selectedResumeId, setSelectedResumeId] = useState<string>('');
   const [coverNote, setCoverNote] = useState('');
   const [applySuccess, setApplySuccess] = useState(false);
+  const [mockInterviewJob, setMockInterviewJob] = useState<{ id: string; title: string; companyName: string } | null>(null);
+
+  // 1. Fetch Student Profile for Active Target Internship
+  const { data: profileData } = useQuery({
+    queryKey: ['studentProfile', studentProfileId],
+    queryFn: () => api.get<any>(`/students/${studentProfileId}`),
+    enabled: !!studentProfileId,
+  });
+
+  const activeTargetInternshipId = profileData?.targetInternshipId;
+  const activeTargetInternship = profileData?.targetInternship;
+
+  // Target Role Mutations
+  const targetMutation = useMutation({
+    mutationFn: (internshipId: string) => api.post(`/students/${studentProfileId}/target-internship`, { internshipId }),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['studentProfile', studentProfileId] });
+      queryClient.invalidateQueries({ queryKey: ['roadmapData'] });
+    },
+  });
+
+  const clearTargetMutation = useMutation({
+    mutationFn: () => api.delete(`/students/${studentProfileId}/target-internship`),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['studentProfile', studentProfileId] });
+      queryClient.invalidateQueries({ queryKey: ['roadmapData'] });
+    },
+  });
 
   // 1. Fetch Authoritative Matches from Single Source of Truth
   const { data: matchesData, isLoading: matchesLoading } = useQuery({
@@ -144,6 +174,57 @@ export const InternshipsPage: React.FC = () => {
         </div>
       </div>
 
+      {/* Active Target Role Focus Banner */}
+      {activeTargetInternship && (
+        <div className="p-4 rounded-2xl bg-gradient-to-r from-bridge-teal/15 via-panel to-panel-raised border border-bridge-teal/40 flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-lg animate-in fade-in duration-200">
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-bridge-teal/20 border border-bridge-teal/40 flex items-center justify-center text-bridge-teal flex-shrink-0">
+              <Sparkles className="w-5 h-5 animate-pulse" />
+            </div>
+            <div>
+              <div className="flex items-center gap-2">
+                <span className="small-caps-label text-[10px] font-bold text-bridge-teal font-mono">
+                  [● ACTIVE TARGET ROLE]
+                </span>
+                <span className="text-xs font-bold text-text-primary">
+                  {activeTargetInternship.title} @ {activeTargetInternship.companyName}
+                </span>
+              </div>
+              <p className="text-[11px] text-text-muted mt-0.5">
+                Your 2-Year Roadmap, Daily Practice Sets, and Sash Mock Interview are prioritized around this posting.
+              </p>
+            </div>
+          </div>
+
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={() => setMockInterviewJob({
+                id: activeTargetInternship.id,
+                title: activeTargetInternship.title,
+                companyName: activeTargetInternship.companyName,
+              })}
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-bridge-teal text-slate-950 font-bold text-xs shadow-md shadow-bridge-teal/20 hover:bg-bridge-teal/90 transition-all"
+            >
+              <Sparkles className="w-3.5 h-3.5" />
+              <span>AI Mock Interview (Sash)</span>
+            </button>
+            <Link
+              to="/skill-profile"
+              className="px-3.5 py-1.5 rounded-full bg-panel border border-border hover:border-bridge-teal text-text-primary text-xs font-semibold transition-colors"
+            >
+              Role Roadmap →
+            </Link>
+            <button
+              onClick={() => clearTargetMutation.mutate()}
+              disabled={clearTargetMutation.isPending}
+              className="px-2.5 py-1.5 rounded-full text-text-muted hover:text-text-primary text-xs transition-colors"
+            >
+              Clear
+            </button>
+          </div>
+        </div>
+      )}
+
       {/* Internships List */}
       {matchesLoading ? (
         <div className="h-64 flex items-center justify-center">
@@ -207,6 +288,54 @@ export const InternshipsPage: React.FC = () => {
                       >
                         Apply with Resume →
                       </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Role Targeting & AI Mock Interview Toolbar */}
+                <div className="p-3 rounded-xl bg-panel-raised border border-border flex flex-wrap items-center justify-between gap-3 text-xs">
+                  <div className="flex items-center gap-2">
+                    {job.internshipId === activeTargetInternshipId ? (
+                      <span className="px-2.5 py-1 rounded-full text-[11px] font-mono font-bold bg-bridge-teal/15 text-bridge-teal border border-bridge-teal/30 flex items-center gap-1.5">
+                        <Sparkles className="w-3 h-3" />
+                        <span>★ Active Target Role</span>
+                      </span>
+                    ) : (
+                      <button
+                        onClick={() => targetMutation.mutate(job.internshipId)}
+                        disabled={targetMutation.isPending}
+                        className="px-3 py-1 rounded-full bg-panel border border-border hover:border-bridge-teal text-text-primary text-[11px] font-semibold transition-all hover:bg-bridge-teal/10"
+                      >
+                        🎯 Target this Role
+                      </button>
+                    )}
+                    <span className="text-text-muted hidden sm:inline">•</span>
+                    <span className="text-text-muted text-[11px]">
+                      {job.internshipId === activeTargetInternshipId
+                        ? 'Roadmap & Daily Practice weighted to this role'
+                        : 'Sets customized roadmap & daily practice weighting'}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => setMockInterviewJob({
+                        id: job.internshipId,
+                        title: job.internshipTitle,
+                        companyName: job.companyName,
+                      })}
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-bridge-teal/15 text-bridge-teal border border-bridge-teal/30 hover:bg-bridge-teal hover:text-slate-950 font-bold text-[11px] transition-all"
+                    >
+                      <Sparkles className="w-3 h-3" />
+                      <span>AI Mock Interview with Sash</span>
+                    </button>
+                    {job.internshipId === activeTargetInternshipId && (
+                      <Link
+                        to="/skill-profile"
+                        className="text-bridge-teal font-mono text-[11px] hover:underline px-2 py-1"
+                      >
+                        View Scoped Roadmap →
+                      </Link>
                     )}
                   </div>
                 </div>
@@ -377,6 +506,21 @@ export const InternshipsPage: React.FC = () => {
             )}
           </div>
         </div>
+      )}
+
+      {/* 30-Minute AI Mock Interview Modal */}
+      {mockInterviewJob && (
+        <MockInterviewModal
+          internshipId={mockInterviewJob.id}
+          internshipTitle={mockInterviewJob.title}
+          companyName={mockInterviewJob.companyName}
+          isOpen={Boolean(mockInterviewJob)}
+          onClose={() => setMockInterviewJob(null)}
+          onFinishSuccess={() => {
+            queryClient.invalidateQueries({ queryKey: ['roadmapData'] });
+            queryClient.invalidateQueries({ queryKey: ['reportCard'] });
+          }}
+        />
       )}
     </div>
   );
