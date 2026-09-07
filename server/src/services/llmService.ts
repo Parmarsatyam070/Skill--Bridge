@@ -305,13 +305,13 @@ export async function callLlmChat({
       let text = '';
       try {
         text = response.text || '';
-      } catch {}
+      } catch { }
 
       const toolCalls: LlmToolCall[] = [];
       if (response.functionCalls && response.functionCalls.length > 0) {
         for (const fc of response.functionCalls) {
           toolCalls.push({
-            name: fc.name,
+            name: fc.name || '',
             args: (fc.args as Record<string, any>) || {},
           });
         }
@@ -393,7 +393,7 @@ export async function callLlmChat({
               name: tc.function.name,
               args: JSON.parse(tc.function.arguments || '{}'),
             });
-          } catch {}
+          } catch { }
         }
       }
 
