@@ -12,21 +12,41 @@ describe('SkillBridge Service Integrations Suite: LLM, Notifications, and Stat I
     });
 
     it('should gracefully fallback to offline engine when no LLM API key is present', async () => {
-      const result = await callLlmChat({
-        systemPrompt: 'You are a test assistant.',
-        messages: [{ role: 'user', content: 'Hello' }],
-      });
+      const origGemini = process.env.GEMINI_API_KEY;
+      const origOpenai = process.env.OPENAI_API_KEY;
+      delete process.env.GEMINI_API_KEY;
+      delete process.env.OPENAI_API_KEY;
 
-      expect(result.provider).toBe('none');
+      try {
+        const result = await callLlmChat({
+          systemPrompt: 'You are a test assistant.',
+          messages: [{ role: 'user', content: 'Hello' }],
+        });
+
+        expect(result.provider).toBe('none');
+      } finally {
+        if (origGemini !== undefined) process.env.GEMINI_API_KEY = origGemini;
+        if (origOpenai !== undefined) process.env.OPENAI_API_KEY = origOpenai;
+      }
     });
 
     it('should return null or fallback cleanly for single-turn generateLlmText without key', async () => {
-      const text = await generateLlmText({
-        systemPrompt: 'You are a resume writer.',
-        prompt: 'Generate summary for Software Engineer',
-      });
+      const origGemini = process.env.GEMINI_API_KEY;
+      const origOpenai = process.env.OPENAI_API_KEY;
+      delete process.env.GEMINI_API_KEY;
+      delete process.env.OPENAI_API_KEY;
 
-      expect(text).toBeNull();
+      try {
+        const text = await generateLlmText({
+          systemPrompt: 'You are a resume writer.',
+          prompt: 'Generate summary for Software Engineer',
+        });
+
+        expect(text).toBeNull();
+      } finally {
+        if (origGemini !== undefined) process.env.GEMINI_API_KEY = origGemini;
+        if (origOpenai !== undefined) process.env.OPENAI_API_KEY = origOpenai;
+      }
     });
   });
 

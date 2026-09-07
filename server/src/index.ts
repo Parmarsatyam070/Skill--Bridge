@@ -86,9 +86,21 @@ app.use('/api/notifications', notificationsRoutes);
 app.use('/api/dsa', dsaRoutes);
 app.use('/api/mock-interview', mockInterviewRoutes);
 
-// Health check endpoint
-app.get('/api/health', (_req, res) => {
+// Root API info & status endpoint
+app.get(['/api', '/api/'], (_req: Request, res: Response) => {
   res.json({
+    success: true,
+    message: 'SkillBridge API is running',
+    status: 'ok',
+    version: '1.0.0',
+    timestamp: new Date().toISOString(),
+  });
+});
+
+// Health check endpoint
+app.get('/api/health', (_req: Request, res: Response) => {
+  res.json({
+    success: true,
     status: 'ok',
     service: 'SkillBridge Backend API',
     timestamp: new Date().toISOString(),

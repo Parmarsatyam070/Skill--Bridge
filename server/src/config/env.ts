@@ -28,9 +28,23 @@ let envLoadedFrom: string | null = null;
 
 for (const envPath of candidateEnvPaths) {
   if (fs.existsSync(envPath)) {
-    dotenv.config({ path: envPath });
-    if (!envLoadedFrom) {
-      envLoadedFrom = envPath;
+    try {
+      const fileContent = fs.readFileSync(envPath, 'utf-8');
+      const parsed = dotenv.parse(fileContent);
+      for (const [key, val] of Object.entries(parsed)) {
+        const currentVal = process.env[key];
+        // Populate if key is unset or currently empty string, and new val is non-empty
+        if (currentVal === undefined || (currentVal.trim() === '' && val.trim() !== '')) {
+          process.env[key] = val;
+        } else if (currentVal === undefined) {
+          process.env[key] = val;
+        }
+      }
+      if (!envLoadedFrom) {
+        envLoadedFrom = envPath;
+      }
+    } catch {
+      dotenv.config({ path: envPath });
     }
   }
 }
@@ -68,6 +82,16 @@ export function validateEnvironment(): { isValid: boolean; missing: string[] } {
     const isPostgres = process.env.DATABASE_URL.startsWith('postgresql://') || process.env.DATABASE_URL.startsWith('postgres://');
     if (isDev) {
       console.log(`✅ [CONFIG] Database configuration detected: ${isPostgres ? 'PostgreSQL' : 'Custom protocol'}`);
+      const rawGeminiModel = process.env.GEMINI_MODEL?.trim();
+      const resolvedGemini = (rawGeminiModel === 'gemini-1.5-flash' || rawGeminiModel === 'gemini-2.5-flash')
+        ? `${rawGeminiModel} -> gemini-3.6-flash`
+        : (rawGeminiModel || 'gemini-3.6-flash');
+      const llmProvider = process.env.GEMINI_API_KEY?.trim()
+        ? `Google Gemini (${resolvedGemini})`
+        : process.env.OPENAI_API_KEY?.trim()
+          ? `OpenAI (${process.env.OPENAI_MODEL || 'gpt-4o-mini'})`
+          : 'Built-in offline engine (no API key detected)';
+      console.log(`🤖 [CONFIG] AI Provider: ${llmProvider}`);
     }
   }
 
