@@ -10,7 +10,7 @@
     "dev:client": "vite",
     "build": "npm run build:server && npm run build:client",
     "build:server": "tsc -p tsconfig.server.json",
-    "build:client": "vite build",
+    "build:client": "vite build --mode production",
     "db:generate": "prisma generate",
     "db:push": "prisma db push --accept-data-loss",
     "db:migrate": "prisma db push --accept-data-loss",

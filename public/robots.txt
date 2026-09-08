@@ -1,0 +1,34 @@
+User-agent: *
+Allow: /
+Allow: /login
+Allow: /register
+Allow: /forgot-password
+Allow: /reset-password
+Allow: /p/
+Allow: /portfolio/
+Allow: /llms.txt
+Allow: /sitemap.xml
+
+# Disallow backend API and private authenticated consoles
+Disallow: /api/
+Disallow: /dashboard
+Disallow: /profile
+Disallow: /resume-builder
+Disallow: /resumes
+Disallow: /skill-profile
+Disallow: /assessment
+Disallow: /assessments
+Disallow: /dsa
+Disallow: /report-card
+Disallow: /internships
+Disallow: /courses
+Disallow: /learn
+Disallow: /portfolio-builder
+Disallow: /portfolio-settings
+Disallow: /industry/
+Disallow: /academician/
+Disallow: /institution/
+Disallow: /auth/callback
+Disallow: /test-sliders
+
+Sitemap: https://skill-bridge-7j3l.onrender.com/sitemap.xml

@@ -3,9 +3,18 @@ import { prisma } from '../config/prisma.js';
 import { authenticate, requireRole, AuthRequest } from '../middleware/auth.js';
 import { PostInternshipSchema } from '../../../shared/validation.js';
 import { calculateStudentMatches, calculateSingleMatch } from '../services/matchingEngine.js';
-import { RequiredSkill } from '../../../shared/types.js';
+import { RequiredSkill, InterviewDetails, HiredDetails } from '../../../shared/types.js';
 
 const router = Router();
+
+function parseJsonSafe<T>(jsonStr: string | null | undefined): T | null {
+  if (!jsonStr) return null;
+  try {
+    return JSON.parse(jsonStr) as T;
+  } catch {
+    return null;
+  }
+}
 
 /**
  * GET /api/internships
@@ -30,12 +39,12 @@ router.get('/', async (req: AuthRequest, res: Response) => {
   const skillMap = new Map(allSkills.map(s => [s.id, s.name]));
 
   // If studentId provided, fetch authoritative match scores
-  let studentMatchesMap = new Map<string, { overallScore: number; tier: 'high' | 'medium' | 'low'; applied: boolean }>();
+  let studentMatchesMap = new Map<string, { overallScore: number; tier: 'high' | 'medium' | 'low'; applied: boolean; breakdown: any }>();
   if (studentProfileId) {
     const matches = await calculateStudentMatches(studentProfileId);
     const existingApps = await prisma.application.findMany({
       where: { studentId: studentProfileId },
-      select: { internshipId: true }
+      select: { internshipId: true },
     });
     const appliedSet = new Set(existingApps.map(a => a.internshipId));
 
@@ -43,7 +52,8 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       studentMatchesMap.set(m.internshipId, {
         overallScore: m.overallScore,
         tier: m.tier,
-        applied: appliedSet.has(m.internshipId)
+        applied: appliedSet.has(m.internshipId),
+        breakdown: m.breakdown,
       });
     });
   }
@@ -80,6 +90,7 @@ router.get('/', async (req: AuthRequest, res: Response) => {
       matchScore: matchInfo ? matchInfo.overallScore : undefined,
       matchTier: matchInfo ? matchInfo.tier : undefined,
       applied: matchInfo ? matchInfo.applied : false,
+      breakdown: matchInfo ? matchInfo.breakdown : undefined,
     };
   });
 
@@ -94,7 +105,7 @@ router.post('/', authenticate, requireRole(['INDUSTRY']), async (req: AuthReques
   const parseResult = PostInternshipSchema.safeParse(req.body);
   if (!parseResult.success) {
     return res.status(400).json({
-      error: { code: 'VALIDATION_ERROR', message: parseResult.error.errors[0]?.message }
+      error: { code: 'VALIDATION_ERROR', message: parseResult.error.errors[0]?.message },
     });
   }
 
@@ -116,7 +127,7 @@ router.post('/', authenticate, requireRole(['INDUSTRY']), async (req: AuthReques
       workMode: data.workMode,
       status: 'OPEN',
     },
-    include: { industry: true }
+    include: { industry: true },
   });
 
   return res.status(201).json({ message: 'Internship posted successfully', internship });
@@ -133,7 +144,7 @@ router.put('/:id/status', authenticate, requireRole(['INDUSTRY']), async (req: A
 
   const updated = await prisma.internship.update({
     where: { id: req.params.id },
-    data: { status }
+    data: { status },
   });
 
   return res.json({ message: 'Internship status updated', internship: updated });
@@ -141,7 +152,8 @@ router.put('/:id/status', authenticate, requireRole(['INDUSTRY']), async (req: A
 
 /**
  * GET /api/internships/:id/applicants
- * Returns ranked applicants for an internship with live match breakdowns
+ * Returns ranked applicants for an internship with live 3-pillar match breakdowns
+ * and parsed interview/hired details.
  */
 router.get('/:id/applicants', authenticate, requireRole(['INDUSTRY']), async (req: AuthRequest, res: Response) => {
   const internshipId = req.params.id;
@@ -152,15 +164,15 @@ router.get('/:id/applicants', authenticate, requireRole(['INDUSTRY']), async (re
       student: {
         include: {
           user: true,
-          skillScores: { include: { skill: true } }
-        }
+          skillScores: { include: { skill: true } },
+        },
       },
       resume: true,
     },
-    orderBy: { matchScoreAtApply: 'desc' }
+    orderBy: { matchScoreAtApply: 'desc' },
   });
 
-  // Calculate current live match breakdown for each applicant
+  // Calculate current live 3-pillar match breakdown for each applicant
   const rankedApplicants = await Promise.all(
     applications.map(async app => {
       const liveBreakdown = await calculateSingleMatch(app.studentId, internshipId);
@@ -181,13 +193,15 @@ router.get('/:id/applicants', authenticate, requireRole(['INDUSTRY']), async (re
         matchTier: liveBreakdown ? liveBreakdown.tier : 'medium',
         coverNote: app.coverNote,
         resume: app.resume,
+        interviewDetails: parseJsonSafe<InterviewDetails>(app.interviewDetailsJson),
+        hiredDetails: parseJsonSafe<HiredDetails>(app.hiredDetailsJson),
         appliedAt: app.appliedAt,
-        breakdown: liveBreakdown,
+        breakdown: liveBreakdown, // Contains 3-pillar breakdown: pillars.skillMatch, pillars.experienceMatch, pillars.assessmentScore
       };
     })
   );
 
-  // Sort descending by current match score
+  // Sort descending by current authoritative match score
   rankedApplicants.sort((a, b) => b.currentMatchScore - a.currentMatchScore);
 
   return res.json({ applicants: rankedApplicants });

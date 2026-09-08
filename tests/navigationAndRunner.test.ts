@@ -13,7 +13,8 @@ describe('Universal Back Navigation Route & Label Mapping', () => {
     expect(getLabelForPath('/assessment')).toBe('Skill Assessment');
     expect(getLabelForPath('/assessment?tab=dsa')).toBe('Skill Assessment');
     expect(getLabelForPath('/assessment?category=domain')).toBe('Skill Assessment');
-    expect(getLabelForPath('/assessments')).toBe('Skill Assessment');
+    expect(getLabelForPath('/assessment/practice-1')).toBe('Skill Assessment');
+    expect(getLabelForPath('/assessments')).toBe('Talent Assessments');
   });
 
   it('maps core student console routes to authentic friendly labels', () => {

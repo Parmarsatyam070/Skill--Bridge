@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { X, ShieldCheck, ArrowRight, Loader2, AlertCircle, CheckCircle2, Lock } from 'lucide-react';
-import { useAuth } from '../context/AuthContext';
+import { useAuth, getRoleRedirect } from '../context/AuthContext';
+import { Role } from '@shared/types';
 
 interface OAuthModalProps {
   isOpen: boolean;
@@ -9,7 +11,8 @@ interface OAuthModalProps {
 }
 
 export const OAuthModal: React.FC<OAuthModalProps> = ({ isOpen, provider, onClose }) => {
-  const { initiateOAuth } = useAuth();
+  const { initiateOAuth, signInWithGoogle } = useAuth();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -96,6 +99,13 @@ export const OAuthModal: React.FC<OAuthModalProps> = ({ isOpen, provider, onClos
     setLoading(true);
     setError(null);
     try {
+      if (provider === 'google') {
+        const user = await signInWithGoogle();
+        onClose();
+        const redirectPath = getRoleRedirect(user.role as Role);
+        navigate(redirectPath);
+        return;
+      }
       await initiateOAuth(provider);
       onClose();
     } catch (err: any) {

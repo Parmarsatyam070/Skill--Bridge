@@ -240,8 +240,8 @@ export async function getDerivedPortfolio(studentProfileId: string) {
     verifiedCredentialsCount: student.enrollments.length + student.skillScores.filter(s => s.score >= 75).length,
     recentApplications: student.applications.map(a => ({
       id: a.id,
-      internshipTitle: a.internship.title,
-      companyName: a.internship.industry.companyName,
+      internshipTitle: a.internship?.title || 'Application',
+      companyName: a.internship?.industry?.companyName || 'Company',
       status: a.status,
       matchScoreAtApply: a.matchScoreAtApply,
       appliedAt: a.appliedAt,

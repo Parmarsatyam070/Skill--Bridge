@@ -262,4 +262,82 @@ export const SearchLearningHubSchema = z.object({
   ]).optional().default('all'),
 });
 
+// ============================================================
+// PHASE 6: AI INTERVIEW SYSTEM VALIDATION SCHEMAS
+// ============================================================
+
+export const StartInterviewSchema = z.object({
+  opportunityId: z.string().optional().nullable(),
+  type: z.enum(['TECHNICAL', 'BEHAVIORAL', 'HR', 'MIXED']).optional().default('TECHNICAL'),
+  targetDomain: z.string().optional(),
+  totalQuestions: z.number().int().min(3).max(10).optional().default(5),
+});
+
+export const SubmitInterviewAnswerSchema = z.object({
+  questionNumber: z.number().int().min(1).max(20),
+  questionId: z.string().min(1, 'Question ID is required'),
+  answer: z.string().min(5, 'Answer must be at least 5 characters').max(3000, 'Answer cannot exceed 3000 characters'),
+  timeSpentSeconds: z.number().int().min(0).optional().default(0),
+});
+
+export const CompleteInterviewSchema = z.object({
+  notes: z.string().max(1000).optional(),
+});
+
+// ============================================================
+// PHASE 7: COLLABORATION MANAGEMENT VALIDATION SCHEMAS
+// ============================================================
+
+export const CreateCollaborationSchema = z.object({
+  type: z.enum(['WORKSHOP', 'HACKATHON', 'MENTORSHIP', 'CURRICULUM', 'RESEARCH', 'PLACEMENT_DRIVE']).default('WORKSHOP'),
+  title: z.string().min(3, 'Title must be at least 3 characters').max(200, 'Title cannot exceed 200 characters'),
+  description: z.string().min(10, 'Description must be at least 10 characters').max(5000, 'Description cannot exceed 5000 characters'),
+  skills: z.array(z.string().max(100)).max(20).optional(),
+  targetDepartment: z.string().max(200).optional(),
+  proposedDate: z.string().max(100).optional(),
+  institutionId: z.string().optional(),
+  companyId: z.string().optional(),
+});
+
+export const UpdateCollaborationStatusSchema = z.object({
+  status: z.enum(['REQUESTED', 'DISCUSSION', 'UNDER_REVIEW', 'APPROVED', 'ACCEPTED', 'ACTIVE', 'IN_PROGRESS', 'COMPLETED', 'REJECTED', 'CANCELLED']),
+  startDate: z.string().datetime().optional(),
+  endDate: z.string().datetime().optional(),
+});
+
+export const SendCollaborationMessageSchema = z.object({
+  message: z.string().min(1, 'Message cannot be empty').max(2000, 'Message cannot exceed 2000 characters'),
+});
+
+// ============================================================
+// PHASE 8: INTELLIGENCE DASHBOARD VALIDATION SCHEMAS
+// ============================================================
+
+export const IntelligencePaginationQuerySchema = z.object({
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(50).default(10),
+  search: z.string().max(100).optional(),
+  sortBy: z.string().max(50).optional(),
+  sortOrder: z.enum(['asc', 'desc']).default('desc'),
+});
+
+export const IntelligenceDateFilterSchema = z.object({
+  opportunityId: z.string().optional(),
+  fromDate: z.string().optional(),
+  toDate: z.string().optional(),
+});
+
+export const AffectedStudentsQuerySchema = z.object({
+  skillId: z.string().min(1, 'Skill ID is required'),
+  page: z.coerce.number().int().min(1).default(1),
+  limit: z.coerce.number().int().min(1).max(50).default(10),
+  search: z.string().max(100).optional(),
+});
+
+export const IntelligenceAiInsightSchema = z.object({
+  summary: z.string().min(1),
+  keyObservations: z.array(z.string()).min(1),
+  recommendations: z.array(z.string()).min(1),
+  disclaimer: z.string().min(1),
+});
 

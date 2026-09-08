@@ -35,15 +35,26 @@ function initializeFirebaseAdmin(): App {
         console.warn(`⚠️ [Firebase Admin] Service account file not found at path: ${resolvedPath}`);
       }
     }
-  } else {
-    // Check fallback local development credential file (explicitly gitignored)
-    const localSaPath = path.resolve(process.cwd(), 'sihi-5694c-firebase-adminsdk-fbsvc-5e920b2b3f.json');
-    if (fs.existsSync(localSaPath)) {
-      try {
-        serviceAccount = JSON.parse(fs.readFileSync(localSaPath, 'utf8'));
-        console.log('ℹ️ [Firebase Admin] Loaded credentials from local development service account file.');
-      } catch (err: any) {
-        console.error('❌ [Firebase Admin] Failed to load local service account file:', err.message);
+  }
+
+  // Check fallback local development credential file if serviceAccount wasn't already loaded
+  if (!serviceAccount) {
+    const candidatePaths = [
+      path.resolve(process.cwd(), 'sihi-5694c-firebase-adminsdk-fbsvc-5e920b2b3f.json'),
+      path.resolve(process.cwd(), '..', 'sihi-5694c-firebase-adminsdk-fbsvc-5e920b2b3f.json'),
+      path.resolve(__dirname, '..', '..', '..', 'sihi-5694c-firebase-adminsdk-fbsvc-5e920b2b3f.json'),
+      path.resolve(__dirname, '..', '..', 'sihi-5694c-firebase-adminsdk-fbsvc-5e920b2b3f.json'),
+    ];
+
+    for (const candPath of candidatePaths) {
+      if (fs.existsSync(candPath)) {
+        try {
+          serviceAccount = JSON.parse(fs.readFileSync(candPath, 'utf8'));
+          console.log(`ℹ️ [Firebase Admin] Loaded credentials from service account file at: ${candPath}`);
+          break;
+        } catch (err: any) {
+          console.error(`❌ [Firebase Admin] Failed to load service account file from ${candPath}:`, err.message);
+        }
       }
     }
   }

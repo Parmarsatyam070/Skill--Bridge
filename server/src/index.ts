@@ -20,6 +20,12 @@ import resourcesRoutes from './routes/resources.js';
 import notificationsRoutes from './routes/notifications.js';
 import dsaRoutes from './routes/dsa.js';
 import mockInterviewRoutes from './routes/mockInterview.js';
+import opportunitiesRoutes from './routes/opportunities.js';
+import recruiterCopilotRoutes from './routes/recruiterCopilot.js';
+import collaborationsRoutes from './routes/collaborations.js';
+import talentAssessmentsRoutes from './routes/talentAssessments.js';
+import interviewsRoutes from './routes/interviews.js';
+import intelligenceRoutes from './routes/intelligence.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -27,15 +33,21 @@ const PORT = process.env.PORT || 5000;
 // Trust reverse proxy (e.g. Render, Cloudflare) for accurate client IP and rate limiting
 app.set('trust proxy', 1);
 
-// Serve static frontend assets from client/dist and fallback dist
+// Serve static frontend assets from client/dist, public, and fallback dist
 const clientDistPath = path.resolve(process.cwd(), 'client/dist');
 const rootDistPath = path.resolve(process.cwd(), 'dist');
+const publicDirPath = path.resolve(process.cwd(), 'public');
 
 app.use('/assets', express.static(path.join(clientDistPath, 'assets'), {
   maxAge: '1y',
   immutable: true,
 }));
+app.use('/fonts', express.static(path.join(clientDistPath, 'fonts'), {
+  maxAge: '1y',
+  immutable: true,
+}));
 app.use(express.static(clientDistPath));
+app.use(express.static(publicDirPath));
 app.use(express.static(rootDistPath));
 
 // Middleware
@@ -85,6 +97,13 @@ app.use('/api/resources', resourcesRoutes);
 app.use('/api/notifications', notificationsRoutes);
 app.use('/api/dsa', dsaRoutes);
 app.use('/api/mock-interview', mockInterviewRoutes);
+// Talent Platform v2 Routes
+app.use('/api/opportunities', opportunitiesRoutes);
+app.use('/api/recruiter-copilot', recruiterCopilotRoutes);
+app.use('/api/collaborations', collaborationsRoutes);
+app.use('/api/talent-assessments', talentAssessmentsRoutes);
+app.use('/api/interviews', interviewsRoutes);
+app.use('/api/intelligence', intelligenceRoutes);
 
 // Root API info & status endpoint
 app.get(['/api', '/api/'], (_req: Request, res: Response) => {
@@ -117,6 +136,49 @@ app.get('*', (req: Request, res: Response, next: NextFunction) => {
         message: `API endpoint ${req.method} ${req.path} not found.`,
       },
     });
+  }
+
+  // Explicitly serve SEO and crawler metadata files before SPA fallback
+  if (req.path === '/robots.txt' || req.path === '/robots.txt/') {
+    const robotsPath = [
+      path.join(clientDistPath, 'robots.txt'),
+      path.join(publicDirPath, 'robots.txt'),
+    ].find(p => fs.existsSync(p));
+    if (robotsPath) {
+      res.type('text/plain');
+      return res.sendFile(robotsPath);
+    }
+    return res.status(404).type('text/plain').send('User-agent: *\nDisallow: /api/\n');
+  }
+
+  if (req.path === '/sitemap.xml') {
+    const sitemapPath = [
+      path.join(clientDistPath, 'sitemap.xml'),
+      path.join(publicDirPath, 'sitemap.xml'),
+    ].find(p => fs.existsSync(p));
+    if (sitemapPath) {
+      res.type('application/xml');
+      return res.sendFile(sitemapPath);
+    }
+    return res.status(404).type('text/plain').send('Sitemap not found');
+  }
+
+  if (req.path === '/llms.txt') {
+    const llmsPath = [
+      path.join(clientDistPath, 'llms.txt'),
+      path.join(publicDirPath, 'llms.txt'),
+    ].find(p => fs.existsSync(p));
+    if (llmsPath) {
+      res.type('text/plain');
+      return res.sendFile(llmsPath);
+    }
+    return res.status(404).type('text/plain').send('llms.txt not found');
+  }
+
+  // Any request with a file extension (e.g. .txt, .xml, .json, .ico, .png, .jpg, .svg, .woff2, .js, .css)
+  // that was not caught by express.static is a missing static asset, NOT an SPA HTML route!
+  if (path.extname(req.path)) {
+    return res.status(404).type('text/plain').send(`Asset ${req.path} not found.`);
   }
 
   const clientIndexPath = path.join(clientDistPath, 'index.html');
@@ -210,6 +272,18 @@ async function verifyDatabaseHealth() {
 
 app.listen(PORT, async () => {
   console.log(`🚀 SkillBridge Backend API server running on http://localhost:${PORT}`);
+
+  const googleClientIdSet = Boolean(process.env.GOOGLE_CLIENT_ID?.trim());
+  const googleClientSecretSet = Boolean(process.env.GOOGLE_CLIENT_SECRET?.trim());
+  const googleOAuthConfigured = googleClientIdSet && googleClientSecretSet;
+  const clientUrl = (process.env.CLIENT_URL || 'http://localhost:5173').trim().replace(/\/+$/, '');
+
+  console.log(`🔐 [OAUTH CONFIG] Google OAuth configured: ${googleOAuthConfigured}`);
+  console.log(`   - GOOGLE_CLIENT_ID set: ${googleClientIdSet}`);
+  console.log(`   - GOOGLE_CLIENT_SECRET set: ${googleClientSecretSet}`);
+  console.log(`🌐 [OAUTH CONFIG] CLIENT_URL: ${clientUrl}`);
+  console.log(`   - Fallback Redirect URI: ${clientUrl}/auth/callback`);
+
   await verifyDatabaseHealth();
 });
 

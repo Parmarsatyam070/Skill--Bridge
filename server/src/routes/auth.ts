@@ -92,11 +92,10 @@ async function buildUserSession(userId: string) {
 }
 
 /**
- * POST /api/auth/sync
- * Verifies Firebase ID token and returns / links / provisions the user session in PostgreSQL.
- * Note: NOT rate-limited by loginLimiter because it runs on every page load/token refresh by design.
+ * Shared handler for Firebase ID token verification and PostgreSQL user session sync/provisioning.
+ * Supports both POST /api/auth/sync and POST /api/auth/google/firebase.
  */
-router.post('/sync', async (req: Request, res: Response) => {
+async function handleFirebaseTokenAuth(req: Request, res: Response, sourceEndpoint: string) {
   let token: string | undefined;
   const authHeader = req.headers.authorization;
   if (authHeader && authHeader.startsWith('Bearer ')) {
@@ -105,29 +104,40 @@ router.post('/sync', async (req: Request, res: Response) => {
     token = req.body.idToken;
   }
 
+  console.log(`[AUTH ${sourceEndpoint}] === Starting Firebase Token Authentication ===`);
+
   if (!token) {
+    console.warn(`[AUTH ${sourceEndpoint}] Missing token in request header and body.`);
     return res.status(401).json({
       error: { code: 'UNAUTHORIZED', message: 'Valid Firebase ID token required.' },
     });
   }
 
   try {
+    console.log(`[AUTH ${sourceEndpoint}] Step 1: Verifying token with Firebase Admin SDK...`);
     const decodedToken = await adminAuth.verifyIdToken(token);
     const cleanEmail = decodedToken.email?.toLowerCase().trim();
     const uid = decodedToken.uid;
+    const isEmailVerified = Boolean(decodedToken.email_verified);
+    const authProvider = decodedToken.firebase?.sign_in_provider || 'google.com';
+
+    console.log(`[AUTH ${sourceEndpoint}] Step 1 Success: UID=${uid} | Email=${cleanEmail || 'none'} | Verified=${isEmailVerified} | Provider=${authProvider}`);
 
     if (!cleanEmail && !uid) {
+      console.error(`[AUTH ${sourceEndpoint}] Token lacked both email and UID.`);
       return res.status(400).json({
         error: { code: 'INVALID_TOKEN', message: 'Token lacks email or UID identifier.' },
       });
     }
 
-    // 1. Check for existing user by firebaseUid or email
+    console.log(`[AUTH ${sourceEndpoint}] Step 2: Searching PostgreSQL for existing user (by UID or email: ${cleanEmail})...`);
+
+    // 1. Check for existing user by firebaseUid OR case-insensitive email
     let user: any = await prisma.user.findFirst({
       where: {
         OR: [
           { firebaseUid: uid },
-          ...(cleanEmail ? [{ email: cleanEmail }] : []),
+          ...(cleanEmail ? [{ email: { equals: cleanEmail, mode: 'insensitive' as const } }] : []),
         ],
       },
       include: {
@@ -139,8 +149,18 @@ router.post('/sync', async (req: Request, res: Response) => {
     });
 
     if (user) {
-      // If user found by email but firebaseUid wasn't linked yet, link it now!
-      if (!user.firebaseUid) {
+      console.log(`[AUTH ${sourceEndpoint}] Step 2: Found existing user account in database (ID: ${user.id}, Role: ${user.role}, Existing UID: ${user.firebaseUid || 'null'}).`);
+
+      // Gracefully link/update Firebase UID and avatar if needed
+      if (user.firebaseUid !== uid || (!user.avatarUrl && decodedToken.picture)) {
+        console.log(`[AUTH ${sourceEndpoint}] Step 3: Linking Firebase UID ${uid} to user account ${user.id}...`);
+
+        // If another database record holds this firebaseUid, unlink it first to prevent unique constraint failure
+        await prisma.user.updateMany({
+          where: { firebaseUid: uid, id: { not: user.id } },
+          data: { firebaseUid: null },
+        });
+
         user = await prisma.user.update({
           where: { id: user.id },
           data: {
@@ -154,121 +174,229 @@ router.post('/sync', async (req: Request, res: Response) => {
             institutionProfile: true,
           },
         });
+        console.log(`[AUTH ${sourceEndpoint}] Step 3: Successfully linked account with Firebase UID.`);
       }
 
-      await recordDailyActivity(user.id);
+      // Ensure profile exists for the user's role
+      if (user.role === 'STUDENT' && !user.studentProfile) {
+        console.log(`[AUTH ${sourceEndpoint}] Auto-creating default student profile for existing user ${user.id}`);
+        user = await prisma.user.update({
+          where: { id: user.id },
+          data: {
+            studentProfile: {
+              create: {
+                institution: 'Unspecified University',
+                targetDomain: 'Full-Stack Web',
+              },
+            },
+          },
+          include: { studentProfile: true, industryProfile: true, academicianProfile: true, institutionProfile: true },
+        });
+      }
+
+      try {
+        await recordDailyActivity(user.id);
+      } catch (activityErr: any) {
+        console.warn(`[AUTH ${sourceEndpoint}] Non-critical: Failed to record daily activity for user ${user.id}:`, activityErr.message);
+      }
+
       const session = await buildUserSession(user.id);
-      return res.json({ user: session, isNewUser: false });
+      if (!session) {
+        throw new Error(`Failed to build user session for user ${user.id}`);
+      }
+
+      // Generate SkillBridge JWT tokens
+      const tokenPayload = { userId: user.id, role: user.role, email: user.email };
+      const accessToken = generateAccessToken(tokenPayload);
+      const refreshToken = generateRefreshToken(tokenPayload);
+
+      res.cookie('refreshToken', refreshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: 7 * 24 * 60 * 60 * 1000,
+      });
+
+      console.log(`[AUTH ${sourceEndpoint}] === Authentication Successful for Existing User ${user.id} (${user.email}) ===`);
+      return res.json({ user: session, accessToken, isNewUser: false });
     }
 
     // 2. New user provisioning in PostgreSQL
-    const { role = 'STUDENT', name, roleData } = req.body || {};
+    const { role, name, roleData } = req.body || {};
+    const ALLOWED_SIGNUP_ROLES = ['STUDENT', 'INDUSTRY', 'ACADEMICIAN'];
+    const assignedRole = (role && ALLOWED_SIGNUP_ROLES.includes(role)) ? role : 'STUDENT';
     const displayName = (name || decodedToken.name || cleanEmail?.split('@')[0] || 'User').trim();
     const avatarUrl = decodedToken.picture || null;
 
-    if (role === 'STUDENT') {
-      user = await prisma.user.create({
-        data: {
-          email: cleanEmail || `${uid}@firebase.user`,
-          firebaseUid: uid,
-          name: displayName,
-          role: 'STUDENT',
-          avatarUrl,
-          currentStreak: 1,
-          longestStreak: 1,
-          studentProfile: {
-            create: {
-              institution: roleData?.institution?.trim() || 'Unspecified University',
-              targetDomain: roleData?.targetDomain?.trim() || 'Full-Stack Web',
-              cgpa: roleData?.cgpa ? Number(roleData.cgpa) : null,
-              bio: roleData?.bio?.trim() || null,
+    console.log(`[AUTH ${sourceEndpoint}] Step 4: Provisioning new user in database (Email: ${cleanEmail}, Role: ${assignedRole}, Name: ${displayName})...`);
+
+    try {
+      if (assignedRole === 'STUDENT') {
+        user = await prisma.user.create({
+          data: {
+            email: cleanEmail || `${uid}@firebase.user`,
+            firebaseUid: uid,
+            name: displayName,
+            role: 'STUDENT',
+            avatarUrl,
+            currentStreak: 1,
+            longestStreak: 1,
+            studentProfile: {
+              create: {
+                institution: roleData?.institution?.trim() || 'Unspecified University',
+                targetDomain: roleData?.targetDomain?.trim() || 'Full-Stack Web',
+                cgpa: roleData?.cgpa ? Number(roleData.cgpa) : null,
+                bio: roleData?.bio?.trim() || null,
+              },
             },
           },
-        },
-        include: { studentProfile: true },
-      });
-    } else if (role === 'INDUSTRY') {
-      user = await prisma.user.create({
-        data: {
-          email: cleanEmail || `${uid}@firebase.user`,
-          firebaseUid: uid,
-          name: roleData?.companyName?.trim() || displayName,
-          role: 'INDUSTRY',
-          avatarUrl,
-          currentStreak: 1,
-          longestStreak: 1,
-          industryProfile: {
-            create: {
-              companyName: roleData?.companyName?.trim() || displayName,
-              companySize: roleData?.companySize || '50-200 employees',
-              industrySector: roleData?.industrySector?.trim() || 'Technology',
-              website: roleData?.website || '',
-              verified: true,
+          include: { studentProfile: true },
+        });
+      } else if (assignedRole === 'INDUSTRY') {
+        user = await prisma.user.create({
+          data: {
+            email: cleanEmail || `${uid}@firebase.user`,
+            firebaseUid: uid,
+            name: roleData?.companyName?.trim() || displayName,
+            role: 'INDUSTRY',
+            avatarUrl,
+            currentStreak: 1,
+            longestStreak: 1,
+            industryProfile: {
+              create: {
+                companyName: roleData?.companyName?.trim() || displayName,
+                companySize: roleData?.companySize || '50-200 employees',
+                industrySector: roleData?.industrySector?.trim() || 'Technology',
+                website: roleData?.website || '',
+                verified: true,
+              },
             },
           },
-        },
-        include: { industryProfile: true },
-      });
-    } else if (role === 'ACADEMICIAN') {
-      user = await prisma.user.create({
-        data: {
-          email: cleanEmail || `${uid}@firebase.user`,
-          firebaseUid: uid,
-          name: displayName,
-          role: 'ACADEMICIAN',
-          avatarUrl,
-          currentStreak: 1,
-          longestStreak: 1,
-          academicianProfile: {
-            create: {
-              institution: roleData?.institution?.trim() || 'Academic Institute',
-              department: roleData?.department?.trim() || 'Computer Science',
-              designation: roleData?.designation?.trim() || 'Faculty Member',
+          include: { industryProfile: true },
+        });
+      } else if (assignedRole === 'ACADEMICIAN') {
+        user = await prisma.user.create({
+          data: {
+            email: cleanEmail || `${uid}@firebase.user`,
+            firebaseUid: uid,
+            name: displayName,
+            role: 'ACADEMICIAN',
+            avatarUrl,
+            currentStreak: 1,
+            longestStreak: 1,
+            academicianProfile: {
+              create: {
+                institution: roleData?.institution?.trim() || 'Academic Institute',
+                department: roleData?.department?.trim() || 'Computer Science',
+                designation: roleData?.designation?.trim() || 'Faculty Member',
+              },
             },
           },
-        },
-        include: { academicianProfile: true },
-      });
-    } else {
-      user = await prisma.user.create({
-        data: {
-          email: cleanEmail || `${uid}@firebase.user`,
-          firebaseUid: uid,
-          name: roleData?.institutionName?.trim() || displayName,
-          role: 'INSTITUTION_ADMIN',
-          avatarUrl,
-          currentStreak: 1,
-          longestStreak: 1,
-          institutionProfile: {
-            create: {
-              institutionName: roleData?.institutionName?.trim() || 'University Administration',
-              adminDesignation: roleData?.adminDesignation?.trim() || 'Administrator',
-            },
+          include: { academicianProfile: true },
+        });
+      }
+    } catch (createErr: any) {
+      // Graceful fallback for P2002 (Unique constraint failed on email)
+      if (createErr.code === 'P2002' && cleanEmail) {
+        console.warn(`[AUTH ${sourceEndpoint}] Email collision (P2002) detected for ${cleanEmail}. Resolving via account linking...`);
+        user = await prisma.user.findFirst({
+          where: { email: { equals: cleanEmail, mode: 'insensitive' } },
+          include: {
+            studentProfile: true,
+            industryProfile: true,
+            academicianProfile: true,
+            institutionProfile: true,
           },
-        },
-        include: { institutionProfile: true },
-      });
+        });
+
+        if (user) {
+          // Unlink conflicting record if any
+          await prisma.user.updateMany({
+            where: { firebaseUid: uid, id: { not: user.id } },
+            data: { firebaseUid: null },
+          });
+
+          user = await prisma.user.update({
+            where: { id: user.id },
+            data: {
+              firebaseUid: uid,
+              avatarUrl: user.avatarUrl || avatarUrl,
+            },
+            include: {
+              studentProfile: true,
+              industryProfile: true,
+              academicianProfile: true,
+              institutionProfile: true,
+            },
+          });
+          console.log(`[AUTH ${sourceEndpoint}] Successfully linked conflicting email account ${user.id} to Firebase UID ${uid}.`);
+        } else {
+          throw createErr;
+        }
+      } else {
+        throw createErr;
+      }
     }
 
     if (!user) {
+      console.error(`[AUTH ${sourceEndpoint}] User provisioning failed to produce a user record.`);
       return res.status(500).json({
         error: { code: 'PROVISIONING_FAILED', message: 'Failed to provision user profile in database.' },
       });
     }
 
-    await recordDailyActivity(user.id);
+    try {
+      await recordDailyActivity(user.id);
+    } catch (activityErr: any) {
+      console.warn(`[AUTH ${sourceEndpoint}] Non-critical: Failed to record daily activity for user ${user.id}:`, activityErr.message);
+    }
+
     const session = await buildUserSession(user.id);
-    return res.status(201).json({ user: session, isNewUser: true });
+    if (!session) {
+      throw new Error(`Failed to build user session for newly provisioned user ${user.id}`);
+    }
+
+    const tokenPayload = { userId: user.id, role: user.role, email: user.email };
+    const accessToken = generateAccessToken(tokenPayload);
+    const refreshToken = generateRefreshToken(tokenPayload);
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    console.log(`[AUTH ${sourceEndpoint}] === Provisioning Complete for New User ${user.id} (${user.email}) ===`);
+    return res.status(201).json({ user: session, accessToken, isNewUser: true });
   } catch (err: any) {
-    console.error('Auth sync error:', err);
+    console.error(`[AUTH ${sourceEndpoint} ERROR] Full failure details:`);
+    console.error(`[AUTH ${sourceEndpoint} ERROR] Code: ${err.code || 'UNKNOWN'}`);
+    console.error(`[AUTH ${sourceEndpoint} ERROR] Message: ${err.message}`);
+    if (err.stack) {
+      console.error(`[AUTH ${sourceEndpoint} ERROR] Stack: ${err.stack}`);
+    }
     return res.status(500).json({
       error: {
         code: 'SYNC_FAILED',
-        message: 'Could not synchronize provider profile with database. Please try again in a moment.',
+        message: 'Could not synchronize Google account with SkillBridge. Please try again.',
+        details: process.env.NODE_ENV !== 'production' ? err.message : undefined,
       },
     });
   }
-});
+}
+
+/**
+ * POST /api/auth/sync
+ * Verifies Firebase ID token and returns / links / provisions the user session in PostgreSQL.
+ */
+router.post('/sync', (req: Request, res: Response) => handleFirebaseTokenAuth(req, res, 'sync'));
+
+/**
+ * POST /api/auth/google/firebase
+ * Dedicated Google Firebase authentication endpoint for SkillBridge.
+ */
+router.post('/google/firebase', (req: Request, res: Response) => handleFirebaseTokenAuth(req, res, 'google/firebase'));
 
 /**
  * POST /api/auth/firebase-login-fallback
@@ -627,7 +755,8 @@ router.post('/login', loginLimiter, async (req: Request, res: Response) => {
  */
 router.get('/oauth/:provider/url', (req: Request, res: Response) => {
   const { provider } = req.params;
-  const redirectUri = (req.query.redirectUri as string) || `${process.env.CLIENT_URL || 'http://localhost:5173'}/auth/callback`;
+  const clientBaseUrl = (process.env.CLIENT_URL || 'http://localhost:5173').trim().replace(/\/+$/, '');
+  const effectiveRedirectUri = (req.query.redirectUri as string)?.trim() || `${clientBaseUrl}/auth/callback`;
   const state = (req.query.state as string) || '';
 
   if (!['google', 'github', 'microsoft'].includes(provider)) {
@@ -640,6 +769,7 @@ router.get('/oauth/:provider/url', (req: Request, res: Response) => {
   }
 
   if (!isOauthConfigured(provider as OAuthProvider)) {
+    console.warn(`[AUTH OAUTH URL] Provider '${provider}' is not configured on the server.`);
     return res.status(400).json({
       error: {
         code: 'OAUTH_NOT_CONFIGURED',
@@ -649,7 +779,8 @@ router.get('/oauth/:provider/url', (req: Request, res: Response) => {
   }
 
   try {
-    const result = getAuthorizationUrl(provider as OAuthProvider, redirectUri, state);
+    console.log(`[AUTH OAUTH URL] Generating auth URL for ${provider} with redirectUri: ${effectiveRedirectUri}`);
+    const result = getAuthorizationUrl(provider as OAuthProvider, effectiveRedirectUri, state);
     return res.json(result);
   } catch (err: any) {
     console.error(`[OAUTH URL ERROR] ${provider}:`, err);
@@ -670,6 +801,8 @@ router.post('/oauth/:provider/callback', async (req: Request, res: Response) => 
   const { provider } = req.params;
   const { code, redirectUri } = req.body;
 
+  console.log(`[AUTH OAUTH CALLBACK] === Starting OAuth Callback Exchange for ${provider} ===`);
+
   if (!['google', 'github', 'microsoft'].includes(provider)) {
     return res.status(400).json({ error: { message: 'Supported providers: google, github, microsoft' } });
   }
@@ -678,9 +811,15 @@ router.post('/oauth/:provider/callback', async (req: Request, res: Response) => 
     return res.status(400).json({ error: { message: 'Authorization code is required.' } });
   }
 
-  const effectiveRedirectUri = redirectUri || `${process.env.CLIENT_URL || 'http://localhost:5173'}/auth/callback`;
+  const clientBaseUrl = (process.env.CLIENT_URL || 'http://localhost:5173').trim().replace(/\/+$/, '');
+  const effectiveRedirectUri = (redirectUri && typeof redirectUri === 'string' && redirectUri.trim())
+    ? redirectUri.trim()
+    : `${clientBaseUrl}/auth/callback`;
+
+  console.log(`[AUTH OAUTH CALLBACK] Step 1: Effective Redirect URI: ${effectiveRedirectUri}`);
 
   try {
+    console.log(`[AUTH OAUTH CALLBACK] Step 2: Exchanging authorization code with ${provider}...`);
     const verifiedOAuthUser = await exchangeCodeForVerifiedUser(
       provider as OAuthProvider,
       code,
@@ -688,13 +827,19 @@ router.post('/oauth/:provider/callback', async (req: Request, res: Response) => 
     );
 
     const cleanEmail = verifiedOAuthUser.email.toLowerCase().trim();
+    console.log(`[AUTH OAUTH CALLBACK] Step 2 Success: Provider=${verifiedOAuthUser.provider} | ProviderID=${verifiedOAuthUser.providerId} | Email=${cleanEmail} | Name=${verifiedOAuthUser.name}`);
 
-    // 1. Check if user exists with this verified email
-    let user = await prisma.user.findUnique({
-      where: { email: cleanEmail },
+    // 1. Check if user exists with this verified email (case-insensitive)
+    console.log(`[AUTH OAUTH CALLBACK] Step 3: Checking if user account exists with email: ${cleanEmail}...`);
+    let user = await prisma.user.findFirst({
+      where: {
+        email: { equals: cleanEmail, mode: 'insensitive' as const },
+      },
     });
 
     if (user) {
+      console.log(`[AUTH OAUTH CALLBACK] Step 3: Existing user found (ID: ${user.id}, Role: ${user.role}). Linking ${provider.toUpperCase()} integration...`);
+
       // Connect/update integration record
       await prisma.externalIntegration.upsert({
         where: {
@@ -724,7 +869,19 @@ router.post('/oauth/:provider/callback', async (req: Request, res: Response) => 
         },
       });
 
-      await recordDailyActivity(user.id);
+      // Update avatarUrl if empty
+      if (!user.avatarUrl && verifiedOAuthUser.avatarUrl) {
+        await prisma.user.update({
+          where: { id: user.id },
+          data: { avatarUrl: verifiedOAuthUser.avatarUrl },
+        });
+      }
+
+      try {
+        await recordDailyActivity(user.id);
+      } catch (activityErr: any) {
+        console.warn(`[AUTH OAUTH CALLBACK] Non-critical: Failed to record activity for user ${user.id}:`, activityErr.message);
+      }
 
       const tokenPayload = { userId: user.id, role: user.role, email: user.email };
       const accessToken = generateAccessToken(tokenPayload);
@@ -738,6 +895,7 @@ router.post('/oauth/:provider/callback', async (req: Request, res: Response) => 
       });
 
       const session = await buildUserSession(user.id);
+      console.log(`[AUTH OAUTH CALLBACK] === Successfully Logged In Existing User ${user.id} via ${provider} ===`);
       return res.json({
         isNewUser: false,
         message: `Signed in successfully via ${provider}`,
@@ -747,8 +905,10 @@ router.post('/oauth/:provider/callback', async (req: Request, res: Response) => 
     }
 
     // 2. User is new -> Generate signed onboarding token so they can select role & onboarding info
+    console.log(`[AUTH OAUTH CALLBACK] Step 4: User is new. Generating signed onboarding token...`);
     const onboardingToken = createOAuthOnboardingToken(verifiedOAuthUser);
 
+    console.log(`[AUTH OAUTH CALLBACK] === Successfully Initiated Onboarding for New User (${cleanEmail}) ===`);
     return res.json({
       isNewUser: true,
       onboardingToken,
@@ -760,11 +920,16 @@ router.post('/oauth/:provider/callback', async (req: Request, res: Response) => 
       },
     });
   } catch (err: any) {
-    console.error(`[OAUTH ERROR] ${provider} exchange failed:`, err);
+    console.error(`[AUTH OAUTH CALLBACK ERROR] ${provider} exchange failed:`);
+    console.error(`[AUTH OAUTH CALLBACK ERROR] Message: ${err.message}`);
+    if (err.stack) {
+      console.error(`[AUTH OAUTH CALLBACK ERROR] Stack: ${err.stack}`);
+    }
     return res.status(400).json({
       error: {
         code: 'OAUTH_VERIFICATION_FAILED',
         message: 'OAuth identity verification failed. Please try signing in again.',
+        details: process.env.NODE_ENV !== 'production' ? err.message : undefined,
       },
     });
   }

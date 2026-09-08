@@ -12,6 +12,8 @@ import {
   CheckCircle2,
   ExternalLink,
   Clock,
+  Bot,
+  Sparkles,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
@@ -51,13 +53,25 @@ export const IndustryDashboard: React.FC = () => {
           </p>
         </div>
 
-        <Link
-          to="/industry/post-job"
-          className="flex items-center gap-2 px-5 py-3 rounded-xl bg-industry-amber hover:bg-industry-amber/90 text-white font-semibold text-xs shadow-sm transition-all"
-        >
-          <Plus className="w-4 h-4" />
-          <span>Post New Internship</span>
-        </Link>
+        <div className="flex flex-wrap items-center gap-3">
+          <button
+            onClick={() => window.dispatchEvent(new CustomEvent('skillbridge:open-copilot'))}
+            className="flex items-center gap-2 px-4 py-3 rounded-xl bg-console-panel border border-console-border hover:border-bridge-teal text-console-text font-semibold text-xs transition-all shadow-sm focus:outline-none focus-visible:ring-2 focus-visible:ring-bridge-teal"
+            aria-label="Open Recruiter Copilot Assistant"
+          >
+            <Bot className="w-4 h-4 text-bridge-teal" />
+            <span>Recruiter Copilot (AI)</span>
+            <Sparkles className="w-3.5 h-3.5 text-industry-amber" />
+          </button>
+
+          <Link
+            to="/industry/post-job"
+            className="flex items-center gap-2 px-5 py-3 rounded-xl bg-industry-amber hover:bg-industry-amber/90 text-white font-semibold text-xs shadow-sm transition-all"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Post New Internship</span>
+          </Link>
+        </div>
       </div>
 
       {/* Metrics Row */}

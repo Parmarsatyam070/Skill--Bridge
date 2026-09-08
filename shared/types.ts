@@ -2,7 +2,7 @@ export type Role = 'STUDENT' | 'INDUSTRY' | 'ACADEMICIAN' | 'INSTITUTION_ADMIN';
 
 export type WorkMode = 'REMOTE' | 'HYBRID' | 'ON_SITE';
 export type JobStatus = 'OPEN' | 'CLOSED' | 'DRAFT';
-export type ApplicationStatus = 'applied' | 'under_review' | 'shortlisted' | 'rejected';
+export type ApplicationStatus = 'applied' | 'under_review' | 'shortlisted' | 'interview' | 'hired' | 'rejected';
 export type EnrollmentStatus = 'enrolled' | 'completed';
 export type AcademicOpportunityType = 'fdp' | 'research' | 'industrial_training';
 export type SkillCategory = 'technical' | 'soft' | 'core';
@@ -170,6 +170,25 @@ export interface Internship {
   matchTier?: 'high' | 'medium' | 'low';
 }
 
+export interface InterviewDetails {
+  interviewDate: string; // YYYY-MM-DD or ISO
+  interviewTime: string; // e.g. "10:30 AM IST"
+  roundType: 'technical' | 'hr' | 'system_design' | 'managerial' | 'final';
+  roundTitle?: string;
+  meetingLink?: string;
+  interviewerNotes?: string;
+  scheduledAt?: string;
+}
+
+export interface HiredDetails {
+  offerDate: string;
+  joiningDate?: string;
+  stipend?: string;
+  roleTitle?: string;
+  notes?: string;
+  hiredAt?: string;
+}
+
 export interface Application {
   id: string;
   studentId: string;
@@ -184,17 +203,17 @@ export interface Application {
   matchScoreAtApply: number;
   currentMatchScore?: number;
   coverNote?: string;
+  interviewDetails?: InterviewDetails;
+  hiredDetails?: HiredDetails;
   resumeId?: string;
   resumeUrl?: string;
   appliedAt: string;
 }
 
-export interface MatchBreakdown {
-  internshipId: string;
-  internshipTitle: string;
-  companyName: string;
-  overallScore: number; // 0 - 100
-  tier: 'high' | 'medium' | 'low'; // >=80% high, 50-79% medium, <50% low
+export interface SkillMatchPillar {
+  score: number; // 0 - 100
+  weight: number; // e.g. 0.40
+  weightedScore: number;
   matchedSkills: {
     skillId: string;
     skillName: string;
@@ -217,6 +236,91 @@ export interface MatchBreakdown {
       pointsGain: number;
     }[];
   }[];
+  penalty: number;
+}
+
+export interface ExperienceMatchPillar {
+  score: number; // 0 - 100
+  weight: number; // e.g. 0.30
+  weightedScore: number;
+  totalProjects: number;
+  matchedProjectsCount: number;
+  relevantProjects: {
+    id?: string;
+    title: string;
+    description: string;
+    techStack: string[];
+    matchingSkills: string[];
+    hasLiveDemo: boolean;
+    hasGithub: boolean;
+    demoUrl?: string;
+    githubUrl?: string;
+  }[];
+  verifiedCertificates: {
+    id?: string;
+    title: string;
+    issuer: string;
+    issueDate?: string;
+    credentialUrl?: string;
+    isRelevant: boolean;
+  }[];
+  techStackOverlapPct: number;
+  highlights: string[];
+}
+
+export interface AssessmentScorePillar {
+  score: number; // 0 - 100
+  weight: number; // e.g. 0.30
+  weightedScore: number;
+  attemptsCount: number;
+  passedCount: number;
+  averageTestScore: number;
+  dsaSolvedCount: number;
+  dsaBreakdown: {
+    easy: number;
+    medium: number;
+    hard: number;
+  };
+  dailyPracticeStreak: number;
+  calibrationTier: 'Expert' | 'Proficient' | 'Developing' | 'Uncalibrated';
+  badge: string;
+}
+
+export interface MatchBreakdown {
+  internshipId: string;
+  internshipTitle: string;
+  companyName: string;
+  overallScore: number; // 0 - 100
+  tier: 'high' | 'medium' | 'low'; // >=80% high, 50-79% medium, <50% low
+  pillars: {
+    skillMatch: SkillMatchPillar;
+    experienceMatch: ExperienceMatchPillar;
+    assessmentScore: AssessmentScorePillar;
+  };
+  // Backwards-compatible legacy fields for existing UI components
+  matchedSkills: {
+    skillId: string;
+    skillName: string;
+    studentScore: number;
+    requiredScore: number;
+    weight: number;
+    contribution: number;
+    isMet: boolean;
+  }[];
+  strengths: string[];
+  missingSkills: {
+    skillId: string;
+    skillName: string;
+    gap: number;
+    recommendedCourses: {
+      courseId: string;
+      title: string;
+      providerName: string;
+      externalUrl: string;
+      pointsGain: number;
+    }[];
+  }[];
+  verificationHash?: string;
 }
 
 export interface ActivityHeatmapResponse {
@@ -1203,3 +1307,718 @@ export interface MockInterviewHistoryResponse {
   commonWeakAreas: string[];
   latestSession?: MockInterviewHistoryItem;
 }
+
+// ========================================================
+// OPPORTUNITY PLATFORM TYPES
+// ========================================================
+
+export type OpportunityType =
+  | 'JOB'
+  | 'INTERNSHIP'
+  | 'APPRENTICESHIP'
+  | 'PROJECT'
+  | 'TRAINING'
+  | 'CERTIFICATION'
+  | 'WORKSHOP'
+  | 'HACKATHON'
+  | 'MENTORSHIP'
+  | 'GUEST_LECTURE'
+  | 'RESEARCH';
+
+export type OpportunityWorkMode = 'REMOTE' | 'HYBRID' | 'ON_SITE';
+export type OpportunityExperienceLevel = 'ENTRY' | 'MID' | 'SENIOR' | 'LEAD';
+export type OpportunityStatus = 'OPEN' | 'PAUSED' | 'CLOSED' | 'DRAFT';
+
+export interface OpportunitySkillItem {
+  id?: string;
+  skillId: string;
+  skillName?: string;
+  proficiencyLevel?: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED' | 'EXPERT';
+  weight?: number;
+  minScore?: number;
+  isMandatory: boolean;
+}
+
+export interface OpportunitySummary {
+  id: string;
+  title: string;
+  description: string;
+  type: OpportunityType | string;
+  industry?: string;
+  location: string;
+  remote: boolean;
+  workMode: OpportunityWorkMode | string;
+  experienceLevel: OpportunityExperienceLevel | string;
+  educationRequirements?: string | null;
+  stipend?: string | null;
+  duration?: string | null;
+  applicationDeadline?: string | null;
+  status: OpportunityStatus | string;
+  createdAt: string;
+  company: {
+    id: string;
+    name: string;
+    website?: string | null;
+    industry?: string | null;
+  };
+  requiredSkills: OpportunitySkillItem[];
+  applicantCount?: number;
+  matchCount?: number;
+}
+
+export interface OpportunityFactorBreakdown {
+  score: number;
+  weight: number;
+  weighted: number;
+}
+
+export interface OpportunityMatchBreakdown {
+  algorithmVersion: string;
+  opportunityId: string;
+  totalScore: number;
+  tier: 'high' | 'medium' | 'low';
+  eligibility: boolean;
+  ineligibilityReason: string | null;
+  factors: {
+    requiredSkillsCoverage: OpportunityFactorBreakdown;
+    skillProficiencyDepth: OpportunityFactorBreakdown;
+    experienceTechOverlap: OpportunityFactorBreakdown;
+    projectPortfolioQuality: OpportunityFactorBreakdown;
+    assessmentAndDSA: OpportunityFactorBreakdown;
+    educationMatch: OpportunityFactorBreakdown;
+    certificationRelevance: OpportunityFactorBreakdown;
+  };
+}
+
+export interface OpportunityMatchItem {
+  opportunityId: string;
+  opportunityTitle: string;
+  score: number;
+  tier: 'high' | 'medium' | 'low';
+  eligibility: boolean;
+  ineligibilityReason: string | null;
+  company: { id: string; name: string } | null;
+  type?: string;
+  location?: string;
+  workMode?: string;
+  stipend?: string | null;
+  matchedSkills?: any[];
+  missingSkills?: any[];
+  strengths?: string[];
+  recommendations?: string[];
+  breakdown?: OpportunityMatchBreakdown;
+}
+
+export interface SafeCandidateSkillDto {
+  name: string;
+  score: number;
+  verificationLevel: string;
+  verifiedAt?: string | Date | null;
+}
+
+export interface SafeCandidateProjectDto {
+  title: string;
+  description: string;
+  technologies: string[];
+  liveUrl?: string | null;
+  githubUrl?: string | null;
+}
+
+export interface SafeCandidateDto {
+  id: string;
+  studentProfileId: string;
+  fullName: string;
+  avatarUrl?: string | null;
+  institutionName?: string | null;
+  department?: string | null;
+  degree?: string | null;
+  graduationYear?: number | null;
+  cgpaBracket?: string | null;
+  generalLocation?: string | null;
+  sanitizedBio?: string | null;
+  portfolioUrl?: string | null;
+  githubUrl?: string | null;
+  linkedinUrl?: string | null;
+  skills: SafeCandidateSkillDto[];
+  projects?: SafeCandidateProjectDto[];
+  matchScore?: number;
+  matchBreakdown?: any;
+}
+
+export interface CopilotCandidateRanking {
+  candidateId: string;
+  candidateName: string;
+  advisoryScore: number;
+  advisoryReason: string;
+}
+
+export interface CopilotComparisonResult {
+  advisoryRanking: CopilotCandidateRanking[];
+  advisorySummary: string;
+  topStrengths: Record<string, string[]>;
+  topGaps: Record<string, string[]>;
+  disclaimer: string;
+}
+
+export interface CopilotQueryResult {
+  intent: 'CANDIDATE_SEARCH' | 'SKILL_QUERY' | 'MARKET_INSIGHT' | 'GENERAL';
+  answer: string;
+  supportingData?: any;
+  disclaimer: string;
+}
+
+// ============================================================
+// PHASE 5 — TALENT PLATFORM ASSESSMENT SYSTEM DTOs
+// ============================================================
+
+export const TALENT_ASSESSMENT_ADVISORY_DISCLAIMER =
+  'Assessments are scored deterministically by the SkillBridge test engine. Results are advisory evaluations of technical proficiency for matching and recruitment purposes.';
+
+export type TalentAssessmentStatus = 'DRAFT' | 'PUBLISHED' | 'ARCHIVED';
+export type TalentAssessmentQuestionType = 'MCQ' | 'TECHNICAL' | 'SCENARIO' | 'BEHAVIORAL' | 'SHORT_ANSWER';
+
+export interface TalentAssessmentOptionDto {
+  id: string;
+  text: string;
+}
+
+export interface TalentAssessmentAdminOptionDto extends TalentAssessmentOptionDto {
+  isCorrect?: boolean;
+}
+
+export interface TalentAssessmentQuestionDto {
+  id: string;
+  assessmentId: string;
+  type: TalentAssessmentQuestionType;
+  prompt: string;
+  options: TalentAssessmentOptionDto[];
+  points: number;
+  displayOrder: number;
+  skillId?: string | null;
+}
+
+export interface TalentAssessmentAdminQuestionDto extends TalentAssessmentQuestionDto {
+  options: TalentAssessmentAdminOptionDto[];
+  rubric?: string | null;
+  starterCode?: string | null;
+  testCasesJson?: string | null;
+}
+
+export interface TalentAssessmentSummaryDto {
+  id: string;
+  title: string;
+  description: string;
+  durationMinutes: number;
+  passingScorePct: number;
+  status: TalentAssessmentStatus;
+  opportunityId?: string | null;
+  opportunityTitle?: string | null;
+  companyId?: string | null;
+  companyName?: string | null;
+  questionCount: number;
+  totalPoints: number;
+  requiredSkills: string[];
+  createdAt: string;
+  updatedAt: string;
+  mySubmission?: {
+    id: string;
+    score: number;
+    passed: boolean;
+    timeSpentSeconds: number;
+    startedAt: string;
+    submittedAt: string | null;
+  } | null;
+}
+
+export interface TalentAssessmentDetailDto extends TalentAssessmentSummaryDto {
+  questions: TalentAssessmentQuestionDto[];
+}
+
+export interface TalentAssessmentAdminDetailDto extends TalentAssessmentSummaryDto {
+  questions: TalentAssessmentAdminQuestionDto[];
+}
+
+export interface TalentAssessmentSubmissionDto {
+  id: string;
+  assessmentId: string;
+  studentId: string;
+  studentName: string;
+  studentAvatar?: string | null;
+  institution?: string | null;
+  headline?: string | null;
+  startedAt: string;
+  submittedAt: string | null;
+  timeSpentSeconds: number;
+  score: number;
+  passed: boolean;
+  technicalScore: number;
+  skillScoreBreakdown?: Record<string, { score: number; total: number }>;
+  feedback?: string | null;
+}
+
+export interface TalentAssessmentStartResult {
+  submissionId: string;
+  assessmentId: string;
+  title: string;
+  durationMinutes: number;
+  startedAt: string;
+  timeRemainingSeconds: number;
+  questions: TalentAssessmentQuestionDto[];
+}
+
+export interface TalentAssessmentSubmitResult {
+  submissionId: string;
+  assessmentId: string;
+  score: number;
+  passed: boolean;
+  timeSpentSeconds: number;
+  submittedAt: string;
+  totalQuestions: number;
+  correctQuestions: number;
+  skillBreakdown?: Record<string, { score: number; total: number }>;
+  disclaimer: string;
+}
+
+// ============================================================
+// PHASE 6: AI INTERVIEW SYSTEM TYPES & DTOs
+// ============================================================
+
+export const AI_INTERVIEW_ADVISORY_DISCLAIMER =
+  "AI interview evaluations are advisory educational signals generated by generative AI models for candidate preparation and recruiter screening context. They do not constitute authoritative hiring decisions, employment guarantees, or automated rejections. Authoritative hiring decisions remain exclusively with human recruiters.";
+
+export type InterviewType = 'TECHNICAL' | 'BEHAVIORAL' | 'HR' | 'MIXED';
+export type InterviewStatus = 'SCHEDULED' | 'IN_PROGRESS' | 'COMPLETED' | 'CANCELLED';
+export type InterviewRecommendation = 'STRONGLY_RECOMMEND' | 'RECOMMEND' | 'MAYBE' | 'DO_NOT_RECOMMEND';
+
+export interface InterviewQuestionItem {
+  id: string;
+  questionNumber: number;
+  question: string;
+  category: 'TECHNICAL' | 'BEHAVIORAL' | 'SYSTEM_DESIGN' | 'PROBLEM_SOLVING' | 'EXPERIENCE';
+  difficulty: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED';
+  targetSkill?: string;
+  context?: string;
+}
+
+export interface InterviewAnswerItem {
+  questionId: string;
+  questionNumber: number;
+  question: string;
+  answer: string;
+  answeredAt: string;
+  timeSpentSeconds?: number;
+}
+
+export interface InterviewSkillObservation {
+  skill: string;
+  observation: string;
+  rating: number; // 0 - 100
+}
+
+export interface InterviewEvaluation {
+  overallScore: number; // 0 - 100 AI advisory signal
+  technicalScore?: number;
+  communicationScore?: number;
+  readinessTier: 'READY' | 'ALMOST_READY' | 'DEVELOPING' | 'NEEDS_WORK';
+  recommendation: InterviewRecommendation;
+  strengths: string[];
+  improvementAreas: string[];
+  evidenceObserved: string[];
+  skillObservations: InterviewSkillObservation[];
+  communicationObservations: string[];
+  recommendations: string[];
+  advisoryDisclaimer: string;
+}
+
+export interface InterviewSessionSummaryDto {
+  id: string;
+  opportunityId?: string | null;
+  opportunityTitle?: string | null;
+  companyName?: string | null;
+  candidateId: string;
+  candidateName: string;
+  candidateAvatar?: string | null;
+  institution?: string | null;
+  headline?: string | null;
+  type: InterviewType;
+  status: InterviewStatus;
+  questionCount: number;
+  answeredCount: number;
+  overallScore?: number | null;
+  recommendation?: InterviewRecommendation | null;
+  createdAt: string;
+  completedAt?: string | null;
+}
+
+export interface InterviewSessionDetailDto {
+  id: string;
+  opportunityId?: string | null;
+  opportunityTitle?: string | null;
+  companyName?: string | null;
+  candidateId: string;
+  candidateName: string;
+  candidateAvatar?: string | null;
+  institution?: string | null;
+  headline?: string | null;
+  type: InterviewType;
+  status: InterviewStatus;
+  scheduledAt?: string | null;
+  completedAt?: string | null;
+  currentQuestionNumber: number;
+  totalQuestions: number;
+  questions: InterviewQuestionItem[];
+  currentQuestion?: InterviewQuestionItem | null;
+  transcript: InterviewAnswerItem[];
+  evaluation?: InterviewEvaluation | null;
+  overallScore?: number | null;
+  recommendation?: InterviewRecommendation | null;
+  notes?: string | null;
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface StartInterviewInput {
+  opportunityId?: string | null;
+  type?: InterviewType;
+  targetDomain?: string;
+  totalQuestions?: number;
+}
+
+export interface SubmitAnswerInput {
+  questionNumber: number;
+  questionId: string;
+  answer: string;
+  timeSpentSeconds?: number;
+}
+
+export interface CompleteInterviewInput {
+  notes?: string;
+}
+
+// ============================================================
+// PHASE 7: COLLABORATION MANAGEMENT TYPES
+// ============================================================
+
+export type CollaborationType =
+  | 'WORKSHOP'
+  | 'HACKATHON'
+  | 'MENTORSHIP'
+  | 'CURRICULUM'
+  | 'RESEARCH'
+  | 'PLACEMENT_DRIVE';
+
+export type CollaborationStatus =
+  | 'REQUESTED'
+  | 'DISCUSSION'
+  | 'UNDER_REVIEW'
+  | 'APPROVED'
+  | 'ACCEPTED'
+  | 'ACTIVE'
+  | 'IN_PROGRESS'
+  | 'COMPLETED'
+  | 'REJECTED'
+  | 'CANCELLED';
+
+export interface CollaborationInstitutionParticipant {
+  id: string;
+  institutionName: string;
+  adminDesignation?: string | null;
+}
+
+export interface CollaborationCompanyParticipant {
+  id: string;
+  companyName: string;
+  website?: string | null;
+  industrySector?: string | null;
+}
+
+export interface CollaborationSenderUser {
+  id: string;
+  name: string;
+  avatarUrl?: string | null;
+  role: string;
+}
+
+export interface CollaborationMessageDto {
+  id: string;
+  collaborationId: string;
+  senderUserId: string;
+  senderUser: CollaborationSenderUser;
+  message: string;
+  createdAt: string;
+}
+
+export interface CollaborationSummaryDto {
+  id: string;
+  institutionId: string;
+  companyId: string;
+  type: CollaborationType;
+  title: string;
+  description: string;
+  skillsJson?: string | null;
+  targetDepartment?: string | null;
+  proposedDate?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  status: CollaborationStatus;
+  initiatedByRole: string;
+  createdAt: string;
+  updatedAt: string;
+  institution: CollaborationInstitutionParticipant;
+  company: CollaborationCompanyParticipant;
+  _count?: {
+    messages: number;
+  };
+}
+
+export interface CollaborationDetailDto {
+  id: string;
+  institutionId: string;
+  companyId: string;
+  type: CollaborationType;
+  title: string;
+  description: string;
+  skillsJson?: string | null;
+  targetDepartment?: string | null;
+  proposedDate?: string | null;
+  startDate?: string | null;
+  endDate?: string | null;
+  status: CollaborationStatus;
+  initiatedByRole: string;
+  createdAt: string;
+  updatedAt: string;
+  institution: CollaborationInstitutionParticipant;
+  company: CollaborationCompanyParticipant;
+  messages: CollaborationMessageDto[];
+}
+
+export interface CreateCollaborationInput {
+  type: CollaborationType;
+  title: string;
+  description: string;
+  skills?: string[];
+  targetDepartment?: string;
+  proposedDate?: string;
+  institutionId?: string; // Required for Industry
+  companyId?: string;     // Required for Institution
+}
+
+export interface UpdateCollaborationStatusInput {
+  status: CollaborationStatus;
+  startDate?: string;
+  endDate?: string;
+}
+
+export interface SendCollaborationMessageInput {
+  message: string;
+}
+
+export interface CollaborationPartnersResponse {
+  institutions: Array<{ id: string; institutionName: string; adminDesignation?: string | null }>;
+  companies: Array<{ id: string; companyName: string; website?: string | null; industrySector?: string | null }>;
+}
+
+// ========================================================
+// PHASE 8: INTELLIGENCE DASHBOARD DTOs
+// ========================================================
+
+export type GapSeverityLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
+
+export interface IndustryOverviewDto {
+  activeOpportunities: number;
+  totalApplications: number;
+  shortlistedCandidates: number;
+  assessmentsCompleted: number;
+  interviewsCompleted: number;
+  hiredCandidates: number;
+  overallConversionRate: number; // Percentage
+}
+
+export interface RecruitmentFunnelStage {
+  stage: 'applied' | 'under_review' | 'shortlisted' | 'interview' | 'hired';
+  label: string;
+  count: number;
+  percentageOfTotal: number;
+  conversionFromPrevious: number;
+}
+
+export interface IndustryFunnelResponse {
+  stages: RecruitmentFunnelStage[];
+  totalApplications: number;
+  rejectedCount: number;
+  overallConversionRate: number;
+}
+
+export interface IndustryOpportunityPerformanceItem {
+  id: string;
+  title: string;
+  type: string;
+  status: string;
+  createdAt: string;
+  applicationCount: number;
+  eligibleCandidateCount: number;
+  matchCount: number;
+  assessmentParticipationCount: number;
+  interviewCount: number;
+  hiredCount: number;
+  conversionRate: number;
+}
+
+export interface IndustryOpportunityPerformanceResponse {
+  opportunities: IndustryOpportunityPerformanceItem[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+export interface SkillDemandItem {
+  skillId: string;
+  skillName: string;
+  category: string;
+  demandCount: number;
+  demandPct: number;
+  mandatoryCount: number;
+  preferredCount: number;
+}
+
+export interface CandidateSkillSupplyItem {
+  skillId: string;
+  skillName: string;
+  category: string;
+  demandCount: number;
+  candidateSupplyCount: number;
+  coveragePct: number;
+  gapType: 'HEALTHY' | 'SUPPLY_DEFICIT' | 'HIGH_DEMAND_LOW_SUPPLY';
+}
+
+export interface IndustrySkillAnalyticsResponse {
+  topDemandedSkills: SkillDemandItem[];
+  skillSupplyComparison: CandidateSkillSupplyItem[];
+  totalOpportunitiesAnalyzed: number;
+}
+
+export interface IndustryAssessmentAnalyticsDto {
+  assessmentsCreated: number;
+  totalSubmissions: number;
+  completionRate: number;
+  averageScore: number;
+  passRate: number;
+  assessments: Array<{
+    id: string;
+    title: string;
+    submissionsCount: number;
+    averageScore: number;
+    passedCount: number;
+    passRate: number;
+  }>;
+}
+
+export interface IndustryInterviewAnalyticsDto {
+  interviewsScheduled: number;
+  interviewsCompleted: number;
+  completionRate: number;
+  averageScore: number | null;
+  typeDistribution: Record<string, number>;
+  recommendationDistribution: Record<string, number>;
+}
+
+export interface IndustryTrendsDto {
+  periodLabel: string;
+  monthlyApplications: Array<{ month: string; count: number }>;
+  monthlyOpportunities: Array<{ month: string; count: number }>;
+  skillTrends: Array<{
+    skillName: string;
+    month: string;
+    demandCount: number;
+    trendDirection: string;
+  }>;
+}
+
+export interface InstitutionOverviewDto {
+  totalStudents: number;
+  verifiedSkillsCount: number;
+  highDemandSkillsCount: number;
+  skillGapsCount: number;
+  affectedStudentsCount: number;
+  studentsWithImprovementCount: number;
+  activeInterventionsCount: number;
+}
+
+export interface InstitutionSkillComparisonItem {
+  skillId: string;
+  skillName: string;
+  category: string;
+  industryDemandCount: number;
+  studentCoverageCount: number;
+  coveragePct: number;
+  avgStudentScore: number;
+  gapSeverity: GapSeverityLevel;
+  affectedStudentCount: number;
+  verificationStrengthPct: number;
+}
+
+export interface InstitutionSkillsResponse {
+  institutionName: string;
+  totalStudents: number;
+  comparison: InstitutionSkillComparisonItem[];
+}
+
+export interface AffectedStudentDto {
+  id: string;
+  fullName: string;
+  targetDomain: string;
+  cgpaBracket: string | null;
+  currentSkillScore: number;
+  verificationLevel: string;
+  lastAttemptDate: string | null;
+}
+
+export interface AffectedStudentsResponse {
+  skillId: string;
+  skillName: string;
+  gapSeverity: GapSeverityLevel;
+  totalAffected: number;
+  students: AffectedStudentDto[];
+  pagination: {
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
+  };
+}
+
+export interface InstitutionInterventionRecommendation {
+  id: string;
+  skillId: string;
+  skillName: string;
+  gapSeverity: GapSeverityLevel;
+  interventionType: 'COURSE' | 'RESOURCE' | 'ASSESSMENT' | 'PRACTICE';
+  title: string;
+  provider: string;
+  url: string;
+  rationale: string;
+  enrolledStudentsCount: number; // 0 if none enrolled
+}
+
+export interface InstitutionInterventionsResponse {
+  institutionName: string;
+  recommendations: InstitutionInterventionRecommendation[];
+}
+
+export interface InstitutionTrendsDto {
+  periodLabel: string;
+  cohortScoreProgression: Array<{ month: string; avgScore: number; evaluatedCount: number }>;
+  topGapSkillsTrend: Array<{ skillName: string; currentGap: number; severity: GapSeverityLevel }>;
+}
+
+export interface IntelligenceAiInsight {
+  summary: string;
+  keyObservations: string[];
+  recommendations: string[];
+  disclaimer: string;
+  generatedAt: string;
+}
+

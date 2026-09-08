@@ -26,6 +26,8 @@ export const SliderTestPage: React.FC = () => {
         <AvatarUploadModal
           isOpen={isAvatarOpen}
           onClose={() => setIsAvatarOpen(false)}
+          studentId="test-student-id"
+          currentName="Test Student"
           onAvatarUpdated={() => {}}
         />
       </section>

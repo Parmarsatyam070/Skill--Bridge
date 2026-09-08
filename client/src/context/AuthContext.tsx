@@ -34,6 +34,7 @@ interface AuthContextType {
   isLoading: boolean;
   login: (identifier: string, password: string) => Promise<UserSession>;
   register: (data: any) => Promise<UserSession>;
+  signInWithGoogle: () => Promise<UserSession>;
   signInWithProvider: (provider: 'google' | 'github' | 'microsoft') => Promise<UserSession>;
   initiateOAuth: (provider: 'google' | 'github' | 'microsoft') => Promise<void>;
   handleOAuthCallback: (provider: string, code: string) => Promise<OAuthCallbackResult>;
@@ -70,10 +71,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const syncWithBackend = async (fbUser: FirebaseUser): Promise<UserSession | null> => {
     try {
       const idToken = await fbUser.getIdToken();
-      localStorage.setItem('skillbridge_token', idToken);
-      setToken(idToken);
-
-      const res = await api.post<{ user: UserSession; isNewUser: boolean }>('/auth/sync', { idToken });
+      const res = await api.post<{ user: UserSession; accessToken?: string; isNewUser: boolean }>('/auth/google/firebase', { idToken });
+      const authToken = res.accessToken || idToken;
+      localStorage.setItem('skillbridge_token', authToken);
+      setToken(authToken);
       setUser(res.user);
       return res.user;
     } catch (err) {
@@ -174,22 +175,52 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const signInWithProvider = async (provider: 'google' | 'github' | 'microsoft'): Promise<UserSession> => {
+  const signInWithGoogle = async (): Promise<UserSession> => {
     setIsLoading(true);
     try {
-      let providerInstance;
-      switch (provider) {
-        case 'google':
-          providerInstance = googleProvider;
-          break;
-        case 'github':
-          providerInstance = githubProvider;
-          break;
-        case 'microsoft':
-          providerInstance = microsoftProvider;
-          break;
-      }
+      const credential = await signInWithPopup(auth, googleProvider);
+      const idToken = await credential.user.getIdToken();
 
+      const res = await api.post<{ user: UserSession; accessToken?: string; isNewUser: boolean }>(
+        '/auth/google/firebase',
+        { idToken }
+      );
+
+      const authToken = res.accessToken || idToken;
+      localStorage.setItem('skillbridge_token', authToken);
+      setToken(authToken);
+      setUser(res.user);
+      setIsLoading(false);
+      return res.user;
+    } catch (err: any) {
+      setIsLoading(false);
+      if (err.code === 'auth/popup-closed-by-user') {
+        throw new Error('Sign-in cancelled. The Google sign-in window was closed.');
+      }
+      if (err.code === 'auth/popup-blocked') {
+        throw new Error('Popup blocked by browser. Please allow popups for SkillBridge to sign in.');
+      }
+      if (err.code === 'auth/cancelled-popup-request') {
+        throw new Error('Sign-in process was cancelled.');
+      }
+      if (err.code === 'auth/network-request-failed') {
+        throw new Error('Network error. Please check your internet connection.');
+      }
+      if (err.code === 'auth/account-exists-with-different-credential') {
+        throw new Error('An account already exists with this email using a different sign-in method.');
+      }
+      throw new Error(err.message || 'Google sign-in failed. Please try again.');
+    }
+  };
+
+  const signInWithProvider = async (provider: 'google' | 'github' | 'microsoft'): Promise<UserSession> => {
+    if (provider === 'google') {
+      return signInWithGoogle();
+    }
+
+    setIsLoading(true);
+    try {
+      const providerInstance = provider === 'github' ? githubProvider : microsoftProvider;
       const credential = await signInWithPopup(auth, providerInstance);
       const syncedUser = await syncWithBackend(credential.user);
       setIsLoading(false);
@@ -210,36 +241,65 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Backward compatibility wrapper for existing OAuth initiation
+  // Standard OAuth 2.0 initiation (supports Google, GitHub, Microsoft)
   const initiateOAuth = async (provider: 'google' | 'github' | 'microsoft'): Promise<void> => {
-    const userSession = await signInWithProvider(provider);
-    const redirectPath = getRoleRedirect(userSession.role as Role);
-    navigate(redirectPath);
+    if (provider === 'google') {
+      const user = await signInWithGoogle();
+      const redirectPath = getRoleRedirect(user.role as Role);
+      navigate(redirectPath);
+      return;
+    }
+
+    const redirectUri = `${window.location.origin}/auth/callback`;
+    try {
+      const res = await api.get<{ authUrl?: string; configured?: boolean }>(
+        `/auth/oauth/${provider}/url?redirectUri=${encodeURIComponent(redirectUri)}`
+      );
+      if (res && res.authUrl && res.configured !== false) {
+        window.location.href = res.authUrl;
+        return;
+      }
+    } catch (err: any) {
+      throw new Error(
+        err.message || `${provider.charAt(0).toUpperCase() + provider.slice(1)} OAuth is not configured on the server.`
+      );
+    }
   };
 
-  const handleOAuthCallback = async (_provider: string, _code: string): Promise<OAuthCallbackResult> => {
-    if (user) {
-      return { isNewUser: false, user, accessToken: token || undefined };
+  const handleOAuthCallback = async (provider: string, code: string): Promise<OAuthCallbackResult> => {
+    const redirectUri = `${window.location.origin}/auth/callback`;
+    const res = await api.post<OAuthCallbackResult>(`/auth/oauth/${provider}/callback`, {
+      code,
+      redirectUri,
+    });
+
+    if (!res.isNewUser && res.accessToken && res.user) {
+      localStorage.setItem('skillbridge_token', res.accessToken);
+      setToken(res.accessToken);
+      setUser(res.user);
     }
-    return { isNewUser: false };
+
+    return res;
   };
 
   const completeOAuthRegistration = async (
-    _onboardingToken: string,
+    onboardingToken: string,
     role: Role,
     roleData: any
   ): Promise<UserSession> => {
-    if (auth.currentUser) {
-      const idToken = await auth.currentUser.getIdToken();
-      const res = await api.post<{ user: UserSession }>('/auth/sync', {
-        idToken,
-        role,
-        roleData,
-      });
+    const res = await api.post<{ accessToken: string; user: UserSession }>('/auth/oauth/register', {
+      onboardingToken,
+      role,
+      roleData,
+    });
+
+    if (res.accessToken && res.user) {
+      localStorage.setItem('skillbridge_token', res.accessToken);
+      setToken(res.accessToken);
       setUser(res.user);
-      return res.user;
     }
-    throw new Error('No active authenticated session found.');
+
+    return res.user;
   };
 
   const logout = async () => {
@@ -269,6 +329,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isLoading,
         login,
         register,
+        signInWithGoogle,
         signInWithProvider,
         initiateOAuth,
         handleOAuthCallback,

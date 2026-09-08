@@ -11,6 +11,7 @@
     "isolatedModules": true,
     "noEmit": true,
     "jsx": "react-jsx",
+    "types": ["vite/client"],
     "strict": true,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
@@ -21,5 +22,5 @@
       "@shared/*": ["./shared/*"]
     }
   },
-  "include": ["client/src", "shared", "tests", "vite.config.ts"]
+  "include": ["client/src", "shared", "vite.config.ts"]
 }

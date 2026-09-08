@@ -31,6 +31,8 @@ model User {
   integrations       ExternalIntegration[]
   activityLogs       ActivityLog[]
   notifications      InAppNotification[]
+  auditLogs          AuditLog[]
+  collaborationMessages CollaborationMessage[]
 }
 
 model StudentProfile {
@@ -70,6 +72,11 @@ model StudentProfile {
   targetInternship     Internship?          @relation("StudentTargetInternship", fields: [targetInternshipId], references: [id], onDelete: SetNull)
   mockInterviewSessions MockInterviewSession[]
   sashMemories         SashMemory[]
+  candidateMatches     CandidateMatch[]
+  savedOpportunities   SavedOpportunity[]
+  assessmentSubmissions AssessmentSubmission[]
+  interviewSessions    InterviewSession[]
+  dailyTargets         DailyTarget[]
 }
 
 model Domain {
@@ -117,7 +124,11 @@ model IndustryProfile {
   industrySector String
   verified       Boolean  @default(false)
 
-  internships    Internship[]
+  internships       Internship[]
+  opportunities     Opportunity[]
+  collaborations    Collaboration[]
+  interviewSessions InterviewSession[]
+  assessments       Assessment[]
 }
 
 model AcademicianProfile {
@@ -135,6 +146,8 @@ model InstitutionProfile {
   user             User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   institutionName  String
   adminDesignation String
+
+  collaborations   Collaboration[]
 }
 
 model PasswordResetToken {
@@ -167,9 +180,11 @@ model Skill {
   category    String   // technical | soft | core
   description String?
 
-  benchmarks         SkillBenchmark[]
-  scores             StudentSkillScore[]
-  domainRequirements DomainSkillRequirement[]
+  benchmarks              SkillBenchmark[]
+  scores                  StudentSkillScore[]
+  domainRequirements      DomainSkillRequirement[]
+  aliases                 SkillAlias[]
+  opportunityRequirements OpportunitySkill[]
 }
 
 model SkillBenchmark {
@@ -192,9 +207,12 @@ model StudentSkillScore {
   score              Float          // 0 - 100 current score
   lastAttemptDate    DateTime?      // Last attempt date evaluating this skill
   scoreHistoryJson   String?        // JSON array of [{ date, score, attemptId, delta }]
-  inactivityDecayPct Float          @default(0.0) // Mild decay percentage applied if inactive > 30 days
-  decayDaysCount     Int            @default(0)   // Days since last attempt
-  updatedAt          DateTime       @updatedAt
+  inactivityDecayPct       Float          @default(0.0) // Mild decay percentage applied if inactive > 30 days
+  decayDaysCount           Int            @default(0)   // Days since last attempt
+  verificationLevel        String         @default("SELF-REPORTED") // SELF-REPORTED | COURSE-VERIFIED | ASSESSMENT-VERIFIED | PROJECT-VERIFIED | CERTIFICATION-VERIFIED
+  verificationEvidenceJson String?        // JSON metadata of verification proof
+  verifiedAt               DateTime?
+  updatedAt                DateTime       @updatedAt
 
   @@unique([studentId, skillId])
 }
@@ -284,14 +302,24 @@ model Application {
   id                 String          @id @default(uuid())
   studentId          String
   student            StudentProfile  @relation(fields: [studentId], references: [id], onDelete: Cascade)
-  internshipId       String
-  internship         Internship      @relation(fields: [internshipId], references: [id], onDelete: Cascade)
-  resumeId           String?
-  resume             Resume?         @relation(fields: [resumeId], references: [id], onDelete: SetNull)
-  status             String          @default("applied") // applied | under_review | shortlisted | rejected
-  matchScoreAtApply  Float
-  coverNote          String?
-  appliedAt          DateTime        @default(now())
+  internshipId         String?
+  internship           Internship?     @relation(fields: [internshipId], references: [id], onDelete: Cascade)
+  opportunityId        String?
+  opportunity          Opportunity?    @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  resumeId             String?
+  resume               Resume?         @relation(fields: [resumeId], references: [id], onDelete: SetNull)
+  status               String          @default("applied") // applied | under_review | shortlisted | assessment | interview | hired | rejected
+  matchScoreAtApply    Float
+  coverNote            String?
+  interviewDetailsJson String?
+  hiredDetailsJson      String?
+  appliedAt            DateTime        @default(now())
+  updatedAt            DateTime        @default(now()) @updatedAt
+
+  @@index([studentId])
+  @@index([internshipId])
+  @@index([opportunityId])
+  @@index([status])
 }
 
 model Resume {
@@ -577,4 +605,287 @@ model SashMemory {
   @@unique([studentProfileId, category, key])
   @@index([studentProfileId])
   @@index([studentProfileId, category])
+}
+
+// ========================================================
+// TALENT PLATFORM CORE ADDITIVE MODELS
+// ========================================================
+
+model SkillAlias {
+  id        String   @id @default(uuid())
+  alias     String   @unique
+  skillId   String
+  skill     Skill    @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@index([alias])
+}
+
+model Opportunity {
+  id                    String              @id @default(uuid())
+  companyId             String
+  company               IndustryProfile     @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  title                 String
+  description           String
+  type                  String              @default("JOB") // JOB | INTERNSHIP | APPRENTICESHIP | PROJECT | TRAINING | CERTIFICATION | WORKSHOP | HACKATHON | MENTORSHIP | GUEST_LECTURE | RESEARCH
+  industry              String?
+  location              String              @default("Remote")
+  remote                Boolean             @default(true)
+  workMode              String              @default("REMOTE") // REMOTE | HYBRID | ON_SITE
+  experienceLevel       String              @default("ENTRY") // ENTRY | MID | SENIOR | LEAD
+  educationRequirements String?
+  stipend               String?
+  duration              String?
+  applicationDeadline   DateTime?
+  status                String              @default("OPEN") // OPEN | PAUSED | CLOSED | DRAFT
+  createdAt             DateTime            @default(now())
+  updatedAt             DateTime            @updatedAt
+
+  skills                OpportunitySkill[]
+  applications          Application[]
+  matches               CandidateMatch[]
+  assessments           Assessment[]
+  savedByStudents       SavedOpportunity[]
+  interviewSessions     InterviewSession[]
+
+  @@index([companyId])
+  @@index([type])
+  @@index([status])
+  @@index([createdAt])
+}
+
+model OpportunitySkill {
+  id               String      @id @default(uuid())
+  opportunityId    String
+  opportunity      Opportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  skillId          String
+  skill            Skill       @relation(fields: [skillId], references: [id], onDelete: Cascade)
+  skillName        String?
+  proficiencyLevel String      @default("INTERMEDIATE") // BEGINNER | INTERMEDIATE | ADVANCED | EXPERT
+  weight           Int         @default(3) // 1 to 5
+  minScore         Float       @default(70.0) // 0 to 100 benchmark
+  isMandatory      Boolean     @default(true)
+
+  @@unique([opportunityId, skillId])
+  @@index([opportunityId])
+  @@index([skillId])
+}
+
+model CandidateMatch {
+  id                  String         @id @default(uuid())
+  candidateId         String
+  candidate           StudentProfile @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  opportunityId       String
+  opportunity         Opportunity    @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  score               Float          // 0 - 100 composite 7-factor score
+  eligibility         Boolean        @default(true)
+  ineligibilityReason String?
+  algorithmVersion    String         @default("v2.0-7factor")
+  calculatedAt        DateTime       @default(now())
+  breakdownJson       String         // JSON: { technicalSkills, requiredSkills, projects, assessment, education, experience, certification }
+  matchedSkillsJson   String
+  missingSkillsJson   String
+  strengthsJson       String
+  weaknessesJson      String
+  recommendationsJson String
+  explanation         String?
+  updatedAt           DateTime       @updatedAt
+
+  @@unique([candidateId, opportunityId])
+  @@index([opportunityId, score])
+  @@index([candidateId])
+}
+
+model SavedOpportunity {
+  id            String         @id @default(uuid())
+  studentId     String
+  student       StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  opportunityId String
+  opportunity   Opportunity    @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  savedAt       DateTime       @default(now())
+
+  @@unique([studentId, opportunityId])
+  @@index([studentId])
+}
+
+model Assessment {
+  id                 String                 @id @default(uuid())
+  companyId          String?
+  company            IndustryProfile?       @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  opportunityId      String?
+  opportunity        Opportunity?           @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  title              String
+  description        String
+  durationMinutes    Int                    @default(45)
+  passingScorePct    Float                  @default(70.0)
+  requiredSkillsJson String?
+  status             String                 @default("DRAFT") // DRAFT | PUBLISHED | ARCHIVED
+  createdAt          DateTime               @default(now())
+  updatedAt          DateTime               @updatedAt
+
+  questions          AssessmentQuestion[]
+  submissions        AssessmentSubmission[]
+
+  @@index([companyId])
+  @@index([opportunityId])
+  @@index([status])
+}
+
+model AssessmentQuestion {
+  id            String     @id @default(uuid())
+  assessmentId  String
+  assessment    Assessment @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  skillId       String?
+  type          String     @default("MCQ") // MCQ | TECHNICAL | SCENARIO | BEHAVIORAL | SHORT_ANSWER
+  prompt        String
+  optionsJson   String?
+  rubric        String?
+  starterCode   String?
+  testCasesJson String?
+  points        Float      @default(10.0)
+  displayOrder  Int        @default(1)
+
+  @@index([assessmentId])
+}
+
+model AssessmentSubmission {
+  id                      String         @id @default(uuid())
+  assessmentId            String
+  assessment              Assessment     @relation(fields: [assessmentId], references: [id], onDelete: Cascade)
+  studentId               String
+  student                 StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+  startedAt               DateTime       @default(now())
+  submittedAt             DateTime?
+  timeSpentSeconds        Int            @default(0)
+  score                   Float          @default(0.0)
+  passed                  Boolean        @default(false)
+  technicalScore          Float          @default(0.0)
+  skillScoreBreakdownJson String?
+  answersJson             String
+  feedbackJson            String?
+  createdAt               DateTime       @default(now())
+
+  @@index([assessmentId, studentId])
+  @@index([studentId])
+}
+
+model InterviewSession {
+  id             String          @id @default(uuid())
+  opportunityId  String?
+  opportunity    Opportunity?    @relation(fields: [opportunityId], references: [id], onDelete: SetNull)
+  candidateId    String
+  candidate      StudentProfile  @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  recruiterId    String?
+  recruiter      IndustryProfile? @relation(fields: [recruiterId], references: [id], onDelete: SetNull)
+  type           String          @default("TECHNICAL") // TECHNICAL | BEHAVIORAL | HR | MIXED
+  status         String          @default("SCHEDULED") // SCHEDULED | IN_PROGRESS | COMPLETED | CANCELLED
+  scheduledAt    DateTime?
+  completedAt    DateTime?
+  questionsJson  String?
+  transcriptJson String?
+  evaluationJson String?
+  overallScore   Float?
+  recommendation String?         // STRONGLY_RECOMMEND | RECOMMEND | MAYBE | DO_NOT_RECOMMEND (Advisory)
+  notes          String?
+  createdAt      DateTime        @default(now())
+  updatedAt      DateTime        @updatedAt
+
+  @@index([opportunityId])
+  @@index([candidateId])
+  @@index([recruiterId])
+  @@index([status])
+}
+
+model Collaboration {
+  id               String               @id @default(uuid())
+  institutionId    String
+  institution      InstitutionProfile   @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+  companyId        String
+  company          IndustryProfile      @relation(fields: [companyId], references: [id], onDelete: Cascade)
+  type             String               @default("WORKSHOP") // MENTORSHIP | GUEST_LECTURE | WORKSHOP | HACKATHON | LIVE_PROJECT | RESEARCH | APPRENTICESHIP | TRAINING | CURRICULUM_FEEDBACK | FACULTY_DEV | PLACEMENT_DRIVE
+  title            String
+  description      String
+  skillsJson       String?
+  targetDepartment String?
+  proposedDate     String?
+  startDate        DateTime?
+  endDate          DateTime?
+  status           String               @default("REQUESTED") // REQUESTED | DISCUSSION | APPROVED | ACTIVE | COMPLETED | REJECTED | CANCELLED
+  initiatedByRole  String               @default("INDUSTRY")
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+
+  messages         CollaborationMessage[]
+
+  @@index([institutionId])
+  @@index([companyId])
+  @@index([status])
+}
+
+model CollaborationMessage {
+  id              String        @id @default(uuid())
+  collaborationId String
+  collaboration   Collaboration @relation(fields: [collaborationId], references: [id], onDelete: Cascade)
+  senderUserId    String
+  senderUser      User          @relation(fields: [senderUserId], references: [id], onDelete: Cascade)
+  message         String
+  createdAt       DateTime      @default(now())
+
+  @@index([collaborationId])
+}
+
+model SkillDemandSnapshot {
+  id               String   @id @default(uuid())
+  skillName        String
+  category         String   @default("technical")
+  demandCount      Int      @default(0)
+  demandPct        Float    @default(0.0)
+  trendDirection   String   @default("STABLE") // GROWING | STABLE | DECLINING | EMERGING
+  difficultyRating Float    @default(50.0)
+  source           String   @default("SkillBridge Internal Demand")
+  snapshotDate     String   // YYYY-MM
+  createdAt        DateTime @default(now())
+
+  @@unique([skillName, snapshotDate])
+  @@index([demandCount])
+  @@index([snapshotDate])
+}
+
+model AuditLog {
+  id           String   @id @default(uuid())
+  userId       String?
+  user         User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  action       String   // e.g. OPPORTUNITY_CREATED, CANDIDATE_SHORTLISTED, INTERVIEW_EVALUATED
+  entity       String   // Opportunity, Application, Collaboration, etc.
+  entityId     String?
+  metadataJson String?
+  timestamp    DateTime @default(now())
+
+  @@index([userId])
+  @@index([entity, entityId])
+  @@index([timestamp])
+}
+
+model DailyTarget {
+  id             String         @id
+  studentId      String
+  date           String
+  title          String
+  targetGoal     String
+  actionLabel    String
+  targetType     String
+  targetUrl      String
+  targetRefId    String?
+  roadmapPhase   String
+  focusTopic     String
+  rationale      String
+  completed      Boolean        @default(false)
+  completedAt    DateTime?
+  metadataJson   String?
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @default(now())
+  student        StudentProfile @relation(fields: [studentId], references: [id], onDelete: Cascade)
+
+  @@unique([studentId, date])
+  @@index([studentId, date])
 }

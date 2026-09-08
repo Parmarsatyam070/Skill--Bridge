@@ -156,10 +156,10 @@ describe('Auth & Security Service Suite', () => {
     expect(user?.email).toBe('demo@skillbridge.app');
     expect(user?.role).toBe('STUDENT');
 
-    const isValidPassword = await bcrypt.compare('password123', user!.passwordHash);
+    const isValidPassword = await bcrypt.compare('password123', user!.passwordHash!);
     expect(isValidPassword).toBe(true);
 
-    const isInvalidPassword = await bcrypt.compare('WrongPassword999', user!.passwordHash);
+    const isInvalidPassword = await bcrypt.compare('WrongPassword999', user!.passwordHash!);
     expect(isInvalidPassword).toBe(false);
   });
 

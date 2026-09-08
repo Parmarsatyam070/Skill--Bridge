@@ -20,11 +20,15 @@ import {
   ExternalLink,
   Flame,
   Code2,
+  Compass,
+  Bot,
+  Handshake,
   Menu,
   X,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { SashWidget } from './SashWidget';
+import { RecruiterCopilotDrawer } from './recruiter/RecruiterCopilotDrawer';
 import { NotificationDropdown } from './NotificationDropdown';
 import { ConsoleSkeleton } from './ConsoleSkeleton';
 import { ConsoleBackButton } from './ConsoleBackButton';
@@ -76,6 +80,9 @@ export const ConsoleLayout: React.FC<{ children: React.ReactNode }> = ({ childre
     navItems = [
       { label: 'Career Profile',     path: '/profile',       icon: UserCheck,      badge: 'Profile'    },
       { label: 'Overview',           path: '/dashboard',     icon: LayoutDashboard                      },
+      { label: 'Opportunity Hub',    path: '/opportunities', icon: Compass,        badge: '7-Factor'   },
+      { label: 'Talent Assessments', path: '/assessments',   icon: Award,          badge: 'Tests'      },
+      { label: 'AI Interviews',      path: '/interviews',    icon: Bot,            badge: 'AI Prep'    },
       { label: 'Skill Profile',      path: '/skill-profile', icon: Radar                                },
       { label: 'Skill Assessment',   path: '/assessment',    icon: CheckSquare,    badge: 'Daily + Sets'},
       { label: 'DSA & Coding',       path: '/dsa',           icon: Code2,          badge: 'Coding'     },
@@ -88,8 +95,13 @@ export const ConsoleLayout: React.FC<{ children: React.ReactNode }> = ({ childre
     ];
   } else if (user.role === 'INDUSTRY') {
     navItems = [
-      { label: 'Recruitment Hub',    path: '/industry/dashboard',    icon: LayoutDashboard },
-      { label: 'Post Internship',    path: '/industry/post-job',     icon: Briefcase       },
+      { label: 'Recruitment Hub',       path: '/industry/dashboard',    icon: LayoutDashboard },
+      { label: 'Market Intelligence',   path: '/industry/intelligence', icon: BarChart3,      badge: 'Analytics' },
+      { label: 'Opportunity Market',    path: '/opportunities',         icon: Compass,        badge: 'Live' },
+      { label: 'Talent Assessments',    path: '/assessments',           icon: CheckSquare,    badge: 'Tests' },
+      { label: 'AI Interviews',         path: '/interviews',            icon: Bot,            badge: 'Audits' },
+      { label: 'Collaborations',        path: '/collaborations',        icon: Handshake,      badge: 'Partner' },
+      { label: 'Post Internship',       path: '/industry/post-job',     icon: Briefcase       },
     ];
   } else if (user.role === 'ACADEMICIAN') {
     navItems = [
@@ -98,7 +110,9 @@ export const ConsoleLayout: React.FC<{ children: React.ReactNode }> = ({ childre
     ];
   } else {
     navItems = [
-      { label: 'Institutional Analytics', path: '/institution/dashboard', icon: BarChart3 },
+      { label: 'Institutional Analytics', path: '/institution/dashboard',    icon: BarChart3 },
+      { label: 'Skill Intelligence',      path: '/institution/intelligence',icon: Radar,      badge: 'Curriculum' },
+      { label: 'Collaborations',          path: '/collaborations',           icon: Handshake,  badge: 'Industry' },
     ];
   }
 
@@ -388,8 +402,11 @@ export const ConsoleLayout: React.FC<{ children: React.ReactNode }> = ({ childre
         </main>
       </div>
 
-      {/* Sash floating assistant */}
-      <SashWidget />
+      {/* Student AI career navigator */}
+      {user.role === 'STUDENT' && <SashWidget />}
+
+      {/* Recruiter AI copilot */}
+      {user.role === 'INDUSTRY' && <RecruiterCopilotDrawer />}
     </div>
   );
 };

@@ -53,11 +53,20 @@ export const CodingSandbox: React.FC<CodingSandboxProps> = ({
       setExecutionResult(result);
     } catch (err: any) {
       setExecutionResult({
+        status: 'RUNTIME_ERROR',
         passed: false,
+        compilationSuccess: false,
+        executionCompleted: false,
+        compilationTimeMs: null,
+        executionTimeMs: 0,
+        testsTotal: testCases.length,
+        testsExecuted: 0,
+        testsPassed: 0,
+        allTestsPassed: false,
         totalTestCases: testCases.length,
         passedTestCases: 0,
         failedTestCases: testCases.length,
-        executionTimeMs: 0,
+        testResults: [],
         testCaseResults: [],
         error: err.message || 'Execution failed. Please verify syntax.',
       });

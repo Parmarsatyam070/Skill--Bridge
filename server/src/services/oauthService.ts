@@ -24,11 +24,11 @@ const JWT_SECRET = process.env.JWT_SECRET || 'skillbridge_super_secret_jwt_acces
 export function isOauthConfigured(provider: OAuthProvider): boolean {
   switch (provider) {
     case 'google':
-      return Boolean(process.env.GOOGLE_CLIENT_ID && process.env.GOOGLE_CLIENT_SECRET);
+      return Boolean(process.env.GOOGLE_CLIENT_ID?.trim() && process.env.GOOGLE_CLIENT_SECRET?.trim());
     case 'github':
-      return Boolean(process.env.GITHUB_CLIENT_ID && process.env.GITHUB_CLIENT_SECRET);
+      return Boolean(process.env.GITHUB_CLIENT_ID?.trim() && process.env.GITHUB_CLIENT_SECRET?.trim());
     case 'microsoft':
-      return Boolean(process.env.MICROSOFT_CLIENT_ID && process.env.MICROSOFT_CLIENT_SECRET);
+      return Boolean(process.env.MICROSOFT_CLIENT_ID?.trim() && process.env.MICROSOFT_CLIENT_SECRET?.trim());
     default:
       return false;
   }
@@ -47,7 +47,7 @@ export function getAuthorizationUrl(
 
   switch (provider) {
     case 'google': {
-      const clientId = process.env.GOOGLE_CLIENT_ID!;
+      const clientId = process.env.GOOGLE_CLIENT_ID!.trim();
       const params = new URLSearchParams({
         client_id: clientId,
         redirect_uri: redirectUri,
@@ -112,8 +112,10 @@ export async function exchangeCodeForVerifiedUser(
 
   switch (provider) {
     case 'google': {
-      const clientId = process.env.GOOGLE_CLIENT_ID!;
-      const clientSecret = process.env.GOOGLE_CLIENT_SECRET!;
+      const clientId = process.env.GOOGLE_CLIENT_ID!.trim();
+      const clientSecret = process.env.GOOGLE_CLIENT_SECRET!.trim();
+
+      console.log(`[OAUTH SERVICE] Exchanging code with Google API (redirect_uri: ${redirectUri})...`);
 
       const tokenRes = await fetch('https://oauth2.googleapis.com/token', {
         method: 'POST',
@@ -129,21 +131,32 @@ export async function exchangeCodeForVerifiedUser(
 
       const tokenData: any = await tokenRes.json();
       if (!tokenRes.ok || !tokenData.access_token) {
+        console.error('[OAUTH SERVICE ERROR] Google token exchange rejected:', {
+          status: tokenRes.status,
+          error: tokenData.error,
+          error_description: tokenData.error_description,
+          redirect_uri_used: redirectUri,
+        });
         throw new Error(tokenData.error_description || tokenData.error || 'Failed to exchange Google OAuth code');
       }
 
+      console.log('[OAUTH SERVICE] Google access token received. Fetching userinfo profile...');
       const userRes = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
         headers: { Authorization: `Bearer ${tokenData.access_token}` },
       });
 
       const userData: any = await userRes.json();
       if (!userRes.ok || !userData.email) {
+        console.error('[OAUTH SERVICE ERROR] Google userinfo fetch failed:', { status: userRes.status, data: userData });
         throw new Error('Failed to retrieve verified email from Google');
       }
 
       if (userData.email_verified === false) {
+        console.warn('[OAUTH SERVICE WARN] Google email is not verified for:', userData.email);
         throw new Error('Google email is not verified');
       }
+
+      console.log(`[OAUTH SERVICE SUCCESS] Google user identity verified: ${userData.email} (sub: ${userData.sub})`);
 
       return {
         provider: 'google',

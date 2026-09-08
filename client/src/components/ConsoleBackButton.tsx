@@ -7,20 +7,25 @@ const ROUTE_LABELS: Record<string, string> = {
   '/profile': 'Career Profile',
   '/skill-profile': 'Skill Profile',
   '/assessment': 'Skill Assessment',
-  '/assessments': 'Skill Assessment',
+  '/assessments': 'Talent Assessments',
   '/dsa': 'DSA & Coding',
   '/learn': 'Learning Hub',
   '/report-card': 'Report Card',
   '/internships': 'Matched Internships',
+  '/opportunities': 'Opportunity Hub',
+  '/interviews': 'AI Interviews',
   '/courses': 'Partner Courses',
   '/resume-builder': 'AI Resume Builder',
   '/portfolio': 'Portfolio Website',
   '/portfolio-builder': 'Portfolio Builder',
   '/industry/dashboard': 'Recruitment Hub',
+  '/industry/intelligence': 'Market Intelligence',
   '/industry/post-job': 'Post Internship',
   '/academician/dashboard': 'Academia Hub',
   '/academician/opportunities': 'Opportunities',
   '/institution/dashboard': 'Institutional Analytics',
+  '/institution/intelligence': 'Skill Intelligence',
+  '/collaborations': 'Collaborations',
 };
 
 export const getLabelForPath = (pathWithSearch: string): string => {
@@ -31,6 +36,9 @@ export const getLabelForPath = (pathWithSearch: string): string => {
   if (pathname === '/assessment') {
     return 'Skill Assessment';
   }
+  if (pathname === '/assessments') {
+    return 'Talent Assessments';
+  }
 
   if (ROUTE_LABELS[pathname]) {
     return ROUTE_LABELS[pathname];
@@ -38,11 +46,23 @@ export const getLabelForPath = (pathWithSearch: string): string => {
   if (pathname.startsWith('/dsa')) {
     return 'DSA & Coding';
   }
-  if (pathname.startsWith('/assessment') || pathname.startsWith('/assessments')) {
+  if (pathname.startsWith('/opportunities')) {
+    return 'Opportunity Hub';
+  }
+  if (pathname.startsWith('/assessments')) {
+    return 'Talent Assessments';
+  }
+  if (pathname.startsWith('/assessment')) {
     return 'Skill Assessment';
   }
   if (pathname.startsWith('/p/')) {
     return 'Portfolio';
+  }
+  if (pathname.startsWith('/interviews')) {
+    return 'AI Interviews';
+  }
+  if (pathname.startsWith('/collaborations')) {
+    return 'Collaborations';
   }
   if (pathname.startsWith('/industry/')) {
     return 'Industry Hub';
