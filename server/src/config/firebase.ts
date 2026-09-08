@@ -2,73 +2,169 @@ import { initializeApp, getApps, cert, App, ServiceAccount } from 'firebase-admi
 import { getAuth, Auth } from 'firebase-admin/auth';
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
 let firebaseAdminApp: App | null = null;
 
+// ESM-compatible __dirname equivalent
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 function initializeFirebaseAdmin(): App {
   const existingApps = getApps();
+
   if (existingApps.length > 0) {
     return existingApps[0]!;
   }
 
-  const rawKey = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
   let serviceAccount: ServiceAccount | null = null;
 
-  if (rawKey) {
-    const trimmed = rawKey.trim();
-    if (trimmed.startsWith('{')) {
-      try {
-        serviceAccount = JSON.parse(trimmed);
-      } catch (err: any) {
-        console.error('❌ [Firebase Admin] Failed to parse FIREBASE_SERVICE_ACCOUNT_KEY JSON string:', err.message);
-      }
-    } else {
-      // Treat as file path
-      const resolvedPath = path.isAbsolute(trimmed) ? trimmed : path.resolve(process.cwd(), trimmed);
-      if (fs.existsSync(resolvedPath)) {
+  /*
+   * ---------------------------------------------------------
+   * 1. Preferred Render / production configuration
+   * ---------------------------------------------------------
+   */
+  const projectIdEnv = process.env.FIREBASE_PROJECT_ID;
+  const clientEmailEnv = process.env.FIREBASE_CLIENT_EMAIL;
+  const privateKeyEnv = process.env.FIREBASE_PRIVATE_KEY;
+
+  if (projectIdEnv && clientEmailEnv && privateKeyEnv) {
+    serviceAccount = {
+      projectId: projectIdEnv,
+      clientEmail: clientEmailEnv,
+      privateKey: privateKeyEnv.replace(/\\n/g, '\n'),
+    };
+
+    console.log(
+      `✅ [Firebase Admin] Using environment credentials for project: ${projectIdEnv}`
+    );
+  }
+
+  /*
+   * ---------------------------------------------------------
+   * 2. Existing FIREBASE_SERVICE_ACCOUNT_KEY support
+   * ---------------------------------------------------------
+   */
+  if (!serviceAccount) {
+    const rawKey = process.env.FIREBASE_SERVICE_ACCOUNT_KEY;
+
+    if (rawKey) {
+      const trimmed = rawKey.trim();
+
+      if (trimmed.startsWith('{')) {
         try {
-          serviceAccount = JSON.parse(fs.readFileSync(resolvedPath, 'utf8'));
+          serviceAccount = JSON.parse(trimmed);
+
+          console.log(
+            `✅ [Firebase Admin] Loaded credentials from FIREBASE_SERVICE_ACCOUNT_KEY`
+          );
         } catch (err: any) {
-          console.error(`❌ [Firebase Admin] Failed to read service account file from ${resolvedPath}:`, err.message);
+          console.error(
+            '❌ [Firebase Admin] Failed to parse FIREBASE_SERVICE_ACCOUNT_KEY JSON:',
+            err.message
+          );
         }
       } else {
-        console.warn(`⚠️ [Firebase Admin] Service account file not found at path: ${resolvedPath}`);
-      }
-    }
-  }
+        // Treat FIREBASE_SERVICE_ACCOUNT_KEY as a file path
+        const resolvedPath = path.isAbsolute(trimmed)
+          ? trimmed
+          : path.resolve(process.cwd(), trimmed);
 
-  // Check fallback local development credential file if serviceAccount wasn't already loaded
-  if (!serviceAccount) {
-    const candidatePaths = [
-      path.resolve(process.cwd(), 'sihi-5694c-firebase-adminsdk-fbsvc-5e920b2b3f.json'),
-      path.resolve(process.cwd(), '..', 'sihi-5694c-firebase-adminsdk-fbsvc-5e920b2b3f.json'),
-      path.resolve(__dirname, '..', '..', '..', 'sihi-5694c-firebase-adminsdk-fbsvc-5e920b2b3f.json'),
-      path.resolve(__dirname, '..', '..', 'sihi-5694c-firebase-adminsdk-fbsvc-5e920b2b3f.json'),
-    ];
+        if (fs.existsSync(resolvedPath)) {
+          try {
+            serviceAccount = JSON.parse(
+              fs.readFileSync(resolvedPath, 'utf8')
+            );
 
-    for (const candPath of candidatePaths) {
-      if (fs.existsSync(candPath)) {
-        try {
-          serviceAccount = JSON.parse(fs.readFileSync(candPath, 'utf8'));
-          console.log(`ℹ️ [Firebase Admin] Loaded credentials from service account file at: ${candPath}`);
-          break;
-        } catch (err: any) {
-          console.error(`❌ [Firebase Admin] Failed to load service account file from ${candPath}:`, err.message);
+            console.log(
+              `✅ [Firebase Admin] Loaded credentials from service account file: ${resolvedPath}`
+            );
+          } catch (err: any) {
+            console.error(
+              `❌ [Firebase Admin] Failed to read service account file from ${resolvedPath}:`,
+              err.message
+            );
+          }
+        } else {
+          console.warn(
+            `⚠️ [Firebase Admin] Service account file not found at path: ${resolvedPath}`
+          );
         }
       }
     }
   }
 
-  const projectId = process.env.FIREBASE_PROJECT_ID || (serviceAccount as any)?.project_id || 'sihi-5694c';
+  /*
+   * ---------------------------------------------------------
+   * 3. Local development JSON fallback
+   * ---------------------------------------------------------
+   *
+   * This is only used when environment credentials are not
+   * available. The paths are now ESM-safe.
+   */
+  if (!serviceAccount) {
+    const serviceAccountFile =
+      'sihi-5694c-firebase-adminsdk-fbsvc-5e920b2b3f.json';
 
+    const candidatePaths = [
+      path.resolve(process.cwd(), serviceAccountFile),
+      path.resolve(process.cwd(), '..', serviceAccountFile),
+      path.resolve(__dirname, '..', '..', '..', serviceAccountFile),
+      path.resolve(__dirname, '..', '..', serviceAccountFile),
+    ];
+
+    for (const candidatePath of candidatePaths) {
+      if (fs.existsSync(candidatePath)) {
+        try {
+          serviceAccount = JSON.parse(
+            fs.readFileSync(candidatePath, 'utf8')
+          );
+
+          console.log(
+            `ℹ️ [Firebase Admin] Loaded local service account file`
+          );
+
+          break;
+        } catch (err: any) {
+          console.error(
+            '❌ [Firebase Admin] Failed to load local service account file:',
+            err.message
+          );
+        }
+      }
+    }
+  }
+
+  /*
+   * ---------------------------------------------------------
+   * 4. Determine project ID
+   * ---------------------------------------------------------
+   */
+  const projectId =
+    process.env.FIREBASE_PROJECT_ID ||
+    (serviceAccount as any)?.project_id ||
+    'sihi-5694c';
+
+  /*
+   * ---------------------------------------------------------
+   * 5. Initialize Firebase Admin
+   * ---------------------------------------------------------
+   */
   if (serviceAccount) {
     firebaseAdminApp = initializeApp({
       credential: cert(serviceAccount),
       projectId,
     });
-    console.log(`✅ [Firebase Admin] Initialized successfully for project: ${projectId}`);
+
+    console.log(
+      `✅ [Firebase Admin] Initialized successfully for project: ${projectId}`
+    );
   } else {
-    console.warn('⚠️ [Firebase Admin] No service account key provided. Initializing with default project credentials (or test fallback).');
+    console.warn(
+      '⚠️ [Firebase Admin] No service account credentials found. ' +
+      'Attempting initialization with default credentials.'
+    );
+
     firebaseAdminApp = initializeApp({
       projectId,
     });
@@ -78,5 +174,7 @@ function initializeFirebaseAdmin(): App {
 }
 
 export const firebaseAdmin = initializeFirebaseAdmin();
+
 export const adminAuth: Auth = getAuth(firebaseAdmin);
+
 export default firebaseAdmin;
