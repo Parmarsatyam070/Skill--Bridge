@@ -95,7 +95,7 @@ The score considers:
 
 ### Matching Formula
 
-```text
+```
 Score =
 round(
   max(
@@ -113,7 +113,7 @@ round(
 
 More specifically:
 
-```text
+```
 weightedFulfillment =
 Σ(weight × min(1, studentScore / requiredScore))
 ÷ Σ(weight)
@@ -135,11 +135,11 @@ round(
 
 ### Match Tiers
 
-|  Score | Tier      |
-| -----: | --------- |
+| Score  | Tier     |
+| ------ | -------- |
 | 80–100 | 🟢 High   |
-|  50–79 | 🟡 Medium |
-|   0–49 | 🔴 Low    |
+| 50–79  | 🟡 Medium |
+| 0–49   | 🔴 Low    |
 
 All matching calculations are performed on the **server**, preventing inconsistent client-side calculations.
 
@@ -169,7 +169,7 @@ A user does **not** increase their streak simply by logging into the platform.
 
 Instead:
 
-```text
+```
 Login
   ↓
 Daily Practice
@@ -245,7 +245,7 @@ Completing a course can increase the student's corresponding skill score.
 
 Example:
 
-```text
+```
 Complete React Course
         ↓
 React skill points increase
@@ -288,7 +288,7 @@ Students can then receive personalized matching based on their verified skill pr
 
 Supported work modes include:
 
-```text
+```
 REMOTE
 HYBRID
 ON_SITE
@@ -375,7 +375,7 @@ Designed around:
 
 An animated connector representing a genuine relationship between:
 
-```text
+```
 Student Skill
       ↕
 Industry Requirement
@@ -430,7 +430,7 @@ It is used to visually communicate meaningful skill-to-opportunity matches.
 
 # 🏗️ Project Architecture
 
-```text
+```
 SkillBridge/
 │
 ├── client/
@@ -544,7 +544,7 @@ Never commit your real `.env` file or API keys to GitHub.
 
 Use:
 
-```text
+```
 .env.example
 ```
 
@@ -674,7 +674,7 @@ npm run dev
 
 The application will run at:
 
-```text
+```
 Frontend:
 http://localhost:3000
 
@@ -741,7 +741,7 @@ SkillBridge supports four major user roles.
 
 # 🔄 Core Platform Flow
 
-```text
+```
                     ┌────────────────────┐
                     │      Student       │
                     └─────────┬──────────┘
@@ -785,7 +785,7 @@ Traditional education platforms generally focus on completing courses, while rec
 
 SkillBridge connects these two worlds.
 
-```text
+```
 Academic Learning
        ↓
 Skill Assessment
