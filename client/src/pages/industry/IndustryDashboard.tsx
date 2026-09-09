@@ -4,20 +4,13 @@ import { useQuery } from '@tanstack/react-query';
 import {
   Briefcase,
   Users,
-  Award,
-  TrendingUp,
   Plus,
   ArrowRight,
-  ShieldCheck,
-  CheckCircle2,
-  ExternalLink,
-  Clock,
   Bot,
   Sparkles,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
-import { MatchBadge } from '../../components/MatchBadge';
 
 export const IndustryDashboard: React.FC = () => {
   const { user } = useAuth();
@@ -43,10 +36,10 @@ export const IndustryDashboard: React.FC = () => {
               Verified Enterprise Recruiter
             </span>
             <span className="text-xs font-mono text-slate-400">
-              {user?.industryProfile?.companyName}
+              {user?.industryProfile?.companyName || user?.name}
             </span>
           </div>
-          <h1 className="text-2xl sm:text-3xl font-semibold text-white tracking-tight">
+          <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
             Recruitment Command Center
           </h1>
           <p className="text-xs sm:text-sm text-slate-400 max-w-xl leading-relaxed">
@@ -76,7 +69,7 @@ export const IndustryDashboard: React.FC = () => {
       </div>
 
       {/* Metrics Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-5 font-mono">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 font-mono">
         <div className="p-5 rounded-xl bg-[#0b1329] border border-[#1e293b] space-y-1 shadow-sm">
           <div className="flex items-center justify-between text-xs text-slate-400 font-sans">
             <span className="small-caps-label text-[10px] text-slate-400">[• ACTIVE POSTINGS]</span>
@@ -93,15 +86,6 @@ export const IndustryDashboard: React.FC = () => {
           </div>
           <div className="text-2xl sm:text-3xl font-bold text-blue-400 pt-1">{totalApplicants}</div>
           <div className="text-[11px] text-slate-400 font-sans">100% Pre-assessed candidates</div>
-        </div>
-
-        <div className="p-5 rounded-xl bg-[#0b1329] border border-[#1e293b] space-y-1 shadow-sm">
-          <div className="flex items-center justify-between text-xs text-slate-400 font-sans">
-            <span className="small-caps-label text-[10px] text-slate-400">[• INTEGRITY GUARANTEE]</span>
-            <ShieldCheck className="w-4 h-4 text-[#4CC38A]" />
-          </div>
-          <div className="text-2xl sm:text-3xl font-bold text-[#4CC38A] pt-1">0% Fraud</div>
-          <div className="text-[11px] text-slate-400 font-sans">Server-calculated match scores</div>
         </div>
       </div>
 
