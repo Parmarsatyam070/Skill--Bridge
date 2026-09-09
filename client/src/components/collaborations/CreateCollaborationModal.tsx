@@ -101,25 +101,25 @@ export const CreateCollaborationModal: React.FC<Props> = ({
       aria-modal="true"
       aria-labelledby="create-collab-title"
     >
-      <div className="bg-[#111318] border border-[#2A2E38] rounded-2xl w-full max-w-2xl my-8 p-6 shadow-2xl space-y-5 text-left">
+      <div className="bg-[#0b1329] border border-[#1e293b] rounded-2xl w-full max-w-2xl my-8 p-6 shadow-2xl space-y-5 text-left">
         {/* Modal Header */}
-        <div className="flex items-center justify-between pb-3 border-b border-[#2A2E38]">
+        <div className="flex items-center justify-between pb-3 border-b border-[#1e293b]">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-lg bg-[#2F8C82]/15 flex items-center justify-center text-[#2F8C82]">
+            <div className="w-8 h-8 rounded-lg bg-blue-600/15 flex items-center justify-center text-blue-400 border border-blue-500/30">
               <Sparkles className="w-4 h-4" />
             </div>
             <div>
-              <h2 id="create-collab-title" className="text-lg font-bold text-[#F4F5F7]">
+              <h2 id="create-collab-title" className="text-lg font-bold text-white">
                 New Collaboration Proposal
               </h2>
-              <p className="text-xs text-[#8B90A0]">
+              <p className="text-xs text-slate-400">
                 Propose an academia-industry initiative with verified milestones
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="text-zinc-500 hover:text-white p-1 rounded-lg hover:bg-[#1A1D24] transition-colors"
+            className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-[#0f172a] transition-colors"
             aria-label="Close dialog"
           >
             <X className="w-5 h-5" />
@@ -137,10 +137,10 @@ export const CreateCollaborationModal: React.FC<Props> = ({
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Partner Selection */}
           <div>
-            <label className="block text-xs font-semibold text-zinc-300 mb-1.5 flex items-center gap-1.5">
+            <label className="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center gap-1.5">
               {isIndustry ? (
                 <>
-                  <GraduationCap className="w-3.5 h-3.5 text-emerald-400" />
+                  <GraduationCap className="w-3.5 h-3.5 text-indigo-400" />
                   <span>Target Academic Institution *</span>
                 </>
               ) : (
@@ -152,8 +152,8 @@ export const CreateCollaborationModal: React.FC<Props> = ({
             </label>
 
             {isLoadingPartners ? (
-              <div className="flex items-center gap-2 text-xs text-zinc-500 py-2">
-                <Loader2 className="w-3.5 h-3.5 animate-spin text-[#2F8C82]" />
+              <div className="flex items-center gap-2 text-xs text-slate-500 py-2">
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-500" />
                 <span>Loading available partners...</span>
               </div>
             ) : (
@@ -161,20 +161,20 @@ export const CreateCollaborationModal: React.FC<Props> = ({
                 value={partnerId}
                 onChange={(e) => setPartnerId(e.target.value)}
                 required
-                className="w-full bg-[#1A1D24] border border-[#2A2E38] rounded-xl px-3.5 py-2.5 text-sm text-[#F4F5F7] focus:outline-none focus:border-[#2F8C82] focus:ring-1 focus:ring-[#2F8C82]"
+                className="w-full bg-[#0f172a] border border-[#1e293b] rounded-xl px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
               >
                 <option value="">
                   {isIndustry ? 'Select an institution...' : 'Select a corporate partner...'}
                 </option>
                 {isIndustry &&
                   partners?.institutions.map((inst) => (
-                    <option key={inst.id} value={inst.id}>
+                    <option key={inst.id} value={inst.id} className="bg-[#0b1329] text-white">
                       {inst.institutionName}{inst.adminDesignation ? ` (${inst.adminDesignation})` : ''}
                     </option>
                   ))}
                 {isInstitution &&
                   partners?.companies.map((comp) => (
-                    <option key={comp.id} value={comp.id}>
+                    <option key={comp.id} value={comp.id} className="bg-[#0b1329] text-white">
                       {comp.companyName}{comp.industrySector ? ` — ${comp.industrySector}` : ''}
                     </option>
                   ))}
@@ -184,7 +184,7 @@ export const CreateCollaborationModal: React.FC<Props> = ({
 
           {/* Collaboration Type */}
           <div>
-            <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
+            <label className="block text-xs font-semibold text-slate-300 mb-1.5">
               Collaboration Model *
             </label>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
@@ -197,12 +197,12 @@ export const CreateCollaborationModal: React.FC<Props> = ({
                     onClick={() => setType(t.id)}
                     className={`p-2.5 rounded-xl border text-left transition-all ${
                       isSelected
-                        ? 'bg-[#2F8C82]/15 border-[#2F8C82] text-white ring-1 ring-[#2F8C82]'
-                        : 'bg-[#1A1D24] border-[#2A2E38] text-zinc-400 hover:text-zinc-200 hover:border-zinc-600'
+                        ? 'bg-blue-600/15 border-blue-500 text-white ring-1 ring-blue-500 font-semibold'
+                        : 'bg-[#0f172a] border-[#1e293b] text-slate-400 hover:text-slate-200 hover:border-slate-700'
                     }`}
                   >
                     <span className="text-xs font-semibold block">{t.label}</span>
-                    <span className="text-[10px] text-zinc-500 line-clamp-1 mt-0.5">
+                    <span className="text-[10px] text-slate-500 line-clamp-1 mt-0.5">
                       {t.desc}
                     </span>
                   </button>
@@ -213,7 +213,7 @@ export const CreateCollaborationModal: React.FC<Props> = ({
 
           {/* Title */}
           <div>
-            <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
+            <label className="block text-xs font-semibold text-slate-300 mb-1.5">
               Title *
             </label>
             <input
@@ -224,13 +224,13 @@ export const CreateCollaborationModal: React.FC<Props> = ({
               required
               minLength={3}
               maxLength={200}
-              className="w-full bg-[#1A1D24] border border-[#2A2E38] rounded-xl px-3.5 py-2.5 text-sm text-[#F4F5F7] placeholder-[#8B90A0] focus:outline-none focus:border-[#2F8C82] focus:ring-1 focus:ring-[#2F8C82]"
+              className="w-full bg-[#0f172a] border border-[#1e293b] rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
             />
           </div>
 
           {/* Description */}
           <div>
-            <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
+            <label className="block text-xs font-semibold text-slate-300 mb-1.5">
               Scope & Objectives *
             </label>
             <textarea
@@ -241,14 +241,14 @@ export const CreateCollaborationModal: React.FC<Props> = ({
               minLength={10}
               maxLength={5000}
               rows={4}
-              className="w-full bg-[#1A1D24] border border-[#2A2E38] rounded-xl px-3.5 py-2.5 text-sm text-[#F4F5F7] placeholder-[#8B90A0] focus:outline-none focus:border-[#2F8C82] focus:ring-1 focus:ring-[#2F8C82] resize-none"
+              className="w-full bg-[#0f172a] border border-[#1e293b] rounded-xl px-3.5 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 resize-none"
             />
           </div>
 
           {/* Department & Timeline in two columns */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
-              <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
+              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
                 Target Department
               </label>
               <input
@@ -256,11 +256,11 @@ export const CreateCollaborationModal: React.FC<Props> = ({
                 value={targetDepartment}
                 onChange={(e) => setTargetDepartment(e.target.value)}
                 placeholder="e.g. Computer Science & Engineering"
-                className="w-full bg-[#1A1D24] border border-[#2A2E38] rounded-xl px-3.5 py-2 text-sm text-[#F4F5F7] placeholder-[#8B90A0] focus:outline-none focus:border-[#2F8C82]"
+                className="w-full bg-[#0f172a] border border-[#1e293b] rounded-xl px-3.5 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
               />
             </div>
             <div>
-              <label className="block text-xs font-semibold text-zinc-300 mb-1.5">
+              <label className="block text-xs font-semibold text-slate-300 mb-1.5">
                 Proposed Timeline
               </label>
               <input
@@ -268,15 +268,15 @@ export const CreateCollaborationModal: React.FC<Props> = ({
                 value={proposedDate}
                 onChange={(e) => setProposedDate(e.target.value)}
                 placeholder="e.g. Q4 2026 or Nov 15 - 20"
-                className="w-full bg-[#1A1D24] border border-[#2A2E38] rounded-xl px-3.5 py-2 text-sm text-[#F4F5F7] placeholder-[#8B90A0] focus:outline-none focus:border-[#2F8C82]"
+                className="w-full bg-[#0f172a] border border-[#1e293b] rounded-xl px-3.5 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
               />
             </div>
           </div>
 
           {/* Skills tags */}
           <div>
-            <label className="block text-xs font-semibold text-zinc-300 mb-1.5 flex items-center gap-1.5">
-              <Tag className="w-3.5 h-3.5 text-[#2F8C82]" />
+            <label className="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center gap-1.5">
+              <Tag className="w-3.5 h-3.5 text-blue-400" />
               <span>Target Technologies / Skills (Comma-separated)</span>
             </label>
             <input
@@ -284,23 +284,23 @@ export const CreateCollaborationModal: React.FC<Props> = ({
               value={skillsInput}
               onChange={(e) => setSkillsInput(e.target.value)}
               placeholder="e.g. Docker, Kubernetes, Go, PostgreSQL"
-              className="w-full bg-[#1A1D24] border border-[#2A2E38] rounded-xl px-3.5 py-2 text-sm text-[#F4F5F7] placeholder-[#8B90A0] focus:outline-none focus:border-[#2F8C82]"
+              className="w-full bg-[#0f172a] border border-[#1e293b] rounded-xl px-3.5 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
             />
           </div>
 
           {/* Footer Actions */}
-          <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-[#2A2E38]">
+          <div className="flex items-center justify-end gap-2.5 pt-4 border-t border-[#1e293b]">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-xl text-xs font-medium text-zinc-400 hover:text-white bg-zinc-800 transition-colors"
+              className="px-4 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white bg-[#0f172a] border border-[#1e293b] transition-colors"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={createMutation.isPending}
-              className="px-5 py-2 rounded-xl text-xs font-semibold bg-[#2F8C82] hover:bg-[#3aa398] text-white flex items-center gap-2 transition-colors disabled:opacity-50 shadow-md shadow-[#2F8C82]/20"
+              className="px-5 py-2 rounded-xl text-xs font-semibold bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white flex items-center gap-2 transition-colors disabled:opacity-50 shadow-md shadow-blue-500/20"
             >
               {createMutation.isPending ? (
                 <>

@@ -140,37 +140,43 @@ const SashWidgetComponent: React.FC = () => {
   return (
     <div className="fixed bottom-3 right-3 sm:bottom-5 sm:right-5 z-50 font-sans gpu-accel">
       {!isOpen ? (
-        /* Collapsed Floating Trigger Button */
+        /* Collapsed Floating Trigger Button — Black & Blue Intelligence Pill */
         <button
           onClick={() => setIsOpen(true)}
-          className="flex items-center gap-2.5 px-4 py-3 rounded-full bg-bridge-teal hover:bg-bridge-teal/90 text-white shadow-lg shadow-bridge-teal/20 transition-all duration-200 transform hover:scale-105 group border border-white/20"
+          className="flex items-center gap-2.5 px-3.5 py-2 rounded-full bg-[#0b1329] hover:bg-[#0f172a] text-white shadow-xl shadow-blue-950/40 border border-blue-500/40 hover:border-blue-400 transition-all duration-200 group cursor-pointer"
           aria-label="Open Sash AI Career Assistant"
         >
-          <div className="relative">
-            <Bot className="w-5 h-5" />
-            <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-status-green rounded-full border-2 border-bridge-teal animate-pulse" />
+          <div className="relative flex items-center justify-center w-6 h-6 rounded-full bg-blue-500/20 text-blue-400">
+            <Sparkles className="w-3.5 h-3.5" />
+            <span className="absolute -top-0.5 -right-0.5 w-2 h-2 bg-[#3b82f6] rounded-full ring-2 ring-[#0b1329] animate-pulse" />
           </div>
-          <span className="text-xs font-semibold tracking-wide">Sash</span>
-          <Sparkles className="w-4 h-4 text-status-amber animate-spin" style={{ animationDuration: '8s' }} />
+          <div className="text-left leading-tight">
+            <div className="text-[11px] font-bold tracking-wide text-white flex items-center gap-1 font-mono">
+              <span>✦ SASH</span>
+            </div>
+            <div className="text-[9px] font-mono text-blue-400 font-semibold tracking-wider">
+              AI COPILOT
+            </div>
+          </div>
         </button>
       ) : (
         /* Active Chat Drawer Panel */
         <div
-          className={`flex flex-col bg-console-panel border border-console-border rounded-2xl shadow-2xl overflow-hidden transition-all duration-200 ${
+          className={`flex flex-col bg-[#0b1329] border border-slate-800 rounded-2xl shadow-2xl shadow-blue-950/40 overflow-hidden transition-all duration-200 ${
             isExpanded
               ? 'w-[90vw] md:w-[680px] h-[85vh]'
               : 'w-[92vw] sm:w-[400px] h-[540px]'
           }`}
         >
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3.5 bg-console-panel-raised border-b border-console-border">
+          <div className="flex items-center justify-between px-4 py-3 bg-[#0f172a] border-b border-slate-800">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-lg bg-bridge-teal/20 border border-bridge-teal/30 flex items-center justify-center text-bridge-teal">
+              <div className="w-7 h-7 rounded-lg bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-blue-400">
                 <Bot className="w-4 h-4" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h4 className="text-xs font-bold text-console-text">Sash AI</h4>
+                  <span className="text-xs font-bold text-white font-mono">✦ SASH</span>
                   <select
                     value={activeDomain}
                     onChange={e => {
@@ -191,17 +197,17 @@ const SashWidgetComponent: React.FC = () => {
                         `Recommend courses for ${newDom}`,
                       ]);
                     }}
-                    className="px-1.5 py-0.5 text-[9.5px] font-mono font-semibold rounded bg-bridge-teal/15 text-bridge-teal border border-bridge-teal/30 focus:outline-none cursor-pointer"
+                    className="px-1.5 py-0.5 text-[9.5px] font-mono font-semibold rounded bg-[#0b1329] text-blue-400 border border-blue-500/40 focus:outline-none cursor-pointer"
                   >
-                    <option value="Full-Stack Web" className="bg-console-panel text-console-text">Full-Stack Web</option>
-                    <option value="AI/Data Science" className="bg-console-panel text-console-text">AI/Data Science</option>
-                    <option value="Cloud/DevOps" className="bg-console-panel text-console-text">Cloud/DevOps</option>
-                    <option value="UI/UX Product Design" className="bg-console-panel text-console-text">UI/UX Product Design</option>
-                    <option value="Embedded/IoT" className="bg-console-panel text-console-text">Embedded/IoT</option>
+                    <option value="Full-Stack Web" className="bg-[#0b1329] text-white">Full-Stack Web</option>
+                    <option value="AI/Data Science" className="bg-[#0b1329] text-white">AI/Data Science</option>
+                    <option value="Cloud/DevOps" className="bg-[#0b1329] text-white">Cloud/DevOps</option>
+                    <option value="UI/UX Product Design" className="bg-[#0b1329] text-white">UI/UX Product Design</option>
+                    <option value="Embedded/IoT" className="bg-[#0b1329] text-white">Embedded/IoT</option>
                   </select>
                 </div>
-                <span className="text-[10px] text-console-text-muted">
-                  Personalized to {user.name} • {activeDomain}
+                <span className="text-[10px] text-slate-400">
+                  Intelligence tuned to {user.name} • {activeDomain}
                 </span>
               </div>
             </div>
@@ -209,14 +215,14 @@ const SashWidgetComponent: React.FC = () => {
             <div className="flex items-center gap-1">
               <button
                 onClick={() => setIsExpanded(!isExpanded)}
-                className="p-1.5 rounded-lg text-console-text-muted hover:text-console-text hover:bg-console-panel"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-[#0b1329] transition-colors"
                 title={isExpanded ? 'Minimize size' : 'Expand size'}
               >
                 {isExpanded ? <Minimize2 className="w-4 h-4" /> : <Maximize2 className="w-4 h-4" />}
               </button>
               <button
                 onClick={() => setIsOpen(false)}
-                className="p-1.5 rounded-lg text-console-text-muted hover:text-console-text hover:bg-console-panel"
+                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-[#0b1329] transition-colors"
                 title="Close chat"
               >
                 <X className="w-4 h-4" />
@@ -225,14 +231,14 @@ const SashWidgetComponent: React.FC = () => {
           </div>
 
           {/* Messages Area */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-3.5 bg-console-bg/40">
+          <div className="flex-1 overflow-y-auto p-4 space-y-3.5 bg-[#030712]/70">
             {messages.map(msg => (
               <div
                 key={msg.id}
                 className={`flex gap-2.5 ${msg.sender === 'user' ? 'justify-end' : 'justify-start'}`}
               >
                 {msg.sender === 'assistant' && (
-                  <div className="w-6 h-6 rounded-full bg-bridge-teal/20 border border-bridge-teal/30 flex items-center justify-center text-bridge-teal flex-shrink-0 mt-0.5">
+                  <div className="w-6 h-6 rounded-full bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-blue-400 flex-shrink-0 mt-0.5">
                     <Bot className="w-3.5 h-3.5" />
                   </div>
                 )}
@@ -240,22 +246,22 @@ const SashWidgetComponent: React.FC = () => {
                 <div
                   className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-xs ${
                     msg.sender === 'user'
-                      ? 'bg-bridge-teal text-white rounded-tr-none'
-                      : 'bg-console-panel-raised border border-console-border text-console-text rounded-tl-none'
+                      ? 'bg-blue-600 text-white rounded-tr-none shadow-md shadow-blue-600/20'
+                      : 'bg-[#0f172a] border border-slate-800 text-slate-100 rounded-tl-none'
                   }`}
                 >
                   <div className="whitespace-pre-wrap leading-relaxed">
                     {msg.text}
                   </div>
 
-                  <div className={`mt-1 text-[9px] font-mono ${msg.sender === 'user' ? 'text-white/70 text-right' : 'text-console-text-muted'}`}>
+                  <div className={`mt-1 text-[9px] font-mono ${msg.sender === 'user' ? 'text-blue-200 text-right' : 'text-slate-400'}`}>
                     {msg.timestamp}
                   </div>
                 </div>
 
                 {msg.sender === 'user' && (
-                  <div className="w-6 h-6 rounded-full bg-campus-blue/30 border border-campus-blue flex items-center justify-center text-console-text flex-shrink-0 mt-0.5">
-                    <User className="w-3.5 h-3.5" />
+                  <div className="w-6 h-6 rounded-full bg-[#0f172a] border border-slate-800 flex items-center justify-center text-white flex-shrink-0 mt-0.5">
+                    <User className="w-3.5 h-3.5 text-blue-400" />
                   </div>
                 )}
               </div>
@@ -263,14 +269,14 @@ const SashWidgetComponent: React.FC = () => {
 
             {loading && (
               <div className="flex gap-2.5 items-center">
-                <div className="w-6 h-6 rounded-full bg-bridge-teal/20 border border-bridge-teal/30 flex items-center justify-center text-bridge-teal flex-shrink-0">
+                <div className="w-6 h-6 rounded-full bg-blue-500/20 border border-blue-500/30 flex items-center justify-center text-blue-400 flex-shrink-0">
                   <Bot className="w-3.5 h-3.5" />
                 </div>
-                <div className="bg-console-panel-raised border border-console-border rounded-2xl rounded-tl-none px-4 py-2.5 flex items-center gap-1.5">
-                  <span className="w-1.5 h-1.5 bg-bridge-teal rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
-                  <span className="w-1.5 h-1.5 bg-bridge-teal rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
-                  <span className="w-1.5 h-1.5 bg-bridge-teal rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
-                  <span className="text-[11px] font-mono text-console-text-muted ml-2">Sash is thinking...</span>
+                <div className="bg-[#0f172a] border border-slate-800 rounded-2xl rounded-tl-none px-4 py-2.5 flex items-center gap-1.5">
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <span className="w-1.5 h-1.5 bg-blue-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                  <span className="text-[11px] font-mono text-slate-400 ml-2">Sash is thinking...</span>
                 </div>
               </div>
             )}
@@ -280,13 +286,13 @@ const SashWidgetComponent: React.FC = () => {
 
           {/* Quick Action Suggestion Chips */}
           {suggestedPrompts.length > 0 && !loading && (
-            <div className="px-3 py-2 bg-console-panel border-t border-console-border/60 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
-              <Compass className="w-3.5 h-3.5 text-bridge-teal flex-shrink-0" />
+            <div className="px-3 py-2 bg-[#0b1329] border-t border-slate-800/80 flex items-center gap-1.5 overflow-x-auto no-scrollbar">
+              <Compass className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
               {suggestedPrompts.map((p, idx) => (
                 <button
                   key={idx}
                   onClick={() => handleSend(p)}
-                  className="px-2.5 py-1 rounded-full bg-console-panel-raised hover:bg-console-border border border-console-border text-[10.5px] text-console-text-muted hover:text-console-text whitespace-nowrap transition-colors flex-shrink-0"
+                  className="px-2.5 py-1 rounded-full bg-[#0f172a] hover:bg-[#1e293b] border border-slate-800 text-[10.5px] text-slate-400 hover:text-white whitespace-nowrap transition-colors flex-shrink-0 cursor-pointer"
                 >
                   {p}
                 </button>
@@ -295,7 +301,7 @@ const SashWidgetComponent: React.FC = () => {
           )}
 
           {/* Input Footer */}
-          <div className="p-3 bg-console-panel border-t border-console-border">
+          <div className="p-3 bg-[#0b1329] border-t border-slate-800">
             <form
               onSubmit={e => {
                 e.preventDefault();
@@ -309,12 +315,12 @@ const SashWidgetComponent: React.FC = () => {
                 onChange={e => setInput(e.target.value)}
                 placeholder="Ask Sash about skills, career goals, or platform tools..."
                 disabled={loading}
-                className="flex-1 bg-console-bg border border-console-border rounded-xl px-3.5 py-2 text-xs text-console-text placeholder:text-console-text-muted focus:outline-none focus:border-bridge-teal"
+                className="flex-1 bg-[#0f172a] border border-slate-800 rounded-xl px-3.5 py-2 text-xs text-white placeholder:text-slate-500 focus:outline-none focus:border-blue-500"
               />
               <button
                 type="submit"
                 disabled={!input.trim() || loading}
-                className="p-2 rounded-xl bg-bridge-teal hover:bg-bridge-teal/90 text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all"
+                className="p-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white disabled:opacity-40 disabled:cursor-not-allowed transition-all cursor-pointer font-bold shadow-md shadow-blue-600/30"
                 aria-label="Send message to Sash"
               >
                 <Send className="w-4 h-4" />

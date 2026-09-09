@@ -58,20 +58,19 @@ export const IndustryIntelligencePage: React.FC = () => {
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b pb-5" style={{ borderColor: '#2A2E38' }}>
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#1e293b] pb-5">
         <div>
           <div className="flex items-center gap-2.5">
             <div
-              className="w-8 h-8 rounded-lg flex items-center justify-center"
-              style={{ background: 'rgba(47, 140, 130, 0.15)', color: '#2F8C82' }}
+              className="w-8 h-8 rounded-lg flex items-center justify-center bg-blue-600/15 text-blue-400 border border-blue-500/30"
             >
               <BarChart3 className="w-5 h-5" />
             </div>
-            <h1 className="text-xl lg:text-2xl font-bold tracking-tight" style={{ color: '#F4F5F7' }}>
+            <h1 className="text-xl lg:text-2xl font-bold tracking-tight text-white">
               Market & Recruitment Intelligence
             </h1>
           </div>
-          <p className="text-xs mt-1" style={{ color: '#8B90A0' }}>
+          <p className="text-xs mt-1 text-slate-400">
             Deterministic hiring funnel analytics, candidate skill supply metrics, and advisory executive intelligence.
           </p>
         </div>
@@ -79,12 +78,11 @@ export const IndustryIntelligencePage: React.FC = () => {
         {/* Opportunity Filter for Funnel */}
         {oppPerformance?.opportunities && oppPerformance.opportunities.length > 0 && (
           <div className="flex items-center gap-2">
-            <Filter className="w-3.5 h-3.5 opacity-60" style={{ color: '#8B90A0' }} />
+            <Filter className="w-3.5 h-3.5 text-slate-400" />
             <select
               value={selectedOpportunityId || ''}
               onChange={e => setSelectedOpportunityId(e.target.value || undefined)}
-              className="text-xs rounded-lg px-3 py-1.5 border bg-transparent font-medium focus:outline-none"
-              style={{ borderColor: '#2A2E38', color: '#F4F5F7', background: '#111318' }}
+              className="text-xs rounded-lg px-3 py-1.5 border border-[#1e293b] bg-[#0b1329] text-white font-medium focus:outline-hidden focus:ring-1 focus:ring-blue-500"
             >
               <option value="">All Active Opportunities</option>
               {oppPerformance.opportunities.map(opp => (
@@ -112,28 +110,28 @@ export const IndustryIntelligencePage: React.FC = () => {
               value={overview?.activeOpportunities || 0}
               subtitle="Open opportunities accepting applications"
               icon={Briefcase}
-              color="#2F8C82"
+              color="#3b82f6"
             />
             <IntelligenceKpiCard
               title="Applications"
               value={overview?.totalApplications || 0}
               subtitle="Total candidate submissions"
               icon={Users}
-              color="#5B9BD9"
+              color="#60a5fa"
             />
             <IntelligenceKpiCard
               title="Shortlisted"
               value={overview?.shortlistedCandidates || 0}
               subtitle="Qualified candidates in review"
               icon={UserCheck}
-              color="#E8A23C"
+              color="#f59e0b"
             />
             <IntelligenceKpiCard
               title="Overall Conversion"
               value={`${overview?.overallConversionRate || 0}%`}
               subtitle={`${overview?.hiredCandidates || 0} candidates hired`}
               icon={TrendingUp}
-              color="#4CC38A"
+              color="#10b981"
             />
           </div>
 
@@ -148,17 +146,17 @@ export const IndustryIntelligencePage: React.FC = () => {
           {/* Funnel & Skill Supply Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
             {/* Left: Hiring Funnel */}
-            <div className="lg:col-span-7 p-5 rounded-xl border space-y-4" style={{ background: '#111318', borderColor: '#2A2E38' }}>
-              <div className="flex items-center justify-between border-b pb-3" style={{ borderColor: '#2A2E38' }}>
+            <div className="lg:col-span-7 p-5 rounded-xl border border-[#1e293b] bg-[#0b1329] space-y-4 shadow-md">
+              <div className="flex items-center justify-between border-b border-[#1e293b] pb-3">
                 <div>
-                  <h3 className="text-sm font-semibold" style={{ color: '#F4F5F7' }}>
+                  <h3 className="text-sm font-semibold text-white">
                     Recruitment Funnel Conversion
                   </h3>
-                  <p className="text-xs mt-0.5" style={{ color: '#8B90A0' }}>
+                  <p className="text-xs mt-0.5 text-slate-400">
                     Stage-by-stage progression from initial application to hire
                   </p>
                 </div>
-                <Layers className="w-4 h-4 opacity-60" style={{ color: '#2F8C82' }} />
+                <Layers className="w-4 h-4 text-blue-400" />
               </div>
 
               {funnel && (
@@ -170,17 +168,17 @@ export const IndustryIntelligencePage: React.FC = () => {
             </div>
 
             {/* Right: Skill Demand & Supply */}
-            <div className="lg:col-span-5 p-5 rounded-xl border space-y-4" style={{ background: '#111318', borderColor: '#2A2E38' }}>
-              <div className="flex items-center justify-between border-b pb-3" style={{ borderColor: '#2A2E38' }}>
+            <div className="lg:col-span-5 p-5 rounded-xl border border-[#1e293b] bg-[#0b1329] space-y-4 shadow-md">
+              <div className="flex items-center justify-between border-b border-[#1e293b] pb-3">
                 <div>
-                  <h3 className="text-sm font-semibold" style={{ color: '#F4F5F7' }}>
+                  <h3 className="text-sm font-semibold text-white">
                     Candidate Skill Supply
                   </h3>
-                  <p className="text-xs mt-0.5" style={{ color: '#8B90A0' }}>
+                  <p className="text-xs mt-0.5 text-slate-400">
                     Market demand vs available verified talent
                   </p>
                 </div>
-                <Users className="w-4 h-4 opacity-60" style={{ color: '#4CC38A' }} />
+                <Users className="w-4 h-4 text-emerald-400" />
               </div>
 
               {skillDemand && (
@@ -196,13 +194,13 @@ export const IndustryIntelligencePage: React.FC = () => {
           </div>
 
           {/* Opportunity Performance Table */}
-          <div className="p-5 rounded-xl border space-y-4" style={{ background: '#111318', borderColor: '#2A2E38' }}>
+          <div className="p-5 rounded-xl border border-[#1e293b] bg-[#0b1329] space-y-4 shadow-md">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-semibold" style={{ color: '#F4F5F7' }}>
+                <h3 className="text-sm font-semibold text-white">
                   Opportunity Performance
                 </h3>
-                <p className="text-xs mt-0.5" style={{ color: '#8B90A0' }}>
+                <p className="text-xs mt-0.5 text-slate-400">
                   Breakdown of candidate engagement, matches, and conversion per role
                 </p>
               </div>

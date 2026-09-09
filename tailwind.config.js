@@ -8,119 +8,124 @@ export default {
   theme: {
     extend: {
       colors: {
-        // ─── Design System v2: Verified Intelligence Direction ─────────────
-        void:                     '#08090C',
+        // ─── Design System: Black & Blue Theme (Landing & Registration aligned) ───
+        void:                     '#030712',
         panel: {
-          DEFAULT:                '#111318',
-          raised:                 '#1A1D24',
+          DEFAULT:                '#0b1329',
+          raised:                 '#0f172a',
         },
-        'panel-raised':           '#1A1D24',
-        border:                   '#2A2E38',
-        'text-primary':           '#F4F5F7',
-        'text-muted':             '#8B90A0',
+        'panel-raised':           '#0f172a',
+        border:                   '#1e293b',
+        'text-primary':           '#ffffff',
+        'text-muted':             '#94a3b8',
 
         // Accents & Signals
-        'bridge-teal':            '#2F8C82',
+        'bridge-teal':            '#2563eb',
+        'bridge-panel':           '#0b1329',
+        'bridge-panel-raised':    '#0f172a',
+        'bridge-border':          '#1e293b',
+        'bridge-text':            '#ffffff',
+        'bridge-text-muted':      '#94a3b8',
         'signal-amber':           '#E8A23C',
         'signal-green':           '#4CC38A',
         'signal-red':             '#E5637C',
 
         // ─── Cyber-Luminescent Obsidian System (remapped for backward compatibility) ─
-        'cyber-primary':          '#2F8C82',
-        'cyber-primary-hover':    '#3aa398',
-        'cyber-primary-active':   '#236b63',
-        'cyber-primary-glow':     'rgba(47, 140, 130, 0.45)',
+        'cyber-primary':          '#2563eb',
+        'cyber-primary-hover':    '#1d4ed8',
+        'cyber-primary-active':   '#1e40af',
+        'cyber-primary-glow':     'rgba(37, 99, 235, 0.45)',
 
-        'cyber-cyan':             '#2F8C82',
-        'cyber-cyan-glow':        'rgba(47, 140, 130, 0.4)',
+        'cyber-cyan':             '#38bdf8',
+        'cyber-cyan-glow':        'rgba(56, 189, 248, 0.4)',
         'cyber-emerald':          '#4CC38A',
-        'cyber-violet':           '#5B7FE0',
+        'cyber-violet':           '#6366f1',
         'cyber-amber':            '#E8A23C',
 
-        // Canvas Ladder mapped to Design System v2
-        'cyber-canvas':           '#08090C',
-        'cyber-surface-1':        '#111318',
-        'cyber-surface-2':        '#1A1D24',
-        'cyber-surface-3':        '#1f242d',
-        'cyber-surface-glass':    'rgba(17, 19, 24, 0.8)',
+        // Canvas Ladder mapped to Black & Blue System
+        'cyber-canvas':           '#030712',
+        'cyber-surface-1':        '#0b1329',
+        'cyber-surface-2':        '#0f172a',
+        'cyber-surface-3':        '#131f37',
+        'cyber-surface-glass':    'rgba(11, 19, 41, 0.85)',
 
-        'cyber-hairline':         '#2A2E38',
-        'cyber-hairline-strong':  '#3d4352',
-        'cyber-hairline-glow':    'rgba(47, 140, 130, 0.35)',
+        'cyber-hairline':         '#1e293b',
+        'cyber-hairline-strong':  '#334155',
+        'cyber-hairline-glow':    'rgba(37, 99, 235, 0.35)',
 
-        'cyber-ink':              '#F4F5F7',
-        'cyber-ink-muted':        '#8B90A0',
-        'cyber-ink-subtle':       '#8B90A0',
-        'cyber-ink-tertiary':     '#6b7280',
+        'cyber-ink':              '#ffffff',
+        'cyber-ink-muted':        '#94a3b8',
+        'cyber-ink-subtle':       '#94a3b8',
+        'cyber-ink-tertiary':     '#64748b',
 
-        // ─── Linear remapped to Design System v2 ────────────────────────────
-        'linear-primary':         '#2F8C82',
-        'linear-primary-hover':   '#3aa398',
-        'linear-primary-focus':   '#236b63',
-        'linear-brand-secure':    '#2F8C82',
+        // ─── Linear remapped to Black & Blue System ────────────────────────────
+        'linear-primary':         '#2563eb',
+        'linear-primary-hover':   '#1d4ed8',
+        'linear-primary-focus':   '#1e40af',
+        'linear-brand-secure':    '#2563eb',
 
-        'linear-canvas':          '#08090C',
-        'linear-surface-1':       '#111318',
-        'linear-surface-2':       '#1A1D24',
-        'linear-surface-3':       '#1f242d',
-        'linear-surface-4':       '#2A2E38',
+        'linear-canvas':          '#030712',
+        'linear-surface-1':       '#0b1329',
+        'linear-surface-2':       '#0f172a',
+        'linear-surface-3':       '#131f37',
+        'linear-surface-4':       '#1e293b',
 
-        'linear-hairline':          '#2A2E38',
-        'linear-hairline-strong':   '#3d4352',
-        'linear-hairline-tertiary': '#4f5669',
+        'linear-hairline':          '#1e293b',
+        'linear-hairline-strong':   '#334155',
+        'linear-hairline-tertiary': '#475569',
 
-        'linear-ink':          '#F4F5F7',
-        'linear-ink-muted':    '#8B90A0',
-        'linear-ink-subtle':   '#8B90A0',
-        'linear-ink-tertiary': '#6b7280',
+        'linear-ink':          '#ffffff',
+        'linear-ink-muted':    '#94a3b8',
+        'linear-ink-subtle':   '#94a3b8',
+        'linear-ink-tertiary': '#64748b',
 
         'linear-inverse-canvas': '#ffffff',
         'linear-inverse-ink':    '#000000',
         'linear-success':        '#4CC38A',
 
         // Legacy public-marketing tokens mapped to v2
-        paper:           '#08090C',
+        paper:           '#030712',
         ink: {
-          DEFAULT: '#F4F5F7',
-          muted:   '#8B90A0',
+          DEFAULT: '#ffffff',
+          muted:   '#94a3b8',
         },
-        'campus-blue':    '#5B7FE0',
+        'campus-blue':    '#2563eb',
         'industry-amber': '#E8A23C',
-        line:             '#2A2E38',
+        line:             '#1e293b',
 
-        // Console tokens — remapped to Design System v2 values
+        // Console tokens — remapped to Black & Blue values
         console: {
-          bg:             '#08090C',
-          panel:          '#111318',
-          'panel-raised': '#1A1D24',
-          border:         '#2A2E38',
-          text:           '#F4F5F7',
-          'text-muted':   '#8B90A0',
+          bg:             '#030712',
+          panel:          '#0b1329',
+          'panel-raised': '#0f172a',
+          border:         '#1e293b',
+          text:           '#ffffff',
+          'text-muted':   '#94a3b8',
         },
         canvas: {
-          DEFAULT: '#08090C',
-          subtle:  '#111318',
-          raised:  '#1A1D24',
-          border:  '#2A2E38',
+          DEFAULT: '#030712',
+          subtle:  '#0b1329',
+          raised:  '#0f172a',
+          border:  '#1e293b',
         },
 
-        // Status colors mapped to v2 signals
+        // Status colors mapped to signals
         status: {
           amber:  '#E8A23C',
           green:  '#4CC38A',
-          blue:   '#5B7FE0',
+          blue:   '#2563eb',
           red:    '#E5637C',
         },
       },
 
       backgroundImage: {
-        'bridge-gradient': 'linear-gradient(135deg, #2F8C82 0%, #5B7FE0 100%)',
+        'bridge-gradient': 'linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%)',
       },
 
       fontFamily: {
         serif: ['Fraunces', 'serif'],
-        sans:  ['Inter', '-apple-system', 'system-ui', 'Segoe UI', 'Roboto', 'sans-serif'],
-        mono:  ['"IBM Plex Mono"', '"JetBrains Mono"', 'ui-monospace', 'SF Mono', 'Menlo', 'monospace'],
+        sans:  ['"Instrument Sans"', 'Inter', '-apple-system', 'system-ui', 'Segoe UI', 'Roboto', 'sans-serif'],
+        mono:  ['"JetBrains Mono"', '"IBM Plex Mono"', 'ui-monospace', 'SF Mono', 'Menlo', 'monospace'],
       },
 
       letterSpacing: {

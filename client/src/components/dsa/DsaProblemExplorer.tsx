@@ -329,7 +329,7 @@ export const DsaProblemExplorer: React.FC<DsaProblemExplorerProps> = ({ onPracti
                   <button
                     type="button"
                     onClick={() => onPracticeQuestion(q)}
-                    className="px-3.5 py-2 rounded-xl bg-bridge-teal hover:bg-bridge-teal/90 text-slate-950 text-xs font-bold shadow-md shadow-bridge-teal/20 transition-all flex items-center gap-1.5"
+                    className="px-3.5 py-2 rounded-xl bg-bridge-teal hover:bg-bridge-teal/90 text-white text-xs font-bold shadow-md shadow-bridge-teal/20 transition-all flex items-center gap-1.5"
                   >
                     <Code2 className="w-3.5 h-3.5" />
                     <span>Practice Here</span>

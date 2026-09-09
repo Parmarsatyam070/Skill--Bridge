@@ -69,7 +69,7 @@ const THEME_STYLES: Record<
     accentBg: 'bg-teal-500/15',
     accentBorder: 'border-teal-500/30',
     heroGlow: 'from-teal-500/20 via-cyan-500/10 to-transparent',
-    pillActive: 'bg-teal-500 text-slate-950 font-semibold shadow-lg shadow-teal-500/20',
+    pillActive: 'bg-teal-500 text-white font-bold shadow-lg shadow-teal-500/20',
   },
   slate_clean: {
     bg: 'bg-[#0F172A]',

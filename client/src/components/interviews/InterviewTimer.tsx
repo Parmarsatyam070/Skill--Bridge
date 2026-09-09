@@ -32,9 +32,9 @@ export const InterviewTimer: React.FC<InterviewTimerProps> = ({
 
   return (
     <div
-      className={`flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#111318] border border-[#2A2E38] text-xs font-mono text-zinc-300 shadow-sm ${className}`}
+      className={`flex items-center gap-2 px-3 py-1.5 rounded-lg bg-[#0b1329] border border-[#1e293b] text-xs font-mono text-slate-300 shadow-sm ${className}`}
     >
-      <Clock className="w-3.5 h-3.5 text-[#2F8C82]" />
+      <Clock className="w-3.5 h-3.5 text-blue-400" />
       <span>Session Time: {formatTime(seconds)}</span>
     </div>
   );

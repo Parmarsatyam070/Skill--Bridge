@@ -24,7 +24,7 @@ export const InterviewCompletionDialog: React.FC<InterviewCompletionDialogProps>
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-in fade-in duration-150">
       <div
-        className="bg-[#111318] border border-[#2A2E38] rounded-2xl w-full max-w-md p-6 space-y-5 shadow-2xl relative"
+        className="bg-[#0b1329] border border-[#1e293b] rounded-2xl w-full max-w-md p-6 space-y-5 shadow-2xl relative"
         role="dialog"
         aria-modal="true"
         aria-labelledby="completion-dialog-title"
@@ -32,7 +32,7 @@ export const InterviewCompletionDialog: React.FC<InterviewCompletionDialogProps>
         <button
           onClick={onClose}
           disabled={isSubmitting}
-          className="absolute top-4 right-4 p-1.5 rounded-lg text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/60 transition-colors"
+          className="absolute top-4 right-4 p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-[#0f172a] transition-colors"
           aria-label="Close"
         >
           <X className="w-4 h-4" />
@@ -43,25 +43,25 @@ export const InterviewCompletionDialog: React.FC<InterviewCompletionDialogProps>
             <Sparkles className="w-5 h-5" />
           </div>
           <div>
-            <h3 id="completion-dialog-title" className="text-base font-semibold text-zinc-100">
+            <h3 id="completion-dialog-title" className="text-base font-semibold text-white">
               Complete & Evaluate Interview
             </h3>
-            <p className="text-xs text-zinc-400">
+            <p className="text-xs text-slate-400">
               Finalize transcript and generate AI advisory evaluation
             </p>
           </div>
         </div>
 
-        <div className="p-3.5 rounded-xl bg-[#1A1D24] border border-[#2A2E38] text-xs text-zinc-300 space-y-1">
+        <div className="p-3.5 rounded-xl bg-[#0f172a] border border-[#1e293b] text-xs text-slate-300 space-y-1">
           <div className="flex justify-between">
-            <span className="text-zinc-400">Questions Answered:</span>
+            <span className="text-slate-400">Questions Answered:</span>
             <span className="font-mono font-bold text-emerald-400">
               {totalAnswered} / {totalQuestions}
             </span>
           </div>
           <div className="flex justify-between">
-            <span className="text-zinc-400">Evaluation Engine:</span>
-            <span className="font-mono text-zinc-300">Google Gemini (GenAI SDK)</span>
+            <span className="text-slate-400">Evaluation Engine:</span>
+            <span className="font-mono text-slate-300">Google Gemini (GenAI SDK)</span>
           </div>
         </div>
 
@@ -72,7 +72,7 @@ export const InterviewCompletionDialog: React.FC<InterviewCompletionDialogProps>
             type="button"
             onClick={onClose}
             disabled={isSubmitting}
-            className="px-4 py-2 rounded-xl text-xs font-medium text-zinc-400 hover:text-zinc-200 hover:bg-zinc-800/60 transition-colors border border-transparent"
+            className="px-4 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-white hover:bg-[#0f172a] transition-colors border border-transparent"
           >
             Review Answers
           </button>
@@ -80,7 +80,7 @@ export const InterviewCompletionDialog: React.FC<InterviewCompletionDialogProps>
             type="button"
             onClick={onConfirm}
             disabled={isSubmitting}
-            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#2F8C82] hover:bg-[#3aa398] text-white text-xs font-semibold shadow-lg shadow-[#2F8C82]/20 transition-all duration-150"
+            className="flex items-center gap-2 px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white text-xs font-semibold shadow-lg shadow-blue-500/20 transition-all duration-150"
           >
             {isSubmitting ? (
               <>

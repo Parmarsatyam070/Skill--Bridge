@@ -123,16 +123,16 @@ export const OAuthModal: React.FC<OAuthModalProps> = ({ isOpen, provider, onClos
       aria-labelledby="oauth-modal-title"
     >
       <div
-        className="relative w-full max-w-md bg-[#131620] border border-[#2E3548] rounded-2xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.95)] p-6 sm:p-7 space-y-5 text-[#EDEFF3] my-auto animate-in fade-in zoom-in-95 duration-150"
+        className="relative w-full max-w-md bg-[#0b1329] border border-[#1e293b] rounded-2xl shadow-[0_25px_60px_-15px_rgba(0,0,0,0.95)] p-6 sm:p-7 space-y-5 text-white my-auto animate-in fade-in zoom-in-95 duration-150"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Top Header Row */}
-        <div className="flex items-center justify-between pb-3 border-b border-[#262B3A]">
+        <div className="flex items-center justify-between pb-3 border-b border-[#1e293b]">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg bg-[#2F8C82]/15 border border-[#2F8C82]/30 text-[#2F8C82] flex items-center justify-center">
+            <div className="w-7 h-7 rounded-lg bg-blue-600/15 border border-blue-500/30 text-blue-400 flex items-center justify-center">
               <ShieldCheck className="w-4 h-4" />
             </div>
-            <span className="text-[11px] font-mono uppercase tracking-widest text-[#2F8C82] font-bold">
+            <span className="text-[11px] font-mono uppercase tracking-widest text-blue-400 font-bold">
               VERIFIED OAUTH 2.0
             </span>
           </div>
@@ -140,7 +140,7 @@ export const OAuthModal: React.FC<OAuthModalProps> = ({ isOpen, provider, onClos
             type="button"
             onClick={onClose}
             aria-label="Close dialog"
-            className="p-1.5 rounded-xl text-[#9BA3B8] hover:text-white hover:bg-[#222736] border border-transparent hover:border-[#2E3548] transition-colors focus:outline-none focus:ring-2 focus:ring-[#2F8C82]"
+            className="p-1.5 rounded-xl text-slate-400 hover:text-white hover:bg-[#0f172a] border border-transparent hover:border-[#1e293b] transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             <X className="w-5 h-5" />
           </button>
@@ -149,14 +149,14 @@ export const OAuthModal: React.FC<OAuthModalProps> = ({ isOpen, provider, onClos
         {/* Title & Description */}
         <div className="space-y-1.5">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-[#1C202C] border border-[#2E3548] flex items-center justify-center">
+            <div className="w-8 h-8 rounded-xl bg-[#0f172a] border border-[#1e293b] flex items-center justify-center">
               {details.icon}
             </div>
-            <h2 id="oauth-modal-title" className="font-serif text-xl font-bold text-white tracking-tight">
+            <h2 id="oauth-modal-title" className="font-sans text-xl font-bold text-white tracking-tight">
               {details.heading}
             </h2>
           </div>
-          <p className="text-xs text-[#9BA3B8] leading-relaxed pt-1">
+          <p className="text-xs text-slate-400 leading-relaxed pt-1">
             {details.description}
           </p>
         </div>
@@ -164,34 +164,34 @@ export const OAuthModal: React.FC<OAuthModalProps> = ({ isOpen, provider, onClos
         {/* Error Alert Box (if error exists) */}
         {error && (
           <div
-            className="flex items-start gap-3 p-3.5 rounded-xl bg-[#2A151C] border border-[#E5637C]/40 text-[#FFB3C0] text-xs shadow-inner"
+            className="flex items-start gap-3 p-3.5 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-300 text-xs shadow-inner"
             role="alert"
           >
-            <AlertCircle className="w-4 h-4 text-[#E5637C] flex-shrink-0 mt-0.5" />
+            <AlertCircle className="w-4 h-4 text-rose-400 flex-shrink-0 mt-0.5" />
             <div className="space-y-1">
-              <span className="font-bold text-[#FF859A] block">Authentication Notice</span>
+              <span className="font-bold text-rose-300 block">Authentication Notice</span>
               <span className="text-[11.5px] leading-relaxed block text-white/90">{error}</span>
             </div>
           </div>
         )}
 
         {/* Cryptographic Assurance / Security Card */}
-        <div className="p-3.5 rounded-xl bg-[#1A1E2B] border border-[#2A3144] space-y-2.5">
+        <div className="p-3.5 rounded-xl bg-[#0f172a] border border-[#1e293b] space-y-2.5">
           <div className="flex items-center gap-2 text-white font-semibold text-xs">
-            <Lock className="w-3.5 h-3.5 text-[#2F8C82]" />
+            <Lock className="w-3.5 h-3.5 text-blue-400" />
             <span>Cryptographic Identity Assurance</span>
           </div>
-          <div className="space-y-1.5 text-[11px] text-[#9BA3B8] leading-relaxed">
+          <div className="space-y-1.5 text-[11px] text-slate-400 leading-relaxed">
             <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-3.5 h-3.5 text-[#4CC38A] flex-shrink-0" />
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
               <span>Direct Single Sign-On via {details.shortName} official endpoint</span>
             </div>
             <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-3.5 h-3.5 text-[#4CC38A] flex-shrink-0" />
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
               <span>Server-side cryptographic token verification</span>
             </div>
             <div className="flex items-center gap-2">
-              <CheckCircle2 className="w-3.5 h-3.5 text-[#4CC38A] flex-shrink-0" />
+              <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400 flex-shrink-0" />
               <span>SkillBridge never stores your third-party account passwords</span>
             </div>
           </div>
@@ -202,7 +202,7 @@ export const OAuthModal: React.FC<OAuthModalProps> = ({ isOpen, provider, onClos
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-3 rounded-xl border border-[#2E3548] bg-[#1A1E2B] hover:bg-[#242A3C] text-[#D1D5DB] hover:text-white font-semibold text-xs transition-colors focus:outline-none focus:ring-2 focus:ring-[#2F8C82]"
+            className="px-4 py-3 rounded-xl border border-[#1e293b] bg-[#0f172a] hover:bg-[#1e293b] text-slate-300 hover:text-white font-semibold text-xs transition-colors focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             Cancel
           </button>
@@ -210,7 +210,7 @@ export const OAuthModal: React.FC<OAuthModalProps> = ({ isOpen, provider, onClos
             type="button"
             onClick={handleLaunchOAuth}
             disabled={loading}
-            className="flex-1 py-3 px-5 rounded-xl bg-[#2F8C82] hover:bg-[#26776F] active:bg-[#1E6059] text-white font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-lg hover:shadow-teal-900/40 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-[#2F8C82]"
+            className="flex-1 py-3 px-5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 active:from-blue-700 active:to-blue-600 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-md shadow-blue-500/20 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             {loading ? (
               <>

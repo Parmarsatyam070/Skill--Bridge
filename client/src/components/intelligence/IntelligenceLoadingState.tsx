@@ -9,7 +9,7 @@ export const IntelligenceLoadingState: React.FC = () => {
           <div
             key={i}
             className="h-24 rounded-xl border bg-white/[0.02]"
-            style={{ borderColor: '#2A2E38' }}
+            style={{ borderColor: '#1e293b' }}
           />
         ))}
       </div>
@@ -18,18 +18,18 @@ export const IntelligenceLoadingState: React.FC = () => {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         <div
           className="lg:col-span-2 h-80 rounded-xl border bg-white/[0.02]"
-          style={{ borderColor: '#2A2E38' }}
+          style={{ borderColor: '#1e293b' }}
         />
         <div
           className="h-80 rounded-xl border bg-white/[0.02]"
-          style={{ borderColor: '#2A2E38' }}
+          style={{ borderColor: '#1e293b' }}
         />
       </div>
 
       {/* Table Skeleton */}
       <div
         className="h-64 rounded-xl border bg-white/[0.02]"
-        style={{ borderColor: '#2A2E38' }}
+        style={{ borderColor: '#1e293b' }}
       />
     </div>
   );

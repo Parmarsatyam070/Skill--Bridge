@@ -133,18 +133,18 @@ export const CollaborationsPage: React.FC = () => {
             <h1 className="text-2xl sm:text-3xl font-bold text-[#F4F5F7] tracking-tight">
               Collaboration Management
             </h1>
-            <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-[#2F8C82]/15 text-[#4CC38A] border border-[#2F8C82]/30">
+            <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-blue-600/15 text-blue-400 border border-blue-500/30">
               {isIndustry ? 'Industry Hub' : 'Institution Hub'}
             </span>
           </div>
-          <p className="text-sm text-[#8B90A0] mt-1">
+          <p className="text-sm text-slate-400 mt-1">
             Propose, negotiate, and execute impactful academia-industry initiatives
           </p>
         </div>
 
         <button
           onClick={() => setIsCreateModalOpen(true)}
-          className="px-4 py-2.5 rounded-xl bg-[#2F8C82] hover:bg-[#3aa398] text-white text-sm font-semibold flex items-center justify-center gap-2 shadow-lg shadow-[#2F8C82]/20 transition-all hover:scale-[1.02] shrink-0"
+          className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white text-sm font-semibold flex items-center justify-center gap-2 shadow-lg shadow-blue-500/20 transition-all hover:scale-[1.02] shrink-0"
         >
           <Plus className="w-4 h-4" />
           <span>New Proposal</span>
@@ -180,27 +180,27 @@ export const CollaborationsPage: React.FC = () => {
 
       {/* Loading state */}
       {isLoading ? (
-        <div className="py-24 flex flex-col items-center justify-center gap-3 text-[#2F8C82]">
+        <div className="py-24 flex flex-col items-center justify-center gap-3 text-blue-500">
           <Loader2 className="w-8 h-8 animate-spin" />
-          <span className="text-sm text-[#8B90A0]">Loading collaborations...</span>
+          <span className="text-sm text-slate-400">Loading collaborations...</span>
         </div>
       ) : filteredCollaborations.length === 0 ? (
         /* Empty State */
-        <div className="py-20 px-4 text-center bg-[#111318] border border-dashed border-[#2A2E38] rounded-2xl max-w-2xl mx-auto">
-          <div className="w-14 h-14 rounded-2xl bg-[#1A1D24] flex items-center justify-center text-[#2F8C82] mx-auto mb-4">
+        <div className="py-20 px-4 text-center bg-[#0b1329] border border-dashed border-[#1e293b] rounded-2xl max-w-2xl mx-auto">
+          <div className="w-14 h-14 rounded-2xl bg-[#0f172a] flex items-center justify-center text-blue-400 mx-auto mb-4 border border-[#1e293b]">
             <Handshake className="w-7 h-7" />
           </div>
-          <h3 className="text-lg font-bold text-[#F4F5F7] mb-1">
+          <h3 className="text-lg font-bold text-white mb-1">
             No collaborations found
           </h3>
-          <p className="text-sm text-[#8B90A0] max-w-md mx-auto mb-6 leading-relaxed">
+          <p className="text-sm text-slate-400 max-w-md mx-auto mb-6 leading-relaxed">
             {search || selectedStatus !== 'ALL' || selectedType !== 'ALL'
               ? 'No collaborations match your selected filters. Try clearing your search parameters.'
               : 'You have no active or historical collaboration requests yet. Launch your first academia-industry proposal today.'}
           </p>
           <button
             onClick={() => setIsCreateModalOpen(true)}
-            className="px-5 py-2.5 rounded-xl bg-[#2F8C82] hover:bg-[#3aa398] text-white text-sm font-semibold inline-flex items-center gap-2"
+            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white text-sm font-semibold inline-flex items-center gap-2 shadow-md shadow-blue-500/20"
           >
             <Plus className="w-4 h-4" />
             <span>Create First Proposal</span>
@@ -210,7 +210,7 @@ export const CollaborationsPage: React.FC = () => {
         /* Two-Column Responsive Workspace */
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
           {/* Left Column: Collaborations List */}
-          <div className="lg:col-span-5 space-y-3.5 max-h-[800px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-zinc-800">
+          <div className="lg:col-span-5 space-y-3.5 max-h-[800px] overflow-y-auto pr-1 scrollbar-thin scrollbar-thumb-slate-800">
             {filteredCollaborations.map((collab) => (
               <CollaborationCard
                 key={collab.id}
@@ -224,9 +224,9 @@ export const CollaborationsPage: React.FC = () => {
           {/* Right Column: Selected Collaboration Details (Desktop) */}
           <div className="hidden lg:block lg:col-span-7 space-y-6">
             {isLoadingDetail ? (
-              <div className="bg-[#111318] border border-[#2A2E38] rounded-2xl p-12 flex flex-col items-center justify-center text-center gap-3">
-                <Loader2 className="w-7 h-7 animate-spin text-[#2F8C82]" />
-                <span className="text-xs text-[#8B90A0]">Loading details...</span>
+              <div className="bg-[#0b1329] border border-[#1e293b] rounded-2xl p-12 flex flex-col items-center justify-center text-center gap-3">
+                <Loader2 className="w-7 h-7 animate-spin text-blue-500" />
+                <span className="text-xs text-slate-400">Loading details...</span>
               </div>
             ) : activeCollabDetail ? (
               <div className="space-y-6">
@@ -234,7 +234,7 @@ export const CollaborationsPage: React.FC = () => {
                 <div className="flex justify-end">
                   <button
                     onClick={() => navigate(`/collaborations/${activeCollabDetail.id}`)}
-                    className="inline-flex items-center gap-1.5 text-xs text-[#2F8C82] hover:underline font-medium"
+                    className="inline-flex items-center gap-1.5 text-xs text-blue-400 hover:underline font-medium"
                   >
                     <span>Open Standalone Page</span>
                     <ExternalLink className="w-3.5 h-3.5" />
@@ -248,13 +248,13 @@ export const CollaborationsPage: React.FC = () => {
                 />
 
                 {/* Negotiation Message Thread & Composer */}
-                <div className="bg-[#111318] border border-[#2A2E38] rounded-2xl p-6 space-y-4">
-                  <div className="flex items-center justify-between pb-3 border-b border-[#2A2E38]">
-                    <h3 className="text-sm font-semibold text-[#F4F5F7] flex items-center gap-2">
-                      <MessageSquare className="w-4 h-4 text-[#2F8C82]" />
+                <div className="bg-[#0b1329] border border-[#1e293b] rounded-2xl p-6 space-y-4">
+                  <div className="flex items-center justify-between pb-3 border-b border-[#1e293b]">
+                    <h3 className="text-sm font-semibold text-white flex items-center gap-2">
+                      <MessageSquare className="w-4 h-4 text-blue-400" />
                       <span>Negotiation & Coordination Thread</span>
                     </h3>
-                    <span className="text-xs text-zinc-500 font-mono">
+                    <span className="text-xs text-slate-500 font-mono">
                       {activeCollabDetail.messages?.length || 0} messages
                     </span>
                   </div>
@@ -264,7 +264,7 @@ export const CollaborationsPage: React.FC = () => {
                     currentUserId={user?.id}
                   />
 
-                  <div className="pt-3 border-t border-[#2A2E38]">
+                  <div className="pt-3 border-t border-[#1e293b]">
                     <CollaborationMessageInput
                       collaborationId={activeCollabDetail.id}
                       disabled={['COMPLETED', 'REJECTED', 'CANCELLED'].includes(
@@ -275,7 +275,7 @@ export const CollaborationsPage: React.FC = () => {
                 </div>
               </div>
             ) : (
-              <div className="bg-[#111318] border border-[#2A2E38] rounded-2xl p-12 text-center text-[#8B90A0] text-sm">
+              <div className="bg-[#0b1329] border border-[#1e293b] rounded-2xl p-12 text-center text-slate-400 text-sm">
                 Select a collaboration to inspect its details and messages.
               </div>
             )}

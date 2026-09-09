@@ -40,8 +40,8 @@ export const AssessmentResultPage: React.FC = () => {
 
   if (!stateResult && isSubLoading) {
     return (
-      <div className="flex flex-col items-center justify-center py-24 text-[#8B90A0]">
-        <Loader2 className="w-8 h-8 animate-spin text-[#2F8C82] mb-3" />
+      <div className="flex flex-col items-center justify-center py-24 text-slate-400">
+        <Loader2 className="w-8 h-8 animate-spin text-blue-400 mb-3" />
         <span className="text-xs">Fetching assessment results...</span>
       </div>
     );
@@ -53,13 +53,13 @@ export const AssessmentResultPage: React.FC = () => {
   if (!stateResult && (isSubError || !submission)) {
     return (
       <div className="max-w-md mx-auto py-20 text-center px-4">
-        <div className="p-6 bg-[#E5637C]/10 border border-[#E5637C]/30 rounded-2xl text-[#E5637C]">
+        <div className="p-6 bg-rose-500/10 border border-rose-500/30 rounded-2xl text-rose-400">
           <AlertCircle className="w-8 h-8 mx-auto mb-3" />
           <h3 className="text-sm font-semibold mb-1">No Submission Found</h3>
           <p className="text-xs mb-5">You have not completed an attempt for this assessment yet.</p>
           <Link
             to={`/assessments/${id}`}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-[#1A1D24] text-[#F4F5F7] border border-[#2A2E38]"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-[#0f172a] text-white border border-[#1e293b]"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Go to Assessment Page</span>
@@ -91,7 +91,7 @@ export const AssessmentResultPage: React.FC = () => {
       <div className="flex items-center justify-between">
         <Link
           to="/assessments"
-          className="inline-flex items-center gap-1.5 text-xs text-[#8B90A0] hover:text-[#F4F5F7] transition-colors"
+          className="inline-flex items-center gap-1.5 text-xs text-slate-400 hover:text-white transition-colors"
         >
           <ArrowLeft className="w-3.5 h-3.5" />
           <span>Back to Assessments</span>

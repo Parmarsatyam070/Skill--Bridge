@@ -107,8 +107,8 @@ export const InterviewSessionPage: React.FC = () => {
   if (isLoading) {
     return (
       <div className="min-h-[70vh] flex flex-col items-center justify-center space-y-4">
-        <Loader2 className="w-8 h-8 animate-spin text-[#2F8C82]" />
-        <span className="text-sm text-zinc-400">Loading interview room...</span>
+        <Loader2 className="w-8 h-8 animate-spin text-blue-400" />
+        <span className="text-sm text-slate-400">Loading interview room...</span>
       </div>
     );
   }
@@ -119,13 +119,13 @@ export const InterviewSessionPage: React.FC = () => {
         <div className="w-12 h-12 rounded-2xl bg-red-500/10 text-red-400 flex items-center justify-center mx-auto">
           <AlertCircle className="w-6 h-6" />
         </div>
-        <h2 className="text-lg font-bold text-zinc-100">Interview Room Unavailable</h2>
-        <p className="text-xs text-zinc-400">
+        <h2 className="text-lg font-bold text-white">Interview Room Unavailable</h2>
+        <p className="text-xs text-slate-400">
           {(error as any)?.message || 'The requested interview session could not be found or is not accessible.'}
         </p>
         <Link
           to="/interviews"
-          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-zinc-800 text-zinc-200 text-xs font-semibold hover:bg-zinc-700 transition-colors"
+          className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[#0f172a] border border-[#1e293b] text-slate-200 text-xs font-semibold hover:border-blue-500/40 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Back to Interviews</span>
@@ -137,19 +137,19 @@ export const InterviewSessionPage: React.FC = () => {
   // If already completed, redirect or show message
   if (session.status === 'COMPLETED') {
     return (
-      <div className="max-w-md mx-auto my-16 p-8 bg-[#111318] border border-[#2A2E38] rounded-3xl text-center space-y-5 shadow-2xl">
+      <div className="max-w-md mx-auto my-16 p-8 bg-[#0b1329] border border-[#1e293b] rounded-3xl text-center space-y-5 shadow-2xl">
         <div className="w-12 h-12 rounded-2xl bg-emerald-500/15 text-emerald-400 flex items-center justify-center mx-auto">
           <CheckCircle2 className="w-6 h-6" />
         </div>
         <div className="space-y-1">
-          <h2 className="text-lg font-bold text-zinc-100">Interview Already Completed</h2>
-          <p className="text-xs text-zinc-400">
+          <h2 className="text-lg font-bold text-white">Interview Already Completed</h2>
+          <p className="text-xs text-slate-400">
             This interview session has been completed and final AI advisory evaluations have been generated.
           </p>
         </div>
         <Link
           to={`/interviews/${id}/result`}
-          className="inline-flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-[#2F8C82] hover:bg-[#3aa398] text-white text-xs font-semibold shadow-md transition-colors"
+          className="inline-flex items-center justify-center gap-2 w-full py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white text-xs font-semibold shadow-md shadow-blue-500/20 transition-colors"
         >
           <span>View Scorecard & Transcript</span>
         </Link>
@@ -185,20 +185,20 @@ export const InterviewSessionPage: React.FC = () => {
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 space-y-6 animate-in fade-in duration-200">
       {/* ── TOP NAV BAR ────────────────────────────────────────────── */}
-      <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-[#1f242d]">
+      <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-[#1e293b]">
         <div className="flex items-center gap-3">
           <Link
             to="/interviews"
-            className="p-2 rounded-xl bg-[#111318] border border-[#2A2E38] text-zinc-400 hover:text-zinc-200 transition-colors"
+            className="p-2 rounded-xl bg-[#0b1329] border border-[#1e293b] text-slate-400 hover:text-white transition-colors"
             title="Exit Interview Room"
           >
             <ArrowLeft className="w-4 h-4" />
           </Link>
           <div>
-            <h1 className="text-base sm:text-lg font-bold text-zinc-100 line-clamp-1">
+            <h1 className="text-base sm:text-lg font-bold text-white line-clamp-1">
               {session.opportunityTitle || 'AI Domain Mock Interview'}
             </h1>
-            <p className="text-xs text-zinc-400">
+            <p className="text-xs text-slate-400">
               {session.type} Interview Session • {session.companyName || 'General Practice'}
             </p>
           </div>
@@ -251,18 +251,18 @@ export const InterviewSessionPage: React.FC = () => {
           />
         </div>
       ) : (
-        <div className="p-8 text-center bg-[#111318] border border-[#2A2E38] rounded-2xl space-y-4">
+        <div className="p-8 text-center bg-[#0b1329] border border-[#1e293b] rounded-2xl space-y-4">
           <Sparkles className="w-8 h-8 text-amber-400 mx-auto" />
-          <h3 className="text-base font-semibold text-zinc-200">
+          <h3 className="text-base font-semibold text-slate-200">
             All Questions Answered
           </h3>
-          <p className="text-xs text-zinc-400 max-w-sm mx-auto">
+          <p className="text-xs text-slate-400 max-w-sm mx-auto">
             You have answered all scheduled questions. Complete your interview to generate your structured scorecard.
           </p>
           <button
             type="button"
             onClick={() => setIsCompletionModalOpen(true)}
-            className="px-6 py-2.5 rounded-xl bg-[#2F8C82] hover:bg-[#3aa398] text-white text-xs font-semibold shadow-md transition-colors"
+            className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white text-xs font-semibold shadow-md shadow-blue-500/20 transition-colors"
           >
             Generate AI Scorecard
           </button>

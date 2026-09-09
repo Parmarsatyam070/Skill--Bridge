@@ -96,10 +96,10 @@ export const StudentDashboard: React.FC = () => {
     .sort((a: any, b: any) => b.gap - a.gap);
 
   const statusChips = {
-    applied: { label: 'Applied', bg: 'bg-[#1A1D24] text-[#8B90A0] border-[#2A2E38]' },
-    under_review: { label: 'Under Review', bg: 'bg-[#E8A23C]/10 text-[#E8A23C] border-[#E8A23C]/30' },
-    shortlisted: { label: 'Shortlisted', bg: 'bg-[#4CC38A]/10 text-[#4CC38A] border-[#4CC38A]/30' },
-    rejected: { label: 'Not Selected', bg: 'bg-[#E5637C]/10 text-[#E5637C] border-[#E5637C]/30' },
+    applied: { label: 'Applied', bg: 'bg-[#0f172a] text-slate-400 border-[#1e293b]' },
+    under_review: { label: 'Under Review', bg: 'bg-amber-500/10 text-amber-300 border-amber-500/30' },
+    shortlisted: { label: 'Shortlisted', bg: 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30' },
+    rejected: { label: 'Not Selected', bg: 'bg-rose-500/10 text-rose-300 border-rose-500/30' },
   };
 
   // Convert gaps into VerifiedActivityItem format
@@ -137,26 +137,26 @@ export const StudentDashboard: React.FC = () => {
       {/* Sash Daily Target — compact strip */}
       <TodayTargetCard variant="compact" />
 
-      {/* Welcome Banner - Design System v2 Void & Panel */}
-      <div className="bg-[#111318] border border-[#2A2E38] rounded-2xl p-6 sm:p-7 flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden backdrop-blur-md">
+      {/* Welcome Banner - Black & Blue Theme */}
+      <div className="bg-[#0b1329] border border-[#1e293b] rounded-2xl p-6 sm:p-7 flex flex-col md:flex-row md:items-center justify-between gap-6 relative overflow-hidden backdrop-blur-md shadow-xl shadow-blue-950/20">
         <div className="space-y-2 relative z-10">
           <div className="flex items-center gap-2">
-            <span className="small-caps-label flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#1A1D24] text-[#4CC38A] border border-[#2A2E38]">
-              <span className="w-1.5 h-1.5 rounded-full bg-[#4CC38A] animate-pulse" />
+            <span className="small-caps-label flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-[#0f172a] text-[#38bdf8] border border-blue-500/30">
+              <span className="w-1.5 h-1.5 rounded-full bg-[#38bdf8] animate-pulse" />
               Verified Candidate Hub
             </span>
-            <span className="text-[11px] font-mono text-[#8B90A0]">
-              Target: <span className="text-[#F4F5F7] font-medium">{student?.targetDomain || 'Engineering'}</span>
+            <span className="text-[11px] font-mono text-slate-400">
+              Target: <span className="text-white font-medium">{student?.targetDomain || 'Engineering'}</span>
             </span>
           </div>
 
-          <h1 className="text-2xl sm:text-3xl font-semibold text-[#F4F5F7] tracking-tight">
+          <h1 className="text-2xl sm:text-3xl font-semibold text-white tracking-tight">
             Welcome back, {user?.name}
           </h1>
 
-          <p className="text-xs sm:text-sm text-[#8B90A0] max-w-xl leading-relaxed">
+          <p className="text-xs sm:text-sm text-slate-400 max-w-xl leading-relaxed">
             Your skill radar is calibrated against live industry benchmarks. You currently have{' '}
-            <span className="text-[#4CC38A] font-mono font-medium">
+            <span className="text-[#38bdf8] font-mono font-medium">
               {matches.filter(m => m.overallScore >= 80).length} high-match opportunities
             </span>{' '}
             ready for fast-track review.
@@ -176,7 +176,7 @@ export const StudentDashboard: React.FC = () => {
             to="/learn"
             className="bridge-btn-secondary text-xs py-2.5 px-4"
           >
-            <BookOpen className="w-3.5 h-3.5 mr-1.5 text-[#2F8C82]" />
+            <BookOpen className="w-3.5 h-3.5 mr-1.5 text-blue-400" />
             <span>Learning Hub</span>
           </Link>
           <Link
@@ -221,15 +221,15 @@ export const StudentDashboard: React.FC = () => {
 
       {/* Top Match Highlight & Signature Bridge Line */}
       {topMatch && (
-        <div className="bg-[#111318] border border-[#2A2E38] rounded-2xl p-5 sm:p-6 space-y-4">
+        <div className="bg-[#0b1329] border border-[#1e293b] rounded-2xl p-5 sm:p-6 space-y-4 shadow-lg shadow-blue-950/20">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <span className="small-caps-label flex items-center gap-1.5 text-[#2F8C82] mb-1">
-                <Zap className="w-3 h-3 text-[#2F8C82]" />
+              <span className="small-caps-label flex items-center gap-1.5 text-blue-400 mb-1">
+                <Zap className="w-3 h-3 text-blue-400" />
                 Top Authoritative Match
               </span>
-              <h3 className="text-base sm:text-lg font-semibold text-[#F4F5F7] tracking-tight">
-                {topMatch.internshipTitle} • <span className="text-[#8B90A0]">{topMatch.companyName}</span>
+              <h3 className="text-base sm:text-lg font-semibold text-white tracking-tight">
+                {topMatch.internshipTitle} • <span className="text-slate-400">{topMatch.companyName}</span>
               </h3>
             </div>
             <div className="flex items-center gap-3">

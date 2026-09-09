@@ -35,7 +35,7 @@ export const CollaborationCard: React.FC<Props> = ({
 }) => {
   const typeBadge = TYPE_CONFIG[collaboration.type] || {
     label: collaboration.type,
-    color: 'bg-zinc-800 text-zinc-300 border-zinc-700',
+    color: 'bg-slate-800 text-slate-300 border-slate-700',
   };
 
   const messageCount = collaboration._count?.messages ?? 0;
@@ -51,8 +51,8 @@ export const CollaborationCard: React.FC<Props> = ({
       onClick={() => onSelect?.(collaboration)}
       className={`group relative rounded-xl p-5 cursor-pointer transition-all duration-200 border ${
         isSelected
-          ? 'bg-[#1A1D24] border-[#2F8C82] shadow-lg shadow-[#2F8C82]/10 ring-1 ring-[#2F8C82]'
-          : 'bg-[#111318] border-[#2A2E38] hover:border-[#3d4352] hover:bg-[#161920]'
+          ? 'bg-[#0f172a] border-blue-500 shadow-lg shadow-blue-500/10 ring-1 ring-blue-500'
+          : 'bg-[#0b1329] border-[#1e293b] hover:border-blue-500/40 hover:bg-[#0f172a]'
       }`}
       role="button"
       tabIndex={0}
@@ -75,30 +75,30 @@ export const CollaborationCard: React.FC<Props> = ({
       </div>
 
       {/* Title */}
-      <h3 className="text-base font-semibold text-[#F4F5F7] group-hover:text-white line-clamp-1 mb-2">
+      <h3 className="text-base font-semibold text-white group-hover:text-blue-300 line-clamp-1 mb-2">
         {collaboration.title}
       </h3>
 
       {/* Description preview */}
-      <p className="text-xs text-[#8B90A0] line-clamp-2 mb-4 leading-relaxed">
+      <p className="text-xs text-slate-400 line-clamp-2 mb-4 leading-relaxed">
         {collaboration.description}
       </p>
 
       {/* Participants */}
       <div className="space-y-1.5 mb-4 text-xs">
-        <div className="flex items-center gap-2 text-zinc-300">
-          <Building2 className="w-3.5 h-3.5 text-[#2F8C82] shrink-0" />
+        <div className="flex items-center gap-2 text-slate-300">
+          <Building2 className="w-3.5 h-3.5 text-blue-400 shrink-0" />
           <span className="truncate font-medium">
             {collaboration.company?.companyName || 'Company'}
           </span>
           {collaboration.company?.industrySector && (
-            <span className="text-[10px] text-zinc-500 uppercase tracking-wider">
+            <span className="text-[10px] text-slate-500 uppercase tracking-wider">
               • {collaboration.company.industrySector}
             </span>
           )}
         </div>
-        <div className="flex items-center gap-2 text-zinc-300">
-          <GraduationCap className="w-3.5 h-3.5 text-emerald-400 shrink-0" />
+        <div className="flex items-center gap-2 text-slate-300">
+          <GraduationCap className="w-3.5 h-3.5 text-indigo-400 shrink-0" />
           <span className="truncate font-medium">
             {collaboration.institution?.institutionName || 'Institution'}
           </span>
@@ -106,20 +106,20 @@ export const CollaborationCard: React.FC<Props> = ({
       </div>
 
       {/* Footer: Date, messages count, indicator */}
-      <div className="flex items-center justify-between pt-3 border-t border-[#2A2E38]/60 text-xs text-[#8B90A0]">
+      <div className="flex items-center justify-between pt-3 border-t border-[#1e293b] text-xs text-slate-400">
         <div className="flex items-center gap-4">
           <span className="flex items-center gap-1">
             <Calendar className="w-3.5 h-3.5" />
             {formattedDate}
           </span>
           {messageCount > 0 && (
-            <span className="flex items-center gap-1 text-sky-400">
+            <span className="flex items-center gap-1 text-blue-400">
               <MessageSquare className="w-3.5 h-3.5" />
               {messageCount}
             </span>
           )}
         </div>
-        <div className="flex items-center gap-1 text-[#2F8C82] group-hover:translate-x-0.5 transition-transform font-medium">
+        <div className="flex items-center gap-1 text-blue-400 group-hover:translate-x-0.5 transition-transform font-medium">
           <span>View</span>
           <ChevronRight className="w-3.5 h-3.5" />
         </div>

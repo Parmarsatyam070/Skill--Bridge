@@ -74,29 +74,29 @@ export const SkillRadarCard: React.FC<SkillRadarCardProps> = React.memo(({
   }, [studentSkills, benchmarks]);
 
   return (
-    <div className={`bg-[#111318] border border-[#2A2E38] rounded-2xl p-5 sm:p-6 shadow-xl backdrop-blur-md space-y-5 ${className}`}>
+    <div className={`bg-[#0b1329] border border-[#1e293b] rounded-2xl p-5 sm:p-6 shadow-xl backdrop-blur-md space-y-5 ${className}`}>
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#2A2E38] gap-3">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-4 border-b border-[#1e293b] gap-3">
         <div>
-          <span className="small-caps-label flex items-center gap-1.5 text-[#2F8C82] mb-1">
-            <Activity className="w-3 h-3 text-[#2F8C82]" />
+          <span className="small-caps-label flex items-center gap-1.5 text-blue-400 mb-1 font-semibold">
+            <Activity className="w-3 h-3 text-blue-400" />
             Vector Calibration
           </span>
-          <h3 className="text-base sm:text-lg font-semibold text-[#F4F5F7] tracking-tight">
+          <h3 className="text-base sm:text-lg font-semibold text-white tracking-tight">
             {targetDomain} Skill Radar
           </h3>
         </div>
         <div className="flex items-center gap-2">
-          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#1A1D24] border border-[#2A2E38]">
-            <Award className="w-3.5 h-3.5 text-[#4CC38A]" />
-            <span className="text-xs font-mono text-[#4CC38A] font-medium">
+          <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#0f172a] border border-[#1e293b]">
+            <Award className="w-3.5 h-3.5 text-emerald-400" />
+            <span className="text-xs font-mono text-emerald-400 font-medium">
               {strengths} Strengths
             </span>
           </div>
           {totalGaps > 0 && (
-            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#1A1D24] border border-[#2A2E38]">
-              <AlertCircle className="w-3.5 h-3.5 text-[#E5637C]" />
-              <span className="text-xs font-mono text-[#E5637C] font-medium">
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-[#0f172a] border border-[#1e293b]">
+              <AlertCircle className="w-3.5 h-3.5 text-rose-400" />
+              <span className="text-xs font-mono text-rose-400 font-medium">
                 {totalGaps} Gaps
               </span>
             </div>
@@ -108,39 +108,39 @@ export const SkillRadarCard: React.FC<SkillRadarCardProps> = React.memo(({
       <div className="w-full h-72 sm:h-80">
         <ResponsiveContainer width="100%" height="100%">
           <RadarChart cx="50%" cy="50%" outerRadius="75%" data={chartData}>
-            <PolarGrid gridType="polygon" stroke="#2A2E38" />
+            <PolarGrid gridType="polygon" stroke="#1e293b" />
             <PolarAngleAxis
               dataKey="skill"
-              tick={{ fill: '#8B90A0', fontSize: 11, fontFamily: 'Inter' }}
+              tick={{ fill: '#94a3b8', fontSize: 11, fontFamily: 'Inter' }}
             />
             <PolarRadiusAxis
               angle={30}
               domain={[0, 100]}
               type="number"
               allowDataOverflow={false}
-              tick={{ fill: '#8B90A0', fontSize: 10, fontFamily: 'IBM Plex Mono' }}
+              tick={{ fill: '#94a3b8', fontSize: 10, fontFamily: 'IBM Plex Mono' }}
             />
             <Tooltip
               content={({ active, payload }) => {
                 if (active && payload && payload.length) {
                   const data = payload[0].payload;
                   return (
-                    <div className="bg-[#1A1D24] border border-[#2A2E38] p-3 rounded-xl shadow-xl font-sans text-xs space-y-1.5">
-                      <div className="font-semibold text-[#F4F5F7] pb-1 border-b border-[#2A2E38]">{data.skill}</div>
-                      <div className="flex items-center justify-between gap-4 text-[#2F8C82] font-mono">
+                    <div className="bg-[#0f172a] border border-[#1e293b] p-3 rounded-xl shadow-xl font-sans text-xs space-y-1.5">
+                      <div className="font-semibold text-white pb-1 border-b border-[#1e293b]">{data.skill}</div>
+                      <div className="flex items-center justify-between gap-4 text-blue-400 font-mono">
                         <span>Your Score:</span>
                         <span className="font-bold">{data.studentScore}%</span>
                       </div>
-                      <div className="flex items-center justify-between gap-4 text-[#8B90A0] font-mono">
+                      <div className="flex items-center justify-between gap-4 text-slate-400 font-mono">
                         <span>Industry Target:</span>
                         <span className="font-bold">{data.benchmarkScore}%</span>
                       </div>
                       {data.gap > 0 ? (
-                        <div className="mt-1 pt-1 border-t border-[#2A2E38] text-[#E5637C] font-mono font-medium">
+                        <div className="mt-1 pt-1 border-t border-[#1e293b] text-rose-400 font-mono font-medium">
                           Gap: -{data.gap}%
                         </div>
                       ) : (
-                        <div className="mt-1 pt-1 border-t border-[#2A2E38] text-[#4CC38A] font-mono font-medium">
+                        <div className="mt-1 pt-1 border-t border-[#1e293b] text-emerald-400 font-mono font-medium">
                           Benchmark Met
                         </div>
                       )}
@@ -154,19 +154,19 @@ export const SkillRadarCard: React.FC<SkillRadarCardProps> = React.memo(({
             <Radar
               name="Industry Benchmark"
               dataKey="benchmarkScore"
-              stroke="#8B90A0"
+              stroke="#64748b"
               strokeDasharray="4 4"
               strokeWidth={1.5}
-              fill="#8B90A0"
+              fill="#64748b"
               fillOpacity={0.06}
             />
-            {/* Student Verified Score in Bridge Teal */}
+            {/* Student Verified Score in Blue */}
             <Radar
               name="Verified Student Score"
               dataKey="studentScore"
-              stroke="#2F8C82"
+              stroke="#3b82f6"
               strokeWidth={2.5}
-              fill="#2F8C82"
+              fill="#3b82f6"
               fillOpacity={0.25}
             />
           </RadarChart>
@@ -174,20 +174,20 @@ export const SkillRadarCard: React.FC<SkillRadarCardProps> = React.memo(({
       </div>
 
       {/* Legend */}
-      <div className="flex items-center justify-center gap-6 pt-3 border-t border-[#2A2E38] text-xs font-mono">
+      <div className="flex items-center justify-center gap-6 pt-3 border-t border-[#1e293b] text-xs font-mono">
         <div className="flex items-center gap-2">
-          <div className="w-2.5 h-2.5 rounded-full bg-[#2F8C82]" />
-          <span className="text-[#F4F5F7] font-medium">Verified Vector</span>
+          <div className="w-2.5 h-2.5 rounded-full bg-blue-500 shadow-[0_0_8px_rgba(59,130,246,0.6)]" />
+          <span className="text-white font-medium">Verified Vector</span>
         </div>
         <div className="flex items-center gap-2">
-          <div className="w-4 h-0.5 border-t-2 border-dashed border-[#8B90A0]" />
-          <span className="text-[#8B90A0]">Industry Benchmark</span>
+          <div className="w-4 h-0.5 border-t-2 border-dashed border-slate-500" />
+          <span className="text-slate-400">Industry Benchmark</span>
         </div>
       </div>
 
       {/* Category breakdown via MatchCard components */}
       <div className="pt-2">
-        <div className="small-caps-label text-[#8B90A0] mb-3">
+        <div className="small-caps-label text-slate-400 mb-3">
           Category Vectors & Benchmarks
         </div>
         <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
@@ -210,8 +210,8 @@ export const SkillRadarCard: React.FC<SkillRadarCardProps> = React.memo(({
       </div>
 
       {isAllZero && (
-        <div className="mt-4 p-3.5 rounded-xl bg-[#1A1D24] border border-[#2A2E38] text-center">
-          <span className="text-xs text-[#2F8C82] font-mono">
+        <div className="mt-4 p-3.5 rounded-xl bg-[#0f172a] border border-[#1e293b] text-center">
+          <span className="text-xs text-blue-400 font-mono">
             Calibration Pending: Complete domain assessments or course certifications to expand your verified polygon.
           </span>
         </div>

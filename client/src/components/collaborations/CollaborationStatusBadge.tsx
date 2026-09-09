@@ -86,7 +86,7 @@ export const CollaborationStatusBadge: React.FC<Props> = ({
               : size === 'lg'
               ? 'px-3 py-1.5 text-sm'
               : 'px-2.5 py-1 text-xs'
-          } bg-[#2F8C82]/20 border-[#2F8C82]/40 text-[#4CC38A] ${className}`}
+          } bg-blue-600/15 border-blue-500/30 text-blue-400 ${className}`}
         >
           <Play className={size === 'sm' ? 'w-3 h-3' : 'w-3.5 h-3.5'} />
           Active

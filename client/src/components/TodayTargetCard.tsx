@@ -21,17 +21,17 @@ const TYPE_META: Record<
 > = {
   dsa: {
     icon: Code2,
-    color: 'text-[#5B7FE0]',
+    color: 'text-indigo-400',
     label: 'DSA Challenge',
   },
   practice_set: {
     icon: Layout,
-    color: 'text-[#2F8C82]',
+    color: 'text-blue-400',
     label: 'Assessment',
   },
   resource: {
     icon: BookOpen,
-    color: 'text-[#E8A23C]',
+    color: 'text-amber-400',
     label: 'Learning Resource',
   },
 };
@@ -81,10 +81,10 @@ export const TodayTargetCard: React.FC<Props> = ({
   if (isLoading) {
     return (
       <div
-        className={`bg-[#111318] border border-[#2A2E38] rounded-2xl p-5 flex items-center gap-3 ${className}`}
+        className={`bg-[#0b1329] border border-[#1e293b] rounded-2xl p-5 flex items-center gap-3 ${className}`}
       >
-        <Loader2 className="w-4 h-4 text-[#8B90A0] animate-spin" />
-        <span className="text-xs text-[#8B90A0]">Generating your daily target…</span>
+        <Loader2 className="w-4 h-4 text-slate-400 animate-spin" />
+        <span className="text-xs text-slate-400">Generating your daily target…</span>
       </div>
     );
   }
@@ -93,10 +93,10 @@ export const TodayTargetCard: React.FC<Props> = ({
   if (isError || !target) {
     return (
       <div
-        className={`bg-[#111318] border border-[#2A2E38] rounded-2xl p-5 flex items-center gap-3 ${className}`}
+        className={`bg-[#0b1329] border border-[#1e293b] rounded-2xl p-5 flex items-center gap-3 ${className}`}
       >
-        <Target className="w-4 h-4 text-[#8B90A0]" />
-        <span className="text-xs text-[#8B90A0]">Could not load today's target. Check back shortly.</span>
+        <Target className="w-4 h-4 text-slate-400" />
+        <span className="text-xs text-slate-400">Could not load today's target. Check back shortly.</span>
       </div>
     );
   }
@@ -109,31 +109,31 @@ export const TodayTargetCard: React.FC<Props> = ({
   if (variant === 'compact') {
     return (
       <div
-        className={`bg-[#111318] border border-[#2A2E38] rounded-2xl p-4 flex items-center justify-between gap-4 ${className}`}
+        className={`bg-[#0b1329] border border-[#1e293b] rounded-2xl p-4 flex items-center justify-between gap-4 ${className}`}
       >
         <div className="flex items-center gap-3 min-w-0">
           <span
             className={`w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0 ${
               isCompleted
-                ? 'bg-[#4CC38A]/15 border border-[#4CC38A]/30'
-                : 'bg-[#1A1D24] border border-[#2A2E38]'
+                ? 'bg-emerald-500/15 border border-emerald-500/30'
+                : 'bg-[#0f172a] border border-[#1e293b]'
             }`}
           >
             {isCompleted ? (
-              <CheckCircle2 className="w-4 h-4 text-[#4CC38A]" />
+              <CheckCircle2 className="w-4 h-4 text-emerald-400" />
             ) : (
               <TypeIcon className={`w-4 h-4 ${meta.color}`} />
             )}
           </span>
           <div className="min-w-0">
-            <span className="small-caps-label text-[#8B90A0] flex items-center gap-1 mb-0.5">
-              <Sparkles className="w-2.5 h-2.5" />
+            <span className="small-caps-label text-slate-400 flex items-center gap-1 mb-0.5">
+              <Sparkles className="w-2.5 h-2.5 text-blue-400" />
               Today's Target
               {isCompleted && (
-                <span className="text-[#4CC38A] ml-1">· Done ✓</span>
+                <span className="text-emerald-400 ml-1">· Done ✓</span>
               )}
             </span>
-            <p className="text-xs font-medium text-[#F4F5F7] truncate max-w-xs sm:max-w-md">
+            <p className="text-xs font-medium text-white truncate max-w-xs sm:max-w-md">
               {target.targetGoal}
             </p>
           </div>
@@ -155,22 +155,22 @@ export const TodayTargetCard: React.FC<Props> = ({
   /* ── Full card (SkillProfile page) ──────────────────────── */
   return (
     <div
-      className={`bg-[#111318] border ${
-        isCompleted ? 'border-[#4CC38A]/40' : 'border-[#2A2E38]'
+      className={`bg-[#0b1329] border ${
+        isCompleted ? 'border-emerald-500/40' : 'border-[#1e293b]'
       } rounded-2xl p-5 sm:p-6 space-y-4 ${className}`}
     >
       {/* Header */}
       <div className="flex items-center justify-between flex-wrap gap-2">
-        <span className="small-caps-label flex items-center gap-1.5 text-[#8B90A0]">
-          <Sparkles className="w-3 h-3 text-[#5B7FE0]" />
+        <span className="small-caps-label flex items-center gap-1.5 text-slate-400">
+          <Sparkles className="w-3 h-3 text-blue-400" />
           Sash · Today's Target
         </span>
 
         <span
           className={`px-2.5 py-0.5 rounded-full text-[10.5px] font-mono font-medium border ${
             isCompleted
-              ? 'bg-[#4CC38A]/10 text-[#4CC38A] border-[#4CC38A]/30'
-              : `bg-[#1A1D24] ${meta.color} border-[#2A2E38]`
+              ? 'bg-emerald-500/10 text-emerald-300 border-emerald-500/30'
+              : `bg-[#0f172a] ${meta.color} border-[#1e293b]`
           }`}
         >
           {isCompleted ? '✓ Completed' : meta.label}
@@ -181,26 +181,26 @@ export const TodayTargetCard: React.FC<Props> = ({
       <div className="space-y-1">
         <h3
           className={`text-base sm:text-lg font-semibold tracking-tight ${
-            isCompleted ? 'text-[#4CC38A]' : 'text-[#F4F5F7]'
+            isCompleted ? 'text-emerald-400' : 'text-white'
           }`}
         >
           {target.title}
         </h3>
-        <p className="text-sm text-[#8B90A0] leading-relaxed">{target.targetGoal}</p>
+        <p className="text-sm text-slate-400 leading-relaxed">{target.targetGoal}</p>
       </div>
 
       {/* Rationale chip */}
-      <div className="bg-[#1A1D24] border border-[#2A2E38] rounded-xl px-3.5 py-2.5 text-xs text-[#8B90A0] leading-relaxed">
-        <span className="text-[#5B7FE0] font-medium">Why today? </span>
+      <div className="bg-[#0f172a] border border-[#1e293b] rounded-xl px-3.5 py-2.5 text-xs text-slate-400 leading-relaxed">
+        <span className="text-blue-400 font-medium">Why today? </span>
         {target.rationale}
       </div>
 
       {/* Phase tag */}
       <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-[10.5px] font-mono text-[#8B90A0] bg-[#1A1D24] border border-[#2A2E38] px-2.5 py-1 rounded-md">
+        <span className="text-[10.5px] font-mono text-slate-400 bg-[#0f172a] border border-[#1e293b] px-2.5 py-1 rounded-md">
           {target.roadmapPhase}
         </span>
-        <span className="text-[10.5px] font-mono text-[#2F8C82] bg-[#2F8C82]/10 border border-[#2F8C82]/20 px-2.5 py-1 rounded-md">
+        <span className="text-[10.5px] font-mono text-blue-400 bg-blue-600/10 border border-blue-500/20 px-2.5 py-1 rounded-md font-semibold">
           Focus: {target.focusTopic}
         </span>
       </div>
@@ -225,9 +225,9 @@ export const TodayTargetCard: React.FC<Props> = ({
               className="bridge-btn-secondary text-xs py-2.5 px-4 flex items-center gap-1.5 disabled:opacity-50"
             >
               {completeMutation.isPending ? (
-                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                <Loader2 className="w-3.5 h-3.5 animate-spin text-blue-400" />
               ) : (
-                <CheckCircle2 className="w-3.5 h-3.5 text-[#4CC38A]" />
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
               )}
               <span>Mark Done</span>
             </button>
@@ -235,7 +235,7 @@ export const TodayTargetCard: React.FC<Props> = ({
         )}
 
         {isCompleted && (
-          <div className="flex items-center gap-2 text-sm text-[#4CC38A] font-medium">
+          <div className="flex items-center gap-2 text-sm text-emerald-400 font-medium">
             <CheckCircle2 className="w-4 h-4" />
             <span>Target achieved for today — great work!</span>
           </div>

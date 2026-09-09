@@ -56,18 +56,18 @@ export const CollaborationFilters: React.FC<Props> = ({
       {/* Search & Type filter bar */}
       <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
         <div className="relative flex-1">
-          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#8B90A0]" />
+          <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
           <input
             type="text"
             value={search}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Search by title, company, institution, or keywords..."
-            className="w-full pl-10 pr-9 py-2.5 bg-[#111318] border border-[#2A2E38] rounded-xl text-sm text-[#F4F5F7] placeholder-[#8B90A0] focus:outline-none focus:border-[#2F8C82] focus:ring-1 focus:ring-[#2F8C82] transition-colors"
+            className="w-full pl-10 pr-9 py-2.5 bg-[#0b1329] border border-[#1e293b] rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors"
           />
           {search && (
             <button
               onClick={() => onSearchChange('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-[#8B90A0] hover:text-white"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white"
               aria-label="Clear search"
             >
               <X className="w-4 h-4" />
@@ -79,15 +79,15 @@ export const CollaborationFilters: React.FC<Props> = ({
           <select
             value={selectedType}
             onChange={(e) => onTypeChange(e.target.value)}
-            className="w-full appearance-none bg-[#111318] border border-[#2A2E38] text-[#F4F5F7] text-sm rounded-xl px-4 py-2.5 pr-8 focus:outline-none focus:border-[#2F8C82] focus:ring-1 focus:ring-[#2F8C82]"
+            className="w-full appearance-none bg-[#0b1329] border border-[#1e293b] text-white text-sm rounded-xl px-4 py-2.5 pr-8 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
           >
             {COLLAB_TYPES.map((t) => (
-              <option key={t.id} value={t.id} className="bg-[#111318] text-[#F4F5F7]">
+              <option key={t.id} value={t.id} className="bg-[#0b1329] text-white">
                 {t.label}
               </option>
             ))}
           </select>
-          <Filter className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-[#8B90A0] pointer-events-none" />
+          <Filter className="absolute right-3 top-1/2 -translate-y-1/2 w-3.5 h-3.5 text-slate-400 pointer-events-none" />
         </div>
       </div>
 
@@ -103,8 +103,8 @@ export const CollaborationFilters: React.FC<Props> = ({
               onClick={() => onStatusChange(tab.id)}
               className={`px-3.5 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-all flex items-center gap-1.5 ${
                 isActive
-                  ? 'bg-[#2F8C82] text-white shadow-sm shadow-[#2F8C82]/20'
-                  : 'bg-[#111318] text-[#8B90A0] hover:text-[#F4F5F7] hover:bg-[#1A1D24] border border-[#2A2E38]'
+                  ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-sm shadow-blue-500/20 font-semibold'
+                  : 'bg-[#0b1329] text-slate-400 hover:text-white hover:bg-[#0f172a] border border-[#1e293b]'
               }`}
             >
               <span>{tab.label}</span>
@@ -113,7 +113,7 @@ export const CollaborationFilters: React.FC<Props> = ({
                   className={`text-[10px] px-1.5 py-0.2 rounded-full ${
                     isActive
                       ? 'bg-white/20 text-white'
-                      : 'bg-[#1f242d] text-[#8B90A0]'
+                      : 'bg-slate-800 text-slate-400'
                   }`}
                 >
                   {count}

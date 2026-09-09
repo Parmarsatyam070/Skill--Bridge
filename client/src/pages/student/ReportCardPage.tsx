@@ -172,7 +172,7 @@ export const ReportCardPage: React.FC = () => {
             onClick={() => setActiveTab('assessments')}
             className={`px-4 py-2 rounded-xl text-xs font-semibold font-sans transition-all flex items-center gap-2 ${
               activeTab === 'assessments'
-                ? 'bg-bridge-teal text-slate-950 font-bold shadow-md shadow-bridge-teal/20'
+                ? 'bg-bridge-teal text-white font-bold shadow-md shadow-bridge-teal/20'
                 : 'bg-panel border border-border text-text-muted hover:text-text-primary'
             }`}
           >
@@ -185,7 +185,7 @@ export const ReportCardPage: React.FC = () => {
             onClick={() => setActiveTab('mock_interviews')}
             className={`px-4 py-2 rounded-xl text-xs font-semibold font-sans transition-all flex items-center gap-2 ${
               activeTab === 'mock_interviews'
-                ? 'bg-bridge-teal text-slate-950 font-bold shadow-md shadow-bridge-teal/20'
+                ? 'bg-bridge-teal text-white font-bold shadow-md shadow-bridge-teal/20'
                 : 'bg-panel border border-border text-text-muted hover:text-text-primary'
             }`}
           >
@@ -476,7 +476,7 @@ export const ReportCardPage: React.FC = () => {
                     <div className="border-t border-border pt-3">
                       <Link
                         to={area.practiceSet.url}
-                        className="w-full py-2.5 px-4 rounded-xl bg-bridge-teal text-slate-950 hover:bg-bridge-teal/90 font-bold text-xs flex items-center justify-between transition-all shadow-md group/btn"
+                        className="w-full py-2.5 px-4 rounded-xl bg-bridge-teal text-white hover:bg-bridge-teal/90 font-bold text-xs flex items-center justify-between transition-all shadow-md group/btn"
                       >
                         <div className="flex flex-col text-left truncate pr-2">
                           <span className="truncate text-[10px] font-mono opacity-80">
@@ -603,7 +603,7 @@ export const ReportCardPage: React.FC = () => {
                   onClick={() => setSelectedCategory(cat.id)}
                   className={`px-3.5 py-1.5 rounded-full text-xs font-medium whitespace-nowrap transition-all ${
                     selectedCategory === cat.id
-                      ? 'bg-bridge-teal text-slate-950 font-bold shadow-md shadow-bridge-teal/20'
+                      ? 'bg-bridge-teal text-white font-bold shadow-md shadow-bridge-teal/20'
                       : 'bg-panel text-text-muted hover:text-text-primary border border-border'
                   }`}
                 >
@@ -658,7 +658,7 @@ export const ReportCardPage: React.FC = () => {
           </div>
           <Link
             to="/assessment"
-            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-bridge-teal text-slate-950 font-bold text-xs shadow-md shadow-bridge-teal/20 hover:bg-bridge-teal/90 transition-all"
+            className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-bridge-teal text-white font-bold text-xs shadow-md shadow-bridge-teal/20 hover:bg-bridge-teal/90 transition-all"
           >
             <span>Start Practice Set</span>
             <ChevronRight className="w-3.5 h-3.5" />
@@ -890,7 +890,7 @@ export const ReportCardPage: React.FC = () => {
               </div>
               <Link
                 to="/internships"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-bridge-teal text-slate-950 text-xs font-bold shadow-md hover:bg-bridge-teal/90 transition-all"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-bridge-teal text-white text-xs font-bold shadow-md hover:bg-bridge-teal/90 transition-all"
               >
                 <span>Browse Internships to Practice</span>
                 <ChevronRight className="w-3.5 h-3.5" />
@@ -1226,7 +1226,7 @@ export const ReportCardPage: React.FC = () => {
                   {/* Summary Banner */}
                   <div className="p-4 rounded-xl bg-console-panel-raised border border-console-border flex items-center justify-between gap-4">
                     <div className="flex items-center gap-3">
-                      <div className="w-12 h-12 rounded-xl bg-bridge-teal text-slate-950 font-bold flex items-center justify-center text-lg shadow-md">
+                      <div className="w-12 h-12 rounded-xl bg-bridge-teal text-white font-bold flex items-center justify-center text-lg shadow-md">
                         {interviewDetailData.session.overallScore}%
                       </div>
                       <div>

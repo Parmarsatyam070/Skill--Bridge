@@ -21,11 +21,11 @@ export const BridgeObject: React.FC<BridgeObjectProps> = ({
         height: `${420 * scale}px`,
       }}
     >
-      {/* Soft radial bloom glow behind the connector beam (single glowing gradient object) */}
+      {/* Soft radial bloom glow behind the connector beam */}
       <div
         className="absolute inset-0 rounded-full blur-3xl opacity-30 animate-pulse"
         style={{
-          background: 'radial-gradient(circle, rgba(47, 140, 130, 0.45) 0%, rgba(91, 127, 224, 0.25) 45%, transparent 70%)',
+          background: 'radial-gradient(circle, rgba(37, 99, 235, 0.45) 0%, rgba(14, 165, 233, 0.25) 45%, transparent 70%)',
           animationDuration: '6s',
         }}
       />
@@ -37,26 +37,26 @@ export const BridgeObject: React.FC<BridgeObjectProps> = ({
         xmlns="http://www.w3.org/2000/svg"
       >
         <defs>
-          {/* Bridge Gradient Definition: #2F8C82 to #5B7FE0 */}
+          {/* Bridge Gradient Definition */}
           <linearGradient id="bridgeGrad" x1="0%" y1="50%" x2="100%" y2="50%">
-            <stop offset="0%" stopColor="#2F8C82" />
-            <stop offset="100%" stopColor="#5B7FE0" />
+            <stop offset="0%" stopColor="#2563eb" />
+            <stop offset="100%" stopColor="#0ea5e9" />
           </linearGradient>
 
           <linearGradient id="academiaGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#1A1D24" />
-            <stop offset="100%" stopColor="#111318" />
+            <stop offset="0%" stopColor="#0f172a" />
+            <stop offset="100%" stopColor="#0b1329" />
           </linearGradient>
 
           <linearGradient id="industryGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#1A1D24" />
-            <stop offset="100%" stopColor="#111318" />
+            <stop offset="0%" stopColor="#0f172a" />
+            <stop offset="100%" stopColor="#0b1329" />
           </linearGradient>
 
           <linearGradient id="beamGlow" x1="0%" y1="0%" x2="100%" y2="0%">
-            <stop offset="0%" stopColor="#2F8C82" stopOpacity="0.9" />
-            <stop offset="50%" stopColor="#4CC38A" stopOpacity="1" />
-            <stop offset="100%" stopColor="#5B7FE0" stopOpacity="0.9" />
+            <stop offset="0%" stopColor="#2563eb" stopOpacity="0.9" />
+            <stop offset="50%" stopColor="#60a5fa" stopOpacity="1" />
+            <stop offset="100%" stopColor="#0ea5e9" stopOpacity="0.9" />
           </linearGradient>
 
           <filter id="softGlow" x="-20%" y="-20%" width="140%" height="140%">
@@ -66,7 +66,7 @@ export const BridgeObject: React.FC<BridgeObjectProps> = ({
         </defs>
 
         {/* Ambient grid base guides */}
-        <g stroke="#2A2E38" strokeWidth="0.8" opacity="0.4">
+        <g stroke="#1e293b" strokeWidth="0.8" opacity="0.4">
           <line x1="60" y1="360" x2="460" y2="360" strokeDasharray="3 3" />
           <line x1="260" y1="120" x2="260" y2="380" strokeDasharray="2 4" />
         </g>
@@ -77,30 +77,30 @@ export const BridgeObject: React.FC<BridgeObjectProps> = ({
           <polygon
             points="60,260 170,200 230,235 120,295"
             fill="url(#academiaGrad)"
-            stroke="#2A2E38"
+            stroke="#1e293b"
             strokeWidth="1.5"
           />
           {/* Left extrusion */}
           <polygon
             points="60,260 120,295 120,335 60,300"
-            fill="#0E1015"
-            stroke="#2A2E38"
+            fill="#030712"
+            stroke="#1e293b"
             strokeWidth="1.5"
           />
           {/* Front extrusion */}
           <polygon
             points="120,295 230,235 230,275 120,335"
-            fill="#14171E"
-            stroke="#2A2E38"
+            fill="#080e1e"
+            stroke="#1e293b"
             strokeWidth="1.5"
           />
-          {/* Subtle teal accent edge indicating academic potential */}
+          {/* Subtle blue accent edge indicating academic potential */}
           <line
             x1="170"
             y1="200"
             x2="230"
             y2="235"
-            stroke="#2F8C82"
+            stroke="#2563eb"
             strokeWidth="2"
             strokeLinecap="round"
           />
@@ -112,21 +112,21 @@ export const BridgeObject: React.FC<BridgeObjectProps> = ({
           <polygon
             points="290,235 350,200 460,260 400,295"
             fill="url(#industryGrad)"
-            stroke="#2A2E38"
+            stroke="#1e293b"
             strokeWidth="1.5"
           />
           {/* Front extrusion */}
           <polygon
             points="290,235 400,295 400,335 290,275"
-            fill="#14171E"
-            stroke="#2A2E38"
+            fill="#080e1e"
+            stroke="#1e293b"
             strokeWidth="1.5"
           />
           {/* Right extrusion */}
           <polygon
             points="400,295 460,260 460,300 400,335"
-            fill="#0E1015"
-            stroke="#2A2E38"
+            fill="#030712"
+            stroke="#1e293b"
             strokeWidth="1.5"
           />
           {/* Subtle blue accent edge indicating industry demand */}
@@ -135,7 +135,7 @@ export const BridgeObject: React.FC<BridgeObjectProps> = ({
             y1="235"
             x2="350"
             y2="200"
-            stroke="#5B7FE0"
+            stroke="#0ea5e9"
             strokeWidth="2"
             strokeLinecap="round"
           />
@@ -163,8 +163,8 @@ export const BridgeObject: React.FC<BridgeObjectProps> = ({
             cx="260"
             y="229"
             r="4.5"
-            fill="#F4F5F7"
-            stroke="#2F8C82"
+            fill="#ffffff"
+            stroke="#2563eb"
             strokeWidth="2"
           />
           <circle
@@ -172,7 +172,7 @@ export const BridgeObject: React.FC<BridgeObjectProps> = ({
             y="229"
             r="8"
             fill="none"
-            stroke="#4CC38A"
+            stroke="#60a5fa"
             strokeWidth="1"
             opacity="0.75"
           />

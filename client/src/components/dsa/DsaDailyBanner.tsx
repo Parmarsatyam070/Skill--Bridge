@@ -160,7 +160,7 @@ export const DsaDailyBanner: React.FC<DsaDailyBannerProps> = ({ onStartDailyPrac
             className={`px-6 py-3 rounded-2xl font-bold text-xs sm:text-sm shadow-xl transition-all flex items-center justify-center gap-2 ${
               isCompleted
                 ? 'bg-slate-800 hover:bg-slate-750 text-slate-200 border border-slate-700'
-                : 'bg-bridge-teal hover:bg-bridge-teal/90 text-slate-950 shadow-bridge-teal/20 hover:scale-[1.02]'
+                : 'bg-bridge-teal hover:bg-bridge-teal/90 text-white shadow-bridge-teal/20 hover:scale-[1.02]'
             }`}
           >
             {startDailyMutation.isPending ? (

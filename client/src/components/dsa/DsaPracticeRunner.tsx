@@ -526,7 +526,7 @@ export const DsaPracticeRunner: React.FC<DsaPracticeRunnerProps> = ({
                 }}
                 className={`min-w-[2.25rem] h-8 w-8 flex items-center justify-center shrink-0 rounded-lg text-xs font-semibold font-mono transition-all cursor-pointer ${
                   isCurrent
-                    ? 'bg-bridge-teal text-slate-950 shadow-lg shadow-bridge-teal/20 font-bold ring-2 ring-bridge-teal/50'
+                    ? 'bg-bridge-teal text-white shadow-lg shadow-bridge-teal/20 font-bold ring-2 ring-bridge-teal/50'
                     : isCompleted
                     ? 'bg-signal-green/20 text-signal-green border border-signal-green/40 font-bold'
                     : 'bg-panel-raised text-text-muted border border-border hover:text-text-primary'
@@ -915,7 +915,7 @@ export const DsaPracticeRunner: React.FC<DsaPracticeRunnerProps> = ({
                   type="button"
                   onClick={handleSubmitSolution}
                   disabled={submitSolutionMutation.isPending}
-                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-bridge-teal to-emerald-500 hover:from-bridge-teal/90 hover:to-emerald-450 text-slate-950 text-xs font-bold shadow-lg shadow-bridge-teal/20 transition-all flex items-center gap-1.5 disabled:opacity-50"
+                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-bridge-teal to-emerald-500 hover:from-bridge-teal/90 hover:to-emerald-450 text-white text-xs font-bold shadow-lg shadow-bridge-teal/20 transition-all flex items-center gap-1.5 disabled:opacity-50"
                 >
                   {submitSolutionMutation.isPending ? (
                     <>

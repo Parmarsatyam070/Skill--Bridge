@@ -8,7 +8,7 @@ interface SkillDemandChartProps {
 export const SkillDemandChart: React.FC<SkillDemandChartProps> = ({ skills }) => {
   if (!skills || skills.length === 0) {
     return (
-      <div className="p-8 text-center text-sm" style={{ color: '#8B90A0' }}>
+      <div className="p-8 text-center text-sm text-slate-400">
         No skill requirements recorded in active opportunities.
       </div>
     );
@@ -25,38 +25,32 @@ export const SkillDemandChart: React.FC<SkillDemandChartProps> = ({ skills }) =>
           <div key={s.skillId} className="space-y-1">
             <div className="flex items-center justify-between text-xs">
               <div className="flex items-center gap-2">
-                <span className="font-medium" style={{ color: '#F4F5F7' }}>
+                <span className="font-medium text-white">
                   {s.skillName}
                 </span>
                 <span
-                  className="text-[10px] px-1.5 py-0.2 rounded font-mono uppercase"
-                  style={{
-                    background: 'rgba(255, 255, 255, 0.05)',
-                    color: '#8B90A0',
-                  }}
+                  className="text-[10px] px-1.5 py-0.2 rounded font-mono uppercase bg-[#0f172a] border border-[#1e293b] text-slate-400"
                 >
                   {s.category}
                 </span>
               </div>
               <div className="flex items-center gap-3 font-mono text-xs">
-                <span style={{ color: '#8B90A0' }}>
+                <span className="text-slate-400">
                   {s.mandatoryCount} mandatory / {s.preferredCount} preferred
                 </span>
-                <span className="font-bold" style={{ color: '#2F8C82' }}>
+                <span className="font-bold text-blue-400">
                   {s.demandCount} opps ({s.demandPct}%)
                 </span>
               </div>
             </div>
 
             <div
-              className="h-3 rounded-full overflow-hidden relative"
-              style={{ background: 'rgba(255, 255, 255, 0.05)' }}
+              className="h-3 rounded-full overflow-hidden relative bg-[#0f172a] border border-[#1e293b]"
             >
               <div
-                className="h-full rounded-full transition-all duration-500"
+                className="h-full rounded-full transition-all duration-500 bg-gradient-to-r from-blue-600 to-blue-400"
                 style={{
                   width: `${widthPct}%`,
-                  background: 'linear-gradient(90deg, #2F8C82, #4CC38A)',
                 }}
               />
             </div>

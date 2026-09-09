@@ -34,22 +34,22 @@ import { ConsoleSkeleton } from './ConsoleSkeleton';
 import { ConsoleBackButton } from './ConsoleBackButton';
 import { Role } from '@shared/types';
 
-/* ─── Design System v2 Tokens (local) ─────────────────────────────────── */
+/* ─── Design System: Black & Blue Theme Tokens ───────────────────────── */
 const C = {
-  canvas:    '#08090C', // void
-  s1:        '#111318', // panel
-  s2:        '#1A1D24', // panel-raised
-  s3:        '#1f242d',
-  hairline:  '#2A2E38', // border
-  hStrong:   '#3d4352',
-  primary:   '#2F8C82', // bridge-teal
-  pHover:    '#3aa398',
-  cyan:      '#2F8C82',
+  canvas:    '#030712', // void
+  s1:        '#0b1329', // panel
+  s2:        '#0f172a', // panel-raised
+  s3:        '#131f37',
+  hairline:  '#1e293b', // border
+  hStrong:   '#334155',
+  primary:   '#2563eb', // electric blue
+  pHover:    '#1d4ed8',
+  cyan:      '#38bdf8',
   emerald:   '#4CC38A', // signal-green
   success:   '#4CC38A',
-  ink:       '#F4F5F7', // text-primary
-  inkMuted:  '#8B90A0', // text-muted
-  inkSubtle: '#8B90A0',
+  ink:       '#ffffff', // text-primary
+  inkMuted:  '#94a3b8', // text-muted
+  inkSubtle: '#94a3b8',
   amber:     '#E8A23C', // signal-amber
   red:       '#E5637C', // signal-red
 } as const;
@@ -59,6 +59,11 @@ interface NavItem {
   path:  string;
   icon:  React.ComponentType<{ className?: string }>;
   badge?: string;
+}
+
+interface NavGroup {
+  title?: string;
+  items: NavItem[];
 }
 
 export const ConsoleLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -74,47 +79,128 @@ export const ConsoleLayout: React.FC<{ children: React.ReactNode }> = ({ childre
 
   if (!user) return null;
 
-  /* Navigation items by role */
-  let navItems: NavItem[] = [];
+  /* Navigation grouped by category */
+  let navGroups: NavGroup[] = [];
   if (user.role === 'STUDENT') {
-    navItems = [
-      { label: 'Career Profile',     path: '/profile',       icon: UserCheck,      badge: 'Profile'    },
-      { label: 'Overview',           path: '/dashboard',     icon: LayoutDashboard                      },
-      { label: 'Opportunity Hub',    path: '/opportunities', icon: Compass,        badge: '7-Factor'   },
-      { label: 'Talent Assessments', path: '/assessments',   icon: Award,          badge: 'Tests'      },
-      { label: 'AI Interviews',      path: '/interviews',    icon: Bot,            badge: 'AI Prep'    },
-      { label: 'Skill Profile',      path: '/skill-profile', icon: Radar                                },
-      { label: 'Skill Assessment',   path: '/assessment',    icon: CheckSquare,    badge: 'Daily + Sets'},
-      { label: 'DSA & Coding',       path: '/dsa',           icon: Code2,          badge: 'Coding'     },
-      { label: 'Learning Hub',       path: '/learn',         icon: BookOpen,       badge: 'Resources'  },
-      { label: 'Report Card',        path: '/report-card',   icon: Award,          badge: 'History'    },
-      { label: 'Matched Internships',path: '/internships',   icon: Briefcase,      badge: 'Live %'     },
-      { label: 'Partner Courses',    path: '/courses',       icon: GraduationCap,  badge: 'NPTEL'      },
-      { label: 'AI Resume Builder',  path: '/resume-builder',icon: FileText,       badge: 'PDF'        },
-      { label: 'Portfolio Website',  path: '/portfolio',     icon: Sparkles,       badge: 'AI Builder' },
+    navGroups = [
+      {
+        title: 'CAREER',
+        items: [
+          { label: 'Career Profile',      path: '/profile',        icon: UserCheck,      badge: 'Profile'    },
+          { label: 'Overview',            path: '/dashboard',      icon: LayoutDashboard                      },
+          { label: 'Opportunity Hub',     path: '/opportunities',  icon: Compass,        badge: '7-Factor'   },
+          { label: 'Matched Internships', path: '/internships',    icon: Briefcase,      badge: 'Live %'     },
+          { label: 'Report Card',         path: '/report-card',    icon: Award,          badge: 'History'    },
+        ],
+      },
+      {
+        title: 'VERIFICATION',
+        items: [
+          { label: 'Talent Assessments',  path: '/assessments',    icon: Award,          badge: 'Tests'      },
+          { label: 'Skill Assessment',    path: '/assessment',     icon: CheckSquare,    badge: 'Daily + Sets'},
+          { label: 'DSA & Coding',        path: '/dsa',            icon: Code2,          badge: 'Coding'     },
+          { label: 'Skill Profile',       path: '/skill-profile',  icon: Radar                                },
+        ],
+      },
+      {
+        title: 'LEARNING',
+        items: [
+          { label: 'Learning Hub',        path: '/learn',          icon: BookOpen,       badge: 'Resources'  },
+          { label: 'Partner Courses',     path: '/courses',        icon: GraduationCap,  badge: 'NPTEL'      },
+        ],
+      },
+      {
+        title: 'AI TOOLS',
+        items: [
+          { label: 'AI Interviews',       path: '/interviews',     icon: Bot,            badge: 'AI Prep'    },
+          { label: 'AI Resume Builder',   path: '/resume-builder', icon: FileText,       badge: 'PDF'        },
+          { label: 'Portfolio Website',   path: '/portfolio',      icon: Sparkles,       badge: 'AI Builder' },
+        ],
+      },
     ];
   } else if (user.role === 'INDUSTRY') {
-    navItems = [
-      { label: 'Recruitment Hub',       path: '/industry/dashboard',    icon: LayoutDashboard },
-      { label: 'Market Intelligence',   path: '/industry/intelligence', icon: BarChart3,      badge: 'Analytics' },
-      { label: 'Opportunity Market',    path: '/opportunities',         icon: Compass,        badge: 'Live' },
-      { label: 'Talent Assessments',    path: '/assessments',           icon: CheckSquare,    badge: 'Tests' },
-      { label: 'AI Interviews',         path: '/interviews',            icon: Bot,            badge: 'Audits' },
-      { label: 'Collaborations',        path: '/collaborations',        icon: Handshake,      badge: 'Partner' },
-      { label: 'Post Internship',       path: '/industry/post-job',     icon: Briefcase       },
+    navGroups = [
+      {
+        title: 'RECRUITMENT',
+        items: [
+          { label: 'Recruitment Hub',     path: '/industry/dashboard', icon: LayoutDashboard },
+          { label: 'Opportunity Market',  path: '/opportunities',      icon: Compass,        badge: 'Live' },
+          { label: 'Post Internship',     path: '/industry/post-job',  icon: Briefcase       },
+        ],
+      },
+      {
+        title: 'INTELLIGENCE',
+        items: [
+          { label: 'Market Intelligence', path: '/industry/intelligence', icon: BarChart3, badge: 'Analytics' },
+        ],
+      },
+      {
+        title: 'VERIFICATION & AUDITS',
+        items: [
+          { label: 'Talent Assessments',  path: '/assessments',        icon: CheckSquare,    badge: 'Tests' },
+          { label: 'AI Interviews',       path: '/interviews',         icon: Bot,            badge: 'Audits' },
+        ],
+      },
+      {
+        title: 'PARTNERSHIP',
+        items: [
+          { label: 'Collaborations',      path: '/collaborations',     icon: Handshake,      badge: 'Partner' },
+        ],
+      },
     ];
   } else if (user.role === 'ACADEMICIAN') {
-    navItems = [
-      { label: 'Academia Hub',       path: '/academician/dashboard',    icon: GraduationCap },
-      { label: 'FDP & Collaborations',path: '/academician/opportunities',icon: BookOpen      },
+    navGroups = [
+      {
+        title: 'ACADEMIA',
+        items: [
+          { label: 'Academia Hub',        path: '/academician/dashboard',     icon: GraduationCap },
+        ],
+      },
+      {
+        title: 'COLLABORATION',
+        items: [
+          { label: 'FDP & Collaborations',path: '/academician/opportunities', icon: BookOpen },
+        ],
+      },
     ];
   } else {
-    navItems = [
-      { label: 'Institutional Analytics', path: '/institution/dashboard',    icon: BarChart3 },
-      { label: 'Skill Intelligence',      path: '/institution/intelligence',icon: Radar,      badge: 'Curriculum' },
-      { label: 'Collaborations',          path: '/collaborations',           icon: Handshake,  badge: 'Industry' },
+    navGroups = [
+      {
+        title: 'ANALYTICS',
+        items: [
+          { label: 'Institutional Analytics', path: '/institution/dashboard',    icon: BarChart3 },
+        ],
+      },
+      {
+        title: 'CURRICULUM',
+        items: [
+          { label: 'Skill Intelligence',      path: '/institution/intelligence',icon: Radar, badge: 'Curriculum' },
+        ],
+      },
+      {
+        title: 'PARTNERSHIP',
+        items: [
+          { label: 'Collaborations',          path: '/collaborations',           icon: Handshake, badge: 'Industry' },
+        ],
+      },
     ];
   }
+
+  /* Role-aware search placeholder helper */
+  const getSearchPlaceholder = (role: Role) => {
+    switch (role) {
+      case 'STUDENT':
+        return 'Search opportunities, skills, courses...';
+      case 'INDUSTRY':
+        return 'Search candidates, skills, opportunities...';
+      case 'ACADEMICIAN':
+        return 'Search students, skills, courses...';
+      case 'INSTITUTION_ADMIN':
+        return 'Search students, skills, departments...';
+      default:
+        return 'Search platform intelligence...';
+    }
+  };
 
   /* Role badge metadata */
   const roleLabels: Record<Role, { title: string; badgeColor: string }> = {
@@ -166,9 +252,9 @@ export const ConsoleLayout: React.FC<{ children: React.ReactNode }> = ({ childre
               className="flex items-center gap-2 overflow-hidden group"
             >
               <div
-                className="w-7 h-7 rounded-lg flex items-center justify-center text-white font-bold text-xs flex-shrink-0 relative overflow-hidden transition-transform group-hover:scale-105"
+                className="w-7 h-7 rounded-lg flex items-center justify-center text-white font-bold text-xs flex-shrink-0 relative overflow-hidden transition-transform group-hover:scale-105 shadow-md shadow-blue-600/30"
                 style={{
-                  background: 'linear-gradient(135deg, #2F8C82 0%, #5B7FE0 100%)',
+                  background: 'linear-gradient(135deg, #2563eb 0%, #0ea5e9 100%)',
                 }}
               >
                 <svg className="w-3.5 h-3.5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
@@ -183,7 +269,7 @@ export const ConsoleLayout: React.FC<{ children: React.ReactNode }> = ({ childre
                   >
                     SkillBridge
                   </span>
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#4CC38A] shrink-0" title="Active Platform Status" />
+                  <span className="w-1.5 h-1.5 rounded-full bg-[#3b82f6] shadow-[0_0_6px_#3b82f6] shrink-0" title="Active Platform Status" />
                 </div>
               )}
             </Link>
@@ -246,47 +332,61 @@ export const ConsoleLayout: React.FC<{ children: React.ReactNode }> = ({ childre
             </div>
           </div>
 
-          {/* Nav links */}
-          <nav className="p-2 space-y-0.5">
-            {navItems.map(item => {
-              const Icon     = item.icon;
-              const isActive = location.pathname === item.path;
-
-              return (
-                <Link
-                  key={item.path}
-                  to={item.path}
-                  onClick={() => setMobileMenuOpen(false)}
-                  title={collapsed ? item.label : undefined}
-                  className={`flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium transition-all duration-150 ${
-                    collapsed ? 'justify-center' : 'justify-between'
-                  } ${
-                    isActive
-                      ? 'bg-[#1A1D24] text-[#F4F5F7] border border-[#2A2E38]'
-                      : 'text-[#8B90A0] hover:bg-[#1A1D24]/50 hover:text-[#F4F5F7]'
-                  }`}
-                >
-                  <div className="flex items-center gap-2.5 min-w-0">
-                    <Icon
-                      className={`w-4 h-4 flex-shrink-0 ${isActive ? 'text-[#2F8C82]' : 'text-[#8B90A0]'}`}
-                    />
-                    {!collapsed && <span className="truncate">{item.label}</span>}
+          {/* Nav groups */}
+          <nav className="p-2 space-y-2">
+            {navGroups.map((group, groupIdx) => (
+              <div key={group.title || groupIdx} className="space-y-0.5">
+                {/* Group section title */}
+                {!collapsed && group.title && (
+                  <div className="px-3 pt-2 pb-1 text-[9.5px] font-mono font-semibold uppercase tracking-wider text-slate-400/80">
+                    {group.title}
                   </div>
+                )}
+                {collapsed && groupIdx > 0 && (
+                  <div className="my-1.5 border-t border-[#1e293b] mx-2" />
+                )}
 
-                  {!collapsed && item.badge && (
-                    <span
-                      className={`text-[9px] font-mono px-1.5 py-0.5 rounded-full border shrink-0 ${
+                {group.items.map(item => {
+                  const Icon     = item.icon;
+                  const isActive = location.pathname === item.path;
+
+                  return (
+                    <Link
+                      key={item.path}
+                      to={item.path}
+                      onClick={() => setMobileMenuOpen(false)}
+                      title={collapsed ? item.label : undefined}
+                      className={`flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 ${
+                        collapsed ? 'justify-center' : 'justify-between'
+                      } ${
                         isActive
-                          ? 'bg-[#111318] text-[#2F8C82] border-[#2A2E38]'
-                          : 'bg-[#111318] text-[#8B90A0] border-[#2A2E38]'
+                          ? 'bg-[#0f172a] text-white border-l-2 border-[#2563eb] rounded-l-none pl-2.5 shadow-xs shadow-blue-500/10'
+                          : 'text-slate-400 hover:bg-[#0f172a]/60 hover:text-white'
                       }`}
                     >
-                      {item.badge}
-                    </span>
-                  )}
-                </Link>
-              );
-            })}
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        <Icon
+                          className={`w-4 h-4 flex-shrink-0 transition-colors ${isActive ? 'text-[#38bdf8]' : 'text-slate-400'}`}
+                        />
+                        {!collapsed && <span className="truncate">{item.label}</span>}
+                      </div>
+
+                      {!collapsed && item.badge && (
+                        <span
+                          className={`text-[9px] font-mono px-1.5 py-0.5 rounded-full border shrink-0 ${
+                            isActive
+                              ? 'bg-[#1e293b] text-[#38bdf8] border-[#38bdf8]/40'
+                              : 'bg-[#0b1329] text-slate-400 border-[#1e293b]'
+                          }`}
+                        >
+                          {item.badge}
+                        </span>
+                      )}
+                    </Link>
+                  );
+                })}
+              </div>
+            ))}
           </nav>
         </div>
 
@@ -300,13 +400,13 @@ export const ConsoleLayout: React.FC<{ children: React.ReactNode }> = ({ childre
             <Link
               to={`/portfolio/${user.studentProfile.id}`}
               target="_blank"
-              className="flex items-center justify-between px-3 py-2 rounded-xl border border-[#2A2E38] text-xs text-[#8B90A0] bg-[#1A1D24] hover:text-[#F4F5F7] hover:border-[#3d4352] transition-colors"
+              className="flex items-center justify-between px-3 py-2 rounded-xl border border-[#1e293b] text-xs text-slate-400 bg-[#0f172a] hover:text-white hover:border-[#3b82f6] transition-colors"
             >
               <div className="flex items-center gap-2">
-                <ExternalLink className="w-3.5 h-3.5" />
+                <ExternalLink className="w-3.5 h-3.5 text-blue-400" />
                 <span>Public Portfolio</span>
               </div>
-              <ChevronRight className="w-3 h-3 text-[#8B90A0]" />
+              <ChevronRight className="w-3 h-3 text-slate-400" />
             </Link>
           )}
 
@@ -328,12 +428,12 @@ export const ConsoleLayout: React.FC<{ children: React.ReactNode }> = ({ childre
         className="flex-1 flex flex-col min-w-0 h-screen overflow-hidden"
         style={{ background: C.canvas }}
       >
-        {/* Top header bar — Design System v2 height 56px */}
+        {/* Top header bar — Design System height 56px */}
         <header
           className="shrink-0 z-20 px-3 sm:px-4 md:px-6 flex items-center justify-between border-b"
           style={{
             height:          '56px',
-            background:      'rgba(17, 19, 24, 0.85)',
+            background:      'rgba(8, 14, 26, 0.85)',
             borderColor:     C.hairline,
             backdropFilter:  'blur(16px)',
             WebkitBackdropFilter: 'blur(16px)',
@@ -352,15 +452,16 @@ export const ConsoleLayout: React.FC<{ children: React.ReactNode }> = ({ childre
             </button>
 
             {/* Global search */}
-            <div className="w-full max-w-[170px] sm:max-w-[240px] md:w-72">
+            <div className="w-full max-w-[170px] sm:max-w-[240px] md:w-80">
               <div className="relative">
                 <Search
                   className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none"
                 />
                 <input
                   type="text"
-                  placeholder="Search skills, jobs..."
-                  className="cyber-input w-full text-xs pl-8 sm:pl-9 pr-2.5 py-1.5"
+                  placeholder={getSearchPlaceholder(user.role as Role)}
+                  aria-label="Platform intelligence search"
+                  className="cyber-input w-full text-xs pl-8 sm:pl-9 pr-2.5 py-1.5 font-sans"
                   style={{ fontSize: '12px' }}
                 />
               </div>

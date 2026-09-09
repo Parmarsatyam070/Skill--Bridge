@@ -37,27 +37,27 @@ export const AssessmentQuestion: React.FC<AssessmentQuestionProps> = ({
   };
 
   return (
-    <div className="bg-[#111318] border border-[#2A2E38] rounded-2xl p-6 shadow-sm">
+    <div className="bg-[#0b1329] border border-[#1e293b] rounded-2xl p-6 shadow-sm">
       {/* Question Header */}
-      <div className="flex items-center justify-between gap-3 pb-4 border-b border-[#2A2E38] mb-5">
+      <div className="flex items-center justify-between gap-3 pb-4 border-b border-[#1e293b] mb-5">
         <div className="flex items-center gap-2">
-          <span className="text-xs font-mono font-semibold px-2.5 py-1 rounded-lg bg-[#1A1D24] text-[#2F8C82] border border-[#2A2E38]">
+          <span className="text-xs font-mono font-semibold px-2.5 py-1 rounded-lg bg-[#0f172a] text-blue-400 border border-[#1e293b]">
             Question {questionNumber} of {totalQuestions}
           </span>
-          <span className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-[#1A1D24] text-[#8B90A0] border border-[#2A2E38] uppercase">
+          <span className="text-[11px] font-medium px-2 py-0.5 rounded-md bg-[#0f172a] text-slate-400 border border-[#1e293b] uppercase">
             {question.type.replace('_', ' ')}
           </span>
         </div>
 
-        <div className="flex items-center gap-1.5 text-xs font-mono font-semibold text-[#F4F5F7] px-2.5 py-1 rounded-lg bg-[#1A1D24] border border-[#2A2E38]">
-          <Award className="w-3.5 h-3.5 text-[#2F8C82]" />
+        <div className="flex items-center gap-1.5 text-xs font-mono font-semibold text-white px-2.5 py-1 rounded-lg bg-[#0f172a] border border-[#1e293b]">
+          <Award className="w-3.5 h-3.5 text-blue-400" />
           <span>{question.points} Points</span>
         </div>
       </div>
 
       {/* Question Prompt */}
       <div className="mb-6">
-        <h2 className="text-base sm:text-lg font-semibold text-[#F4F5F7] leading-relaxed whitespace-pre-line">
+        <h2 className="text-base sm:text-lg font-semibold text-white leading-relaxed whitespace-pre-line">
           {question.prompt}
         </h2>
       </div>
@@ -80,16 +80,16 @@ export const AssessmentQuestion: React.FC<AssessmentQuestionProps> = ({
                 onClick={() => handleOptionSelect(opt.id)}
                 className={`w-full flex items-start gap-3.5 p-4 rounded-xl text-left border transition-all ${
                   isSelected
-                    ? 'bg-[#2F8C82]/15 border-[#2F8C82] text-white shadow-sm ring-1 ring-[#2F8C82]/50'
-                    : 'bg-[#1A1D24] border-[#2A2E38] text-[#F4F5F7] hover:border-[#8B90A0]/40 hover:bg-[#1A1D24]/80'
+                    ? 'bg-blue-600/15 border-blue-500 text-white shadow-sm ring-1 ring-blue-500/50'
+                    : 'bg-[#0f172a] border-[#1e293b] text-white hover:border-slate-600 hover:bg-[#0f172a]/80'
                 }`}
               >
                 {/* Option Letter Indicator */}
                 <div
                   className={`w-7 h-7 rounded-lg font-mono text-xs font-semibold flex items-center justify-center shrink-0 transition-colors ${
                     isSelected
-                      ? 'bg-[#2F8C82] text-white'
-                      : 'bg-[#111318] text-[#8B90A0] border border-[#2A2E38]'
+                      ? 'bg-blue-600 text-white'
+                      : 'bg-[#0b1329] text-slate-400 border border-[#1e293b]'
                   }`}
                 >
                   {letter}
@@ -104,7 +104,7 @@ export const AssessmentQuestion: React.FC<AssessmentQuestionProps> = ({
       ) : (
         /* Short Answer / Text Input */
         <div className="space-y-2">
-          <label htmlFor={`answer-${question.id}`} className="block text-xs font-medium text-[#8B90A0]">
+          <label htmlFor={`answer-${question.id}`} className="block text-xs font-medium text-slate-400">
             Enter your answer below:
           </label>
           <textarea
@@ -113,9 +113,9 @@ export const AssessmentQuestion: React.FC<AssessmentQuestionProps> = ({
             onChange={e => onAnswerChange(question.id, e.target.value)}
             rows={4}
             placeholder="Type your response here..."
-            className="w-full bg-[#1A1D24] border border-[#2A2E38] rounded-xl p-3.5 text-sm text-[#F4F5F7] placeholder-[#8B90A0]/50 focus:outline-none focus:border-[#2F8C82] focus:ring-1 focus:ring-[#2F8C82] transition-colors resize-none"
+            className="w-full bg-[#0f172a] border border-[#1e293b] rounded-xl p-3.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500 transition-colors resize-none"
           />
-          <div className="flex justify-end text-[11px] text-[#8B90A0] font-mono">
+          <div className="flex justify-end text-[11px] text-slate-400 font-mono">
             {(currentAnswer?.length || 0)} characters
           </div>
         </div>

@@ -169,11 +169,11 @@ export const ConsoleBackButton: React.FC = () => {
       <button
         type="button"
         onClick={handleBackClick}
-        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#1A1D24] hover:bg-[#2A2E38] text-[#8B90A0] hover:text-[#F4F5F7] border border-bridge-border hover:border-[#2F8C82]/40 transition-all cursor-pointer group shadow-xs text-xs font-mono"
+        className="inline-flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#0b1329] hover:bg-[#0f172a] text-slate-300 hover:text-white border border-[#1e293b] hover:border-blue-500/40 transition-all cursor-pointer group shadow-xs text-xs font-mono"
         title={`Navigate back to ${labelText}`}
       >
-        <ArrowLeft className="w-3.5 h-3.5 text-[#2F8C82] group-hover:-translate-x-0.5 transition-transform" />
-        <span className="font-medium text-[#8B90A0] group-hover:text-[#F4F5F7] transition-colors">
+        <ArrowLeft className="w-3.5 h-3.5 text-blue-400 group-hover:-translate-x-0.5 transition-transform" />
+        <span className="font-medium text-slate-300 group-hover:text-white transition-colors">
           Back to {labelText}
         </span>
       </button>

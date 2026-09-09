@@ -446,7 +446,7 @@ export const MockInterviewModal: React.FC<MockInterviewModalProps> = ({
               {/* Overall Score Banner */}
               <div className="p-5 rounded-2xl bg-console-panel-raised border border-console-border flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div className="flex items-center gap-4">
-                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-bridge-teal to-bridge-teal/70 text-slate-950 flex flex-col items-center justify-center font-bold shadow-lg shadow-bridge-teal/20">
+                  <div className="w-16 h-16 rounded-2xl bg-gradient-to-br from-bridge-teal to-bridge-teal/70 text-white flex flex-col items-center justify-center font-bold shadow-lg shadow-bridge-teal/20">
                     <span className="text-xl leading-none">{evaluation.overallScore}</span>
                     <span className="text-[10px] font-mono opacity-80 mt-0.5">/ 100</span>
                   </div>
@@ -610,7 +610,7 @@ export const MockInterviewModal: React.FC<MockInterviewModalProps> = ({
                   <button
                     type="button"
                     onClick={onClose}
-                    className="px-5 py-2 rounded-xl bg-bridge-teal hover:bg-bridge-teal/90 text-slate-950 font-bold text-xs shadow-md shadow-bridge-teal/20 transition-all"
+                    className="px-5 py-2 rounded-xl bg-bridge-teal hover:bg-bridge-teal/90 text-white font-bold text-xs shadow-md shadow-bridge-teal/20 transition-all"
                   >
                     Done
                   </button>
@@ -658,7 +658,7 @@ export const MockInterviewModal: React.FC<MockInterviewModalProps> = ({
                         }}
                         className={`w-6 h-6 rounded-md text-[10px] font-bold font-mono transition-all flex items-center justify-center border ${
                           isCurrent
-                            ? 'bg-bridge-teal text-slate-950 border-bridge-teal shadow-sm'
+                            ? 'bg-bridge-teal text-white border-bridge-teal shadow-sm'
                             : ansStatus
                             ? 'bg-status-green/15 text-status-green border-status-green/30 hover:border-status-green'
                             : 'bg-console-bg text-console-text-muted border-console-border hover:text-console-text'
@@ -807,9 +807,9 @@ export const MockInterviewModal: React.FC<MockInterviewModalProps> = ({
                         setShowSubmitConfirm(true);
                       }}
                       disabled={isSubmitting}
-                      className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-bridge-teal to-emerald-500 hover:from-bridge-teal/90 hover:to-emerald-450 text-slate-950 font-bold text-xs shadow-lg shadow-bridge-teal/20 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
+                      className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-bridge-teal to-emerald-500 hover:from-bridge-teal/90 hover:to-emerald-450 text-white font-bold text-xs shadow-lg shadow-bridge-teal/20 transition-all flex items-center gap-2 cursor-pointer disabled:opacity-50"
                     >
-                      <CheckCircle2 className="w-4 h-4 text-slate-950" />
+                      <CheckCircle2 className="w-4 h-4 text-white" />
                       <span>Submit Interview</span>
                     </button>
                   ) : (
@@ -901,9 +901,9 @@ export const MockInterviewModal: React.FC<MockInterviewModalProps> = ({
                     handleFinish(false);
                   }}
                   disabled={isSubmitting}
-                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-bridge-teal to-emerald-500 hover:from-bridge-teal/90 hover:to-emerald-450 text-slate-950 text-xs font-bold shadow-md shadow-bridge-teal/20 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
+                  className="px-5 py-2 rounded-xl bg-gradient-to-r from-bridge-teal to-emerald-500 hover:from-bridge-teal/90 hover:to-emerald-450 text-white text-xs font-bold shadow-md shadow-bridge-teal/20 transition-all flex items-center gap-1.5 cursor-pointer disabled:opacity-50"
                 >
-                  <Send className="w-3.5 h-3.5 text-slate-950" />
+                  <Send className="w-3.5 h-3.5 text-white" />
                   <span>Yes, Submit Now</span>
                 </button>
               </div>

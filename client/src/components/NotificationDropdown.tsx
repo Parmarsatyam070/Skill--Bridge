@@ -88,12 +88,12 @@ export const NotificationDropdown: React.FC = () => {
       <button
         type="button"
         onClick={() => setIsOpen(prev => !prev)}
-        className="relative p-2 rounded-xl bg-slate-800/80 hover:bg-slate-750 text-slate-300 hover:text-white border border-slate-700/80 transition-all duration-200 focus:outline-none"
+        className="relative p-2 rounded-xl bg-[#0f172a] hover:bg-[#1e293b] text-slate-300 hover:text-white border border-[#1e293b] transition-all duration-200 focus:outline-none"
         aria-label="Notifications"
       >
         <Bell className="w-5 h-5" />
         {unreadCount > 0 && (
-          <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-gradient-to-r from-amber-500 to-rose-500 px-1 text-[10px] font-bold text-white shadow-sm ring-2 ring-slate-900 animate-pulse">
+          <span className="absolute -top-1 -right-1 flex h-4 min-w-[16px] items-center justify-center rounded-full bg-gradient-to-r from-blue-600 to-blue-400 px-1 text-[10px] font-bold text-white shadow-sm ring-2 ring-[#030712] animate-pulse">
             {unreadCount > 9 ? '9+' : unreadCount}
           </span>
         )}
@@ -101,13 +101,13 @@ export const NotificationDropdown: React.FC = () => {
 
       {/* Popover Menu */}
       {isOpen && (
-        <div className="absolute right-0 mt-2.5 w-80 sm:w-96 rounded-2xl bg-slate-900 border border-slate-750 shadow-2xl shadow-slate-950/80 backdrop-blur-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
+        <div className="absolute right-0 mt-2.5 w-80 sm:w-96 rounded-2xl bg-[#0b1329] border border-[#1e293b] shadow-2xl shadow-black/80 backdrop-blur-xl z-50 overflow-hidden animate-in fade-in slide-in-from-top-2 duration-150">
           {/* Header */}
-          <div className="flex items-center justify-between px-4 py-3.5 bg-slate-850 border-b border-slate-750">
+          <div className="flex items-center justify-between px-4 py-3.5 bg-[#0f172a] border-b border-[#1e293b]">
             <div className="flex items-center gap-2">
               <span className="font-bold text-sm text-white">Notifications</span>
               {unreadCount > 0 && (
-                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                <span className="text-[11px] font-semibold px-2 py-0.5 rounded-full bg-blue-500/20 text-blue-300 border border-blue-500/30">
                   {unreadCount} unread
                 </span>
               )}
@@ -117,7 +117,7 @@ export const NotificationDropdown: React.FC = () => {
               <button
                 type="button"
                 onClick={() => markReadMutation.mutate(undefined)}
-                className="text-xs text-indigo-400 hover:text-indigo-300 font-medium flex items-center gap-1 transition-colors"
+                className="text-xs text-blue-400 hover:text-blue-300 font-medium flex items-center gap-1 transition-colors"
               >
                 <CheckCheck className="w-3.5 h-3.5" />
                 <span>Mark all read</span>
@@ -126,7 +126,7 @@ export const NotificationDropdown: React.FC = () => {
           </div>
 
           {/* Notifications List */}
-          <div className="max-h-[380px] overflow-y-auto divide-y divide-slate-800">
+          <div className="max-h-[380px] overflow-y-auto divide-y divide-[#1e293b]">
             {isLoading ? (
               <div className="p-6 text-center text-xs text-slate-400">Loading notifications...</div>
             ) : notifications.length === 0 ? (
@@ -139,12 +139,12 @@ export const NotificationDropdown: React.FC = () => {
               notifications.map(n => (
                 <div
                   key={n.id}
-                  className={`p-3.5 transition-colors hover:bg-slate-850/60 ${
-                    !n.read ? 'bg-indigo-950/20' : ''
+                  className={`p-3.5 transition-colors hover:bg-[#0f172a]/70 ${
+                    !n.read ? 'bg-blue-950/20' : ''
                   }`}
                 >
                   <div className="flex items-start gap-3">
-                    <div className="w-8 h-8 rounded-lg bg-slate-800 border border-slate-700 flex items-center justify-center flex-shrink-0 mt-0.5">
+                    <div className="w-8 h-8 rounded-lg bg-[#0f172a] border border-[#1e293b] flex items-center justify-center flex-shrink-0 mt-0.5">
                       {getNotificationIcon(n.type)}
                     </div>
 
@@ -168,7 +168,7 @@ export const NotificationDropdown: React.FC = () => {
                               if (!n.read) markReadMutation.mutate(n.id);
                               setIsOpen(false);
                             }}
-                            className="inline-flex items-center gap-1 text-[11px] font-semibold text-indigo-400 hover:text-indigo-300 transition-colors"
+                            className="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-400 hover:text-blue-300 transition-colors"
                           >
                             <span>Take Action</span>
                             <ExternalLink className="w-3 h-3" />
@@ -193,11 +193,11 @@ export const NotificationDropdown: React.FC = () => {
           </div>
 
           {/* Footer */}
-          <div className="p-2.5 bg-slate-850/90 border-t border-slate-750 text-center">
+          <div className="p-2.5 bg-[#0f172a] border-t border-[#1e293b] text-center">
             <Link
               to="/learn"
               onClick={() => setIsOpen(false)}
-              className="text-[11px] font-semibold text-slate-400 hover:text-indigo-300 transition-colors inline-flex items-center gap-1.5"
+              className="text-[11px] font-semibold text-slate-400 hover:text-blue-400 transition-colors inline-flex items-center gap-1.5"
             >
               <BookOpen className="w-3 h-3" />
               <span>Explore Learning Resources (/learn)</span>

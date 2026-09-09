@@ -707,7 +707,7 @@ export const AssessmentPage: React.FC = () => {
               <button
                 onClick={() => startAttemptMutation.mutate(practiceSetId)}
                 disabled={startAttemptMutation.isPending}
-                className="px-4 py-2.5 rounded-xl bg-bridge-teal hover:bg-bridge-teal/90 text-slate-950 text-xs font-bold shadow-md shadow-bridge-teal/20 transition-all flex items-center gap-1.5 disabled:opacity-50"
+                className="px-4 py-2.5 rounded-xl bg-bridge-teal hover:bg-bridge-teal/90 text-white text-xs font-bold shadow-md shadow-bridge-teal/20 transition-all flex items-center gap-1.5 disabled:opacity-50"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
                 <span>Retake Set</span>
@@ -912,7 +912,7 @@ export const AssessmentPage: React.FC = () => {
             <button
               onClick={handleManualSubmit}
               disabled={submitAttemptMutation.isPending}
-              className="px-4 py-2 rounded-xl bg-bridge-teal hover:bg-bridge-teal/90 text-slate-950 text-xs font-bold shadow-md shadow-bridge-teal/20 transition-all flex items-center gap-1.5"
+              className="px-4 py-2 rounded-xl bg-bridge-teal hover:bg-bridge-teal/90 text-white text-xs font-bold shadow-md shadow-bridge-teal/20 transition-all flex items-center gap-1.5"
             >
               {submitAttemptMutation.isPending ? 'Grading...' : 'Submit Assessment'}
             </button>
@@ -948,7 +948,7 @@ export const AssessmentPage: React.FC = () => {
                   onClick={() => setCurrentQuestionIdx(idx)}
                   className={`min-w-[2.25rem] h-9 w-9 flex items-center justify-center shrink-0 rounded-lg text-xs font-semibold font-mono transition-all ${
                     isCurrent
-                      ? 'bg-bridge-teal text-slate-950 shadow-md shadow-bridge-teal/20 font-bold ring-2 ring-bridge-teal/50'
+                      ? 'bg-bridge-teal text-white shadow-md shadow-bridge-teal/20 font-bold ring-2 ring-bridge-teal/50'
                       : isAnswered
                       ? 'bg-status-green/20 text-status-green border border-status-green/40 font-bold'
                       : 'bg-console-panel text-console-text-muted border border-console-border hover:text-console-text hover:border-console-text-muted'
@@ -1008,7 +1008,7 @@ export const AssessmentPage: React.FC = () => {
                   <button
                     onClick={handlePlayVoicePassage}
                     disabled={playsUsed >= 2}
-                    className="p-2.5 rounded-xl bg-teal-500 hover:bg-teal-400 text-slate-950 font-bold transition-all shadow-lg shadow-teal-500/20 disabled:opacity-30 disabled:cursor-not-allowed"
+                    className="p-2.5 rounded-xl bg-teal-500 hover:bg-teal-400 text-white font-bold transition-all shadow-lg shadow-teal-500/20 disabled:opacity-30 disabled:cursor-not-allowed"
                     title={playsUsed >= 2 ? 'Plays exhausted' : 'Play audio'}
                   >
                     <Play className="w-4 h-4" />
@@ -1152,14 +1152,14 @@ export const AssessmentPage: React.FC = () => {
             {currentQuestionIdx < questions.length - 1 ? (
               <button
                 onClick={() => setCurrentQuestionIdx(prev => Math.min(questions.length - 1, prev + 1))}
-                className="px-5 py-2 rounded-xl bg-bridge-teal hover:bg-bridge-teal/90 text-slate-950 text-xs font-bold transition-all shadow-md shadow-bridge-teal/20"
+                className="px-5 py-2 rounded-xl bg-bridge-teal hover:bg-bridge-teal/90 text-white text-xs font-bold transition-all shadow-md shadow-bridge-teal/20"
               >
                 Next Question
               </button>
             ) : (
               <button
                 onClick={handleManualSubmit}
-                className="px-5 py-2 rounded-xl bg-status-green hover:bg-status-green/90 text-slate-950 text-xs font-bold transition-all shadow-md shadow-status-green/20"
+                className="px-5 py-2 rounded-xl bg-status-green hover:bg-status-green/90 text-white text-xs font-bold transition-all shadow-md shadow-status-green/20"
               >
                 Finish & Submit
               </button>
@@ -1221,7 +1221,7 @@ export const AssessmentPage: React.FC = () => {
             onClick={() => setMainCategory('domain')}
             className={`px-5 py-2 rounded-full text-xs font-semibold transition-all ${
               mainCategory === 'domain'
-                ? 'bg-bridge-teal text-slate-950 shadow-md shadow-bridge-teal/20 font-bold'
+                ? 'bg-bridge-teal text-white shadow-md shadow-bridge-teal/20 font-bold'
                 : 'bg-panel hover:bg-panel-raised text-text-muted hover:text-text-primary border border-border'
             }`}
           >
@@ -1232,7 +1232,7 @@ export const AssessmentPage: React.FC = () => {
             onClick={() => setMainCategory('aptitude')}
             className={`px-5 py-2 rounded-full text-xs font-semibold transition-all ${
               mainCategory === 'aptitude'
-                ? 'bg-bridge-teal text-slate-950 shadow-md shadow-bridge-teal/20 font-bold'
+                ? 'bg-bridge-teal text-white shadow-md shadow-bridge-teal/20 font-bold'
                 : 'bg-panel hover:bg-panel-raised text-text-muted hover:text-text-primary border border-border'
             }`}
           >
@@ -1243,7 +1243,7 @@ export const AssessmentPage: React.FC = () => {
             onClick={() => setMainCategory('dsa')}
             className={`px-5 py-2 rounded-full text-xs font-semibold transition-all flex items-center gap-1.5 ${
               mainCategory === 'dsa'
-                ? 'bg-bridge-teal text-slate-950 shadow-md shadow-bridge-teal/20 font-bold'
+                ? 'bg-bridge-teal text-white shadow-md shadow-bridge-teal/20 font-bold'
                 : 'bg-panel hover:bg-panel-raised text-text-muted hover:text-text-primary border border-border'
             }`}
           >

@@ -89,26 +89,26 @@ export const OpportunityApplyModal: React.FC<OpportunityApplyModalProps> = ({
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-fade-in font-sans">
-      <div className="relative w-full max-w-xl bg-[#111318] border border-[#2A2E38] rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
+      <div className="relative w-full max-w-xl bg-[#0b1329] border border-[#1e293b] rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
         {/* Header */}
-        <div className="p-6 border-b border-[#2A2E38] flex items-center justify-between bg-[#1A1D24]/60">
+        <div className="p-6 border-b border-[#1e293b] flex items-center justify-between bg-[#0f172a]/60">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-[#2F8C82]/15 border border-[#2F8C82]/30 flex items-center justify-center text-[#2F8C82]">
+            <div className="w-10 h-10 rounded-xl bg-blue-600/15 border border-blue-500/30 flex items-center justify-center text-blue-400">
               <Briefcase className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-lg font-bold text-[#F4F5F7]">Apply for Opportunity</h2>
-              <p className="text-xs text-[#8B90A0] flex items-center gap-1 mt-0.5">
+              <h2 className="text-lg font-bold text-white">Apply for Opportunity</h2>
+              <p className="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
                 <Building2 className="w-3.5 h-3.5" />
                 <span>{opportunity.company.name}</span>
-                <span className="text-[#2A2E38]">•</span>
-                <span className="text-[#2F8C82] font-medium">{opportunity.title}</span>
+                <span className="text-slate-600">•</span>
+                <span className="text-blue-400 font-medium">{opportunity.title}</span>
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 text-[#8B90A0] hover:text-[#F4F5F7] rounded-lg hover:bg-[#2A2E38]/50 transition-colors"
+            className="p-1.5 text-slate-400 hover:text-white rounded-lg hover:bg-slate-800/50 transition-colors"
           >
             <X className="w-5 h-5" />
           </button>
@@ -118,13 +118,13 @@ export const OpportunityApplyModal: React.FC<OpportunityApplyModalProps> = ({
         <div className="p-6 overflow-y-auto space-y-5 flex-1">
           {isSubmitted ? (
             <div className="py-12 flex flex-col items-center justify-center text-center space-y-3 animate-fade-in">
-              <div className="w-16 h-16 rounded-full bg-[#4CC38A]/15 border border-[#4CC38A]/30 flex items-center justify-center text-[#4CC38A] animate-bounce">
+              <div className="w-16 h-16 rounded-full bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 animate-bounce">
                 <CheckCircle2 className="w-8 h-8" />
               </div>
-              <h3 className="text-xl font-bold text-[#F4F5F7]">Application Submitted!</h3>
-              <p className="text-sm text-[#8B90A0] max-w-sm">
+              <h3 className="text-xl font-bold text-white">Application Submitted!</h3>
+              <p className="text-sm text-slate-400 max-w-sm">
                 Your profile, verified skill scores, and application note have been submitted directly to{' '}
-                <span className="text-[#F4F5F7] font-semibold">{opportunity.company.name}</span>.
+                <span className="text-white font-semibold">{opportunity.company.name}</span>.
               </p>
             </div>
           ) : (
@@ -134,14 +134,14 @@ export const OpportunityApplyModal: React.FC<OpportunityApplyModalProps> = ({
                 <div
                   className={`p-4 rounded-xl border flex items-start gap-3 text-xs ${
                     matchItem.eligibility
-                      ? 'bg-[#4CC38A]/10 border-[#4CC38A]/30 text-[#F4F5F7]'
-                      : 'bg-[#E8A23C]/10 border-[#E8A23C]/30 text-[#F4F5F7]'
+                      ? 'bg-emerald-500/10 border-emerald-500/30 text-white'
+                      : 'bg-amber-500/10 border-amber-500/30 text-white'
                   }`}
                 >
                   {matchItem.eligibility ? (
-                    <ShieldCheck className="w-5 h-5 text-[#4CC38A] shrink-0 mt-0.5" />
+                    <ShieldCheck className="w-5 h-5 text-emerald-400 shrink-0 mt-0.5" />
                   ) : (
-                    <AlertTriangle className="w-5 h-5 text-[#E8A23C] shrink-0 mt-0.5" />
+                    <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
                   )}
                   <div>
                     <div className="flex items-center gap-2">
@@ -151,21 +151,21 @@ export const OpportunityApplyModal: React.FC<OpportunityApplyModalProps> = ({
                       <span
                         className={`px-2 py-0.5 rounded text-[11px] font-bold ${
                           matchItem.tier === 'high'
-                            ? 'bg-[#4CC38A]/20 text-[#4CC38A]'
+                            ? 'bg-emerald-500/20 text-emerald-400'
                             : matchItem.tier === 'medium'
-                            ? 'bg-[#E8A23C]/20 text-[#E8A23C]'
-                            : 'bg-[#E5637C]/20 text-[#E5637C]'
+                            ? 'bg-amber-500/20 text-amber-400'
+                            : 'bg-rose-500/20 text-rose-400'
                         }`}
                       >
                         {matchItem.score}% Match
                       </span>
                     </div>
                     {matchItem.eligibility ? (
-                      <p className="text-[#8B90A0] mt-1 leading-relaxed">
+                      <p className="text-slate-400 mt-1 leading-relaxed">
                         Your verified skills satisfy all mandatory requirements for this role. Your authoritative 7-factor match score will be submitted with your application.
                       </p>
                     ) : (
-                      <p className="text-[#E8A23C] mt-1 leading-relaxed">
+                      <p className="text-amber-400 mt-1 leading-relaxed">
                         {matchItem.ineligibilityReason ||
                           'You do not currently satisfy one or more mandatory skill requirements. Recruiters will see your unverified status.'}
                       </p>
@@ -176,7 +176,7 @@ export const OpportunityApplyModal: React.FC<OpportunityApplyModalProps> = ({
 
               {/* Error Banner */}
               {errorMessage && (
-                <div className="p-3 bg-[#E5637C]/10 border border-[#E5637C]/30 rounded-xl text-xs text-[#E5637C] flex items-center gap-2">
+                <div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-xs text-rose-400 flex items-center gap-2">
                   <AlertTriangle className="w-4 h-4 shrink-0" />
                   <span>{errorMessage}</span>
                 </div>
@@ -184,16 +184,16 @@ export const OpportunityApplyModal: React.FC<OpportunityApplyModalProps> = ({
 
               {/* Resume Selection */}
               <div>
-                <label className="block text-xs font-semibold text-[#8B90A0] uppercase tracking-wider mb-2">
+                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
                   Select Resume for this Application
                 </label>
                 {resumesLoading ? (
-                  <div className="p-4 bg-[#1A1D24] border border-[#2A2E38] rounded-xl flex items-center gap-2 text-xs text-[#8B90A0]">
-                    <Loader2 className="w-4 h-4 animate-spin text-[#2F8C82]" />
+                  <div className="p-4 bg-[#0f172a] border border-[#1e293b] rounded-xl flex items-center gap-2 text-xs text-slate-400">
+                    <Loader2 className="w-4 h-4 animate-spin text-blue-400" />
                     <span>Loading your resumes...</span>
                   </div>
                 ) : resumes.length === 0 ? (
-                  <div className="p-4 bg-[#1A1D24] border border-[#2A2E38] rounded-xl text-xs text-[#8B90A0] space-y-2">
+                  <div className="p-4 bg-[#0f172a] border border-[#1e293b] rounded-xl text-xs text-slate-400 space-y-2">
                     <p>No uploaded resumes found. Your live SkillBridge Career Profile will be used automatically.</p>
                   </div>
                 ) : (
@@ -203,8 +203,8 @@ export const OpportunityApplyModal: React.FC<OpportunityApplyModalProps> = ({
                         key={r.id}
                         className={`flex items-center justify-between p-3.5 rounded-xl border cursor-pointer transition-all ${
                           selectedResumeId === r.id
-                            ? 'bg-[#2F8C82]/10 border-[#2F8C82] text-[#F4F5F7]'
-                            : 'bg-[#1A1D24] border-[#2A2E38] text-[#8B90A0] hover:border-[#3d4352]'
+                            ? 'bg-blue-600/10 border-blue-500 text-white'
+                            : 'bg-[#0f172a] border-[#1e293b] text-slate-400 hover:border-slate-600'
                         }`}
                       >
                         <div className="flex items-center gap-3">
@@ -214,12 +214,12 @@ export const OpportunityApplyModal: React.FC<OpportunityApplyModalProps> = ({
                             value={r.id}
                             checked={selectedResumeId === r.id}
                             onChange={() => setSelectedResumeId(r.id)}
-                            className="text-[#2F8C82] focus:ring-[#2F8C82] focus:ring-offset-0 bg-[#111318] border-[#2A2E38]"
+                            className="text-blue-500 focus:ring-blue-500 focus:ring-offset-0 bg-[#0b1329] border-[#1e293b]"
                           />
-                          <FileText className="w-4 h-4 text-[#2F8C82]" />
-                          <span className="text-xs font-medium text-[#F4F5F7]">{r.title || 'Untitled Resume'}</span>
+                          <FileText className="w-4 h-4 text-blue-400" />
+                          <span className="text-xs font-medium text-white">{r.title || 'Untitled Resume'}</span>
                         </div>
-                        <span className="text-[10px] text-[#8B90A0]">
+                        <span className="text-[10px] text-slate-400">
                           {r.updatedAt ? new Date(r.updatedAt).toLocaleDateString() : ''}
                         </span>
                       </label>
@@ -230,7 +230,7 @@ export const OpportunityApplyModal: React.FC<OpportunityApplyModalProps> = ({
 
               {/* Cover Note */}
               <div>
-                <label className="block text-xs font-semibold text-[#8B90A0] uppercase tracking-wider mb-2">
+                <label className="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
                   Cover Note / Pitch (Optional)
                 </label>
                 <textarea
@@ -239,9 +239,9 @@ export const OpportunityApplyModal: React.FC<OpportunityApplyModalProps> = ({
                   placeholder="Highlight your specific interest in this role, relevant projects, or achievements..."
                   rows={4}
                   maxLength={1000}
-                  className="w-full px-4 py-3 bg-[#1A1D24] border border-[#2A2E38] rounded-xl text-xs text-[#F4F5F7] placeholder-[#8B90A0]/60 focus:outline-none focus:border-[#2F8C82] transition-colors resize-none"
+                  className="w-full px-4 py-3 bg-[#0f172a] border border-[#1e293b] rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors resize-none"
                 />
-                <div className="flex justify-between text-[10px] text-[#8B90A0] mt-1">
+                <div className="flex justify-between text-[10px] text-slate-400 mt-1">
                   <span>Concise notes help recruiters quickly assess project fit.</span>
                   <span>{coverNote.length} / 1000</span>
                 </div>
@@ -252,18 +252,18 @@ export const OpportunityApplyModal: React.FC<OpportunityApplyModalProps> = ({
 
         {/* Footer */}
         {!isSubmitted && (
-          <div className="p-6 border-t border-[#2A2E38] flex items-center justify-end gap-3 bg-[#1A1D24]/40">
+          <div className="p-6 border-t border-[#1e293b] flex items-center justify-end gap-3 bg-[#0f172a]/40">
             <button
               onClick={onClose}
               disabled={applyMutation.isPending}
-              className="px-4 py-2 text-xs font-medium text-[#8B90A0] hover:text-[#F4F5F7] transition-colors"
+              className="px-4 py-2 text-xs font-medium text-slate-400 hover:text-white transition-colors"
             >
               Cancel
             </button>
             <button
               onClick={() => applyMutation.mutate()}
               disabled={applyMutation.isPending}
-              className="px-5 py-2.5 rounded-xl bg-[#2F8C82] hover:bg-[#3aa398] text-[#F4F5F7] text-xs font-semibold flex items-center gap-2 shadow-lg shadow-[#2F8C82]/20 transition-all disabled:opacity-50"
+              className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white text-xs font-semibold flex items-center gap-2 shadow-lg shadow-blue-500/20 transition-all disabled:opacity-50"
             >
               {applyMutation.isPending ? (
                 <>

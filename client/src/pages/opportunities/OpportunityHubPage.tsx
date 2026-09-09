@@ -230,18 +230,18 @@ export const OpportunityHubPage: React.FC = () => {
   }, [matchesMap]);
 
   return (
-    <div className="min-h-screen bg-[#08090C] text-[#F4F5F7] p-6 lg:p-10 font-sans space-y-8 animate-fade-in">
+    <div className="min-h-screen bg-[#030712] text-white p-6 lg:p-10 font-sans space-y-8 animate-fade-in">
       {/* Hero Header & Statistics */}
-      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-[#2A2E38]">
+      <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-6 pb-6 border-b border-[#1e293b]">
         <div>
-          <div className="flex items-center gap-2 text-xs font-bold text-[#2F8C82] tracking-wider uppercase mb-1">
+          <div className="flex items-center gap-2 text-xs font-bold text-blue-400 tracking-wider uppercase mb-1">
             <Sparkles className="w-4 h-4" />
             <span>Unified Talent & Opportunity Hub</span>
           </div>
-          <h1 className="text-2xl lg:text-3xl font-black text-[#F4F5F7] tracking-tight">
+          <h1 className="text-2xl lg:text-3xl font-black text-white tracking-tight">
             Industry Opportunities & Gigs
           </h1>
-          <p className="text-xs text-[#8B90A0] mt-1 max-w-2xl leading-relaxed">
+          <p className="text-xs text-slate-400 mt-1 max-w-2xl leading-relaxed">
             Discover verified corporate jobs, internships, apprenticeships, and live projects matched against your authentic portfolio using our deterministic 7-factor engine.
           </p>
         </div>
@@ -249,17 +249,17 @@ export const OpportunityHubPage: React.FC = () => {
         {/* Live Metrics Counter */}
         {isStudent && (
           <div className="flex items-center gap-3 shrink-0">
-            <div className="p-3.5 rounded-2xl bg-[#111318] border border-[#2A2E38] text-center min-w-[100px]">
-              <span className="text-lg font-mono font-black text-[#F4F5F7]">{totalOpenings}</span>
-              <p className="text-[10px] text-[#8B90A0] uppercase font-semibold mt-0.5">Active Roles</p>
+            <div className="p-3.5 rounded-2xl bg-[#0b1329] border border-[#1e293b] text-center min-w-[100px]">
+              <span className="text-lg font-mono font-black text-white">{totalOpenings}</span>
+              <p className="text-[10px] text-slate-400 uppercase font-semibold mt-0.5">Active Roles</p>
             </div>
-            <div className="p-3.5 rounded-2xl bg-[#111318] border border-[#2A2E38] text-center min-w-[100px]">
+            <div className="p-3.5 rounded-2xl bg-[#0b1329] border border-[#1e293b] text-center min-w-[100px]">
               <span className="text-lg font-mono font-black text-[#4CC38A]">{highMatchCount}</span>
-              <p className="text-[10px] text-[#8B90A0] uppercase font-semibold mt-0.5">High Matches</p>
+              <p className="text-[10px] text-slate-400 uppercase font-semibold mt-0.5">High Matches</p>
             </div>
-            <div className="p-3.5 rounded-2xl bg-[#111318] border border-[#2A2E38] text-center min-w-[100px]">
-              <span className="text-lg font-mono font-black text-[#2F8C82]">{eligibleCount}</span>
-              <p className="text-[10px] text-[#8B90A0] uppercase font-semibold mt-0.5">Eligible</p>
+            <div className="p-3.5 rounded-2xl bg-[#0b1329] border border-[#1e293b] text-center min-w-[100px]">
+              <span className="text-lg font-mono font-black text-blue-400">{eligibleCount}</span>
+              <p className="text-[10px] text-slate-400 uppercase font-semibold mt-0.5">Eligible</p>
             </div>
           </div>
         )}
@@ -270,7 +270,7 @@ export const OpportunityHubPage: React.FC = () => {
         {/* Main Search Row */}
         <div className="flex flex-col md:flex-row items-center gap-3">
           <div className="relative flex-1 w-full">
-            <Search className="w-4 h-4 text-[#8B90A0] absolute left-4 top-1/2 -translate-y-1/2" />
+            <Search className="w-4 h-4 text-slate-400 absolute left-4 top-1/2 -translate-y-1/2" />
             <input
               type="text"
               value={searchQuery}
@@ -279,12 +279,12 @@ export const OpportunityHubPage: React.FC = () => {
                 setCurrentPage(1);
               }}
               placeholder="Search by job title, company, required skill (e.g. React, Docker), or location..."
-              className="w-full pl-11 pr-10 py-3 bg-[#111318] border border-[#2A2E38] rounded-2xl text-xs text-[#F4F5F7] placeholder-[#8B90A0]/60 focus:outline-none focus:border-[#2F8C82] transition-colors"
+              className="w-full pl-11 pr-10 py-3 bg-[#0b1329] border border-[#1e293b] rounded-2xl text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 transition-colors"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="p-1 text-[#8B90A0] hover:text-[#F4F5F7] absolute right-3.5 top-1/2 -translate-y-1/2"
+                className="p-1 text-slate-400 hover:text-white absolute right-3.5 top-1/2 -translate-y-1/2"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -302,19 +302,19 @@ export const OpportunityHubPage: React.FC = () => {
                   setSortOrder(order as 'asc' | 'desc');
                   setCurrentPage(1);
                 }}
-                className="w-full px-4 py-3 bg-[#111318] border border-[#2A2E38] rounded-2xl text-xs text-[#F4F5F7] focus:outline-none focus:border-[#2F8C82] appearance-none cursor-pointer"
+                className="w-full px-4 py-3 bg-[#0b1329] border border-[#1e293b] rounded-2xl text-xs text-white focus:outline-none focus:border-blue-500 appearance-none cursor-pointer"
               >
                 <option value="createdAt:desc">Newest Openings</option>
                 <option value="applicationDeadline:asc">Closing Soonest</option>
                 <option value="title:asc">Title (A - Z)</option>
               </select>
-              <ArrowUpDown className="w-3.5 h-3.5 text-[#8B90A0] absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
+              <ArrowUpDown className="w-3.5 h-3.5 text-slate-400 absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" />
             </div>
 
             {(searchQuery || selectedType !== 'ALL' || selectedWorkMode !== 'ALL' || selectedExpLevel !== 'ALL' || matchFilter !== 'ALL') && (
               <button
                 onClick={handleResetFilters}
-                className="p-3 bg-[#111318] border border-[#2A2E38] hover:border-[#3d4352] text-[#8B90A0] hover:text-[#F4F5F7] rounded-2xl transition-colors"
+                className="p-3 bg-[#0b1329] border border-[#1e293b] hover:border-slate-700 text-slate-400 hover:text-white rounded-2xl transition-colors"
                 title="Reset all filters"
               >
                 <RotateCcw className="w-4 h-4" />
@@ -336,8 +336,8 @@ export const OpportunityHubPage: React.FC = () => {
                 }}
                 className={`px-3.5 py-1.5 rounded-xl text-xs font-medium transition-all ${
                   selectedType === t.value
-                    ? 'bg-[#2F8C82] text-[#F4F5F7] shadow-md shadow-[#2F8C82]/20'
-                    : 'bg-[#111318] text-[#8B90A0] hover:text-[#F4F5F7] border border-[#2A2E38] hover:border-[#3d4352]'
+                    ? 'bg-gradient-to-r from-blue-600 to-blue-500 text-white shadow-md shadow-blue-500/20'
+                    : 'bg-[#0b1329] text-slate-400 hover:text-white border border-[#1e293b] hover:border-slate-700'
                 }`}
               >
                 {t.label}
@@ -354,7 +354,7 @@ export const OpportunityHubPage: React.FC = () => {
                 setSelectedWorkMode(e.target.value);
                 setCurrentPage(1);
               }}
-              className="px-3 py-1.5 bg-[#111318] border border-[#2A2E38] rounded-xl text-xs text-[#8B90A0] hover:text-[#F4F5F7] focus:outline-none focus:border-[#2F8C82] cursor-pointer"
+              className="px-3 py-1.5 bg-[#0b1329] border border-[#1e293b] rounded-xl text-xs text-slate-300 hover:text-white focus:outline-none focus:border-blue-500 cursor-pointer"
             >
               {WORK_MODES.map((m) => (
                 <option key={m.value} value={m.value}>
@@ -370,7 +370,7 @@ export const OpportunityHubPage: React.FC = () => {
                 setSelectedExpLevel(e.target.value);
                 setCurrentPage(1);
               }}
-              className="px-3 py-1.5 bg-[#111318] border border-[#2A2E38] rounded-xl text-xs text-[#8B90A0] hover:text-[#F4F5F7] focus:outline-none focus:border-[#2F8C82] cursor-pointer"
+              className="px-3 py-1.5 bg-[#0b1329] border border-[#1e293b] rounded-xl text-xs text-slate-300 hover:text-white focus:outline-none focus:border-blue-500 cursor-pointer"
             >
               {EXPERIENCE_LEVELS.map((e) => (
                 <option key={e.value} value={e.value}>
@@ -381,13 +381,13 @@ export const OpportunityHubPage: React.FC = () => {
 
             {/* Student Match Filter Tabs */}
             {isStudent && (
-              <div className="flex items-center p-0.5 rounded-xl bg-[#111318] border border-[#2A2E38]">
+              <div className="flex items-center p-0.5 rounded-xl bg-[#0b1329] border border-[#1e293b]">
                 <button
                   onClick={() => setMatchFilter('ALL')}
                   className={`px-2.5 py-1 rounded-lg text-[11px] font-medium transition-colors ${
                     matchFilter === 'ALL'
-                      ? 'bg-[#1A1D24] text-[#F4F5F7] shadow'
-                      : 'text-[#8B90A0] hover:text-[#F4F5F7]'
+                      ? 'bg-[#0f172a] text-white shadow'
+                      : 'text-slate-400 hover:text-white'
                   }`}
                 >
                   All
@@ -397,7 +397,7 @@ export const OpportunityHubPage: React.FC = () => {
                   className={`px-2.5 py-1 rounded-lg text-[11px] font-medium flex items-center gap-1 transition-colors ${
                     matchFilter === 'HIGH'
                       ? 'bg-[#4CC38A]/15 text-[#4CC38A] shadow'
-                      : 'text-[#8B90A0] hover:text-[#F4F5F7]'
+                      : 'text-slate-400 hover:text-white'
                   }`}
                 >
                   <Sparkles className="w-3 h-3" />
@@ -407,8 +407,8 @@ export const OpportunityHubPage: React.FC = () => {
                   onClick={() => setMatchFilter('ELIGIBLE')}
                   className={`px-2.5 py-1 rounded-lg text-[11px] font-medium flex items-center gap-1 transition-colors ${
                     matchFilter === 'ELIGIBLE'
-                      ? 'bg-[#2F8C82]/15 text-[#2F8C82] shadow'
-                      : 'text-[#8B90A0] hover:text-[#F4F5F7]'
+                      ? 'bg-blue-600/15 text-blue-400 shadow'
+                      : 'text-slate-400 hover:text-white'
                   }`}
                 >
                   <ShieldCheck className="w-3 h-3" />
@@ -419,7 +419,7 @@ export const OpportunityHubPage: React.FC = () => {
                   className={`px-2.5 py-1 rounded-lg text-[11px] font-medium flex items-center gap-1 transition-colors ${
                     matchFilter === 'SAVED'
                       ? 'bg-[#E8A23C]/15 text-[#E8A23C] shadow'
-                      : 'text-[#8B90A0] hover:text-[#F4F5F7]'
+                      : 'text-slate-400 hover:text-white'
                   }`}
                 >
                   <Bookmark className="w-3 h-3" />
@@ -437,55 +437,55 @@ export const OpportunityHubPage: React.FC = () => {
           {[...Array(6)].map((_, i) => (
             <div
               key={i}
-              className="p-6 rounded-2xl bg-[#111318] border border-[#2A2E38] space-y-4 animate-pulse"
+              className="p-6 rounded-2xl bg-[#0b1329] border border-[#1e293b] space-y-4 animate-pulse"
             >
               <div className="flex items-center gap-3">
-                <div className="w-11 h-11 rounded-xl bg-[#1A1D24]" />
+                <div className="w-11 h-11 rounded-xl bg-[#0f172a]" />
                 <div className="space-y-2 flex-1">
-                  <div className="w-24 h-3 bg-[#1A1D24] rounded" />
-                  <div className="w-40 h-4 bg-[#1A1D24] rounded" />
+                  <div className="w-24 h-3 bg-[#0f172a] rounded" />
+                  <div className="w-40 h-4 bg-[#0f172a] rounded" />
                 </div>
               </div>
-              <div className="w-full h-12 bg-[#1A1D24] rounded-lg" />
+              <div className="w-full h-12 bg-[#0f172a] rounded-lg" />
               <div className="flex gap-2">
-                <div className="w-16 h-5 bg-[#1A1D24] rounded-md" />
-                <div className="w-16 h-5 bg-[#1A1D24] rounded-md" />
+                <div className="w-16 h-5 bg-[#0f172a] rounded-md" />
+                <div className="w-16 h-5 bg-[#0f172a] rounded-md" />
               </div>
-              <div className="pt-3 border-t border-[#2A2E38] flex justify-between items-center">
-                <div className="w-20 h-6 bg-[#1A1D24] rounded" />
-                <div className="w-20 h-7 bg-[#1A1D24] rounded-xl" />
+              <div className="pt-3 border-t border-[#1e293b] flex justify-between items-center">
+                <div className="w-20 h-6 bg-[#0f172a] rounded" />
+                <div className="w-20 h-7 bg-[#0f172a] rounded-xl" />
               </div>
             </div>
           ))}
         </div>
       ) : oppsError ? (
-        <div className="p-12 rounded-3xl bg-[#111318] border border-[#2A2E38] text-center space-y-4 max-w-lg mx-auto">
+        <div className="p-12 rounded-3xl bg-[#0b1329] border border-[#1e293b] text-center space-y-4 max-w-lg mx-auto">
           <div className="w-12 h-12 rounded-full bg-[#E5637C]/15 text-[#E5637C] flex items-center justify-center mx-auto">
             <AlertTriangle className="w-6 h-6" />
           </div>
-          <h3 className="text-lg font-bold text-[#F4F5F7]">Failed to Load Opportunities</h3>
-          <p className="text-xs text-[#8B90A0]">
+          <h3 className="text-lg font-bold text-white">Failed to Load Opportunities</h3>
+          <p className="text-xs text-slate-400">
             An unexpected error occurred while contacting the opportunity service. Please verify your connection.
           </p>
           <button
             onClick={() => refetch()}
-            className="px-5 py-2.5 rounded-xl bg-[#2F8C82] hover:bg-[#3aa398] text-xs font-semibold text-[#F4F5F7] transition-all"
+            className="px-5 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-xs font-semibold text-white shadow-md shadow-blue-500/20 transition-all"
           >
             Retry Connection
           </button>
         </div>
       ) : filteredOpportunities.length === 0 ? (
-        <div className="p-16 rounded-3xl bg-[#111318] border border-[#2A2E38] text-center space-y-4 max-w-lg mx-auto">
-          <div className="w-14 h-14 rounded-2xl bg-[#1A1D24] text-[#8B90A0] flex items-center justify-center mx-auto">
+        <div className="p-16 rounded-3xl bg-[#0b1329] border border-[#1e293b] text-center space-y-4 max-w-lg mx-auto">
+          <div className="w-14 h-14 rounded-2xl bg-[#0f172a] text-slate-400 flex items-center justify-center mx-auto">
             <Briefcase className="w-7 h-7" />
           </div>
-          <h3 className="text-lg font-bold text-[#F4F5F7]">No Opportunities Found</h3>
-          <p className="text-xs text-[#8B90A0] leading-relaxed">
+          <h3 className="text-lg font-bold text-white">No Opportunities Found</h3>
+          <p className="text-xs text-slate-400 leading-relaxed">
             No active listings matched your specific filter criteria. Try expanding your search query or resetting filters.
           </p>
           <button
             onClick={handleResetFilters}
-            className="px-5 py-2.5 rounded-xl bg-[#1A1D24] border border-[#2A2E38] hover:border-[#3d4352] text-xs font-semibold text-[#F4F5F7] transition-all inline-flex items-center gap-2"
+            className="px-5 py-2.5 rounded-xl bg-[#0f172a] border border-[#1e293b] hover:border-slate-700 text-xs font-semibold text-white transition-all inline-flex items-center gap-2"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span>Reset All Filters</span>
@@ -510,8 +510,8 @@ export const OpportunityHubPage: React.FC = () => {
 
           {/* Pagination Controls */}
           {pagination.totalPages > 1 && (
-            <div className="pt-6 border-t border-[#2A2E38] flex flex-col sm:flex-row items-center justify-between gap-4">
-              <span className="text-xs text-[#8B90A0]">
+            <div className="pt-6 border-t border-[#1e293b] flex flex-col sm:flex-row items-center justify-between gap-4">
+              <span className="text-xs text-slate-400">
                 Showing {(pagination.page - 1) * pagination.limit + 1} -{' '}
                 {Math.min(pagination.page * pagination.limit, pagination.total)} of {pagination.total} opportunities
               </span>
@@ -520,20 +520,20 @@ export const OpportunityHubPage: React.FC = () => {
                 <button
                   onClick={() => setCurrentPage((p) => Math.max(1, p - 1))}
                   disabled={pagination.page <= 1}
-                  className="px-3.5 py-2 rounded-xl bg-[#111318] border border-[#2A2E38] hover:border-[#3d4352] text-xs font-medium text-[#8B90A0] hover:text-[#F4F5F7] disabled:opacity-40 disabled:pointer-events-none flex items-center gap-1 transition-colors"
+                  className="px-3.5 py-2 rounded-xl bg-[#0b1329] border border-[#1e293b] hover:border-slate-700 text-xs font-medium text-slate-400 hover:text-white disabled:opacity-40 disabled:pointer-events-none flex items-center gap-1 transition-colors"
                 >
                   <ChevronLeft className="w-4 h-4" />
                   <span>Previous</span>
                 </button>
 
-                <div className="px-3 py-1.5 rounded-xl bg-[#1A1D24] text-xs font-mono font-bold text-[#F4F5F7]">
+                <div className="px-3 py-1.5 rounded-xl bg-[#0f172a] border border-[#1e293b] text-xs font-mono font-bold text-white">
                   {pagination.page} / {pagination.totalPages}
                 </div>
 
                 <button
                   onClick={() => setCurrentPage((p) => Math.min(pagination.totalPages, p + 1))}
                   disabled={pagination.page >= pagination.totalPages}
-                  className="px-3.5 py-2 rounded-xl bg-[#111318] border border-[#2A2E38] hover:border-[#3d4352] text-xs font-medium text-[#8B90A0] hover:text-[#F4F5F7] disabled:opacity-40 disabled:pointer-events-none flex items-center gap-1 transition-colors"
+                  className="px-3.5 py-2 rounded-xl bg-[#0b1329] border border-[#1e293b] hover:border-slate-700 text-xs font-medium text-slate-400 hover:text-white disabled:opacity-40 disabled:pointer-events-none flex items-center gap-1 transition-colors"
                 >
                   <span>Next</span>
                   <ChevronRight className="w-4 h-4" />

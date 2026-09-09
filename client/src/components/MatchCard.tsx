@@ -40,19 +40,19 @@ export const MatchCard: React.FC<MatchCardProps> = ({
       onClick={onClick}
       className={`relative flex flex-col justify-between p-4 sm:p-5 rounded-2xl border transition-all duration-200 overflow-hidden ${
         variant === 'raised'
-          ? 'bg-[#1A1D24] border-[#2A2E38] shadow-lg'
+          ? 'bg-[#0f172a] border-[#1e293b] shadow-lg shadow-blue-950/20'
           : variant === 'highlight'
-          ? 'bg-[#111318] border-[#2F8C82]/50 shadow-[0_0_24px_rgba(47,140,130,0.15)]'
-          : 'bg-[#111318]/90 backdrop-blur-md border-[#2A2E38]'
+          ? 'bg-[#0b1329] border-blue-500/50 shadow-[0_0_24px_rgba(37,99,235,0.2)]'
+          : 'bg-[#0b1329]/95 backdrop-blur-md border-[#1e293b]'
       } ${
         isInteractive
-          ? 'cursor-pointer hover:border-[#3d4352] hover:bg-[#1A1D24] hover:-translate-y-0.5'
+          ? 'cursor-pointer hover:border-blue-500/50 hover:bg-[#0f172a] hover:-translate-y-0.5'
           : ''
       } ${className}`}
     >
       {/* Top row: Small-caps label + optional status / icon */}
       <div className="flex items-center justify-between gap-2 mb-2">
-        <span className="small-caps-label truncate">{label}</span>
+        <span className="small-caps-label truncate text-slate-400">{label}</span>
         <div className="flex items-center gap-1.5 shrink-0">
           {status && (
             <span
@@ -66,8 +66,8 @@ export const MatchCard: React.FC<MatchCardProps> = ({
             </span>
           )}
           {Icon && (
-            <div className="w-6 h-6 rounded-md bg-[#1A1D24] border border-[#2A2E38] flex items-center justify-center text-[#8B90A0]">
-              <Icon className="w-3.5 h-3.5" />
+            <div className="w-6 h-6 rounded-md bg-[#0f172a] border border-[#1e293b] flex items-center justify-center text-slate-400">
+              <Icon className="w-3.5 h-3.5 text-blue-400" />
             </div>
           )}
         </div>
@@ -75,7 +75,7 @@ export const MatchCard: React.FC<MatchCardProps> = ({
 
       {/* Center: Big, bold verified metric in IBM Plex Mono */}
       <div className="flex items-baseline gap-2 my-1">
-        <span className="font-mono text-2xl sm:text-3xl font-medium tracking-tight text-[#F4F5F7]">
+        <span className="font-mono text-2xl sm:text-3xl font-medium tracking-tight text-white">
           {value}
         </span>
         {trend && (
@@ -85,7 +85,7 @@ export const MatchCard: React.FC<MatchCardProps> = ({
                 ? 'text-[#4CC38A] bg-[#4CC38A]/10'
                 : trend.direction === 'down'
                 ? 'text-[#E5637C] bg-[#E5637C]/10'
-                : 'text-[#8B90A0] bg-[#1A1D24]'
+                : 'text-slate-400 bg-[#0f172a]'
             }`}
           >
             {trend.direction === 'up' ? '+' : ''}
@@ -96,7 +96,7 @@ export const MatchCard: React.FC<MatchCardProps> = ({
 
       {/* Subvalue text if present */}
       {displaySubtitle && (
-        <p className="text-xs text-[#8B90A0] mt-0.5 mb-2 truncate">
+        <p className="text-xs text-slate-400 mt-0.5 mb-2 truncate">
           {displaySubtitle}
         </p>
       )}
@@ -104,12 +104,11 @@ export const MatchCard: React.FC<MatchCardProps> = ({
       {/* Thin Progress Bar or Sparkline at bottom */}
       {typeof progress === 'number' && (
         <div className="mt-2.5 w-full">
-          <div className="w-full h-1 rounded-full bg-[#1A1D24] overflow-hidden">
+          <div className="w-full h-1 rounded-full bg-[#1e293b] overflow-hidden">
             <div
-              className="h-full rounded-full transition-all duration-500 ease-out"
+              className="h-full rounded-full transition-all duration-500 ease-out bg-gradient-to-r from-blue-600 to-sky-500"
               style={{
                 width: `${Math.min(100, Math.max(0, progress))}%`,
-                background: 'linear-gradient(90deg, #2F8C82 0%, #5B7FE0 100%)',
               }}
             />
           </div>
@@ -134,7 +133,7 @@ export const MatchCard: React.FC<MatchCardProps> = ({
               return (
                 <polyline
                   fill="none"
-                  stroke="#2F8C82"
+                  stroke="#3b82f6"
                   strokeWidth="1.75"
                   strokeLinecap="round"
                   strokeLinejoin="round"

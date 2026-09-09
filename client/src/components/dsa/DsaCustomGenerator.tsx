@@ -99,7 +99,7 @@ export const DsaCustomGenerator: React.FC<DsaCustomGeneratorProps> = ({ onGenera
                 onClick={() => setQuestionCount(count)}
                 className={`py-2 rounded-xl text-xs font-bold font-mono transition-all ${
                   questionCount === count
-                    ? 'bg-bridge-teal text-slate-950 shadow-md shadow-bridge-teal/20'
+                    ? 'bg-bridge-teal text-white shadow-md shadow-bridge-teal/20'
                     : 'bg-slate-800 hover:bg-slate-750 text-slate-300 border border-slate-700'
                 }`}
               >
@@ -201,7 +201,7 @@ export const DsaCustomGenerator: React.FC<DsaCustomGeneratorProps> = ({ onGenera
           type="button"
           onClick={handleGenerate}
           disabled={generateMutation.isPending}
-          className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-bridge-teal to-emerald-500 hover:from-bridge-teal/90 hover:to-emerald-450 text-slate-950 text-xs font-bold shadow-lg shadow-bridge-teal/20 transition-all flex items-center justify-center gap-2 disabled:opacity-60"
+          className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-bridge-teal to-emerald-500 hover:from-bridge-teal/90 hover:to-emerald-450 text-white text-xs font-bold shadow-lg shadow-bridge-teal/20 transition-all flex items-center justify-center gap-2 disabled:opacity-60"
         >
           {generateMutation.isPending ? (
             <>

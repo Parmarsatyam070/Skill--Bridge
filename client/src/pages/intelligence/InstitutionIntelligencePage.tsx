@@ -66,19 +66,18 @@ export const InstitutionIntelligencePage: React.FC = () => {
   return (
     <div className="space-y-6 max-w-7xl mx-auto pb-12">
       {/* Header */}
-      <div className="border-b pb-5" style={{ borderColor: '#2A2E38' }}>
+      <div className="border-b border-[#1e293b] pb-5">
         <div className="flex items-center gap-2.5">
           <div
-            className="w-8 h-8 rounded-lg flex items-center justify-center"
-            style={{ background: 'rgba(47, 140, 130, 0.15)', color: '#2F8C82' }}
+            className="w-8 h-8 rounded-lg flex items-center justify-center bg-blue-600/15 text-blue-400 border border-blue-500/30"
           >
             <Radar className="w-5 h-5" />
           </div>
           <div>
-            <h1 className="text-xl lg:text-2xl font-bold tracking-tight" style={{ color: '#F4F5F7' }}>
+            <h1 className="text-xl lg:text-2xl font-bold tracking-tight text-white">
               Institutional Skill Intelligence
             </h1>
-            <p className="text-xs mt-0.5" style={{ color: '#8B90A0' }}>
+            <p className="text-xs mt-0.5 text-slate-400">
               Deterministic cohort skill gaps, industry benchmark comparison, and targeted curriculum interventions for{' '}
               <span className="font-semibold text-white">{skillsData?.institutionName || 'Institution'}</span>.
             </p>
@@ -101,28 +100,28 @@ export const InstitutionIntelligencePage: React.FC = () => {
               value={overview?.totalStudents || 0}
               subtitle="Enrolled student profiles"
               icon={GraduationCap}
-              color="#2F8C82"
+              color="#3b82f6"
             />
             <IntelligenceKpiCard
               title="Verified Badges"
               value={overview?.verifiedSkillsCount || 0}
               subtitle="Assessment & course verified skills"
               icon={Award}
-              color="#4CC38A"
+              color="#10b981"
             />
             <IntelligenceKpiCard
               title="Market Demand"
               value={overview?.highDemandSkillsCount || 0}
               subtitle="Live industry required skills"
               icon={TrendingUp}
-              color="#5B9BD9"
+              color="#60a5fa"
             />
             <IntelligenceKpiCard
               title="Identified Gaps"
               value={overview?.skillGapsCount || 0}
               subtitle={`${overview?.affectedStudentsCount || 0} students affected`}
               icon={AlertOctagon}
-              color="#E5637C"
+              color="#f43f5e"
             />
           </div>
 
@@ -135,13 +134,13 @@ export const InstitutionIntelligencePage: React.FC = () => {
           />
 
           {/* Skill Comparison Table */}
-          <div className="p-5 rounded-xl border space-y-4" style={{ background: '#111318', borderColor: '#2A2E38' }}>
+          <div className="p-5 rounded-xl border border-[#1e293b] bg-[#0b1329] space-y-4 shadow-md">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-sm font-semibold" style={{ color: '#F4F5F7' }}>
+                <h3 className="text-sm font-semibold text-white">
                   Industry vs Cohort Skill Comparison
                 </h3>
-                <p className="text-xs mt-0.5" style={{ color: '#8B90A0' }}>
+                <p className="text-xs mt-0.5 text-slate-400">
                   Coverage benchmarked against live industry opportunity specifications (Coverage threshold ≥ 60%, Benchmark ≥ 70%)
                 </p>
               </div>
@@ -172,17 +171,17 @@ export const InstitutionIntelligencePage: React.FC = () => {
           )}
 
           {/* Recommended Interventions */}
-          <div className="p-5 rounded-xl border space-y-4" style={{ background: '#111318', borderColor: '#2A2E38' }}>
-            <div className="flex items-center justify-between border-b pb-3" style={{ borderColor: '#2A2E38' }}>
+          <div className="p-5 rounded-xl border border-[#1e293b] bg-[#0b1329] space-y-4 shadow-md">
+            <div className="flex items-center justify-between border-b border-[#1e293b] pb-3">
               <div>
-                <h3 className="text-sm font-semibold" style={{ color: '#F4F5F7' }}>
+                <h3 className="text-sm font-semibold text-white">
                   Curriculum & Diagnostic Interventions
                 </h3>
-                <p className="text-xs mt-0.5" style={{ color: '#8B90A0' }}>
+                <p className="text-xs mt-0.5 text-slate-400">
                   Recommended courses, resources, and talent assessments from the platform to bridge cohort gaps
                 </p>
               </div>
-              <BookOpen className="w-4 h-4 opacity-60" style={{ color: '#2F8C82' }} />
+              <BookOpen className="w-4 h-4 text-blue-400" />
             </div>
 
             {interventionsData && interventionsData.recommendations.length > 0 ? (
@@ -190,37 +189,31 @@ export const InstitutionIntelligencePage: React.FC = () => {
                 {interventionsData.recommendations.map(rec => (
                   <div
                     key={rec.id}
-                    className="p-4 rounded-lg border space-y-3 flex flex-col justify-between"
-                    style={{ background: '#08090C', borderColor: '#2A2E38' }}
+                    className="p-4 rounded-xl border border-[#1e293b] bg-[#030712] space-y-3 flex flex-col justify-between"
                   >
                     <div className="space-y-2">
                       <div className="flex items-center justify-between">
                         <span
-                          className="text-[10px] font-mono px-2 py-0.5 rounded uppercase font-semibold"
-                          style={{
-                            background: 'rgba(47, 140, 130, 0.15)',
-                            color: '#2F8C82',
-                            border: '1px solid rgba(47, 140, 130, 0.3)',
-                          }}
+                          className="text-[10px] font-mono px-2 py-0.5 rounded uppercase font-semibold bg-blue-600/15 text-blue-400 border border-blue-500/30"
                         >
                           {rec.interventionType}
                         </span>
-                        <span className="text-xs font-medium" style={{ color: '#E8A23C' }}>
+                        <span className="text-xs font-medium text-amber-400">
                           Target: {rec.skillName}
                         </span>
                       </div>
 
-                      <h4 className="text-sm font-semibold line-clamp-2" style={{ color: '#F4F5F7' }}>
+                      <h4 className="text-sm font-semibold line-clamp-2 text-white">
                         {rec.title}
                       </h4>
 
-                      <p className="text-xs line-clamp-2" style={{ color: '#8B90A0' }}>
+                      <p className="text-xs line-clamp-2 text-slate-400">
                         {rec.rationale}
                       </p>
                     </div>
 
-                    <div className="pt-2 border-t flex items-center justify-between text-xs" style={{ borderColor: '#2A2E38' }}>
-                      <span className="font-mono text-[11px]" style={{ color: '#8B90A0' }}>
+                    <div className="pt-2 border-t border-[#1e293b] flex items-center justify-between text-xs">
+                      <span className="font-mono text-[11px] text-slate-400">
                         {rec.provider}
                       </span>
                       {rec.url && (
@@ -228,8 +221,7 @@ export const InstitutionIntelligencePage: React.FC = () => {
                           href={rec.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="inline-flex items-center gap-1 font-semibold transition-colors hover:underline"
-                          style={{ color: '#2F8C82' }}
+                          className="inline-flex items-center gap-1 font-semibold text-blue-400 transition-colors hover:text-blue-300 hover:underline"
                         >
                           <span>Explore</span>
                           <ExternalLink className="w-3 h-3" />
@@ -240,7 +232,7 @@ export const InstitutionIntelligencePage: React.FC = () => {
                 ))}
               </div>
             ) : (
-              <div className="p-8 text-center text-xs" style={{ color: '#8B90A0' }}>
+              <div className="p-8 text-center text-xs text-slate-400">
                 No specific course recommendations currently matched to active gaps.
               </div>
             )}

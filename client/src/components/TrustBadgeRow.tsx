@@ -20,12 +20,12 @@ export const TrustBadgeRow: React.FC<{
       {badges.map((badge, idx) => (
         <div
           key={idx}
-          className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#111318] border border-[#2A2E38] text-[10.5px] sm:text-[11px] font-sans font-medium tracking-[0.08em] text-[#8B90A0] uppercase hover:border-[#3d4352] transition-colors"
+          className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-[#0b1329] border border-[#1e293b] text-[10.5px] sm:text-[11px] font-sans font-medium tracking-[0.08em] text-slate-400 uppercase hover:border-blue-500/40 transition-colors"
         >
           {badge.isLive ? (
-            <span className="w-1.5 h-1.5 rounded-full bg-[#4CC38A] shadow-[0_0_8px_rgba(76,195,138,0.6)] animate-pulse" />
+            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_8px_rgba(52,211,153,0.6)] animate-pulse" />
           ) : (
-            <span className="w-1.5 h-1.5 rounded-full bg-[#8B90A0]/40" />
+            <span className="w-1.5 h-1.5 rounded-full bg-slate-600" />
           )}
           <span>{badge.label}</span>
         </div>

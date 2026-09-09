@@ -183,7 +183,7 @@ export const ApplicantsPage: React.FC = () => {
                 onClick={() => setViewMode('kanban')}
                 className={`flex items-center gap-1.5 px-3 py-1 rounded-lg transition-all ${
                   viewMode === 'kanban'
-                    ? 'bg-bridge-teal text-slate-950 font-bold shadow-sm'
+                    ? 'bg-bridge-teal text-white font-bold shadow-sm'
                     : 'text-console-text-muted hover:text-console-text'
                 }`}
               >
@@ -194,7 +194,7 @@ export const ApplicantsPage: React.FC = () => {
                 onClick={() => setViewMode('list')}
                 className={`flex items-center gap-1.5 px-3 py-1 rounded-lg transition-all ${
                   viewMode === 'list'
-                    ? 'bg-bridge-teal text-slate-950 font-bold shadow-sm'
+                    ? 'bg-bridge-teal text-white font-bold shadow-sm'
                     : 'text-console-text-muted hover:text-console-text'
                 }`}
               >
@@ -715,7 +715,7 @@ export const ApplicantsPage: React.FC = () => {
                 <button
                   type="submit"
                   disabled={statusMutation.isPending}
-                  className="px-5 py-2 rounded-xl bg-status-green hover:bg-status-green/90 text-slate-950 font-bold text-xs shadow-sm flex items-center gap-1.5"
+                  className="px-5 py-2 rounded-xl bg-status-green hover:bg-status-green/90 text-white font-bold text-xs shadow-sm flex items-center gap-1.5"
                 >
                   {statusMutation.isPending ? 'Processing...' : 'Confirm Hire & Extend Offer'}
                 </button>

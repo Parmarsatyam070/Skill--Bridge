@@ -30,28 +30,28 @@ export const AssessmentProgress: React.FC<AssessmentProgressProps> = ({
   const progressPct = totalQuestions > 0 ? Math.round((answeredCount / totalQuestions) * 100) : 0;
 
   return (
-    <div className={`bg-[#111318] border border-[#2A2E38] rounded-2xl p-4 ${className}`}>
+    <div className={`bg-[#0b1329] border border-[#1e293b] rounded-2xl p-4 ${className}`}>
       {/* Progress Stats */}
       <div className="flex items-center justify-between gap-2 mb-2">
-        <span className="text-xs font-semibold text-[#F4F5F7]">Question Palette</span>
-        <span className="text-xs font-mono text-[#2F8C82] font-semibold">{progressPct}% Complete</span>
+        <span className="text-xs font-semibold text-white">Question Palette</span>
+        <span className="text-xs font-mono text-blue-400 font-semibold">{progressPct}% Complete</span>
       </div>
 
       {/* Progress Bar */}
-      <div className="w-full h-1.5 bg-[#1A1D24] rounded-full overflow-hidden mb-4 border border-[#2A2E38]">
+      <div className="w-full h-1.5 bg-[#0f172a] rounded-full overflow-hidden mb-4 border border-[#1e293b]">
         <div
-          className="h-full bg-gradient-to-r from-[#2F8C82] to-[#4CC38A] transition-all duration-300"
+          className="h-full bg-gradient-to-r from-blue-600 to-sky-400 transition-all duration-300"
           style={{ width: `${progressPct}%` }}
         />
       </div>
 
       {/* Answered / Unanswered counters */}
       <div className="grid grid-cols-2 gap-2 mb-4 text-xs font-medium">
-        <div className="flex items-center gap-1.5 text-[#4CC38A]">
+        <div className="flex items-center gap-1.5 text-emerald-400">
           <CheckCircle2 className="w-3.5 h-3.5" />
           <span>{answeredCount} Answered</span>
         </div>
-        <div className="flex items-center gap-1.5 text-[#8B90A0]">
+        <div className="flex items-center gap-1.5 text-slate-400">
           <Circle className="w-3.5 h-3.5" />
           <span>{unansweredCount} Unanswered</span>
         </div>
@@ -77,10 +77,10 @@ export const AssessmentProgress: React.FC<AssessmentProgressProps> = ({
               }`}
               className={`h-9 rounded-xl font-mono text-xs font-semibold transition-all flex items-center justify-center border ${
                 isCurrent
-                  ? 'border-[#2F8C82] ring-2 ring-[#2F8C82]/50 text-white bg-[#1A1D24]'
+                  ? 'border-blue-500 ring-2 ring-blue-500/50 text-white bg-[#0f172a]'
                   : isAnswered
-                  ? 'bg-[#2F8C82]/20 border-[#2F8C82]/40 text-[#4CC38A] hover:bg-[#2F8C82]/30'
-                  : 'bg-[#1A1D24] border-[#2A2E38] text-[#8B90A0] hover:border-[#8B90A0]/50 hover:text-[#F4F5F7]'
+                  ? 'bg-blue-600/20 border-blue-500/40 text-blue-300 hover:bg-blue-600/30'
+                  : 'bg-[#0f172a] border-[#1e293b] text-slate-400 hover:border-slate-500 hover:text-white'
               }`}
             >
               {idx + 1}

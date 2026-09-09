@@ -395,7 +395,7 @@ export const CareerProfileDashboard: React.FC = () => {
       {/* ─────────────────────────────────────────────────────────────
           1. PROFILE HERO HEADER (DESIGN SYSTEM V2 VERIFIED IDENTITY)
       ───────────────────────────────────────────────────────────── */}
-      <div className="bg-bridge-panel border border-bridge-border rounded-xl p-5 sm:p-6 relative overflow-hidden backdrop-blur-md">
+      <div className="bg-[#0b1329] border border-[#1e293b] rounded-xl p-5 sm:p-6 relative overflow-hidden backdrop-blur-md">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-5">
           {/* Left: Avatar + Details */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4.5 min-w-0 flex-1">
@@ -405,10 +405,10 @@ export const CareerProfileDashboard: React.FC = () => {
                 <img
                   src={profile.avatarUrl}
                   alt={profile.name}
-                  className="w-20 h-20 sm:w-22 sm:h-22 rounded-xl object-cover ring-1 ring-white/10 bg-[#161920]"
+                  className="w-20 h-20 sm:w-22 sm:h-22 rounded-xl object-cover ring-1 ring-white/10 bg-[#0f172a]"
                 />
               ) : (
-                <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-xl bg-[#2F8C82]/10 ring-1 ring-[#2F8C82]/30 text-[#2F8C82] font-mono font-bold text-2xl flex items-center justify-center">
+                <div className="w-20 h-20 sm:w-22 sm:h-22 rounded-xl bg-blue-600/15 ring-1 ring-blue-500/30 text-blue-400 font-mono font-bold text-2xl flex items-center justify-center">
                   {getInitials(profile.name)}
                 </div>
               )}
@@ -420,29 +420,29 @@ export const CareerProfileDashboard: React.FC = () => {
                 className="absolute inset-0 rounded-xl bg-black/75 text-white flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-all text-[11px] font-semibold cursor-pointer"
                 title="Upload or change photo"
               >
-                <Upload className="w-4 h-4 mb-0.5 text-[#2F8C82]" />
+                <Upload className="w-4 h-4 mb-0.5 text-blue-400" />
                 <span>Upload</span>
               </button>
 
               {/* Verified badge icon */}
               <span
-                className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-[#4CC38A] ring-2 ring-[#0F1117] flex items-center justify-center text-[#08090C]"
+                className="absolute -bottom-1 -right-1 w-5 h-5 rounded-full bg-[#4CC38A] ring-2 ring-[#0f172a] flex items-center justify-center text-slate-950"
                 title="Verified Active Talent"
               >
-                <CheckCircle2 className="w-3.5 h-3.5 fill-[#08090C] text-[#4CC38A]" />
+                <CheckCircle2 className="w-3.5 h-3.5 fill-[#030712] text-[#4CC38A]" />
               </span>
             </div>
 
             {/* Profile Identity Details */}
             <div className="space-y-1 min-w-0 flex-1">
-              <span className="small-caps-label block text-[10px]">
-                [● VERIFIED CAREER IDENTITY]
+              <span className="small-caps-label block text-[10px] text-slate-400">
+                [• VERIFIED CAREER IDENTITY]
               </span>
 
               {/* Badge row matching Design System v2 standard */}
               <div className="flex flex-wrap items-center gap-1.5 pt-0.5">
-                <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-[#2F8C82]/15 text-[#2F8C82] font-mono text-[10.5px] font-semibold">
-                  <span className="w-1.5 h-1.5 rounded-full bg-[#2F8C82] animate-pulse" />
+                <div className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-blue-600/15 text-blue-400 font-mono text-[10.5px] font-semibold border border-blue-500/30">
+                  <span className="w-1.5 h-1.5 rounded-full bg-blue-400 animate-pulse" />
                   <span>VERIFIED TALENT</span>
                 </div>
 
@@ -459,28 +459,28 @@ export const CareerProfileDashboard: React.FC = () => {
 
               {/* Name & Handle */}
               <div className="flex flex-wrap items-baseline gap-x-2.5 gap-y-0.5 pt-0.5">
-                <h1 className="text-xl sm:text-2xl font-bold text-[#F4F5F7] tracking-tight break-words">
+                <h1 className="text-xl sm:text-2xl font-bold text-white tracking-tight break-words">
                   {profile.name}
                 </h1>
-                <span className="text-xs font-mono text-[#8B90A0] break-all">
+                <span className="text-xs font-mono text-slate-400 break-all">
                   @{profile.username}
                 </span>
               </div>
 
               {/* Title / Headline */}
-              <p className="text-xs sm:text-sm font-medium text-[#2F8C82]">
+              <p className="text-xs sm:text-sm font-medium text-blue-400">
                 {profile.headline || 'Aspiring Full-Stack Web Specialist'}
               </p>
 
               {/* University & Location */}
-              <div className="flex flex-wrap items-center gap-2.5 text-xs text-[#8B90A0] font-sans pt-0.5">
-                <span className="flex items-center gap-1.5 text-[#F4F5F7] font-medium">
-                  <Building className="w-3.5 h-3.5 text-[#2F8C82] flex-shrink-0" />
+              <div className="flex flex-wrap items-center gap-2.5 text-xs text-slate-400 font-sans pt-0.5">
+                <span className="flex items-center gap-1.5 text-white font-medium">
+                  <Building className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
                   <span>{profile.institution}</span>
                 </span>
-                <span className="text-[#2A2E38]">•</span>
-                <span className="flex items-center gap-1 font-mono text-[#8B90A0]">
-                  <MapPin className="w-3.5 h-3.5 text-[#8B90A0] flex-shrink-0" />
+                <span className="text-slate-600">•</span>
+                <span className="flex items-center gap-1 font-mono text-slate-400">
+                  <MapPin className="w-3.5 h-3.5 text-slate-400 flex-shrink-0" />
                   <span>{profile.location}</span>
                 </span>
               </div>
@@ -493,7 +493,7 @@ export const CareerProfileDashboard: React.FC = () => {
             <button
               type="button"
               onClick={handleShareProfile}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-[#8B90A0] hover:text-[#F4F5F7] text-xs font-semibold transition-all"
+              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] border border-white/10 text-slate-400 hover:text-white text-xs font-semibold transition-all"
               title="Copy link to public portfolio"
             >
               {shareCopied ? (
@@ -503,7 +503,7 @@ export const CareerProfileDashboard: React.FC = () => {
                 </>
               ) : (
                 <>
-                  <Share2 className="w-3.5 h-3.5 text-[#2F8C82]" />
+                  <Share2 className="w-3.5 h-3.5 text-blue-400" />
                   <span>Share</span>
                 </>
               )}
@@ -522,7 +522,7 @@ export const CareerProfileDashboard: React.FC = () => {
                   resumeFileName: profile.resumeFileName,
                 })
               }
-              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-bridge-teal hover:bg-[#287970] text-[#08090C] font-mono font-bold text-xs shadow-xs transition-all cursor-pointer"
+              className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white font-mono font-bold text-xs shadow-md shadow-blue-500/20 transition-all cursor-pointer"
             >
               <Edit3 className="w-3.5 h-3.5" />
               <span>Edit Profile</span>
@@ -540,19 +540,19 @@ export const CareerProfileDashboard: React.FC = () => {
         ═════════════════════════════════════════════════════════════ */}
         <div className="lg:col-span-8 space-y-4 sm:space-y-5">
           {/* 1. CAREER SUMMARY & PRIMARY ARTIFACT (CONSOLIDATED OVERVIEW) */}
-          <div className="bg-bridge-panel rounded-xl border border-bridge-border p-5 sm:p-6 space-y-4">
+          <div className="bg-[#0b1329] rounded-xl border border-[#1e293b] p-5 sm:p-6 space-y-4">
             {/* About Section */}
             <div className="space-y-2">
-              <div className="flex items-center justify-between pb-2 border-b border-bridge-border/60">
+              <div className="flex items-center justify-between pb-2 border-b border-[#1e293b]">
                 <div>
-                  <span className="small-caps-label block mb-0.5 text-[10px]">[● PROFESSIONAL SUMMARY]</span>
-                  <h3 className="text-base font-bold text-[#F4F5F7] tracking-tight">About</h3>
+                  <span className="small-caps-label block mb-0.5 text-[10px] text-slate-400">[• PROFESSIONAL SUMMARY]</span>
+                  <h3 className="text-base font-bold text-white tracking-tight">About</h3>
                 </div>
                 {profile.bio ? (
                   <button
                     type="button"
                     onClick={() => openModal('edit_about', { bio: profile.bio })}
-                    className="p-1 rounded-md text-[#8B90A0] hover:text-[#2F8C82] hover:bg-white/[0.04] transition-colors"
+                    className="p-1 rounded-md text-slate-400 hover:text-blue-400 hover:bg-white/[0.04] transition-colors"
                     title="Edit Bio"
                   >
                     <Edit3 className="w-3.5 h-3.5" />
@@ -561,7 +561,7 @@ export const CareerProfileDashboard: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => openModal('edit_about', { bio: '' })}
-                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-[#2F8C82]/10 text-[#2F8C82] hover:bg-[#2F8C82]/20 text-xs font-mono font-semibold transition-colors"
+                    className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-blue-600/15 text-blue-400 hover:bg-blue-600/25 border border-blue-500/30 text-xs font-mono font-semibold transition-colors"
                   >
                     <Plus className="w-3 h-3" />
                     <span>Add Bio</span>
@@ -570,12 +570,12 @@ export const CareerProfileDashboard: React.FC = () => {
               </div>
 
               {profile.bio ? (
-                <div className="text-xs sm:text-sm text-[#F4F5F7]/90 leading-relaxed font-sans pt-1">
+                <div className="text-xs sm:text-sm text-slate-200 leading-relaxed font-sans pt-1">
                   <p className={bioExpanded ? '' : 'line-clamp-3'}>{profile.bio}</p>
                   <button
                     type="button"
                     onClick={() => setBioExpanded(!bioExpanded)}
-                    className="mt-1.5 text-xs font-mono font-semibold text-[#2F8C82] hover:underline inline-flex items-center gap-1"
+                    className="mt-1.5 text-xs font-mono font-semibold text-blue-400 hover:underline inline-flex items-center gap-1"
                   >
                     {bioExpanded ? (
                       <>
@@ -591,12 +591,12 @@ export const CareerProfileDashboard: React.FC = () => {
                   </button>
                 </div>
               ) : (
-                <div className="py-2 text-xs text-[#8B90A0] flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                <div className="py-2 text-xs text-slate-400 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
                   <span>Add a short bio to introduce your engineering background, learning focus, and target domains.</span>
                   <button
                     type="button"
                     onClick={() => openModal('edit_about', { bio: '' })}
-                    className="text-[#2F8C82] hover:underline font-semibold shrink-0"
+                    className="text-blue-400 hover:underline font-semibold shrink-0"
                   >
                     + Add Bio
                   </button>
@@ -605,25 +605,25 @@ export const CareerProfileDashboard: React.FC = () => {
             </div>
 
             {/* Primary Resume Section */}
-            <div className="pt-2 border-t border-bridge-border/60">
+            <div className="pt-2 border-t border-[#1e293b]">
               <div className="flex items-center justify-between pb-2 mb-1">
-                <span className="small-caps-label text-[10px]">[● PRIMARY ARTIFACT]</span>
-                <span className="text-[11px] font-mono text-[#2F8C82] font-medium">
+                <span className="small-caps-label text-[10px] text-slate-400">[• PRIMARY ARTIFACT]</span>
+                <span className="text-[11px] font-mono text-blue-400 font-medium">
                   {profile.resumeFileName ? (profile.resumeLastUpdated || 'ATS Compliant') : 'ATS Generator Ready'}
                 </span>
               </div>
 
               {profile.resumeFileName ? (
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-lg bg-white/[0.02] hover:bg-white/[0.04] transition-colors">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 p-3 rounded-lg bg-white/[0.02] hover:bg-white/[0.04] transition-colors border border-[#1e293b]">
                   <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-lg bg-[#2F8C82]/15 text-[#2F8C82] flex items-center justify-center shrink-0">
+                    <div className="w-9 h-9 rounded-lg bg-blue-600/15 text-blue-400 flex items-center justify-center shrink-0 border border-blue-500/30">
                       <FileText className="w-4 h-4" />
                     </div>
                     <div>
-                      <h4 className="font-semibold text-xs sm:text-sm text-[#F4F5F7] font-mono">
+                      <h4 className="font-semibold text-xs sm:text-sm text-white font-mono">
                         {profile.resumeFileName}
                       </h4>
-                      <p className="text-[11px] text-[#8B90A0] font-mono">
+                      <p className="text-[11px] text-slate-400 font-mono">
                         PDF Document • ATS Verified 94%
                       </p>
                     </div>
@@ -632,15 +632,15 @@ export const CareerProfileDashboard: React.FC = () => {
                   <div className="flex items-center gap-2">
                     <Link
                       to="/resume-builder"
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-[#F4F5F7] text-xs font-semibold transition-all"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0f172a] hover:bg-slate-800 text-white text-xs font-semibold border border-[#1e293b] transition-all"
                     >
-                      <Eye className="w-3.5 h-3.5 text-[#2F8C82]" />
+                      <Eye className="w-3.5 h-3.5 text-blue-400" />
                       <span>View / Edit</span>
                     </Link>
                     <button
                       type="button"
                       onClick={() => navigate('/resume-builder')}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-bridge-teal hover:bg-[#287970] text-[#08090C] font-mono font-bold text-xs transition-all shadow-xs"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white font-mono font-bold text-xs transition-all shadow-md shadow-blue-500/20 cursor-pointer"
                     >
                       <Download className="w-3.5 h-3.5" />
                       <span>Download</span>
@@ -648,7 +648,7 @@ export const CareerProfileDashboard: React.FC = () => {
                   </div>
                 </div>
               ) : (
-                <div className="py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-[#8B90A0]">
+                <div className="py-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-slate-400">
                   <span>No primary resume linked. Upload an existing document or compile with the AI generator.</span>
                   <div className="flex items-center gap-2 shrink-0">
                     <button
@@ -657,14 +657,14 @@ export const CareerProfileDashboard: React.FC = () => {
                         setResumeNameInput(`${profile.name || 'Student'}-Resume.pdf`);
                         setIsResumeModalOpen(true);
                       }}
-                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-[#F4F5F7] font-semibold text-xs transition-all cursor-pointer"
+                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#0f172a] hover:bg-slate-800 text-white font-semibold text-xs border border-[#1e293b] transition-all cursor-pointer"
                     >
-                      <Upload className="w-3.5 h-3.5 text-[#2F8C82]" />
+                      <Upload className="w-3.5 h-3.5 text-blue-400" />
                       <span>Upload</span>
                     </button>
                     <Link
                       to="/resume-builder"
-                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-bridge-teal hover:bg-[#287970] text-[#08090C] font-mono font-bold text-xs transition-all"
+                      className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white font-mono font-bold text-xs transition-all shadow-md shadow-blue-500/20"
                     >
                       <Sparkles className="w-3.5 h-3.5" />
                       <span>Generate</span>
@@ -676,20 +676,20 @@ export const CareerProfileDashboard: React.FC = () => {
           </div>
 
           {/* 2. SKILLS & COMPETENCIES */}
-          <div className="bg-bridge-panel rounded-xl border border-bridge-border p-5 sm:p-6 space-y-4">
-            <div className="flex items-center justify-between pb-2 border-b border-bridge-border/60">
+          <div className="bg-[#0b1329] rounded-xl border border-[#1e293b] p-5 sm:p-6 space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-[#1e293b]">
               <div>
-                <span className="small-caps-label block mb-0.5 text-[10px]">[● VERIFIED TECHNICAL PROFICIENCIES]</span>
-                <h3 className="text-base font-bold text-[#F4F5F7] tracking-tight">Skills & Competencies</h3>
+                <span className="small-caps-label block mb-0.5 text-[10px] text-slate-400">[• VERIFIED TECHNICAL PROFICIENCIES]</span>
+                <h3 className="text-base font-bold text-white tracking-tight">Skills & Competencies</h3>
               </div>
               <button
                 type="button"
                 onClick={() =>
                   openModal('manage_skills', { skills: profile.technicalSkills })
                 }
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-[#8B90A0] hover:text-[#F4F5F7] text-xs font-semibold transition-all"
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#0f172a] hover:bg-slate-800 text-slate-400 hover:text-white border border-[#1e293b] text-xs font-semibold transition-all"
               >
-                <Edit3 className="w-3.5 h-3.5 text-[#2F8C82]" />
+                <Edit3 className="w-3.5 h-3.5 text-blue-400" />
                 <span>Manage</span>
               </button>
             </div>
@@ -697,16 +697,16 @@ export const CareerProfileDashboard: React.FC = () => {
             {profile.technicalSkills && profile.technicalSkills.length > 0 ? (
               <div className="space-y-3">
                 <div>
-                  <span className="small-caps-label block text-[#8B90A0] text-[10px] mb-1.5">
+                  <span className="small-caps-label block text-slate-400 text-[10px] mb-1.5">
                     TECHNICAL STACK
                   </span>
                   <div className="flex flex-wrap gap-1.5">
                     {profile.technicalSkills.map((skill: string, idx: number) => (
                       <span
                         key={idx}
-                        className="px-2.5 py-1 rounded-md bg-white/[0.03] hover:bg-white/[0.06] border border-white/5 text-xs font-mono text-[#F4F5F7] transition-all cursor-default flex items-center gap-1.5"
+                        className="px-2.5 py-1 rounded-md bg-[#0f172a] hover:bg-slate-800 border border-[#1e293b] text-xs font-mono text-white transition-all cursor-default flex items-center gap-1.5"
                       >
-                        <span className="w-1.5 h-1.5 rounded-full bg-[#2F8C82]" />
+                        <span className="w-1.5 h-1.5 rounded-full bg-blue-400" />
                         <span>{skill}</span>
                       </span>
                     ))}
@@ -714,15 +714,15 @@ export const CareerProfileDashboard: React.FC = () => {
                 </div>
 
                 {profile.softSkills && profile.softSkills.length > 0 && (
-                  <div className="pt-2 border-t border-bridge-border/40">
-                    <span className="small-caps-label block text-[#8B90A0] text-[10px] mb-1.5">
+                  <div className="pt-2 border-t border-[#1e293b]">
+                    <span className="small-caps-label block text-slate-400 text-[10px] mb-1.5">
                       CORE & LEADERSHIP
                     </span>
                     <div className="flex flex-wrap gap-1.5">
                       {profile.softSkills.map((skill: string, idx: number) => (
                         <span
                           key={idx}
-                          className="px-2.5 py-1 rounded-md bg-white/[0.02] text-xs font-mono text-[#8B90A0]"
+                          className="px-2.5 py-1 rounded-md bg-[#0f172a] border border-[#1e293b] text-xs font-mono text-slate-400"
                         >
                           {skill}
                         </span>
@@ -733,13 +733,13 @@ export const CareerProfileDashboard: React.FC = () => {
               </div>
             ) : (
               <div className="py-4 text-center space-y-2">
-                <p className="text-xs text-[#8B90A0]">
+                <p className="text-xs text-slate-400">
                   Calibrate your skills to earn verified competency badges on your profile.
                 </p>
                 <div className="flex items-center justify-center gap-2 pt-1">
                   <Link
                     to="/assessment"
-                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-bridge-teal hover:bg-[#287970] text-[#08090C] font-mono font-bold text-xs transition-all"
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white font-mono font-bold text-xs transition-all shadow-md shadow-blue-500/20"
                   >
                     <Award className="w-3.5 h-3.5" />
                     <span>Take Assessment</span>
@@ -747,9 +747,9 @@ export const CareerProfileDashboard: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => openModal('manage_skills', { skills: [] })}
-                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-[#8B90A0] hover:text-[#F4F5F7] font-semibold text-xs transition-all"
+                    className="inline-flex items-center gap-1 px-3 py-1.5 rounded-lg bg-[#0f172a] hover:bg-slate-800 text-slate-400 hover:text-white border border-[#1e293b] font-semibold text-xs transition-all"
                   >
-                    <Plus className="w-3.5 h-3.5 text-[#2F8C82]" />
+                    <Plus className="w-3.5 h-3.5 text-blue-400" />
                     <span>Add Skill</span>
                   </button>
                 </div>
@@ -761,40 +761,40 @@ export const CareerProfileDashboard: React.FC = () => {
           <ContributionHeatmap />
 
           {/* 4. WORK EXPERIENCE */}
-          <div className="bg-bridge-panel rounded-xl border border-bridge-border p-5 sm:p-6 space-y-4">
-            <div className="flex items-center justify-between pb-2 border-b border-bridge-border/60">
+          <div className="bg-[#0b1329] rounded-xl border border-[#1e293b] p-5 sm:p-6 space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-[#1e293b]">
               <div>
-                <span className="small-caps-label block mb-0.5 text-[10px]">[● EXPERIENCE TELEMETRY]</span>
+                <span className="small-caps-label block mb-0.5 text-[10px] text-slate-400">[• EXPERIENCE TELEMETRY]</span>
                 <div className="flex items-center gap-2">
-                  <Briefcase className="w-4 h-4 text-[#2F8C82]" />
-                  <h3 className="text-base font-bold text-[#F4F5F7] tracking-tight">Work Experience</h3>
+                  <Briefcase className="w-4 h-4 text-blue-400" />
+                  <h3 className="text-base font-bold text-white tracking-tight">Work Experience</h3>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => openModal('add_experience')}
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-[#8B90A0] hover:text-[#F4F5F7] text-xs font-semibold transition-all"
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#0f172a] hover:bg-slate-800 border border-[#1e293b] text-slate-400 hover:text-white text-xs font-semibold transition-all"
               >
-                <Plus className="w-3.5 h-3.5 text-[#2F8C82]" />
+                <Plus className="w-3.5 h-3.5 text-blue-400" />
                 <span>Add Experience</span>
               </button>
             </div>
 
             {profile.experiences && profile.experiences.length > 0 ? (
-              <div className="divide-y divide-bridge-border/40">
+              <div className="divide-y divide-[#1e293b]">
                 {profile.experiences.map((exp: any) => (
                   <div key={exp.id} className="py-4 first:pt-1 last:pb-0 space-y-2">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-start gap-3">
-                        <div className="w-9 h-9 rounded-lg bg-white/[0.04] text-[#2F8C82] font-mono font-bold text-xs flex items-center justify-center shrink-0">
+                        <div className="w-9 h-9 rounded-lg bg-[#0f172a] border border-[#1e293b] text-blue-400 font-mono font-bold text-xs flex items-center justify-center shrink-0">
                           {exp.company ? exp.company.slice(0, 2).toUpperCase() : 'CO'}
                         </div>
                         <div>
-                          <h4 className="font-semibold text-xs sm:text-sm text-[#F4F5F7]">
+                          <h4 className="font-semibold text-xs sm:text-sm text-white">
                             {exp.title}
                           </h4>
-                          <div className="text-xs text-[#F4F5F7]/80 font-medium">{exp.company}</div>
-                          <div className="text-[11px] font-mono text-[#8B90A0] mt-0.5">
+                          <div className="text-xs text-slate-300 font-medium">{exp.company}</div>
+                          <div className="text-[11px] font-mono text-slate-400 mt-0.5">
                             {exp.duration} • {exp.location}
                           </div>
                         </div>
@@ -803,7 +803,7 @@ export const CareerProfileDashboard: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => openModal('edit_experience', exp)}
-                        className="p-1 text-[#8B90A0] hover:text-[#2F8C82] transition-colors"
+                        className="p-1 text-slate-400 hover:text-blue-400 transition-colors"
                         title="Edit Experience"
                       >
                         <Edit3 className="w-3.5 h-3.5" />
@@ -811,7 +811,7 @@ export const CareerProfileDashboard: React.FC = () => {
                     </div>
 
                     {exp.description && (
-                      <p className="text-xs text-[#8B90A0] leading-relaxed pl-12">
+                      <p className="text-xs text-slate-400 leading-relaxed pl-12">
                         {exp.description}
                       </p>
                     )}
@@ -821,7 +821,7 @@ export const CareerProfileDashboard: React.FC = () => {
                         {exp.skills.map((sk: string, i: number) => (
                           <span
                             key={i}
-                            className="px-2 py-0.5 rounded bg-white/[0.03] text-[10.5px] font-mono text-[#2F8C82]"
+                            className="px-2 py-0.5 rounded bg-[#0f172a] border border-[#1e293b] text-[10.5px] font-mono text-blue-400"
                           >
                             {sk}
                           </span>
@@ -833,13 +833,13 @@ export const CareerProfileDashboard: React.FC = () => {
               </div>
             ) : (
               <div className="py-4 text-center space-y-2">
-                <p className="text-xs text-[#8B90A0]">
+                <p className="text-xs text-slate-400">
                   No work experience entries yet. Add internships, part-time roles, or research experience.
                 </p>
                 <button
                   type="button"
                   onClick={() => openModal('add_experience')}
-                  className="text-xs font-semibold text-[#2F8C82] hover:underline"
+                  className="text-xs font-semibold text-blue-400 hover:underline"
                 >
                   + Add Experience
                 </button>
@@ -848,40 +848,40 @@ export const CareerProfileDashboard: React.FC = () => {
           </div>
 
           {/* 5. EDUCATION */}
-          <div className="bg-bridge-panel rounded-xl border border-bridge-border p-5 sm:p-6 space-y-4">
-            <div className="flex items-center justify-between pb-2 border-b border-bridge-border/60">
+          <div className="bg-[#0b1329] rounded-xl border border-[#1e293b] p-5 sm:p-6 space-y-4">
+            <div className="flex items-center justify-between pb-2 border-b border-[#1e293b]">
               <div>
-                <span className="small-caps-label block mb-0.5 text-[10px]">[● ACADEMIC BACKGROUND]</span>
+                <span className="small-caps-label block mb-0.5 text-[10px] text-slate-400">[• ACADEMIC FOUNDATIONS]</span>
                 <div className="flex items-center gap-2">
                   <GraduationCap className="w-4 h-4 text-[#4CC38A]" />
-                  <h3 className="text-base font-bold text-[#F4F5F7] tracking-tight">Education</h3>
+                  <h3 className="text-base font-bold text-white tracking-tight">Education</h3>
                 </div>
               </div>
               <button
                 type="button"
                 onClick={() => openModal('add_education')}
-                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-white/[0.04] hover:bg-white/[0.08] text-[#8B90A0] hover:text-[#F4F5F7] text-xs font-semibold transition-all"
+                className="inline-flex items-center gap-1 px-2.5 py-1 rounded-lg bg-[#0f172a] hover:bg-slate-800 border border-[#1e293b] text-slate-400 hover:text-white text-xs font-semibold transition-all"
               >
-                <Plus className="w-3.5 h-3.5 text-[#2F8C82]" />
+                <Plus className="w-3.5 h-3.5 text-blue-400" />
                 <span>Add Education</span>
               </button>
             </div>
 
             {profile.educations && profile.educations.length > 0 ? (
-              <div className="divide-y divide-bridge-border/40">
+              <div className="divide-y divide-[#1e293b]">
                 {profile.educations.map((edu: any) => (
                   <div key={edu.id} className="py-3.5 first:pt-1 last:pb-0 space-y-1">
                     <div className="flex items-start justify-between gap-3">
                       <div className="flex items-start gap-3">
-                        <div className="w-9 h-9 rounded-lg bg-white/[0.04] text-[#4CC38A] font-mono font-bold text-xs flex items-center justify-center shrink-0">
+                        <div className="w-9 h-9 rounded-lg bg-[#0f172a] border border-[#1e293b] text-[#4CC38A] font-mono font-bold text-xs flex items-center justify-center shrink-0">
                           {edu.institution ? edu.institution.slice(0, 2).toUpperCase() : 'ED'}
                         </div>
                         <div>
-                          <h4 className="font-semibold text-xs sm:text-sm text-[#F4F5F7]">
+                          <h4 className="font-semibold text-xs sm:text-sm text-white">
                             {edu.degree}
                           </h4>
-                          <div className="text-xs text-[#F4F5F7]/80 font-medium">{edu.institution}</div>
-                          <div className="text-[11px] font-mono text-[#8B90A0] mt-0.5">
+                          <div className="text-xs text-slate-300 font-medium">{edu.institution}</div>
+                          <div className="text-[11px] font-mono text-slate-400 mt-0.5">
                             {edu.duration} {edu.score && `• Score: ${edu.score}`}
                           </div>
                         </div>
@@ -890,7 +890,7 @@ export const CareerProfileDashboard: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => openModal('edit_education', edu)}
-                        className="p-1 text-[#8B90A0] hover:text-[#2F8C82] transition-colors"
+                        className="p-1 text-slate-400 hover:text-blue-400 transition-colors"
                         title="Edit Education"
                       >
                         <Edit3 className="w-3.5 h-3.5" />
@@ -901,13 +901,13 @@ export const CareerProfileDashboard: React.FC = () => {
               </div>
             ) : (
               <div className="py-4 text-center space-y-2">
-                <p className="text-xs text-[#8B90A0]">
+                <p className="text-xs text-slate-400">
                   No education entries added yet.
                 </p>
                 <button
                   type="button"
                   onClick={() => openModal('add_education')}
-                  className="text-xs font-semibold text-[#2F8C82] hover:underline"
+                  className="text-xs font-semibold text-blue-400 hover:underline"
                 >
                   + Add Education
                 </button>
@@ -918,19 +918,19 @@ export const CareerProfileDashboard: React.FC = () => {
           {/* 6. PROJECTS & CERTIFICATIONS */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
             {/* Featured Projects */}
-            <div className="bg-bridge-panel rounded-xl border border-bridge-border p-5 space-y-3">
-              <div className="flex items-center justify-between pb-2 border-b border-bridge-border/60">
+            <div className="bg-[#0b1329] rounded-xl border border-[#1e293b] p-5 space-y-3">
+              <div className="flex items-center justify-between pb-2 border-b border-[#1e293b]">
                 <div>
-                  <span className="small-caps-label block mb-0.5 text-[10px]">[● VERIFIED PROJECTS]</span>
+                  <span className="small-caps-label block mb-0.5 text-[10px] text-slate-400">[• ENGINEERING PROJECTS]</span>
                   <div className="flex items-center gap-1.5">
-                    <Code className="w-4 h-4 text-[#2F8C82]" />
-                    <h4 className="text-sm font-bold text-[#F4F5F7] tracking-tight">Projects</h4>
+                    <Code className="w-4 h-4 text-blue-400" />
+                    <h4 className="text-sm font-bold text-white tracking-tight">Projects</h4>
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={() => openModal('add_project')}
-                  className="p-1 text-[#2F8C82] hover:bg-white/[0.04] rounded-md transition-colors"
+                  className="p-1 text-blue-400 hover:bg-slate-800 rounded-md transition-colors"
                   title="Add Project"
                 >
                   <Plus className="w-4 h-4" />
@@ -938,28 +938,28 @@ export const CareerProfileDashboard: React.FC = () => {
               </div>
 
               {profile.projects && profile.projects.length > 0 ? (
-                <div className="divide-y divide-bridge-border/30">
+                <div className="divide-y divide-[#1e293b]">
                   {profile.projects.map((proj: any) => (
                     <div key={proj.id} className="py-2.5 first:pt-0 last:pb-0 space-y-1 text-xs">
                       <div className="flex items-center justify-between">
-                        <span className="font-semibold text-[#F4F5F7] truncate">{proj.title}</span>
+                        <span className="font-semibold text-white truncate">{proj.title}</span>
                         {proj.githubUrl && (
                           <a
                             href={proj.githubUrl}
                             target="_blank"
                             rel="noreferrer"
-                            className="text-[#8B90A0] hover:text-[#F4F5F7] transition-colors"
+                            className="text-slate-400 hover:text-white transition-colors"
                           >
                             <Github className="w-3.5 h-3.5" />
                           </a>
                         )}
                       </div>
-                      <p className="text-[#8B90A0] text-[11px] leading-relaxed line-clamp-2">
+                      <p className="text-slate-400 text-[11px] leading-relaxed line-clamp-2">
                         {proj.description}
                       </p>
-                      <div className="flex flex-wrap gap-1 font-mono text-[10px] text-[#2F8C82] pt-0.5">
+                      <div className="flex flex-wrap gap-1 font-mono text-[10px] text-blue-400 pt-0.5">
                         {proj.techStack?.map((t: string, i: number) => (
-                          <span key={i} className="px-1.5 py-0.5 rounded bg-white/[0.03]">
+                          <span key={i} className="px-1.5 py-0.5 rounded bg-[#0f172a] border border-[#1e293b]">
                             {t}
                           </span>
                         ))}
@@ -968,9 +968,9 @@ export const CareerProfileDashboard: React.FC = () => {
                   ))}
                 </div>
               ) : (
-                <div className="py-3 text-center text-xs text-[#8B90A0]">
+                <div className="py-3 text-center text-xs text-slate-400">
                   No projects added yet.{' '}
-                  <button type="button" onClick={() => openModal('add_project')} className="text-[#2F8C82] font-semibold hover:underline">
+                  <button type="button" onClick={() => openModal('add_project')} className="text-blue-400 font-semibold hover:underline">
                     + Add
                   </button>
                 </div>
@@ -978,19 +978,19 @@ export const CareerProfileDashboard: React.FC = () => {
             </div>
 
             {/* Certifications */}
-            <div className="bg-bridge-panel rounded-xl border border-bridge-border p-5 space-y-3">
-              <div className="flex items-center justify-between pb-2 border-b border-bridge-border/60">
+            <div className="bg-[#0b1329] rounded-xl border border-[#1e293b] p-5 space-y-3">
+              <div className="flex items-center justify-between pb-2 border-b border-[#1e293b]">
                 <div>
-                  <span className="small-caps-label block mb-0.5 text-[10px]">[● CREDENTIALS]</span>
+                  <span className="small-caps-label block mb-0.5 text-[10px] text-slate-400">[• ACCREDITATIONS & LICENSES]</span>
                   <div className="flex items-center gap-1.5">
-                    <Award className="w-4 h-4 text-[#2F8C82]" />
-                    <h4 className="text-sm font-bold text-[#F4F5F7] tracking-tight">Certificates</h4>
+                    <Award className="w-4 h-4 text-blue-400" />
+                    <h4 className="text-sm font-bold text-white tracking-tight">Certificates</h4>
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={() => openModal('add_certificate')}
-                  className="p-1 text-[#2F8C82] hover:bg-white/[0.04] rounded-md transition-colors"
+                  className="p-1 text-blue-400 hover:bg-slate-800 rounded-md transition-colors"
                   title="Add Certificate"
                 >
                   <Plus className="w-4 h-4" />
@@ -998,20 +998,20 @@ export const CareerProfileDashboard: React.FC = () => {
               </div>
 
               {profile.certificates && profile.certificates.length > 0 ? (
-                <div className="divide-y divide-bridge-border/30">
+                <div className="divide-y divide-[#1e293b]">
                   {profile.certificates.map((cert: any) => (
                     <div key={cert.id} className="py-2 first:pt-0 last:pb-0 space-y-0.5 text-xs">
-                      <div className="font-semibold text-[#F4F5F7]">{cert.title}</div>
-                      <div className="text-[11px] font-mono text-[#8B90A0]">
+                      <div className="font-semibold text-white">{cert.title}</div>
+                      <div className="text-[11px] font-mono text-slate-400">
                         {cert.issuer} • {cert.date}
                       </div>
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="py-3 text-center text-xs text-[#8B90A0]">
+                <div className="py-3 text-center text-xs text-slate-400">
                   No certificates added yet.{' '}
-                  <button type="button" onClick={() => openModal('add_certificate')} className="text-[#2F8C82] font-semibold hover:underline">
+                  <button type="button" onClick={() => openModal('add_certificate')} className="text-blue-400 font-semibold hover:underline">
                     + Add
                   </button>
                 </div>
@@ -1019,19 +1019,19 @@ export const CareerProfileDashboard: React.FC = () => {
             </div>
 
             {/* Responsibilities */}
-            <div className="bg-bridge-panel rounded-xl border border-bridge-border p-5 space-y-3">
-              <div className="flex items-center justify-between pb-2 border-b border-bridge-border/60">
+            <div className="bg-[#0b1329] rounded-xl border border-[#1e293b] p-5 space-y-3">
+              <div className="flex items-center justify-between pb-2 border-b border-[#1e293b]">
                 <div>
-                  <span className="small-caps-label block mb-0.5 text-[10px]">[● RESPONSIBILITY]</span>
+                  <span className="small-caps-label block mb-0.5 text-[10px] text-slate-400">[• POSITIONS OF RESPONSIBILITY]</span>
                   <div className="flex items-center gap-1.5">
                     <User className="w-4 h-4 text-[#4CC38A]" />
-                    <h4 className="text-sm font-bold text-[#F4F5F7] tracking-tight">Responsibilities</h4>
+                    <h4 className="text-sm font-bold text-white tracking-tight">Responsibilities</h4>
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={() => openModal('add_responsibility')}
-                  className="p-1 text-[#4CC38A] hover:bg-white/[0.04] rounded-md transition-colors"
+                  className="p-1 text-[#4CC38A] hover:bg-slate-800 rounded-md transition-colors"
                   title="Add Responsibility"
                 >
                   <Plus className="w-4 h-4" />
@@ -1039,19 +1039,19 @@ export const CareerProfileDashboard: React.FC = () => {
               </div>
 
               {profile.responsibilities && profile.responsibilities.length > 0 ? (
-                <div className="divide-y divide-bridge-border/30">
+                <div className="divide-y divide-[#1e293b]">
                   {profile.responsibilities.map((resp: any) => (
                     <div key={resp.id} className="py-2 first:pt-0 last:pb-0 space-y-0.5 text-xs">
-                      <div className="font-semibold text-[#F4F5F7]">{resp.title}</div>
-                      <div className="text-[11px] font-mono text-[#8B90A0]">{resp.org}</div>
+                      <div className="font-semibold text-white">{resp.title}</div>
+                      <div className="text-[11px] font-mono text-slate-400">{resp.org}</div>
                       {resp.description && (
-                        <p className="text-[#8B90A0] text-[11px] mt-0.5">{resp.description}</p>
+                        <p className="text-slate-400 text-[11px] mt-0.5">{resp.description}</p>
                       )}
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="py-3 text-center text-xs text-[#8B90A0]">
+                <div className="py-3 text-center text-xs text-slate-400">
                   No positions added yet.{' '}
                   <button type="button" onClick={() => openModal('add_responsibility')} className="text-[#4CC38A] font-semibold hover:underline">
                     + Add
@@ -1061,19 +1061,19 @@ export const CareerProfileDashboard: React.FC = () => {
             </div>
 
             {/* Achievements */}
-            <div className="bg-bridge-panel rounded-xl border border-bridge-border p-5 space-y-3">
-              <div className="flex items-center justify-between pb-2 border-b border-bridge-border/60">
+            <div className="bg-[#0b1329] rounded-xl border border-[#1e293b] p-5 space-y-3">
+              <div className="flex items-center justify-between pb-2 border-b border-[#1e293b]">
                 <div>
-                  <span className="small-caps-label block mb-0.5 text-[10px]">[● HONORS & AWARDS]</span>
+                  <span className="small-caps-label block mb-0.5 text-[10px] text-slate-400">[• HONORS & AWARDS]</span>
                   <div className="flex items-center gap-1.5">
                     <Trophy className="w-4 h-4 text-signal-amber" />
-                    <h4 className="text-sm font-bold text-[#F4F5F7] tracking-tight">Achievements</h4>
+                    <h4 className="text-sm font-bold text-white tracking-tight">Achievements</h4>
                   </div>
                 </div>
                 <button
                   type="button"
                   onClick={() => openModal('add_achievement')}
-                  className="p-1 text-signal-amber hover:bg-white/[0.04] rounded-md transition-colors"
+                  className="p-1 text-signal-amber hover:bg-slate-800 rounded-md transition-colors"
                   title="Add Achievement"
                 >
                   <Plus className="w-4 h-4" />
@@ -1081,19 +1081,19 @@ export const CareerProfileDashboard: React.FC = () => {
               </div>
 
               {profile.achievements && profile.achievements.length > 0 ? (
-                <div className="divide-y divide-bridge-border/30">
+                <div className="divide-y divide-[#1e293b]">
                   {profile.achievements.map((ach: any) => (
                     <div key={ach.id} className="py-2 first:pt-0 last:pb-0 space-y-0.5 text-xs">
-                      <div className="font-semibold text-[#F4F5F7]">{ach.title}</div>
-                      <div className="text-[11px] font-mono text-[#8B90A0]">{ach.org} • {ach.date}</div>
+                      <div className="font-semibold text-white">{ach.title}</div>
+                      <div className="text-[11px] font-mono text-slate-400">{ach.org} • {ach.date}</div>
                       {ach.description && (
-                        <p className="text-[#8B90A0] text-[11px] mt-0.5">{ach.description}</p>
+                        <p className="text-slate-400 text-[11px] mt-0.5">{ach.description}</p>
                       )}
                     </div>
                   ))}
                 </div>
               ) : (
-                <div className="py-3 text-center text-xs text-[#8B90A0]">
+                <div className="py-3 text-center text-xs text-slate-400">
                   No honors added yet.{' '}
                   <button type="button" onClick={() => openModal('add_achievement')} className="text-signal-amber font-semibold hover:underline">
                     + Add
@@ -1104,18 +1104,18 @@ export const CareerProfileDashboard: React.FC = () => {
           </div>
 
           {/* 7. SOCIAL & PROFESSIONAL PROFILES */}
-          <div className="bg-bridge-panel rounded-xl border border-bridge-border p-5 space-y-3">
-            <div className="flex items-center justify-between pb-2 border-b border-bridge-border/60">
+          <div className="bg-[#0b1329] rounded-xl border border-[#1e293b] p-5 space-y-3">
+            <div className="flex items-center justify-between pb-2 border-b border-[#1e293b]">
               <div>
-                <span className="small-caps-label block mb-0.5 text-[10px]">[● CONNECTED PLATFORMS]</span>
-                <h3 className="text-base font-bold text-[#F4F5F7] tracking-tight">
+                <span className="small-caps-label block mb-0.5 text-[10px] text-slate-400">[• CONNECTED PLATFORMS]</span>
+                <h3 className="text-base font-bold text-white tracking-tight">
                   Social & Professional Profiles
                 </h3>
               </div>
               <button
                 type="button"
                 onClick={() => openModal('edit_socials', profile.socials)}
-                className="p-1 rounded-md text-[#8B90A0] hover:text-[#2F8C82] hover:bg-white/[0.04] transition-colors"
+                className="p-1 rounded-md text-slate-400 hover:text-blue-400 hover:bg-slate-800 transition-colors"
                 title="Edit Socials"
               >
                 <Edit3 className="w-3.5 h-3.5" />
@@ -1129,9 +1129,9 @@ export const CareerProfileDashboard: React.FC = () => {
                     href={profile.socials.linkedin}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.03] hover:bg-white/[0.06] border border-white/5 text-xs font-medium text-[#8B90A0] hover:text-[#F4F5F7] transition-all"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0f172a] hover:bg-slate-800 border border-[#1e293b] text-xs font-medium text-slate-300 hover:text-white transition-all"
                   >
-                    <Linkedin className="w-3.5 h-3.5 text-[#2F8C82]" />
+                    <Linkedin className="w-3.5 h-3.5 text-blue-400" />
                     <span>LinkedIn</span>
                   </a>
                 )}
@@ -1141,9 +1141,9 @@ export const CareerProfileDashboard: React.FC = () => {
                     href={profile.socials.github}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.03] hover:bg-white/[0.06] border border-white/5 text-xs font-medium text-[#8B90A0] hover:text-[#F4F5F7] transition-all"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0f172a] hover:bg-slate-800 border border-[#1e293b] text-xs font-medium text-slate-300 hover:text-white transition-all"
                   >
-                    <Github className="w-3.5 h-3.5 text-[#F4F5F7]" />
+                    <Github className="w-3.5 h-3.5 text-white" />
                     <span>GitHub</span>
                   </a>
                 )}
@@ -1153,9 +1153,9 @@ export const CareerProfileDashboard: React.FC = () => {
                     href={profile.socials.twitter}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.03] hover:bg-white/[0.06] border border-white/5 text-xs font-medium text-[#8B90A0] hover:text-[#F4F5F7] transition-all"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0f172a] hover:bg-slate-800 border border-[#1e293b] text-xs font-medium text-slate-300 hover:text-white transition-all"
                   >
-                    <Twitter className="w-3.5 h-3.5 text-[#2F8C82]" />
+                    <Twitter className="w-3.5 h-3.5 text-blue-400" />
                     <span>X (Twitter)</span>
                   </a>
                 )}
@@ -1165,7 +1165,7 @@ export const CareerProfileDashboard: React.FC = () => {
                     href={profile.socials.leetcode}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.03] hover:bg-white/[0.06] border border-white/5 text-xs font-medium text-[#8B90A0] hover:text-[#F4F5F7] transition-all"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0f172a] hover:bg-slate-800 border border-[#1e293b] text-xs font-medium text-slate-300 hover:text-white transition-all"
                   >
                     <Code className="w-3.5 h-3.5 text-signal-amber" />
                     <span>LeetCode</span>
@@ -1177,17 +1177,17 @@ export const CareerProfileDashboard: React.FC = () => {
                     href={profile.socials.website}
                     target="_blank"
                     rel="noreferrer"
-                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-white/[0.03] hover:bg-white/[0.06] border border-white/5 text-xs font-medium text-[#8B90A0] hover:text-[#F4F5F7] transition-all"
+                    className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#0f172a] hover:bg-slate-800 border border-[#1e293b] text-xs font-medium text-slate-300 hover:text-white transition-all"
                   >
-                    <Globe className="w-3.5 h-3.5 text-[#2F8C82]" />
+                    <Globe className="w-3.5 h-3.5 text-blue-400" />
                     <span>Portfolio</span>
                   </a>
                 )}
               </div>
             ) : (
-              <div className="py-3 text-center text-xs text-[#8B90A0]">
+              <div className="py-3 text-center text-xs text-slate-400">
                 Connect your LinkedIn, GitHub, or personal portfolio.{' '}
-                <button type="button" onClick={() => openModal('edit_socials', {})} className="text-[#2F8C82] font-semibold hover:underline">
+                <button type="button" onClick={() => openModal('edit_socials', {})} className="text-blue-400 font-semibold hover:underline">
                   + Add Links
                 </button>
               </div>
@@ -1200,29 +1200,29 @@ export const CareerProfileDashboard: React.FC = () => {
         ═════════════════════════════════════════════════════════════ */}
         <div className="lg:col-span-4 space-y-4 sm:space-y-5 lg:sticky lg:top-20">
           {/* 1. AI CAREER ASSISTANT CARD */}
-          <div className="bg-bridge-panel rounded-xl border border-bridge-border p-5 space-y-4">
+          <div className="bg-[#0b1329] rounded-xl border border-[#1e293b] p-5 space-y-4">
             <div>
               <div className="flex items-center justify-between">
-                <span className="small-caps-label text-[10px]">[● VECTOR CO-PILOT]</span>
-                <Sparkles className="w-4 h-4 text-[#2F8C82]" />
+                <span className="small-caps-label text-[10px] text-slate-400">[• VECTOR CO-PILOT]</span>
+                <Sparkles className="w-4 h-4 text-blue-400" />
               </div>
-              <h3 className="text-base font-bold text-[#F4F5F7] tracking-tight mt-1">
+              <h3 className="text-base font-bold text-white tracking-tight mt-1">
                 Build Targeted Resume
               </h3>
-              <p className="text-xs text-[#8B90A0] mt-0.5">
+              <p className="text-xs text-slate-400 mt-0.5">
                 Customize your credentials for specific job vectors
               </p>
             </div>
 
             <form onSubmit={handleStartResumeCreation} className="space-y-3.5 text-xs font-sans">
               <div>
-                <label className="block font-semibold text-[#8B90A0] mb-1 font-mono text-[10.5px] uppercase tracking-wider">
+                <label className="block font-semibold text-slate-400 mb-1 font-mono text-[10.5px] uppercase tracking-wider">
                   Target Domain
                 </label>
                 <select
                   value={resumeInterest}
                   onChange={(e) => setResumeInterest(e.target.value)}
-                  className="w-full bg-white/[0.03] border border-bridge-border/70 rounded-lg px-3 py-2 text-xs text-[#F4F5F7] focus:outline-none focus:border-[#2F8C82] font-medium"
+                  className="w-full bg-[#0f172a] border border-[#1e293b] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 font-medium"
                 >
                   <option value="Full-Stack Software Engineering">Full-Stack Software Engineering</option>
                   <option value="AI & Machine Learning Systems">AI & Machine Learning Systems</option>
@@ -1233,7 +1233,7 @@ export const CareerProfileDashboard: React.FC = () => {
               </div>
 
               <div>
-                <label className="block font-semibold text-[#8B90A0] mb-1 font-mono text-[10.5px] uppercase tracking-wider">
+                <label className="block font-semibold text-slate-400 mb-1 font-mono text-[10.5px] uppercase tracking-wider">
                   Preferred Work Location
                 </label>
                 <input
@@ -1241,14 +1241,14 @@ export const CareerProfileDashboard: React.FC = () => {
                   value={resumeLocation}
                   onChange={(e) => setResumeLocation(e.target.value)}
                   placeholder="e.g. Bengaluru, Remote, Delhi NCR"
-                  className="w-full bg-white/[0.03] border border-bridge-border/70 rounded-lg px-3 py-2 text-xs text-[#F4F5F7] focus:outline-none focus:border-[#2F8C82] font-mono"
+                  className="w-full bg-[#0f172a] border border-[#1e293b] rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500 font-mono"
                 />
               </div>
 
               <div className="pt-1">
                 <button
                   type="submit"
-                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-bridge-teal hover:bg-[#287970] text-[#08090C] font-mono font-bold text-xs transition-all cursor-pointer"
+                  className="w-full flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white font-mono font-bold text-xs shadow-md shadow-blue-500/20 transition-all cursor-pointer"
                 >
                   <span>Launch AI Resume Builder</span>
                   <ArrowRight className="w-3.5 h-3.5" />
@@ -1258,60 +1258,60 @@ export const CareerProfileDashboard: React.FC = () => {
           </div>
 
           {/* 2. GLOBAL COMPETENCY TELEMETRY */}
-          <div className="bg-bridge-panel rounded-xl border border-bridge-border p-5 space-y-4 font-sans">
-            <div className="flex items-center justify-between pb-2 border-b border-bridge-border/60">
-              <span className="small-caps-label text-[10px]">
-                [● GLOBAL COMPETENCY TELEMETRY]
+          <div className="bg-[#0b1329] rounded-xl border border-[#1e293b] p-5 space-y-4 font-sans">
+            <div className="flex items-center justify-between pb-2 border-b border-[#1e293b]">
+              <span className="small-caps-label text-[10px] text-slate-400">
+                [• GLOBAL COMPETENCY TELEMETRY]
               </span>
-              <span className="px-2 py-0.5 rounded-full text-[10.5px] font-mono font-bold bg-[#2F8C82]/15 text-[#2F8C82]">
+              <span className="px-2 py-0.5 rounded-full text-[10.5px] font-mono font-bold bg-blue-600/15 text-blue-400 border border-blue-500/30">
                 Level {profile.rankings?.level || 1}
               </span>
             </div>
 
             <div className="grid grid-cols-2 gap-2.5">
-              <div className="bg-white/[0.02] border border-white/[0.05] rounded-lg p-3">
-                <span className="small-caps-label truncate text-[10px] block mb-1">TOTAL POINTS</span>
-                <div className="font-mono text-xl font-semibold text-[#F4F5F7]">
+              <div className="bg-[#0f172a] border border-[#1e293b] rounded-lg p-3">
+                <span className="small-caps-label truncate text-[10px] block mb-1 text-slate-400">TOTAL POINTS</span>
+                <div className="font-mono text-xl font-semibold text-white">
                   {(profile.rankings?.totalPoints || 0).toLocaleString()}
                 </div>
-                <span className="text-[11px] text-[#8B90A0]">Verified score</span>
+                <span className="text-[11px] text-slate-400">Verified score</span>
               </div>
-              <div className="bg-white/[0.02] border border-white/[0.05] rounded-lg p-3">
-                <span className="small-caps-label truncate text-[10px] block mb-1">TOTAL BADGES</span>
-                <div className="font-mono text-xl font-semibold text-[#F4F5F7]">
+              <div className="bg-[#0f172a] border border-[#1e293b] rounded-lg p-3">
+                <span className="small-caps-label truncate text-[10px] block mb-1 text-slate-400">TOTAL BADGES</span>
+                <div className="font-mono text-xl font-semibold text-white">
                   {profile.rankings?.totalBadges || 0}
                 </div>
-                <span className="text-[11px] text-[#8B90A0]">Platform awards</span>
+                <span className="text-[11px] text-slate-400">Platform awards</span>
               </div>
             </div>
 
             {/* Level Progress Bar */}
             <div className="space-y-1.5">
-              <div className="flex justify-between text-[11px] font-mono text-[#8B90A0]">
+              <div className="flex justify-between text-[11px] font-mono text-slate-400">
                 <span>Progress to Level {(profile.rankings?.level || 1) + 1}</span>
-                <span className="font-bold text-[#2F8C82]">{profile.rankings?.progressToNextLevel || 0}%</span>
+                <span className="font-bold text-blue-400">{profile.rankings?.progressToNextLevel || 0}%</span>
               </div>
-              <div className="w-full h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
+              <div className="w-full h-1.5 bg-[#1e293b] rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-[#2F8C82] rounded-full transition-all duration-500"
+                  className="h-full bg-gradient-to-r from-blue-600 to-sky-500 rounded-full transition-all duration-500"
                   style={{ width: `${profile.rankings?.progressToNextLevel || 0}%` }}
                 />
               </div>
             </div>
 
             {/* Profile Completion Bar */}
-            <div className="pt-2 border-t border-bridge-border/60 space-y-2">
+            <div className="pt-2 border-t border-[#1e293b] space-y-2">
               <div className="flex items-center justify-between text-xs">
-                <span className="font-semibold text-[#8B90A0]">Profile Completeness</span>
+                <span className="font-semibold text-slate-400">Profile Completeness</span>
                 <span className="font-mono font-bold text-[#4CC38A]">{profileStrength}% Complete</span>
               </div>
-              <div className="w-full h-1.5 bg-white/[0.06] rounded-full overflow-hidden">
+              <div className="w-full h-1.5 bg-[#1e293b] rounded-full overflow-hidden">
                 <div
-                  className="h-full bg-gradient-to-r from-[#2F8C82] to-[#4CC38A] rounded-full transition-all duration-500"
+                  className="h-full bg-gradient-to-r from-blue-600 to-[#4CC38A] rounded-full transition-all duration-500"
                   style={{ width: `${profileStrength}%` }}
                 />
               </div>
-              <p className="text-[#8B90A0] text-[11px] leading-relaxed">
+              <p className="text-slate-400 text-[11px] leading-relaxed">
                 {profileStrength < 100
                   ? 'Complete your Bio, Skills assessment, and Experience sections to achieve a 100% verified All-Star ranking.'
                   : 'Your profile is fully verified and optimized for top industry recruiter matching.'}
@@ -1349,35 +1349,35 @@ export const CareerProfileDashboard: React.FC = () => {
       {/* Inline Resume Attachment Modal */}
       {isResumeModalOpen && (
         <div className="fixed inset-0 z-[100] bg-black/85 backdrop-blur-md flex items-center justify-center p-4">
-          <div className="bg-bridge-panel rounded-xl border border-bridge-border max-w-md w-full p-5 space-y-4">
-            <div className="flex items-center justify-between pb-2.5 border-b border-bridge-border/60">
+          <div className="bg-[#0b1329] rounded-xl border border-[#1e293b] max-w-md w-full p-5 space-y-4">
+            <div className="flex items-center justify-between pb-2.5 border-b border-[#1e293b]">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-[#2F8C82]/15 text-[#2F8C82] flex items-center justify-center">
+                <div className="w-8 h-8 rounded-lg bg-blue-600/15 text-blue-400 flex items-center justify-center border border-blue-500/30">
                   <FileText className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-[#F4F5F7] tracking-tight">Attach Resume Document</h3>
-                  <p className="text-[11px] text-[#8B90A0]">Specify the title for your verified profile resume</p>
+                  <h3 className="text-base font-bold text-white tracking-tight">Attach Resume Document</h3>
+                  <p className="text-[11px] text-slate-400">Specify the title for your verified profile resume</p>
                 </div>
               </div>
             </div>
 
             <div className="space-y-1.5">
-              <label className="text-xs font-semibold text-[#8B90A0] block">Document Title / Filename</label>
+              <label className="text-xs font-semibold text-slate-400 block">Document Title / Filename</label>
               <input
                 type="text"
                 value={resumeNameInput}
                 onChange={(e) => setResumeNameInput(e.target.value)}
                 placeholder="e.g. John-Doe-Resume.pdf"
-                className="w-full px-3 py-2 rounded-lg bg-white/[0.03] border border-bridge-border/70 text-[#F4F5F7] text-xs focus:outline-none focus:border-[#2F8C82] font-mono"
+                className="w-full px-3 py-2 rounded-lg bg-[#0f172a] border border-[#1e293b] text-white text-xs focus:outline-none focus:border-blue-500 font-mono"
               />
             </div>
 
-            <div className="flex items-center justify-end gap-2 pt-2 border-t border-bridge-border/60">
+            <div className="flex items-center justify-end gap-2 pt-2 border-t border-[#1e293b]">
               <button
                 type="button"
                 onClick={() => setIsResumeModalOpen(false)}
-                className="px-3.5 py-1.5 rounded-lg text-[#8B90A0] hover:text-[#F4F5F7] hover:bg-white/[0.04] text-xs font-medium transition-colors"
+                className="px-3.5 py-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 text-xs font-medium transition-colors"
               >
                 Cancel
               </button>
@@ -1389,7 +1389,7 @@ export const CareerProfileDashboard: React.FC = () => {
                     setIsResumeModalOpen(false);
                   }
                 }}
-                className="px-3.5 py-1.5 rounded-lg bg-bridge-teal hover:bg-[#287970] text-[#08090C] font-mono font-bold text-xs transition-all"
+                className="px-3.5 py-1.5 rounded-lg bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white font-mono font-bold text-xs transition-all shadow-md shadow-blue-500/20 cursor-pointer"
               >
                 Save & Attach
               </button>

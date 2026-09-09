@@ -149,17 +149,17 @@ export const TalentAssessmentsPage: React.FC = () => {
   return (
     <div className="space-y-6 max-w-7xl mx-auto px-4 py-6">
       {/* Top Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#2A2E38] pb-5">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-[#1e293b] pb-5">
         <div>
           <div className="flex items-center gap-2 mb-1">
-            <div className="w-8 h-8 rounded-xl bg-[#2F8C82]/15 border border-[#2F8C82]/40 flex items-center justify-center text-[#2F8C82]">
+            <div className="w-8 h-8 rounded-xl bg-blue-600/15 border border-blue-500/40 flex items-center justify-center text-blue-400">
               <CheckSquare className="w-4 h-4" />
             </div>
-            <h1 className="text-xl sm:text-2xl font-bold text-[#F4F5F7]">
+            <h1 className="text-xl sm:text-2xl font-bold text-white">
               {isIndustry ? 'Assessment Management' : 'Talent Assessments'}
             </h1>
           </div>
-          <p className="text-xs text-[#8B90A0]">
+          <p className="text-xs text-slate-400">
             {isIndustry
               ? 'Create, manage, and review candidate evaluations for your open opportunities.'
               : 'Take verified technical assessments to demonstrate role readiness and boost your match scores.'}
@@ -170,7 +170,7 @@ export const TalentAssessmentsPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setIsCreateModalOpen(true)}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold bg-[#2F8C82] text-white hover:bg-[#287970] transition-colors shadow-sm shrink-0"
+            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-semibold bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white transition-all shadow-md shadow-blue-500/20 shrink-0"
           >
             <Plus className="w-4 h-4" />
             <span>Create Assessment</span>
@@ -181,14 +181,14 @@ export const TalentAssessmentsPage: React.FC = () => {
       {/* Filter and Search Bar */}
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
         {/* Filter Tabs */}
-        <div className="flex items-center gap-1.5 p-1 bg-[#111318] border border-[#2A2E38] rounded-xl self-start sm:self-auto overflow-x-auto">
+        <div className="flex items-center gap-1.5 p-1 bg-[#0b1329] border border-[#1e293b] rounded-xl self-start sm:self-auto overflow-x-auto">
           <button
             type="button"
             onClick={() => setFilterTab('ALL')}
             className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
               filterTab === 'ALL'
-                ? 'bg-[#1A1D24] text-[#F4F5F7] border border-[#2A2E38]'
-                : 'text-[#8B90A0] hover:text-[#F4F5F7]'
+                ? 'bg-[#0f172a] text-white border border-[#1e293b]'
+                : 'text-slate-400 hover:text-white'
             }`}
           >
             All ({assessments.length})
@@ -201,8 +201,8 @@ export const TalentAssessmentsPage: React.FC = () => {
                 onClick={() => setFilterTab('PUBLISHED')}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                   filterTab === 'PUBLISHED'
-                    ? 'bg-[#1A1D24] text-[#4CC38A] border border-[#2A2E38]'
-                    : 'text-[#8B90A0] hover:text-[#F4F5F7]'
+                    ? 'bg-[#0f172a] text-emerald-400 border border-[#1e293b]'
+                    : 'text-slate-400 hover:text-white'
                 }`}
               >
                 Published
@@ -212,8 +212,8 @@ export const TalentAssessmentsPage: React.FC = () => {
                 onClick={() => setFilterTab('DRAFT')}
                 className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                   filterTab === 'DRAFT'
-                    ? 'bg-[#1A1D24] text-[#E8A23C] border border-[#2A2E38]'
-                    : 'text-[#8B90A0] hover:text-[#F4F5F7]'
+                    ? 'bg-[#0f172a] text-amber-400 border border-[#1e293b]'
+                    : 'text-slate-400 hover:text-white'
                 }`}
               >
                 Drafts
@@ -227,8 +227,8 @@ export const TalentAssessmentsPage: React.FC = () => {
               onClick={() => setFilterTab('COMPLETED')}
               className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-colors ${
                 filterTab === 'COMPLETED'
-                  ? 'bg-[#1A1D24] text-[#4CC38A] border border-[#2A2E38]'
-                  : 'text-[#8B90A0] hover:text-[#F4F5F7]'
+                  ? 'bg-[#0f172a] text-emerald-400 border border-[#1e293b]'
+                  : 'text-slate-400 hover:text-white'
               }`}
             >
               Completed
@@ -238,35 +238,35 @@ export const TalentAssessmentsPage: React.FC = () => {
 
         {/* Search Input */}
         <div className="relative w-full sm:w-72">
-          <Search className="w-3.5 h-3.5 text-[#8B90A0] absolute left-3 top-1/2 -translate-y-1/2" />
+          <Search className="w-3.5 h-3.5 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={searchQuery}
             onChange={e => setSearchQuery(e.target.value)}
             placeholder="Search assessments..."
-            className="w-full bg-[#111318] border border-[#2A2E38] rounded-xl pl-9 pr-3.5 py-1.5 text-xs text-[#F4F5F7] placeholder-[#8B90A0] focus:outline-none focus:border-[#2F8C82]"
+            className="w-full bg-[#0b1329] border border-[#1e293b] rounded-xl pl-9 pr-3.5 py-1.5 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
           />
         </div>
       </div>
 
       {/* Loading State */}
       {isLoading && (
-        <div className="flex flex-col items-center justify-center py-20 text-[#8B90A0]">
-          <Loader2 className="w-8 h-8 animate-spin text-[#2F8C82] mb-3" />
+        <div className="flex flex-col items-center justify-center py-20 text-slate-400">
+          <Loader2 className="w-8 h-8 animate-spin text-blue-400 mb-3" />
           <span className="text-xs">Loading talent assessments...</span>
         </div>
       )}
 
       {/* Error State */}
       {isError && (
-        <div className="bg-[#E5637C]/10 border border-[#E5637C]/30 rounded-2xl p-6 text-center text-[#E5637C] max-w-lg mx-auto">
+        <div className="bg-rose-500/10 border border-rose-500/30 rounded-2xl p-6 text-center text-rose-400 max-w-lg mx-auto">
           <AlertCircle className="w-8 h-8 mx-auto mb-2" />
           <h3 className="text-sm font-semibold mb-1">Failed to load assessments</h3>
           <p className="text-xs mb-4">{(error as any)?.message || 'An unexpected error occurred.'}</p>
           <button
             type="button"
             onClick={() => refetch()}
-            className="px-4 py-2 rounded-xl text-xs font-semibold bg-[#E5637C] text-white hover:bg-[#c94962] transition-colors"
+            className="px-4 py-2 rounded-xl text-xs font-semibold bg-rose-600 text-white hover:bg-rose-500 transition-colors"
           >
             Try Again
           </button>
@@ -275,12 +275,12 @@ export const TalentAssessmentsPage: React.FC = () => {
 
       {/* Empty State */}
       {!isLoading && !isError && filteredAssessments.length === 0 && (
-        <div className="bg-[#111318] border border-[#2A2E38] rounded-3xl p-12 text-center max-w-lg mx-auto">
-          <div className="w-12 h-12 rounded-2xl bg-[#1A1D24] border border-[#2A2E38] flex items-center justify-center mx-auto mb-4 text-[#8B90A0]">
-            <CheckSquare className="w-6 h-6 text-[#2F8C82]" />
+        <div className="bg-[#0b1329] border border-[#1e293b] rounded-3xl p-12 text-center max-w-lg mx-auto">
+          <div className="w-12 h-12 rounded-2xl bg-[#0f172a] border border-[#1e293b] flex items-center justify-center mx-auto mb-4 text-slate-400">
+            <CheckSquare className="w-6 h-6 text-blue-400" />
           </div>
-          <h3 className="text-base font-semibold text-[#F4F5F7] mb-1.5">No Assessments Found</h3>
-          <p className="text-xs text-[#8B90A0] max-w-sm mx-auto mb-6 leading-relaxed">
+          <h3 className="text-base font-semibold text-white mb-1.5">No Assessments Found</h3>
+          <p className="text-xs text-slate-400 max-w-sm mx-auto mb-6 leading-relaxed">
             {isIndustry
               ? 'You have not created any assessments yet. Create one to test candidates for your open opportunities.'
               : 'There are currently no assessments available matching your filter criteria.'}
@@ -289,7 +289,7 @@ export const TalentAssessmentsPage: React.FC = () => {
             <button
               type="button"
               onClick={() => setIsCreateModalOpen(true)}
-              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-[#2F8C82] text-white hover:bg-[#287970] transition-colors"
+              className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white transition-all shadow-md shadow-blue-500/20"
             >
               <Plus className="w-3.5 h-3.5" />
               <span>Create Your First Assessment</span>
@@ -321,36 +321,36 @@ export const TalentAssessmentsPage: React.FC = () => {
           aria-labelledby="create-modal-title"
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs animate-in fade-in"
         >
-          <div className="bg-[#111318] border border-[#2A2E38] rounded-3xl w-full max-w-lg p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
+          <div className="bg-[#0b1329] border border-[#1e293b] rounded-3xl w-full max-w-lg p-6 shadow-2xl relative max-h-[90vh] overflow-y-auto">
             <button
               type="button"
               onClick={() => setIsCreateModalOpen(false)}
-              className="absolute top-5 right-5 text-[#8B90A0] hover:text-[#F4F5F7] p-1 rounded-lg hover:bg-[#1A1D24] transition-colors"
+              className="absolute top-5 right-5 text-slate-400 hover:text-white p-1 rounded-lg hover:bg-[#0f172a] transition-colors"
             >
               <X className="w-4 h-4" />
             </button>
 
             <div className="flex items-center gap-2.5 mb-5">
-              <div className="w-8 h-8 rounded-xl bg-[#2F8C82]/15 border border-[#2F8C82]/40 flex items-center justify-center text-[#2F8C82]">
+              <div className="w-8 h-8 rounded-xl bg-blue-600/15 border border-blue-500/40 flex items-center justify-center text-blue-400">
                 <Plus className="w-4 h-4" />
               </div>
               <div>
-                <h3 id="create-modal-title" className="text-base font-semibold text-[#F4F5F7]">
+                <h3 id="create-modal-title" className="text-base font-semibold text-white">
                   Create Opportunity Assessment
                 </h3>
-                <span className="text-xs text-[#8B90A0]">Configure evaluation parameters</span>
+                <span className="text-xs text-slate-400">Configure evaluation parameters</span>
               </div>
             </div>
 
             {formError && (
-              <div className="p-3 bg-[#E5637C]/10 border border-[#E5637C]/30 rounded-xl text-xs text-[#E5637C] mb-4">
+              <div className="p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl text-xs text-rose-400 mb-4">
                 {formError}
               </div>
             )}
 
             <form onSubmit={handleCreateSubmit} className="space-y-4">
               <div>
-                <label className="block text-xs font-medium text-[#8B90A0] mb-1">
+                <label className="block text-xs font-medium text-slate-400 mb-1">
                   Assessment Title *
                 </label>
                 <input
@@ -359,12 +359,12 @@ export const TalentAssessmentsPage: React.FC = () => {
                   value={newTitle}
                   onChange={e => setNewTitle(e.target.value)}
                   placeholder="e.g. Backend Node.js & Systems Evaluation"
-                  className="w-full bg-[#1A1D24] border border-[#2A2E38] rounded-xl px-3 py-2 text-xs text-[#F4F5F7] placeholder-[#8B90A0]/50 focus:outline-none focus:border-[#2F8C82]"
+                  className="w-full bg-[#0f172a] border border-[#1e293b] rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-[#8B90A0] mb-1">
+                <label className="block text-xs font-medium text-slate-400 mb-1">
                   Description *
                 </label>
                 <textarea
@@ -373,13 +373,13 @@ export const TalentAssessmentsPage: React.FC = () => {
                   value={newDescription}
                   onChange={e => setNewDescription(e.target.value)}
                   placeholder="Briefly describe the purpose, domain, and focus of this test..."
-                  className="w-full bg-[#1A1D24] border border-[#2A2E38] rounded-xl px-3 py-2 text-xs text-[#F4F5F7] placeholder-[#8B90A0]/50 focus:outline-none focus:border-[#2F8C82] resize-none"
+                  className="w-full bg-[#0f172a] border border-[#1e293b] rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500 resize-none"
                 />
               </div>
 
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-xs font-medium text-[#8B90A0] mb-1">
+                  <label className="block text-xs font-medium text-slate-400 mb-1">
                     Duration (Minutes)
                   </label>
                   <input
@@ -388,11 +388,11 @@ export const TalentAssessmentsPage: React.FC = () => {
                     max={180}
                     value={newDuration}
                     onChange={e => setNewDuration(Number(e.target.value))}
-                    className="w-full bg-[#1A1D24] border border-[#2A2E38] rounded-xl px-3 py-2 text-xs text-[#F4F5F7] focus:outline-none focus:border-[#2F8C82]"
+                    className="w-full bg-[#0f172a] border border-[#1e293b] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-[#8B90A0] mb-1">
+                  <label className="block text-xs font-medium text-slate-400 mb-1">
                     Passing Score (%)
                   </label>
                   <input
@@ -401,19 +401,19 @@ export const TalentAssessmentsPage: React.FC = () => {
                     max={100}
                     value={newPassingScore}
                     onChange={e => setNewPassingScore(Number(e.target.value))}
-                    className="w-full bg-[#1A1D24] border border-[#2A2E38] rounded-xl px-3 py-2 text-xs text-[#F4F5F7] focus:outline-none focus:border-[#2F8C82]"
+                    className="w-full bg-[#0f172a] border border-[#1e293b] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-[#8B90A0] mb-1">
+                <label className="block text-xs font-medium text-slate-400 mb-1">
                   Associate with Opportunity (Optional)
                 </label>
                 <select
                   value={newOpportunityId}
                   onChange={e => setNewOpportunityId(e.target.value)}
-                  className="w-full bg-[#1A1D24] border border-[#2A2E38] rounded-xl px-3 py-2 text-xs text-[#F4F5F7] focus:outline-none focus:border-[#2F8C82]"
+                  className="w-full bg-[#0f172a] border border-[#1e293b] rounded-xl px-3 py-2 text-xs text-white focus:outline-none focus:border-blue-500"
                 >
                   <option value="">None (Standalone Assessment)</option>
                   {opportunitiesData?.opportunities?.map(opp => (
@@ -425,7 +425,7 @@ export const TalentAssessmentsPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-[#8B90A0] mb-1">
+                <label className="block text-xs font-medium text-slate-400 mb-1">
                   Target Skills (Comma separated)
                 </label>
                 <input
@@ -433,23 +433,23 @@ export const TalentAssessmentsPage: React.FC = () => {
                   value={newSkills}
                   onChange={e => setNewSkills(e.target.value)}
                   placeholder="e.g. Node.js, PostgreSQL, REST APIs"
-                  className="w-full bg-[#1A1D24] border border-[#2A2E38] rounded-xl px-3 py-2 text-xs text-[#F4F5F7] placeholder-[#8B90A0]/50 focus:outline-none focus:border-[#2F8C82]"
+                  className="w-full bg-[#0f172a] border border-[#1e293b] rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none focus:border-blue-500"
                 />
               </div>
 
-              <div className="pt-3 border-t border-[#2A2E38] flex items-center justify-end gap-2.5">
+              <div className="pt-3 border-t border-[#1e293b] flex items-center justify-end gap-2.5">
                 <button
                   type="button"
                   onClick={() => setIsCreateModalOpen(false)}
                   disabled={createMutation.isPending}
-                  className="px-4 py-2 rounded-xl text-xs font-medium bg-[#1A1D24] text-[#F4F5F7] border border-[#2A2E38] hover:border-[#8B90A0]/40"
+                  className="px-4 py-2 rounded-xl text-xs font-medium bg-[#0f172a] text-white border border-[#1e293b] hover:border-slate-600"
                 >
                   Cancel
                 </button>
                 <button
                   type="submit"
                   disabled={createMutation.isPending}
-                  className="flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-semibold bg-[#2F8C82] text-white hover:bg-[#287970] transition-colors disabled:opacity-50"
+                  className="flex items-center gap-2 px-5 py-2 rounded-xl text-xs font-semibold bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white transition-all shadow-md shadow-blue-500/20 disabled:opacity-50"
                 >
                   {createMutation.isPending && <Loader2 className="w-3.5 h-3.5 animate-spin" />}
                   <span>Create Assessment</span>

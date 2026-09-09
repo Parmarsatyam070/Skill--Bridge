@@ -60,16 +60,16 @@ export const AssessmentTimer: React.FC<AssessmentTimerProps> = ({
       aria-label={`Time remaining: ${formatTime()}`}
       className={`inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl font-mono text-sm font-semibold border transition-all ${
         isCriticalTime
-          ? 'bg-[#E5637C]/15 text-[#E5637C] border-[#E5637C]/50 animate-pulse'
+          ? 'bg-rose-500/15 text-rose-400 border-rose-500/50 animate-pulse'
           : isLowTime
-          ? 'bg-[#E8A23C]/15 text-[#E8A23C] border-[#E8A23C]/40'
-          : 'bg-[#1A1D24] text-[#2F8C82] border-[#2A2E38]'
+          ? 'bg-amber-500/15 text-amber-400 border-amber-500/40'
+          : 'bg-[#0f172a] text-blue-400 border-[#1e293b]'
       } ${className}`}
     >
       {isCriticalTime ? (
-        <AlertTriangle className="w-4 h-4 text-[#E5637C]" />
+        <AlertTriangle className="w-4 h-4 text-rose-400" />
       ) : (
-        <Clock className={`w-4 h-4 ${isLowTime ? 'text-[#E8A23C]' : 'text-[#2F8C82]'}`} />
+        <Clock className={`w-4 h-4 ${isLowTime ? 'text-amber-400' : 'text-blue-400'}`} />
       )}
       <span>{formatTime()}</span>
     </div>

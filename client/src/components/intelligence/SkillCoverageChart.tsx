@@ -8,7 +8,7 @@ interface SkillCoverageChartProps {
 export const SkillCoverageChart: React.FC<SkillCoverageChartProps> = ({ items }) => {
   if (!items || items.length === 0) {
     return (
-      <div className="p-8 text-center text-sm" style={{ color: '#8B90A0' }}>
+      <div className="p-8 text-center text-sm text-slate-400">
         No candidate supply metrics available.
       </div>
     );
@@ -18,9 +18,9 @@ export const SkillCoverageChart: React.FC<SkillCoverageChartProps> = ({ items })
     <div className="space-y-4">
       {items.slice(0, 8).map(item => {
         const gapColor = {
-          HEALTHY: '#4CC38A',
-          SUPPLY_DEFICIT: '#E8A23C',
-          HIGH_DEMAND_LOW_SUPPLY: '#E5637C',
+          HEALTHY: '#10b981',
+          SUPPLY_DEFICIT: '#f59e0b',
+          HIGH_DEMAND_LOW_SUPPLY: '#f43f5e',
         }[item.gapType];
 
         const gapLabel = {
@@ -32,18 +32,14 @@ export const SkillCoverageChart: React.FC<SkillCoverageChartProps> = ({ items })
         return (
           <div
             key={item.skillId}
-            className="p-3.5 rounded-lg border space-y-2"
-            style={{
-              background: '#111318',
-              borderColor: '#2A2E38',
-            }}
+            className="p-3.5 rounded-lg border border-[#1e293b] bg-[#0b1329] space-y-2 shadow-sm"
           >
             <div className="flex items-center justify-between text-xs">
               <div>
-                <span className="font-semibold text-sm" style={{ color: '#F4F5F7' }}>
+                <span className="font-semibold text-sm text-white">
                   {item.skillName}
                 </span>
-                <span className="ml-2 text-xs" style={{ color: '#8B90A0' }}>
+                <span className="ml-2 text-xs text-slate-400">
                   Demand: {item.demandCount} roles
                 </span>
               </div>
@@ -61,7 +57,7 @@ export const SkillCoverageChart: React.FC<SkillCoverageChartProps> = ({ items })
             </div>
 
             <div className="flex items-center justify-between text-xs font-mono">
-              <span style={{ color: '#8B90A0' }}>
+              <span className="text-slate-400">
                 Available Verified Candidates: {item.candidateSupplyCount}
               </span>
               <span className="font-bold" style={{ color: gapColor }}>
@@ -70,8 +66,7 @@ export const SkillCoverageChart: React.FC<SkillCoverageChartProps> = ({ items })
             </div>
 
             <div
-              className="h-2 rounded-full overflow-hidden"
-              style={{ background: 'rgba(255, 255, 255, 0.05)' }}
+              className="h-2 rounded-full overflow-hidden bg-[#0f172a] border border-[#1e293b]"
             >
               <div
                 className="h-full rounded-full transition-all duration-500"

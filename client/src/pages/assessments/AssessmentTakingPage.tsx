@@ -104,8 +104,8 @@ export const AssessmentTakingPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="flex flex-col items-center justify-center min-h-[70vh] text-[#8B90A0]">
-        <Loader2 className="w-10 h-10 animate-spin text-[#2F8C82] mb-4" />
+      <div className="flex flex-col items-center justify-center min-h-[70vh] text-slate-400">
+        <Loader2 className="w-10 h-10 animate-spin text-blue-400 mb-4" />
         <span className="text-sm font-medium">Calibrating assessment environment...</span>
       </div>
     );
@@ -114,13 +114,13 @@ export const AssessmentTakingPage: React.FC = () => {
   if (startError || !session) {
     return (
       <div className="max-w-md mx-auto py-20 text-center px-4">
-        <div className="p-6 bg-[#E5637C]/10 border border-[#E5637C]/30 rounded-2xl text-[#E5637C]">
+        <div className="p-6 bg-rose-500/10 border border-rose-500/30 rounded-2xl text-rose-400">
           <AlertCircle className="w-8 h-8 mx-auto mb-3" />
           <h3 className="text-sm font-semibold mb-1">Cannot Start Assessment</h3>
           <p className="text-xs mb-5">{startError || 'Assessment session is unavailable.'}</p>
           <Link
             to={`/assessments/${id}`}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-[#1A1D24] text-[#F4F5F7] border border-[#2A2E38]"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-semibold bg-[#0f172a] text-white border border-[#1e293b]"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
             <span>Return to Assessment Details</span>
@@ -146,10 +146,10 @@ export const AssessmentTakingPage: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6 space-y-6">
       {/* Sticky Test Header Bar */}
-      <div className="bg-[#111318] border border-[#2A2E38] rounded-2xl p-4 flex items-center justify-between gap-4 sticky top-2 z-30 shadow-md">
+      <div className="bg-[#0b1329] border border-[#1e293b] rounded-2xl p-4 flex items-center justify-between gap-4 sticky top-2 z-30 shadow-md">
         <div className="flex items-center gap-3 truncate">
-          <div className="w-2.5 h-2.5 rounded-full bg-[#4CC38A] animate-ping shrink-0" />
-          <h1 className="text-sm sm:text-base font-semibold text-[#F4F5F7] truncate">{session.title}</h1>
+          <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping shrink-0" />
+          <h1 className="text-sm sm:text-base font-semibold text-white truncate">{session.title}</h1>
         </div>
 
         <div className="flex items-center gap-3 shrink-0">
@@ -161,7 +161,7 @@ export const AssessmentTakingPage: React.FC = () => {
           <button
             type="button"
             onClick={() => setIsSubmitDialogOpen(true)}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-[#2F8C82] text-white hover:bg-[#287970] transition-colors shadow-sm"
+            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white transition-all shadow-md shadow-blue-500/20"
           >
             <Send className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Finish & Submit</span>
@@ -190,7 +190,7 @@ export const AssessmentTakingPage: React.FC = () => {
               type="button"
               disabled={currentIndex === 0}
               onClick={() => setCurrentIndex(prev => Math.max(0, prev - 1))}
-              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-medium bg-[#1A1D24] text-[#F4F5F7] border border-[#2A2E38] hover:border-[#8B90A0]/40 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-medium bg-[#0f172a] text-white border border-[#1e293b] hover:border-slate-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
             >
               <ChevronLeft className="w-4 h-4" />
               <span>Previous Question</span>
@@ -200,7 +200,7 @@ export const AssessmentTakingPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setCurrentIndex(prev => Math.min(questions.length - 1, prev + 1))}
-                className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-xs font-semibold bg-[#2F8C82] text-white hover:bg-[#287970] transition-colors shadow-sm"
+                className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-xs font-semibold bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white transition-all shadow-md shadow-blue-500/20"
               >
                 <span>Next Question</span>
                 <ChevronRight className="w-4 h-4" />
@@ -209,9 +209,9 @@ export const AssessmentTakingPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setIsSubmitDialogOpen(true)}
-                className="flex items-center gap-1.5 px-6 py-2.5 rounded-xl text-xs font-semibold bg-[#4CC38A] text-black hover:bg-[#3fb079] transition-colors shadow-sm"
+                className="flex items-center gap-1.5 px-6 py-2.5 rounded-xl text-xs font-semibold bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold transition-colors shadow-sm"
               >
-                <CheckCircle2 className="w-4 h-4 fill-black" />
+                <CheckCircle2 className="w-4 h-4 fill-slate-950 text-emerald-400" />
                 <span>Review & Submit</span>
               </button>
             )}

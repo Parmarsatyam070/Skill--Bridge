@@ -120,13 +120,13 @@ export const OAuthCallbackPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-[#0E1017] flex flex-col items-center justify-center p-4 text-center">
-        <div className="bg-[#131620] p-8 rounded-2xl border border-[#2E3548] max-w-md w-full space-y-4 shadow-2xl">
-          <div className="w-12 h-12 rounded-full bg-[#2F8C82]/15 border border-[#2F8C82]/30 text-[#2F8C82] flex items-center justify-center mx-auto animate-pulse">
+      <div className="min-h-screen bg-[#030712] flex flex-col items-center justify-center p-4 text-center">
+        <div className="bg-[#0b1329] p-8 rounded-2xl border border-[#1e293b] max-w-md w-full space-y-4 shadow-2xl">
+          <div className="w-12 h-12 rounded-full bg-blue-600/15 border border-blue-500/30 text-blue-400 flex items-center justify-center mx-auto animate-pulse">
             <Loader2 className="w-6 h-6 animate-spin" />
           </div>
           <h2 className="font-serif text-xl font-bold text-white">Verifying OAuth Credentials</h2>
-          <p className="text-xs text-[#9BA3B8] leading-relaxed">
+          <p className="text-xs text-slate-400 leading-relaxed">
             Cryptographically validating identity tokens and establishing your secure session...
           </p>
         </div>
@@ -136,16 +136,16 @@ export const OAuthCallbackPage: React.FC = () => {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-[#0E1017] flex flex-col items-center justify-center p-4 text-center">
-        <div className="bg-[#131620] p-8 rounded-2xl border border-[#E5637C]/40 max-w-md w-full space-y-4 shadow-2xl">
-          <div className="w-12 h-12 rounded-full bg-[#E5637C]/15 border border-[#E5637C]/30 text-[#E5637C] flex items-center justify-center mx-auto">
+      <div className="min-h-screen bg-[#030712] flex flex-col items-center justify-center p-4 text-center">
+        <div className="bg-[#0b1329] p-8 rounded-2xl border border-rose-500/40 max-w-md w-full space-y-4 shadow-2xl">
+          <div className="w-12 h-12 rounded-full bg-rose-500/15 border border-rose-500/30 text-rose-400 flex items-center justify-center mx-auto">
             <AlertCircle className="w-6 h-6" />
           </div>
           <h2 className="font-serif text-xl font-bold text-white">Authentication Failed</h2>
-          <p className="text-xs text-[#FFB3C0] leading-relaxed">{error}</p>
+          <p className="text-xs text-rose-300 leading-relaxed">{error}</p>
           <button
             onClick={() => navigate('/login', { replace: true })}
-            className="w-full py-2.5 px-4 rounded-xl bg-[#2F8C82] hover:bg-[#26776F] active:bg-[#1E6059] text-white font-semibold text-xs transition-colors shadow-md"
+            className="w-full py-2.5 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white font-semibold text-xs transition-colors shadow-md shadow-blue-500/20"
           >
             Return to Login
           </button>
@@ -157,13 +157,13 @@ export const OAuthCallbackPage: React.FC = () => {
   // If existing user was successfully processed
   if (callbackResult && !callbackResult.isNewUser && callbackResult.user) {
     return (
-      <div className="min-h-screen bg-[#0E1017] flex flex-col items-center justify-center p-4 text-center">
-        <div className="bg-[#131620] p-8 rounded-2xl border border-[#2F8C82]/40 max-w-md w-full space-y-4 shadow-2xl">
-          <div className="w-12 h-12 rounded-full bg-[#2F8C82]/15 border border-[#2F8C82]/30 text-[#2F8C82] flex items-center justify-center mx-auto">
+      <div className="min-h-screen bg-[#030712] flex flex-col items-center justify-center p-4 text-center">
+        <div className="bg-[#0b1329] p-8 rounded-2xl border border-blue-500/40 max-w-md w-full space-y-4 shadow-2xl">
+          <div className="w-12 h-12 rounded-full bg-blue-600/15 border border-blue-500/30 text-blue-400 flex items-center justify-center mx-auto">
             <CheckCircle className="w-6 h-6" />
           </div>
           <h2 className="font-serif text-xl font-bold text-white">Welcome Back!</h2>
-          <p className="text-xs text-[#9BA3B8] leading-relaxed">
+          <p className="text-xs text-slate-400 leading-relaxed">
             Signed in as <span className="font-semibold text-white">{callbackResult.user.name}</span>. Redirecting to your console...
           </p>
         </div>
@@ -173,27 +173,27 @@ export const OAuthCallbackPage: React.FC = () => {
 
   // New User Onboarding Step
   return (
-    <div className="min-h-screen bg-[#0E1017] flex items-center justify-center p-4">
-      <div className="bg-[#131620] rounded-2xl border border-[#2E3548] max-w-xl w-full p-6 sm:p-8 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9)] space-y-6 text-[#EDEFF3]">
-        <div className="flex items-center gap-3 pb-4 border-b border-[#262B3A]">
-          <div className="w-10 h-10 rounded-xl bg-[#2F8C82]/15 border border-[#2F8C82]/30 text-[#2F8C82] flex items-center justify-center">
+    <div className="min-h-screen bg-[#030712] flex items-center justify-center p-4">
+      <div className="bg-[#0b1329] rounded-2xl border border-[#1e293b] max-w-xl w-full p-6 sm:p-8 shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9)] space-y-6 text-slate-200">
+        <div className="flex items-center gap-3 pb-4 border-b border-[#1e293b]">
+          <div className="w-10 h-10 rounded-xl bg-blue-600/15 border border-blue-500/30 text-blue-400 flex items-center justify-center">
             <ShieldCheck className="w-5 h-5" />
           </div>
           <div>
-            <span className="text-[10px] font-mono uppercase tracking-widest text-[#2F8C82] font-bold">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-blue-400 font-bold">
               Verified Identity Setup
             </span>
             <h2 className="font-serif text-xl font-bold text-white">Welcome to SkillBridge</h2>
           </div>
         </div>
 
-        <div className="p-3.5 rounded-xl bg-[#1A1E2B] border border-[#2A3144] text-xs text-[#9BA3B8] flex items-center gap-3">
-          <div className="w-8 h-8 rounded-full bg-[#2F8C82]/20 text-[#2F8C82] flex items-center justify-center font-bold font-mono text-sm">
+        <div className="p-3.5 rounded-xl bg-[#0f172a] border border-[#1e293b] text-xs text-slate-400 flex items-center gap-3">
+          <div className="w-8 h-8 rounded-full bg-blue-600/20 text-blue-400 flex items-center justify-center font-bold font-mono text-sm border border-blue-500/30">
             {callbackResult?.profile?.name ? callbackResult.profile.name[0].toUpperCase() : 'U'}
           </div>
           <div>
             <div className="font-semibold text-white text-xs">{callbackResult?.profile?.name}</div>
-            <div className="text-[11px] font-mono text-[#9BA3B8]">{callbackResult?.profile?.email}</div>
+            <div className="text-[11px] font-mono text-slate-400">{callbackResult?.profile?.email}</div>
           </div>
         </div>
 
@@ -211,13 +211,13 @@ export const OAuthCallbackPage: React.FC = () => {
                     onClick={() => setSelectedRole(r.id)}
                     className={`flex flex-col items-start p-3 rounded-xl border text-left transition-all ${
                       isSelected
-                        ? 'bg-[#2F8C82]/15 border-[#2F8C82] text-white shadow-sm'
-                        : 'bg-[#1A1E2B] border-[#2A3144] hover:border-[#3B435C] text-[#9BA3B8]'
+                        ? 'bg-blue-600/15 border-blue-500 text-white shadow-sm ring-1 ring-blue-500'
+                        : 'bg-[#0f172a] border-[#1e293b] hover:border-slate-700 text-slate-400'
                     }`}
                   >
-                    <Icon className={`w-4 h-4 mb-2 ${isSelected ? 'text-[#2F8C82]' : 'text-[#9BA3B8]'}`} />
+                    <Icon className={`w-4 h-4 mb-2 ${isSelected ? 'text-blue-400' : 'text-slate-400'}`} />
                     <span className="font-semibold text-xs text-white">{r.title}</span>
-                    <span className="text-[10px] text-[#9BA3B8] mt-0.5 line-clamp-1">{r.desc}</span>
+                    <span className="text-[10px] text-slate-400 mt-0.5 line-clamp-1">{r.desc}</span>
                   </button>
                 );
               })}
@@ -226,7 +226,7 @@ export const OAuthCallbackPage: React.FC = () => {
 
           {/* Role-specific fields */}
           {selectedRole === 'STUDENT' && (
-            <div className="space-y-3 p-4 rounded-xl bg-[#1A1E2B] border border-[#2A3144]">
+            <div className="space-y-3 p-4 rounded-xl bg-[#0f172a] border border-[#1e293b]">
               <div>
                 <label className="text-[11px] font-semibold text-white block mb-1">College / University Name</label>
                 <input
@@ -235,7 +235,7 @@ export const OAuthCallbackPage: React.FC = () => {
                   placeholder="e.g. Indian Institute of Technology, Delhi"
                   value={roleData.institution}
                   onChange={e => setRoleData({ ...roleData, institution: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#131620] border border-[#2E3548] text-white placeholder-[#5B6275] text-xs focus:outline-none focus:border-[#2F8C82] focus:ring-1 focus:ring-[#2F8C82]"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#0b1329] border border-[#1e293b] text-white placeholder-slate-500 text-xs focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 />
               </div>
               <div>
@@ -243,7 +243,7 @@ export const OAuthCallbackPage: React.FC = () => {
                 <select
                   value={roleData.targetDomain}
                   onChange={e => setRoleData({ ...roleData, targetDomain: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#131620] border border-[#2E3548] text-white text-xs focus:outline-none focus:border-[#2F8C82] focus:ring-1 focus:ring-[#2F8C82]"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#0b1329] border border-[#1e293b] text-white text-xs focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 >
                   <option value="Full-Stack Web">Full-Stack Web</option>
                   <option value="AI/Data Science">AI/Data Science</option>
@@ -256,7 +256,7 @@ export const OAuthCallbackPage: React.FC = () => {
           )}
 
           {selectedRole === 'INDUSTRY' && (
-            <div className="space-y-3 p-4 rounded-xl bg-[#1A1E2B] border border-[#2A3144]">
+            <div className="space-y-3 p-4 rounded-xl bg-[#0f172a] border border-[#1e293b]">
               <div>
                 <label className="text-[11px] font-semibold text-white block mb-1">Company / Organization Name</label>
                 <input
@@ -265,7 +265,7 @@ export const OAuthCallbackPage: React.FC = () => {
                   placeholder="e.g. Acme Technologies"
                   value={roleData.companyName}
                   onChange={e => setRoleData({ ...roleData, companyName: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#131620] border border-[#2E3548] text-white placeholder-[#5B6275] text-xs focus:outline-none focus:border-[#2F8C82] focus:ring-1 focus:ring-[#2F8C82]"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#0b1329] border border-[#1e293b] text-white placeholder-slate-500 text-xs focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 />
               </div>
               <div>
@@ -275,14 +275,14 @@ export const OAuthCallbackPage: React.FC = () => {
                   placeholder="e.g. Cloud & Enterprise Software"
                   value={roleData.industrySector}
                   onChange={e => setRoleData({ ...roleData, industrySector: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#131620] border border-[#2E3548] text-white placeholder-[#5B6275] text-xs focus:outline-none focus:border-[#2F8C82] focus:ring-1 focus:ring-[#2F8C82]"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#0b1329] border border-[#1e293b] text-white placeholder-slate-500 text-xs focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 />
               </div>
             </div>
           )}
 
           {selectedRole === 'ACADEMICIAN' && (
-            <div className="space-y-3 p-4 rounded-xl bg-[#1A1E2B] border border-[#2A3144]">
+            <div className="space-y-3 p-4 rounded-xl bg-[#0f172a] border border-[#1e293b]">
               <div>
                 <label className="text-[11px] font-semibold text-white block mb-1">Institution & Department</label>
                 <input
@@ -291,7 +291,7 @@ export const OAuthCallbackPage: React.FC = () => {
                   placeholder="e.g. Dept of CS, National Institute of Technology"
                   value={roleData.institution}
                   onChange={e => setRoleData({ ...roleData, institution: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#131620] border border-[#2E3548] text-white placeholder-[#5B6275] text-xs focus:outline-none focus:border-[#2F8C82] focus:ring-1 focus:ring-[#2F8C82]"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#0b1329] border border-[#1e293b] text-white placeholder-slate-500 text-xs focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 />
               </div>
               <div>
@@ -301,14 +301,14 @@ export const OAuthCallbackPage: React.FC = () => {
                   placeholder="e.g. Associate Professor / Department Chair"
                   value={roleData.designation}
                   onChange={e => setRoleData({ ...roleData, designation: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#131620] border border-[#2E3548] text-white placeholder-[#5B6275] text-xs focus:outline-none focus:border-[#2F8C82] focus:ring-1 focus:ring-[#2F8C82]"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#0b1329] border border-[#1e293b] text-white placeholder-slate-500 text-xs focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 />
               </div>
             </div>
           )}
 
           {selectedRole === 'INSTITUTION_ADMIN' && (
-            <div className="space-y-3 p-4 rounded-xl bg-[#1A1E2B] border border-[#2A3144]">
+            <div className="space-y-3 p-4 rounded-xl bg-[#0f172a] border border-[#1e293b]">
               <div>
                 <label className="text-[11px] font-semibold text-white block mb-1">University / College Institution Name</label>
                 <input
@@ -317,7 +317,7 @@ export const OAuthCallbackPage: React.FC = () => {
                   placeholder="e.g. State Technical University"
                   value={roleData.institutionName}
                   onChange={e => setRoleData({ ...roleData, institutionName: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#131620] border border-[#2E3548] text-white placeholder-[#5B6275] text-xs focus:outline-none focus:border-[#2F8C82] focus:ring-1 focus:ring-[#2F8C82]"
+                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#0b1329] border border-[#1e293b] text-white placeholder-slate-500 text-xs focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 />
               </div>
             </div>
@@ -326,7 +326,7 @@ export const OAuthCallbackPage: React.FC = () => {
           <button
             type="submit"
             disabled={submitting}
-            className="w-full py-3 px-4 rounded-xl bg-[#2F8C82] hover:bg-[#26776F] active:bg-[#1E6059] text-white font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-lg hover:shadow-teal-900/40 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-[#2F8C82]"
+            className="w-full py-3 px-4 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white font-bold text-xs flex items-center justify-center gap-2 transition-all shadow-lg shadow-blue-500/25 disabled:opacity-50 disabled:cursor-not-allowed focus:outline-none focus:ring-2 focus:ring-blue-500"
           >
             {submitting ? (
               <>

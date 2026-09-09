@@ -82,13 +82,13 @@ export const ContributionHeatmap: React.FC<{ studentId?: string }> = React.memo(
     return weeksArray;
   }, [data, selectedYear]);
 
-  // Design System v2 verified heatmap colors
+  // Black & Blue Design System verified heatmap colors
   const levelColors: Record<number, string> = {
-    0: 'bg-[#1A1D24] border border-[#2A2E38]/80 hover:border-[#3d4352]',
-    1: 'bg-[#2F8C82]/25 border border-[#2F8C82]/30 hover:border-[#2F8C82]/60',
-    2: 'bg-[#2F8C82]/55 border border-[#2F8C82]/60 hover:border-[#2F8C82]',
-    3: 'bg-[#2F8C82] border border-[#2F8C82] hover:border-white shadow-xs shadow-[#2F8C82]/30',
-    4: 'bg-[#4CC38A] border border-[#4CC38A] hover:border-white shadow-sm shadow-[#4CC38A]/50',
+    0: 'bg-[#0f172a] border border-[#1e293b] hover:border-slate-700',
+    1: 'bg-blue-950/80 border border-blue-900/60 hover:border-blue-700',
+    2: 'bg-blue-800/80 border border-blue-700 hover:border-blue-500',
+    3: 'bg-blue-600 border border-blue-500 hover:border-blue-400 shadow-xs shadow-blue-500/30',
+    4: 'bg-sky-400 border border-sky-300 hover:border-white shadow-sm shadow-sky-400/50',
   };
 
   const monthLabels = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
@@ -121,27 +121,27 @@ export const ContributionHeatmap: React.FC<{ studentId?: string }> = React.memo(
   ];
 
   return (
-    <div className="bg-bridge-panel rounded-xl border border-bridge-border p-5 sm:p-6 space-y-4 font-sans">
+    <div className="bg-[#0b1329] rounded-xl border border-[#1e293b] p-5 sm:p-6 space-y-4 font-sans">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-bridge-border/60">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[#1e293b]">
         <div>
-          <span className="small-caps-label block mb-0.5">
+          <span className="small-caps-label block mb-0.5 text-slate-400">
             [● VERIFIED ACTIVITY TELEMETRY]
           </span>
-          <h3 className="text-base font-bold text-[#F4F5F7] tracking-tight">
+          <h3 className="text-base font-bold text-white tracking-tight">
             Activity Streaks & Contributions
           </h3>
         </div>
 
         {/* Year Filter Tabs */}
-        <div className="flex items-center gap-1 p-0.5 bg-white/[0.03] rounded-lg border border-white/5 text-xs font-semibold">
+        <div className="flex items-center gap-1 p-0.5 bg-[#0f172a] rounded-lg border border-[#1e293b] text-xs font-semibold">
           <button
             type="button"
             onClick={() => setSelectedYear(2026)}
             className={`px-3 py-1 rounded-md transition-all font-mono text-xs ${
               selectedYear === 2026
-                ? 'bg-[#2F8C82]/20 text-[#2F8C82] font-bold'
-                : 'text-[#8B90A0] hover:text-[#F4F5F7]'
+                ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30 font-bold'
+                : 'text-slate-400 hover:text-white'
             }`}
           >
             2026
@@ -151,8 +151,8 @@ export const ContributionHeatmap: React.FC<{ studentId?: string }> = React.memo(
             onClick={() => setSelectedYear(2025)}
             className={`px-3 py-1 rounded-md transition-all font-mono text-xs ${
               selectedYear === 2025
-                ? 'bg-[#2F8C82]/20 text-[#2F8C82] font-bold'
-                : 'text-[#8B90A0] hover:text-[#F4F5F7]'
+                ? 'bg-blue-600/20 text-blue-400 border border-blue-500/30 font-bold'
+                : 'text-slate-400 hover:text-white'
             }`}
           >
             2025
@@ -167,16 +167,16 @@ export const ContributionHeatmap: React.FC<{ studentId?: string }> = React.memo(
           return (
             <div
               key={i}
-              className="bg-white/[0.02] border border-white/[0.05] rounded-lg p-3 sm:p-3.5 flex flex-col justify-between"
+              className="bg-[#0f172a] border border-[#1e293b] rounded-lg p-3 sm:p-3.5 flex flex-col justify-between"
             >
               <div className="flex items-center justify-between gap-1 mb-1">
-                <span className="small-caps-label truncate text-[10px]">{stat.label}</span>
-                <Icon className="w-3.5 h-3.5 text-[#2F8C82] opacity-80 shrink-0" />
+                <span className="small-caps-label truncate text-[10px] text-slate-400">{stat.label}</span>
+                <Icon className="w-3.5 h-3.5 text-blue-400 opacity-90 shrink-0" />
               </div>
-              <div className="font-mono text-xl sm:text-2xl font-semibold tracking-tight text-[#F4F5F7] my-0.5">
+              <div className="font-mono text-xl sm:text-2xl font-semibold tracking-tight text-white my-0.5">
                 {stat.value}
               </div>
-              <span className="text-[11px] text-[#8B90A0] truncate">{stat.subValue}</span>
+              <span className="text-[11px] text-slate-400 truncate">{stat.subValue}</span>
             </div>
           );
         })}
@@ -186,7 +186,7 @@ export const ContributionHeatmap: React.FC<{ studentId?: string }> = React.memo(
       <div className="pt-1 overflow-x-auto touch-scroll">
         <div className="min-w-[680px]">
           {/* Months header labels */}
-          <div className="flex text-[10px] font-mono text-slate-500 pl-8 pb-1.5 justify-between pr-2">
+          <div className="flex text-[10px] font-mono text-slate-400 pl-8 pb-1.5 justify-between pr-2">
             {monthLabels.map((m, i) => (
               <span key={i}>{m}</span>
             ))}
@@ -194,7 +194,7 @@ export const ContributionHeatmap: React.FC<{ studentId?: string }> = React.memo(
 
           <div className="flex gap-1">
             {/* Days of week row labels (Mon, Wed, Fri) */}
-            <div className="flex flex-col justify-between text-[9px] font-mono text-slate-500 pr-2 py-0.5 w-6 flex-shrink-0 select-none">
+            <div className="flex flex-col justify-between text-[9px] font-mono text-slate-400 pr-2 py-0.5 w-6 flex-shrink-0 select-none">
               <span>Mon</span>
               <span>Wed</span>
               <span>Fri</span>
@@ -222,29 +222,29 @@ export const ContributionHeatmap: React.FC<{ studentId?: string }> = React.memo(
       </div>
 
       {/* Footer Details Tooltip & Legend */}
-      <div className="pt-2.5 border-t border-bridge-border/60 flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-[#8B90A0]">
+      <div className="pt-2.5 border-t border-[#1e293b] flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-400">
         <div className="flex items-center gap-2 min-h-[20px]">
-          <Info className="w-3.5 h-3.5 text-[#2F8C82] flex-shrink-0" />
+          <Info className="w-3.5 h-3.5 text-blue-400 flex-shrink-0" />
           {hoveredDay ? (
-            <span className="font-mono text-[#F4F5F7] font-semibold">
+            <span className="font-mono text-white font-semibold">
               {hoveredDay.count > 0
                 ? `${hoveredDay.count} verified action${hoveredDay.count > 1 ? 's' : ''} on ${hoveredDay.date}`
                 : `No recorded activity on ${hoveredDay.date}`}
             </span>
           ) : (
-            <span className="text-[11px] text-[#8B90A0]">Hover over any day square to view activity details</span>
+            <span className="text-[11px] text-slate-400">Hover over any day square to view activity details</span>
           )}
         </div>
 
         {/* 5-step ramp legend */}
-        <div className="flex items-center gap-1.5 text-[11px] font-mono text-[#8B90A0]">
+        <div className="flex items-center gap-1.5 text-[11px] font-mono text-slate-400">
           <span>Less</span>
           <div className="flex items-center gap-1">
-            <div className="w-2.5 h-2.5 rounded-[2px] bg-[#1A1D24] border border-[#2A2E38]/80" title="0 actions" />
-            <div className="w-2.5 h-2.5 rounded-[2px] bg-[#2F8C82]/25" title="1 action" />
-            <div className="w-2.5 h-2.5 rounded-[2px] bg-[#2F8C82]/55" title="2 actions" />
-            <div className="w-2.5 h-2.5 rounded-[2px] bg-[#2F8C82]" title="3 actions" />
-            <div className="w-2.5 h-2.5 rounded-[2px] bg-[#4CC38A]" title="4+ actions" />
+            <div className="w-2.5 h-2.5 rounded-[2px] bg-[#0f172a] border border-[#1e293b]" title="0 actions" />
+            <div className="w-2.5 h-2.5 rounded-[2px] bg-blue-950/80 border border-blue-900/60" title="1 action" />
+            <div className="w-2.5 h-2.5 rounded-[2px] bg-blue-800/80 border border-blue-700" title="2 actions" />
+            <div className="w-2.5 h-2.5 rounded-[2px] bg-blue-600 border border-blue-500" title="3 actions" />
+            <div className="w-2.5 h-2.5 rounded-[2px] bg-sky-400 border border-sky-300" title="4+ actions" />
           </div>
           <span>More</span>
         </div>

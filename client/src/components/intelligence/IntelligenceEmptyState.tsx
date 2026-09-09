@@ -18,28 +18,19 @@ export const IntelligenceEmptyState: React.FC<IntelligenceEmptyStateProps> = ({
 }) => {
   return (
     <div
-      className="p-8 md:p-12 rounded-xl border text-center space-y-3"
-      style={{
-        background: '#111318',
-        borderColor: '#2A2E38',
-      }}
+      className="p-8 md:p-12 rounded-xl border border-[#1e293b] bg-[#0b1329] text-center space-y-3 shadow-md"
     >
       <div
-        className="w-12 h-12 rounded-xl flex items-center justify-center mx-auto"
-        style={{
-          background: 'rgba(47, 140, 130, 0.1)',
-          color: '#2F8C82',
-          border: '1px solid rgba(47, 140, 130, 0.2)',
-        }}
+        className="w-12 h-12 rounded-xl flex items-center justify-center mx-auto bg-blue-600/15 text-blue-400 border border-blue-500/30"
       >
         <Icon className="w-6 h-6" />
       </div>
 
-      <h4 className="text-base font-semibold" style={{ color: '#F4F5F7' }}>
+      <h4 className="text-base font-semibold text-white">
         {title}
       </h4>
 
-      <p className="text-xs max-w-md mx-auto leading-relaxed" style={{ color: '#8B90A0' }}>
+      <p className="text-xs max-w-md mx-auto leading-relaxed text-slate-400">
         {description}
       </p>
 
@@ -47,11 +38,7 @@ export const IntelligenceEmptyState: React.FC<IntelligenceEmptyStateProps> = ({
         <div className="pt-2">
           <button
             onClick={onAction}
-            className="px-4 py-2 rounded-lg text-xs font-semibold transition-all hover:brightness-110"
-            style={{
-              background: '#2F8C82',
-              color: '#FFFFFF',
-            }}
+            className="px-5 py-2 rounded-xl text-xs font-semibold bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white shadow-md shadow-blue-500/20 transition-all"
           >
             {actionLabel}
           </button>

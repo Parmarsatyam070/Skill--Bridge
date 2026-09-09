@@ -110,11 +110,11 @@ export const AIInterviewPage: React.FC = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8 animate-in fade-in duration-200">
       {/* ── HEADER BANNER ────────────────────────────────────────────── */}
-      <div className="bg-gradient-to-r from-[#111318] via-[#1A1D24] to-[#111318] border border-[#2A2E38] rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
+      <div className="bg-gradient-to-r from-[#0b1329] via-[#0f172a] to-[#0b1329] border border-[#1e293b] rounded-3xl p-6 sm:p-8 shadow-2xl relative overflow-hidden">
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 relative z-10">
           <div className="space-y-3 max-w-2xl">
             <div className="flex items-center gap-2">
-              <span className="px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-[#2F8C82]/15 text-[#3aa398] border border-[#2F8C82]/30 flex items-center gap-1.5">
+              <span className="px-3 py-1 rounded-full text-xs font-semibold uppercase tracking-wider bg-blue-600/15 text-blue-400 border border-blue-500/30 flex items-center gap-1.5">
                 <Bot className="w-3.5 h-3.5" />
                 AI Interview Copilot
               </span>
@@ -123,11 +123,11 @@ export const AIInterviewPage: React.FC = () => {
               </span>
             </div>
 
-            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-zinc-100 tracking-tight">
+            <h1 className="text-2xl sm:text-3xl lg:text-4xl font-extrabold text-white tracking-tight">
               {isStudent ? 'Interactive AI Technical & Behavioral Interviews' : 'Candidate AI Interview Reviews'}
             </h1>
 
-            <p className="text-sm text-zinc-400 leading-relaxed">
+            <p className="text-sm text-slate-400 leading-relaxed">
               {isStudent
                 ? 'Practice role-specific engineering and behavioral scenarios powered by Google Gemini. Receive rigorous, constructive feedback with concrete evidence and growth trajectories.'
                 : 'Review structured candidate interview transcripts and multi-dimensional advisory signals for your company opportunities.'}
@@ -139,7 +139,7 @@ export const AIInterviewPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setIsModalOpen(true)}
-                className="flex items-center gap-2.5 px-6 py-3.5 rounded-2xl bg-[#2F8C82] hover:bg-[#3aa398] text-white text-sm font-semibold shadow-xl shadow-[#2F8C82]/25 transition-all duration-150 active:scale-[0.98]"
+                className="flex items-center gap-2.5 px-6 py-3.5 rounded-2xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white text-sm font-semibold shadow-xl shadow-blue-500/25 transition-all duration-150 active:scale-[0.98]"
               >
                 <Play className="w-4 h-4 fill-white" />
                 <span>Start New AI Interview</span>
@@ -149,7 +149,7 @@ export const AIInterviewPage: React.FC = () => {
         </div>
 
         {/* Ambient Gradient glow */}
-        <div className="absolute top-0 right-0 -mt-8 -mr-8 w-64 h-64 bg-[#2F8C82]/10 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-0 right-0 -mt-8 -mr-8 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none" />
       </div>
 
       {/* Advisory Banner */}
@@ -158,26 +158,26 @@ export const AIInterviewPage: React.FC = () => {
       {/* ── KPI STATS (STUDENT VIEW) ─────────────────────────────────── */}
       {isStudent && (
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-          <div className="bg-[#111318] border border-[#2A2E38] rounded-2xl p-5 space-y-1 shadow-sm">
-            <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+          <div className="bg-[#0b1329] border border-[#1e293b] rounded-2xl p-5 space-y-1 shadow-sm">
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
               Completed Interviews
             </span>
-            <div className="text-3xl font-extrabold text-zinc-100 font-mono">
+            <div className="text-3xl font-extrabold text-white font-mono">
               {completedSessions.length}
             </div>
           </div>
 
-          <div className="bg-[#111318] border border-[#2A2E38] rounded-2xl p-5 space-y-1 shadow-sm">
-            <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+          <div className="bg-[#0b1329] border border-[#1e293b] rounded-2xl p-5 space-y-1 shadow-sm">
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
               Average Advisory Score
             </span>
-            <div className="text-3xl font-extrabold text-[#3aa398] font-mono">
+            <div className="text-3xl font-extrabold text-blue-400 font-mono">
               {avgScore !== null ? `${avgScore}%` : 'N/A'}
             </div>
           </div>
 
-          <div className="bg-[#111318] border border-[#2A2E38] rounded-2xl p-5 space-y-1 shadow-sm">
-            <span className="text-xs font-semibold uppercase tracking-wider text-zinc-400">
+          <div className="bg-[#0b1329] border border-[#1e293b] rounded-2xl p-5 space-y-1 shadow-sm">
+            <span className="text-xs font-semibold uppercase tracking-wider text-slate-400">
               In-Progress Sessions
             </span>
             <div className="text-3xl font-extrabold text-amber-400 font-mono">
@@ -199,25 +199,25 @@ export const AIInterviewPage: React.FC = () => {
             {activeSessions.map(s => (
               <div
                 key={s.id}
-                className="bg-[#111318] border border-amber-500/30 rounded-2xl p-5 flex flex-col justify-between gap-4 shadow-lg hover:border-amber-500/50 transition-all"
+                className="bg-[#0b1329] border border-amber-500/30 rounded-2xl p-5 flex flex-col justify-between gap-4 shadow-lg hover:border-amber-500/50 transition-all"
               >
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
                     <span className="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-amber-500/15 text-amber-300 border border-amber-500/30">
                       {s.type} Interview
                     </span>
-                    <span className="text-xs text-zinc-400 font-mono">
+                    <span className="text-xs text-slate-400 font-mono">
                       {s.answeredCount} / {s.questionCount || 5} answered
                     </span>
                   </div>
 
-                  <h3 className="text-base font-semibold text-zinc-100">
+                  <h3 className="text-base font-semibold text-white">
                     {s.opportunityTitle || 'Domain Practice Interview'}
                   </h3>
 
                   {s.companyName && (
-                    <p className="text-xs text-zinc-400 flex items-center gap-1">
-                      <Briefcase className="w-3.5 h-3.5 text-[#2F8C82]" />
+                    <p className="text-xs text-slate-400 flex items-center gap-1">
+                      <Briefcase className="w-3.5 h-3.5 text-blue-400" />
                       {s.companyName}
                     </p>
                   )}
@@ -239,29 +239,29 @@ export const AIInterviewPage: React.FC = () => {
       {/* ── ALL SESSIONS LIST ────────────────────────────────────────── */}
       <div className="space-y-4">
         <div className="flex items-center justify-between">
-          <h2 className="text-lg font-bold text-zinc-100">
+          <h2 className="text-lg font-bold text-white">
             {isStudent ? 'Interview History & Scorecards' : 'Candidate Interview Records'}
           </h2>
-          <span className="text-xs text-zinc-400">
+          <span className="text-xs text-slate-400">
             {sessions.length} total sessions
           </span>
         </div>
 
         {isLoading ? (
-          <div className="flex flex-col items-center justify-center p-12 bg-[#111318] border border-[#2A2E38] rounded-2xl space-y-3">
-            <Loader2 className="w-6 h-6 animate-spin text-[#2F8C82]" />
-            <span className="text-xs text-zinc-400">Loading interview records...</span>
+          <div className="flex flex-col items-center justify-center p-12 bg-[#0b1329] border border-[#1e293b] rounded-2xl space-y-3">
+            <Loader2 className="w-6 h-6 animate-spin text-blue-400" />
+            <span className="text-xs text-slate-400">Loading interview records...</span>
           </div>
         ) : sessions.length === 0 ? (
-          <div className="text-center p-12 bg-[#111318] border border-[#2A2E38] rounded-2xl space-y-4">
-            <div className="w-12 h-12 rounded-2xl bg-zinc-800 flex items-center justify-center text-zinc-400 mx-auto">
+          <div className="text-center p-12 bg-[#0b1329] border border-[#1e293b] rounded-2xl space-y-4">
+            <div className="w-12 h-12 rounded-2xl bg-[#0f172a] border border-[#1e293b] flex items-center justify-center text-slate-400 mx-auto">
               <Bot className="w-6 h-6" />
             </div>
             <div className="space-y-1 max-w-sm mx-auto">
-              <h3 className="text-base font-semibold text-zinc-200">
+              <h3 className="text-base font-semibold text-slate-200">
                 No Interview Sessions Found
               </h3>
-              <p className="text-xs text-zinc-400">
+              <p className="text-xs text-slate-400">
                 {isStudent
                   ? 'Start your first AI technical or behavioral interview to benchmark your preparation.'
                   : 'Candidates who complete AI interviews for your company opportunities will appear here.'}
@@ -271,7 +271,7 @@ export const AIInterviewPage: React.FC = () => {
               <button
                 type="button"
                 onClick={() => setIsModalOpen(true)}
-                className="px-5 py-2 rounded-xl bg-[#2F8C82] hover:bg-[#3aa398] text-white text-xs font-semibold shadow-md transition-colors"
+                className="px-5 py-2 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white text-xs font-semibold shadow-md transition-colors"
               >
                 Start Interview
               </button>
@@ -285,11 +285,11 @@ export const AIInterviewPage: React.FC = () => {
               return (
                 <div
                   key={s.id}
-                  className="bg-[#111318] border border-[#2A2E38] rounded-2xl p-5 flex flex-col justify-between gap-5 shadow-md hover:border-[#3aa398]/50 transition-all"
+                  className="bg-[#0b1329] border border-[#1e293b] rounded-2xl p-5 flex flex-col justify-between gap-5 shadow-md hover:border-blue-500/40 transition-all"
                 >
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
-                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-zinc-800 text-zinc-300 border border-zinc-700">
+                      <span className="px-2.5 py-0.5 rounded-full text-[11px] font-medium bg-[#0f172a] text-slate-300 border border-[#1e293b]">
                         {s.type}
                       </span>
                       <span
@@ -304,37 +304,37 @@ export const AIInterviewPage: React.FC = () => {
                     </div>
 
                     <div>
-                      <h3 className="text-base font-semibold text-zinc-100 line-clamp-1">
+                      <h3 className="text-base font-semibold text-white line-clamp-1">
                         {s.opportunityTitle || 'Technical Domain Practice'}
                       </h3>
                       {s.companyName && (
-                        <p className="text-xs text-zinc-400 flex items-center gap-1 mt-0.5">
-                          <Briefcase className="w-3.5 h-3.5 text-[#2F8C82]" />
+                        <p className="text-xs text-slate-400 flex items-center gap-1 mt-0.5">
+                          <Briefcase className="w-3.5 h-3.5 text-blue-400" />
                           {s.companyName}
                         </p>
                       )}
                       {isIndustry && s.candidateName && (
-                        <p className="text-xs text-zinc-300 mt-1 font-medium">
+                        <p className="text-xs text-slate-300 mt-1 font-medium">
                           Candidate: {s.candidateName}
                         </p>
                       )}
                     </div>
 
                     {isDone && s.overallScore !== undefined && (
-                      <div className="flex items-center justify-between p-3 rounded-xl bg-[#1A1D24] border border-[#2A2E38] text-xs">
-                        <span className="text-zinc-400">Advisory Score:</span>
-                        <span className="font-mono text-base font-bold text-[#3aa398]">
+                      <div className="flex items-center justify-between p-3 rounded-xl bg-[#0f172a] border border-[#1e293b] text-xs">
+                        <span className="text-slate-400">Advisory Score:</span>
+                        <span className="font-mono text-base font-bold text-blue-400">
                           {s.overallScore}%
                         </span>
                       </div>
                     )}
                   </div>
 
-                  <div className="pt-2 border-t border-[#1f242d]">
+                  <div className="pt-2 border-t border-[#1e293b]">
                     {isDone ? (
                       <Link
                         to={`/interviews/${s.id}/result`}
-                        className="flex items-center justify-between w-full text-xs font-semibold text-[#3aa398] hover:text-[#2F8C82] transition-colors"
+                        className="flex items-center justify-between w-full text-xs font-semibold text-blue-400 hover:text-blue-300 transition-colors"
                       >
                         <span>View Scorecard & Transcript</span>
                         <ArrowUpRight className="w-4 h-4" />
@@ -359,12 +359,12 @@ export const AIInterviewPage: React.FC = () => {
       {/* ── START INTERVIEW MODAL ────────────────────────────────────── */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-in fade-in duration-150">
-          <div className="bg-[#111318] border border-[#2A2E38] rounded-3xl w-full max-w-lg p-6 sm:p-8 space-y-6 shadow-2xl">
+          <div className="bg-[#0b1329] border border-[#1e293b] rounded-3xl w-full max-w-lg p-6 sm:p-8 space-y-6 shadow-2xl">
             <div className="space-y-1">
-              <h3 className="text-lg font-bold text-zinc-100">
+              <h3 className="text-lg font-bold text-white">
                 Configure New AI Interview
               </h3>
-              <p className="text-xs text-zinc-400">
+              <p className="text-xs text-slate-400">
                 Select your focus domain or link directly to an open opportunity.
               </p>
             </div>
@@ -372,7 +372,7 @@ export const AIInterviewPage: React.FC = () => {
             <div className="space-y-4">
               {/* Type Selection */}
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-zinc-300">
+                <label className="text-xs font-medium text-slate-300">
                   Interview Category:
                 </label>
                 <div className="grid grid-cols-2 gap-2">
@@ -383,8 +383,8 @@ export const AIInterviewPage: React.FC = () => {
                       onClick={() => setSelectedType(t)}
                       className={`py-2 px-3 rounded-xl text-xs font-medium border transition-all text-left ${
                         selectedType === t
-                          ? 'bg-[#2F8C82]/15 text-[#3aa398] border-[#2F8C82]'
-                          : 'bg-[#1A1D24] text-zinc-400 border-[#2A2E38] hover:text-zinc-200'
+                          ? 'bg-blue-600/15 text-blue-400 border-blue-500/50'
+                          : 'bg-[#0f172a] text-slate-400 border-[#1e293b] hover:text-slate-200'
                       }`}
                     >
                       {t}
@@ -395,13 +395,13 @@ export const AIInterviewPage: React.FC = () => {
 
               {/* Opportunity Link (Optional) */}
               <div className="space-y-1.5">
-                <label className="text-xs font-medium text-zinc-300">
+                <label className="text-xs font-medium text-slate-300">
                   Link to Opportunity (Optional):
                 </label>
                 <select
                   value={selectedOppId}
                   onChange={e => setSelectedOppId(e.target.value)}
-                  className="w-full bg-[#1A1D24] border border-[#2A2E38] rounded-xl px-3 py-2 text-xs text-zinc-200 focus:outline-hidden focus:ring-1 focus:ring-[#2F8C82]"
+                  className="w-full bg-[#0f172a] border border-[#1e293b] rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-hidden focus:ring-1 focus:ring-blue-500"
                 >
                   <option value="">General Domain Practice (No Opportunity)</option>
                   {opportunities.map(o => (
@@ -415,13 +415,13 @@ export const AIInterviewPage: React.FC = () => {
               {/* Technical Domain */}
               {!selectedOppId && (
                 <div className="space-y-1.5">
-                  <label className="text-xs font-medium text-zinc-300">
+                  <label className="text-xs font-medium text-slate-300">
                     Target Domain:
                   </label>
                   <select
                     value={selectedDomain}
                     onChange={e => setSelectedDomain(e.target.value)}
-                    className="w-full bg-[#1A1D24] border border-[#2A2E38] rounded-xl px-3 py-2 text-xs text-zinc-200 focus:outline-hidden focus:ring-1 focus:ring-[#2F8C82]"
+                    className="w-full bg-[#0f172a] border border-[#1e293b] rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-hidden focus:ring-1 focus:ring-blue-500"
                   >
                     <option value="Full-Stack Web">Full-Stack Web Engineering</option>
                     <option value="AI/Data Science">AI & Machine Learning Systems</option>
@@ -447,7 +447,7 @@ export const AIInterviewPage: React.FC = () => {
                 type="button"
                 onClick={() => setIsModalOpen(false)}
                 disabled={startMutation.isPending}
-                className="px-4 py-2 rounded-xl text-xs font-medium text-zinc-400 hover:text-zinc-200 transition-colors"
+                className="px-4 py-2 rounded-xl text-xs font-medium text-slate-400 hover:text-slate-200 transition-colors"
               >
                 Cancel
               </button>
@@ -455,7 +455,7 @@ export const AIInterviewPage: React.FC = () => {
                 type="button"
                 onClick={handleStartInterview}
                 disabled={startMutation.isPending}
-                className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-[#2F8C82] hover:bg-[#3aa398] text-white text-xs font-semibold shadow-lg shadow-[#2F8C82]/20 transition-all duration-150"
+                className="flex items-center gap-2 px-6 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white text-xs font-semibold shadow-lg shadow-blue-500/20 transition-all duration-150"
               >
                 {startMutation.isPending ? (
                   <>

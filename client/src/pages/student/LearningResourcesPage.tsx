@@ -368,7 +368,7 @@ export const LearningResourcesPage: React.FC = () => {
               onClick={() => handleSuggestedClick(topic)}
               className={`px-3 py-1 rounded-full text-xs font-medium whitespace-nowrap transition-all cursor-pointer ${
                 searchQuery.toLowerCase() === topic.toLowerCase()
-                  ? 'bg-bridge-teal text-slate-950 font-bold shadow-md shadow-bridge-teal/20'
+                  ? 'bg-bridge-teal text-white font-bold shadow-md shadow-bridge-teal/20'
                   : 'bg-panel text-text-muted hover:text-text-primary border border-border'
               }`}
             >
@@ -401,14 +401,14 @@ export const LearningResourcesPage: React.FC = () => {
                 onClick={() => setActiveCategory(tab.id)}
                 className={`inline-flex items-center gap-2 px-3.5 py-2 rounded-full text-xs font-semibold whitespace-nowrap transition-all cursor-pointer ${
                   activeCategory === tab.id
-                    ? 'bg-bridge-teal text-slate-950 font-bold shadow-md shadow-bridge-teal/20'
+                    ? 'bg-bridge-teal text-white font-bold shadow-md shadow-bridge-teal/20'
                     : 'bg-panel text-text-muted hover:text-text-primary border border-border'
                 }`}
               >
                 <Icon className="w-3.5 h-3.5" />
                 <span>{tab.label}</span>
                 {categories && (
-                  <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full ${activeCategory === tab.id ? 'bg-slate-900/40 text-slate-950' : 'bg-panel-raised text-text-muted'}`}>
+                  <span className={`text-[10px] font-mono px-1.5 py-0.2 rounded-full ${activeCategory === tab.id ? 'bg-black/30 text-white' : 'bg-panel-raised text-text-muted'}`}>
                     {count}
                   </span>
                 )}

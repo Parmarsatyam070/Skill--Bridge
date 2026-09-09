@@ -30,7 +30,7 @@ export const InterviewAdvisoryNotice: React.FC<InterviewAdvisoryNoticeProps> = (
           <h4 className="text-xs font-semibold text-amber-300 uppercase tracking-wider">
             AI Advisory Governance Notice
           </h4>
-          <p className="text-xs text-zinc-300 leading-relaxed">
+          <p className="text-xs text-slate-300 leading-relaxed">
             {AI_INTERVIEW_ADVISORY_DISCLAIMER}
           </p>
         </div>

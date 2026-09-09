@@ -203,7 +203,7 @@ export const InternshipsPage: React.FC = () => {
                 title: activeTargetInternship.title,
                 companyName: activeTargetInternship.companyName,
               })}
-              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-bridge-teal text-slate-950 font-bold text-xs shadow-md shadow-bridge-teal/20 hover:bg-bridge-teal/90 transition-all"
+              className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-bridge-teal text-white font-bold text-xs shadow-md shadow-bridge-teal/20 hover:bg-bridge-teal/90 transition-all"
             >
               <Sparkles className="w-3.5 h-3.5" />
               <span>AI Mock Interview (Sash)</span>
@@ -324,7 +324,7 @@ export const InternshipsPage: React.FC = () => {
                         title: job.internshipTitle,
                         companyName: job.companyName,
                       })}
-                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-bridge-teal/15 text-bridge-teal border border-bridge-teal/30 hover:bg-bridge-teal hover:text-slate-950 font-bold text-[11px] transition-all"
+                      className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-bridge-teal/15 text-bridge-teal border border-bridge-teal/30 hover:bg-bridge-teal hover:text-white font-bold text-[11px] transition-all"
                     >
                       <Sparkles className="w-3 h-3" />
                       <span>AI Mock Interview with Sash</span>

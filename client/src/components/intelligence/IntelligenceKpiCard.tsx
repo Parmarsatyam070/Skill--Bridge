@@ -18,19 +18,15 @@ export const IntelligenceKpiCard: React.FC<IntelligenceKpiCardProps> = ({
   value,
   subtitle,
   icon: Icon,
-  color = '#2F8C82',
+  color = '#3b82f6',
   trend,
 }) => {
   return (
     <div
-      className="p-5 rounded-xl border transition-all duration-200 hover:translate-y-[-2px] relative overflow-hidden group"
-      style={{
-        background: '#111318',
-        borderColor: '#2A2E38',
-      }}
+      className="p-5 rounded-xl border border-[#1e293b] bg-[#0b1329] transition-all duration-200 hover:translate-y-[-2px] hover:border-blue-500/40 relative overflow-hidden group shadow-md"
     >
       <div className="flex items-center justify-between">
-        <span className="text-xs font-medium tracking-wide uppercase" style={{ color: '#8B90A0' }}>
+        <span className="text-xs font-medium tracking-wide uppercase text-slate-400">
           {title}
         </span>
         <div
@@ -46,13 +42,13 @@ export const IntelligenceKpiCard: React.FC<IntelligenceKpiCardProps> = ({
       </div>
 
       <div className="mt-3 flex items-baseline gap-2">
-        <span className="text-2xl lg:text-3xl font-bold font-mono tracking-tight" style={{ color: '#F4F5F7' }}>
+        <span className="text-2xl lg:text-3xl font-bold font-mono tracking-tight text-white">
           {value}
         </span>
         {trend && (
           <span
             className="text-xs font-medium"
-            style={{ color: trend.isPositive ? '#4CC38A' : '#E5637C' }}
+            style={{ color: trend.isPositive ? '#10b981' : '#f43f5e' }}
           >
             {trend.isPositive ? '↑' : '↓'} {trend.value}
           </span>
@@ -60,7 +56,7 @@ export const IntelligenceKpiCard: React.FC<IntelligenceKpiCardProps> = ({
       </div>
 
       {subtitle && (
-        <p className="mt-1 text-xs" style={{ color: '#8B90A0' }}>
+        <p className="mt-1 text-xs text-slate-400">
           {subtitle}
         </p>
       )}
