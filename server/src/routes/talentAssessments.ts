@@ -5,6 +5,7 @@ import {
   requireStudentProfile,
   requireIndustryProfile,
 } from '../middleware/authorization.js';
+import { requireExamAccess } from '../middleware/examIntegrityMiddleware.js';
 import { recordAuditLog } from '../services/auditLogService.js';
 import {
   listAssessmentsForStudent,
@@ -326,7 +327,7 @@ router.patch('/:id/status', authenticate, requireIndustryProfile, async (req: Au
  * - STUDENT only
  * Initializes timed student attempt. Sanitizes questions.
  */
-router.post('/:id/start', authenticate, requireStudentProfile, async (req: AuthRequest, res: Response) => {
+router.post('/:id/start', authenticate, requireStudentProfile, requireExamAccess, async (req: AuthRequest, res: Response) => {
   try {
     const studentProfileId = req.user!.studentProfileId!;
     const startData = await startAssessmentAttempt(req.params.id, studentProfileId);
@@ -353,7 +354,7 @@ router.post('/:id/start', authenticate, requireStudentProfile, async (req: AuthR
  * - STUDENT only
  * Atomically validates, deterministically scores, and persists submission.
  */
-router.post('/:id/submit', authenticate, requireStudentProfile, async (req: AuthRequest, res: Response) => {
+router.post('/:id/submit', authenticate, requireStudentProfile, requireExamAccess, async (req: AuthRequest, res: Response) => {
   try {
     const parseResult = SubmitAnswersSchema.safeParse(req.body);
     if (!parseResult.success) {

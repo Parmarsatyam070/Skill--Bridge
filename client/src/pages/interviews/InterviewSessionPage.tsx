@@ -16,6 +16,7 @@ import { InterviewProgress } from '../../components/interviews/InterviewProgress
 import { InterviewTimer } from '../../components/interviews/InterviewTimer';
 import { InterviewCompletionDialog } from '../../components/interviews/InterviewCompletionDialog';
 import { InterviewAdvisoryNotice } from '../../components/interviews/InterviewAdvisoryNotice';
+import { ExamIntegrityGuard } from '../../components/integrity/ExamIntegrityGuard';
 
 export const InterviewSessionPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -183,101 +184,106 @@ export const InterviewSessionPage: React.FC = () => {
   };
 
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 space-y-6 animate-in fade-in duration-200">
-      {/* ── TOP NAV BAR ────────────────────────────────────────────── */}
-      <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-[#1e293b]">
-        <div className="flex items-center gap-3">
-          <Link
-            to="/interviews"
-            className="p-2 rounded-xl bg-[#0b1329] border border-[#1e293b] text-slate-400 hover:text-white transition-colors"
-            title="Exit Interview Room"
-          >
-            <ArrowLeft className="w-4 h-4" />
-          </Link>
-          <div>
-            <h1 className="text-base sm:text-lg font-bold text-white line-clamp-1">
-              {session.opportunityTitle || 'AI Domain Mock Interview'}
-            </h1>
-            <p className="text-xs text-slate-400">
-              {session.type} Interview Session • {session.companyName || 'General Practice'}
-            </p>
+    <ExamIntegrityGuard
+      sessionId={session.id}
+      sessionType="MOCK_INTERVIEW"
+    >
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 py-6 space-y-6 animate-in fade-in duration-200">
+        {/* ── TOP NAV BAR ────────────────────────────────────────────── */}
+        <div className="flex flex-wrap items-center justify-between gap-4 pb-4 border-b border-[#1e293b]">
+          <div className="flex items-center gap-3">
+            <Link
+              to="/interviews"
+              className="p-2 rounded-xl bg-[#0b1329] border border-[#1e293b] text-slate-400 hover:text-white transition-colors"
+              title="Exit Interview Room"
+            >
+              <ArrowLeft className="w-4 h-4" />
+            </Link>
+            <div>
+              <h1 className="text-base sm:text-lg font-bold text-white line-clamp-1">
+                {session.opportunityTitle || 'AI Domain Mock Interview'}
+              </h1>
+              <p className="text-xs text-slate-400">
+                {session.type} Interview Session • {session.companyName || 'General Practice'}
+              </p>
+            </div>
+          </div>
+
+          <div className="flex items-center gap-3">
+            <InterviewTimer />
+            {answeredCount > 0 && (
+              <button
+                type="button"
+                onClick={() => setIsCompletionModalOpen(true)}
+                className="px-3 py-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 text-xs font-medium border border-amber-500/30 transition-colors"
+              >
+                Finish Now
+              </button>
+            )}
           </div>
         </div>
 
-        <div className="flex items-center gap-3">
-          <InterviewTimer />
-          {answeredCount > 0 && (
+        {/* ── ERROR BANNER ───────────────────────────────────────────── */}
+        {errorMessage && (
+          <div className="p-4 rounded-xl bg-rose-500/10 border border-rose-500/30 flex items-center gap-3 text-rose-300 text-xs">
+            <AlertCircle className="w-4 h-4 shrink-0 text-rose-400" />
+            <span>{errorMessage}</span>
+          </div>
+        )}
+
+        {/* ── PROGRESS BAR ───────────────────────────────────────────── */}
+        <InterviewProgress
+          totalQuestions={totalQuestions}
+          answeredCount={answeredCount}
+          currentQuestionNumber={currentQNum}
+        />
+
+        {/* ── AI ADVISORY NOTICE (Non-evaluative / Non-binding) ─────── */}
+        <InterviewAdvisoryNotice />
+
+        {/* ── ACTIVE QUESTION OR COMPLETION PROMPT ────────────────────── */}
+        {currentQuestion && answeredCount < totalQuestions ? (
+          <div className="space-y-6">
+            <InterviewQuestionCard
+              question={currentQuestion}
+              totalQuestions={totalQuestions}
+            />
+
+            <InterviewResponseInput
+              onSubmit={handleAnswerSubmit}
+              isSubmitting={answerMutation.isPending}
+              isLastQuestion={isLastQuestion}
+            />
+          </div>
+        ) : (
+          <div className="p-8 text-center bg-[#0b1329] border border-[#1e293b] rounded-2xl space-y-4">
+            <Sparkles className="w-8 h-8 text-amber-400 mx-auto" />
+            <h3 className="text-base font-semibold text-slate-200">
+              All Questions Answered
+            </h3>
+            <p className="text-xs text-slate-400 max-w-sm mx-auto">
+              You have answered all scheduled questions. Complete your interview to generate your structured scorecard.
+            </p>
             <button
               type="button"
               onClick={() => setIsCompletionModalOpen(true)}
-              className="px-3 py-1.5 rounded-lg bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 text-xs font-medium border border-amber-500/30 transition-colors"
+              className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white text-xs font-semibold shadow-md shadow-blue-500/20 transition-colors"
             >
-              Finish Now
+              Generate AI Scorecard
             </button>
-          )}
-        </div>
+          </div>
+        )}
+
+        {/* Completion Confirmation Dialog */}
+        <InterviewCompletionDialog
+          isOpen={isCompletionModalOpen}
+          onClose={() => setIsCompletionModalOpen(false)}
+          onConfirm={handleConfirmComplete}
+          isSubmitting={completeMutation.isPending}
+          totalAnswered={answeredCount}
+          totalQuestions={totalQuestions}
+        />
       </div>
-
-      {/* Advisory Notice Header */}
-      <InterviewAdvisoryNotice />
-
-      {/* Progress Stepper */}
-      <InterviewProgress
-        currentQuestionNumber={currentQNum}
-        totalQuestions={totalQuestions}
-        answeredCount={answeredCount}
-      />
-
-      {/* Error Alert */}
-      {errorMessage && (
-        <div className="p-3.5 rounded-xl bg-red-500/10 border border-red-500/25 text-xs text-red-400 flex items-center gap-2.5">
-          <AlertCircle className="w-4 h-4 shrink-0" />
-          <span>{errorMessage}</span>
-        </div>
-      )}
-
-      {/* Active Question Card */}
-      {currentQuestion ? (
-        <div className="space-y-6">
-          <InterviewQuestionCard
-            question={currentQuestion}
-            totalQuestions={totalQuestions}
-          />
-
-          <InterviewResponseInput
-            onSubmit={handleAnswerSubmit}
-            isSubmitting={answerMutation.isPending}
-            isLastQuestion={isLastQuestion}
-          />
-        </div>
-      ) : (
-        <div className="p-8 text-center bg-[#0b1329] border border-[#1e293b] rounded-2xl space-y-4">
-          <Sparkles className="w-8 h-8 text-amber-400 mx-auto" />
-          <h3 className="text-base font-semibold text-slate-200">
-            All Questions Answered
-          </h3>
-          <p className="text-xs text-slate-400 max-w-sm mx-auto">
-            You have answered all scheduled questions. Complete your interview to generate your structured scorecard.
-          </p>
-          <button
-            type="button"
-            onClick={() => setIsCompletionModalOpen(true)}
-            className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white text-xs font-semibold shadow-md shadow-blue-500/20 transition-colors"
-          >
-            Generate AI Scorecard
-          </button>
-        </div>
-      )}
-
-      {/* Completion Confirmation Dialog */}
-      <InterviewCompletionDialog
-        isOpen={isCompletionModalOpen}
-        onClose={() => setIsCompletionModalOpen(false)}
-        onConfirm={handleConfirmComplete}
-        isSubmitting={completeMutation.isPending}
-        totalAnswered={answeredCount}
-        totalQuestions={totalQuestions}
-      />
-    </div>
+    </ExamIntegrityGuard>
   );
 };

@@ -1,6 +1,7 @@
 import { Router, Response } from 'express';
 import { prisma } from '../config/prisma.js';
 import { authenticate, optionalAuthenticate, AuthRequest } from '../middleware/auth.js';
+import { requireExamAccess } from '../middleware/examIntegrityMiddleware.js';
 import {
   seedDSAQuestionsIfEmpty,
   selectRotatedQuestions,
@@ -177,7 +178,7 @@ router.get('/daily', authenticate, async (req: AuthRequest, res: Response) => {
  * POST /api/dsa/daily/start
  * Marks daily practice session as started.
  */
-router.post('/daily/start', authenticate, async (req: AuthRequest, res: Response) => {
+router.post('/daily/start', authenticate, requireExamAccess, async (req: AuthRequest, res: Response) => {
   try {
     const studentId = req.user?.studentProfileId;
     if (!studentId) {
@@ -213,7 +214,7 @@ router.post('/daily/start', authenticate, async (req: AuthRequest, res: Response
  * POST /api/dsa/daily/submit-question
  * Records a question solution within daily practice or general practice.
  */
-router.post('/daily/submit-question', authenticate, async (req: AuthRequest, res: Response) => {
+router.post('/daily/submit-question', authenticate, requireExamAccess, async (req: AuthRequest, res: Response) => {
   try {
     const studentId = req.user?.studentProfileId;
     if (!studentId) {
@@ -257,7 +258,7 @@ router.post('/daily/submit-question', authenticate, async (req: AuthRequest, res
  * POST /api/dsa/practice/generate
  * Generates custom DSA practice sets strictly bounded to 15, 20, 25, or 30 questions.
  */
-router.post('/practice/generate', authenticate, async (req: AuthRequest, res: Response) => {
+router.post('/practice/generate', authenticate, requireExamAccess, async (req: AuthRequest, res: Response) => {
   try {
     const studentId = req.user?.studentProfileId;
     if (!studentId) {
@@ -324,7 +325,7 @@ router.post('/practice/generate', authenticate, async (req: AuthRequest, res: Re
  * POST /api/dsa/questions/:id/attempt
  * Records an attempt (viewed/attempted/solved/failed) for an individual problem.
  */
-router.post('/questions/:id/attempt', authenticate, async (req: AuthRequest, res: Response) => {
+router.post('/questions/:id/attempt', authenticate, requireExamAccess, async (req: AuthRequest, res: Response) => {
   try {
     const studentId = req.user?.studentProfileId;
     if (!studentId) {

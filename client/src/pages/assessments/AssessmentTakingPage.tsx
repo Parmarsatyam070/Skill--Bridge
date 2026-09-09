@@ -20,6 +20,7 @@ import { AssessmentTimer } from '../../components/assessments/AssessmentTimer';
 import { AssessmentProgress } from '../../components/assessments/AssessmentProgress';
 import { AssessmentQuestion } from '../../components/assessments/AssessmentQuestion';
 import { AssessmentSubmitDialog } from '../../components/assessments/AssessmentSubmitDialog';
+import { ExamIntegrityGuard } from '../../components/integrity/ExamIntegrityGuard';
 
 export const AssessmentTakingPage: React.FC = () => {
   const { id } = useParams<{ id: string }>();
@@ -144,101 +145,106 @@ export const AssessmentTakingPage: React.FC = () => {
   const unansweredCount = questions.length - answeredCount;
 
   return (
-    <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6 space-y-6">
-      {/* Sticky Test Header Bar */}
-      <div className="bg-[#0b1329] border border-[#1e293b] rounded-2xl p-4 flex items-center justify-between gap-4 sticky top-2 z-30 shadow-md">
-        <div className="flex items-center gap-3 truncate">
-          <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping shrink-0" />
-          <h1 className="text-sm sm:text-base font-semibold text-white truncate">{session.title}</h1>
-        </div>
+    <ExamIntegrityGuard
+      sessionId={session.attemptId}
+      sessionType="TALENT_ASSESSMENT"
+    >
+      <div className="max-w-7xl mx-auto px-4 py-4 sm:py-6 space-y-6">
+        {/* Sticky Test Header Bar */}
+        <div className="bg-[#0b1329] border border-[#1e293b] rounded-2xl p-4 flex items-center justify-between gap-4 sticky top-2 z-30 shadow-md">
+          <div className="flex items-center gap-3 truncate">
+            <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping shrink-0" />
+            <h1 className="text-sm sm:text-base font-semibold text-white truncate">{session.title}</h1>
+          </div>
 
-        <div className="flex items-center gap-3 shrink-0">
-          <AssessmentTimer
-            initialSeconds={session.timeRemainingSeconds}
-            onExpire={handleAutoExpire}
-          />
-
-          <button
-            type="button"
-            onClick={() => setIsSubmitDialogOpen(true)}
-            className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white transition-all shadow-md shadow-blue-500/20"
-          >
-            <Send className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Finish & Submit</span>
-            <span className="sm:hidden">Submit</span>
-          </button>
-        </div>
-      </div>
-
-      {/* Main Two-Column Layout */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-start">
-        {/* Left 2 Columns: Question Area */}
-        <div className="lg:col-span-2 space-y-4">
-          {currentQuestion && (
-            <AssessmentQuestion
-              question={currentQuestion}
-              questionNumber={currentIndex + 1}
-              totalQuestions={questions.length}
-              currentAnswer={answers[currentQuestion.id]}
-              onAnswerChange={handleAnswerChange}
+          <div className="flex items-center gap-3 shrink-0">
+            <AssessmentTimer
+              initialSeconds={session.timeRemainingSeconds}
+              onExpire={handleAutoExpire}
             />
-          )}
 
-          {/* Navigation Controls */}
-          <div className="flex items-center justify-between gap-3 pt-2">
             <button
               type="button"
-              disabled={currentIndex === 0}
-              onClick={() => setCurrentIndex(prev => Math.max(0, prev - 1))}
-              className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-medium bg-[#0f172a] text-white border border-[#1e293b] hover:border-slate-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              onClick={() => setIsSubmitDialogOpen(true)}
+              className="flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-semibold bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white transition-all shadow-md shadow-blue-500/20"
             >
-              <ChevronLeft className="w-4 h-4" />
-              <span>Previous Question</span>
+              <Send className="w-3.5 h-3.5" />
+              <span className="hidden sm:inline">Finish & Submit</span>
+              <span className="sm:hidden">Submit</span>
             </button>
-
-            {currentIndex < questions.length - 1 ? (
-              <button
-                type="button"
-                onClick={() => setCurrentIndex(prev => Math.min(questions.length - 1, prev + 1))}
-                className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-xs font-semibold bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white transition-all shadow-md shadow-blue-500/20"
-              >
-                <span>Next Question</span>
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            ) : (
-              <button
-                type="button"
-                onClick={() => setIsSubmitDialogOpen(true)}
-                className="flex items-center gap-1.5 px-6 py-2.5 rounded-xl text-xs font-semibold bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold transition-colors shadow-sm"
-              >
-                <CheckCircle2 className="w-4 h-4 fill-slate-950 text-emerald-400" />
-                <span>Review & Submit</span>
-              </button>
-            )}
           </div>
         </div>
 
-        {/* Right 1 Column: Progress & Palette Sidebar */}
-        <div className="lg:col-span-1 space-y-4">
-          <AssessmentProgress
-            totalQuestions={questions.length}
-            currentIndex={currentIndex}
-            questionIds={questionIds}
-            answers={answers}
-            onSelectQuestion={idx => setCurrentIndex(idx)}
-          />
-        </div>
-      </div>
+        {/* 2-Column Responsive Layout */}
+        <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+          {/* Left 3 Columns: Active Question Render */}
+          <div className="lg:col-span-3 space-y-4">
+            {currentQuestion && (
+              <AssessmentQuestion
+                question={currentQuestion}
+                questionNumber={currentIndex + 1}
+                totalQuestions={questions.length}
+                currentAnswer={answers[currentQuestion.id]}
+                onAnswerChange={handleAnswerChange}
+              />
+            )}
 
-      {/* Submit Confirmation Dialog */}
-      <AssessmentSubmitDialog
-        isOpen={isSubmitDialogOpen}
-        onClose={() => setIsSubmitDialogOpen(false)}
-        onConfirm={handleManualSubmitConfirm}
-        isSubmitting={submitMutation.isPending}
-        unansweredCount={unansweredCount}
-        totalQuestions={questions.length}
-      />
-    </div>
+            {/* Navigation Controls */}
+            <div className="flex items-center justify-between gap-3 pt-2">
+              <button
+                type="button"
+                disabled={currentIndex === 0}
+                onClick={() => setCurrentIndex(prev => Math.max(0, prev - 1))}
+                className="flex items-center gap-1.5 px-4 py-2.5 rounded-xl text-xs font-medium bg-[#0f172a] text-white border border-[#1e293b] hover:border-slate-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              >
+                <ChevronLeft className="w-4 h-4" />
+                <span>Previous Question</span>
+              </button>
+
+              {currentIndex < questions.length - 1 ? (
+                <button
+                  type="button"
+                  onClick={() => setCurrentIndex(prev => Math.min(questions.length - 1, prev + 1))}
+                  className="flex items-center gap-1.5 px-5 py-2.5 rounded-xl text-xs font-semibold bg-gradient-to-r from-blue-600 to-blue-500 hover:from-blue-500 hover:to-blue-600 text-white transition-all shadow-md shadow-blue-500/20"
+                >
+                  <span>Next Question</span>
+                  <ChevronRight className="w-4 h-4" />
+                </button>
+              ) : (
+                <button
+                  type="button"
+                  onClick={() => setIsSubmitDialogOpen(true)}
+                  className="flex items-center gap-1.5 px-6 py-2.5 rounded-xl text-xs font-semibold bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-bold transition-colors shadow-sm"
+                >
+                  <CheckCircle2 className="w-4 h-4 fill-slate-950 text-emerald-400" />
+                  <span>Review & Submit</span>
+                </button>
+              )}
+            </div>
+          </div>
+
+          {/* Right 1 Column: Progress & Palette Sidebar */}
+          <div className="lg:col-span-1 space-y-4">
+            <AssessmentProgress
+              totalQuestions={questions.length}
+              currentIndex={currentIndex}
+              questionIds={questionIds}
+              answers={answers}
+              onSelectQuestion={idx => setCurrentIndex(idx)}
+            />
+          </div>
+        </div>
+
+        {/* Submit Confirmation Dialog */}
+        <AssessmentSubmitDialog
+          isOpen={isSubmitDialogOpen}
+          onClose={() => setIsSubmitDialogOpen(false)}
+          onConfirm={handleManualSubmitConfirm}
+          isSubmitting={submitMutation.isPending}
+          unansweredCount={unansweredCount}
+          totalQuestions={questions.length}
+        />
+      </div>
+    </ExamIntegrityGuard>
   );
 };

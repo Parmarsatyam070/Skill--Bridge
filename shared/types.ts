@@ -2022,3 +2022,73 @@ export interface IntelligenceAiInsight {
   generatedAt: string;
 }
 
+// ============================================================
+// EXAM INTEGRITY / ANTI-CHEATING SYSTEM TYPES
+// ============================================================
+
+export type ExamIntegrityEventType =
+  | 'COPY_ATTEMPT'
+  | 'PASTE_ATTEMPT'
+  | 'FORCE_PASTE_ATTEMPT'
+  | 'CUT_ATTEMPT'
+  | 'CONTEXT_MENU_ATTEMPT'
+  | 'DRAG_DROP_ATTEMPT'
+  | 'PRINT_SCREEN_ATTEMPT'
+  | 'SCREENSHOT_ATTEMPT'
+  | 'TAB_SWITCH'
+  | 'WINDOW_BLUR'
+  | 'VISIBILITY_CHANGE'
+  | 'FULLSCREEN_EXIT';
+
+export type ExamIntegritySessionType =
+  | 'TALENT_ASSESSMENT'
+  | 'PRACTICE_SET'
+  | 'DAILY_SET'
+  | 'DSA_PRACTICE'
+  | 'MOCK_INTERVIEW'
+  | 'AI_INTERVIEW'
+  | 'PROTECTED_EXAM';
+
+export interface ExamIntegrityEventPayload {
+  sessionId: string;
+  sessionType: ExamIntegritySessionType;
+  eventType: ExamIntegrityEventType;
+  metadata?: {
+    targetElement?: string;
+    keyCombo?: string;
+    clientTimestamp?: number;
+    url?: string;
+  };
+}
+
+export interface ExamSuspensionState {
+  isSuspended: boolean;
+  suspendedUntil: string | null; // ISO Date String
+  remainingSeconds: number;
+  reason?: string;
+  violationCount: number;
+}
+
+export interface ExamIntegrityResponse {
+  status: 'OK' | 'WARNING' | 'SUSPENDED';
+  action?: 'NONE' | 'WARNING' | 'SUSPENDED';
+  message?: string;
+  isConfirmedViolation: boolean;
+  violationCount: number;
+  warningIssued: boolean;
+  warningMessage?: string;
+  suspensionTriggered: boolean;
+  suspension?: ExamSuspensionState;
+  eventType: ExamIntegrityEventType;
+  occurredAt: string;
+}
+
+export interface ExamIntegrityStatusDto {
+  userId: string;
+  isSuspended: boolean;
+  suspendedUntil: string | null;
+  remainingSeconds: number;
+  activeSessionViolations: Record<string, number>;
+}
+
+

@@ -27,6 +27,7 @@ import {
   MockInterviewEvaluation,
 } from '@shared/types';
 import { Link } from 'react-router-dom';
+import { ExamIntegrityGuard } from '../integrity/ExamIntegrityGuard';
 
 interface MockInterviewModalProps {
   internshipId: string;
@@ -619,7 +620,11 @@ export const MockInterviewModal: React.FC<MockInterviewModalProps> = ({
             </div>
           ) : currentQ ? (
             /* ── Interactive Live Interview Room ── */
-            <div className="space-y-4">
+            <ExamIntegrityGuard
+              sessionId={session?.id || 'mock-interview'}
+              sessionType="MOCK_INTERVIEW"
+            >
+              <div className="space-y-4">
               {/* Question Progress & Navigation Pills */}
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 text-[11px] font-mono text-console-text-muted">
                 <div className="flex items-center gap-2">
@@ -823,7 +828,8 @@ export const MockInterviewModal: React.FC<MockInterviewModalProps> = ({
                 </div>
               </div>
             </div>
-          ) : null}
+          </ExamIntegrityGuard>
+        ) : null}
         </div>
 
         {/* Early Submission Confirmation Dialog Modal */}

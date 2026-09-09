@@ -45,6 +45,7 @@ import { DailyPracticeBanner } from '../../components/DailyPracticeBanner';
 import { DsaDailyBanner } from '../../components/dsa/DsaDailyBanner';
 import { MatchCard } from '../../components/MatchCard';
 import { VerifiedActivityCard } from '../../components/VerifiedActivityCard';
+import { ExamIntegrityGuard } from '../../components/integrity/ExamIntegrityGuard';
 import { Code2 } from 'lucide-react';
 
 // Code-split heavy DSA sub-components to eliminate initial tab lag
@@ -884,17 +885,21 @@ export const AssessmentPage: React.FC = () => {
     const isUrgent = secondsRemaining < 120;
 
     return (
-      <div className="max-w-4xl mx-auto space-y-4 sm:space-y-5 font-sans animate-fade-in">
-        {/* Sticky Runner Top Bar */}
-        <div className="p-4 rounded-2xl bg-console-panel border border-console-border shadow-xl flex flex-wrap items-center justify-between gap-4 sticky top-4 z-30">
-          <div>
-            <span className="text-[10px] font-mono uppercase tracking-wider text-bridge-teal font-semibold">
-              {activeSet.domainName}
-            </span>
-            <h2 className="text-sm font-bold text-console-text font-serif">
-              {activeSet.title}
-            </h2>
-          </div>
+      <ExamIntegrityGuard
+        sessionId={attemptId || activeSet.id}
+        sessionType={isDailyMixedSession ? "DAILY_SET" : "PRACTICE_SET"}
+      >
+        <div className="max-w-4xl mx-auto space-y-4 sm:space-y-5 font-sans animate-fade-in">
+          {/* Sticky Runner Top Bar */}
+          <div className="p-4 rounded-2xl bg-console-panel border border-console-border shadow-xl flex flex-wrap items-center justify-between gap-4 sticky top-4 z-30">
+            <div>
+              <span className="text-[10px] font-mono uppercase tracking-wider text-bridge-teal font-semibold">
+                {activeSet.domainName}
+              </span>
+              <h2 className="text-sm font-bold text-console-text font-serif">
+                {activeSet.title}
+              </h2>
+            </div>
 
           <div className="flex items-center gap-4">
             {/* Timer Clock */}
@@ -1167,8 +1172,9 @@ export const AssessmentPage: React.FC = () => {
           </div>
         </div>
       </div>
-    );
-  }
+    </ExamIntegrityGuard>
+  );
+}
 
   // ─────────────────────────────────────────────────────────────
   // VIEW 3: PRACTICE SET SELECTION & APTITUDE HUB SCREEN

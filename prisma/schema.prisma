@@ -33,6 +33,8 @@ model User {
   notifications      InAppNotification[]
   auditLogs          AuditLog[]
   collaborationMessages CollaborationMessage[]
+  examIntegrityEvents ExamIntegrityEvent[]
+  examSuspension     UserExamSuspension?
 }
 
 model StudentProfile {
@@ -889,3 +891,41 @@ model DailyTarget {
   @@unique([studentId, date])
   @@index([studentId, date])
 }
+
+model ExamIntegrityEvent {
+  id                   String    @id @default(uuid())
+  userId               String
+  user                 User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  sessionId            String
+  sessionType          String    @default("TALENT_ASSESSMENT") // TALENT_ASSESSMENT | PRACTICE_SET | DAILY_SET | DSA_PRACTICE | MOCK_INTERVIEW | AI_INTERVIEW | PROTECTED_EXAM
+  eventType            String    // COPY_ATTEMPT | PASTE_ATTEMPT | FORCE_PASTE_ATTEMPT | CUT_ATTEMPT | CONTEXT_MENU_ATTEMPT | DRAG_DROP_ATTEMPT | PRINT_SCREEN_ATTEMPT | SCREENSHOT_ATTEMPT | TAB_SWITCH | WINDOW_BLUR | VISIBILITY_CHANGE | FULLSCREEN_EXIT
+  severity             String    @default("WARNING") // INFO | WARNING | VIOLATION
+  isConfirmedViolation Boolean   @default(false)
+  warningIssued        Boolean   @default(false)
+  suspensionTriggered  Boolean   @default(false)
+  occurredAt           DateTime  @default(now())
+  metadataJson         String?
+
+  @@index([userId])
+  @@index([sessionId])
+  @@index([occurredAt])
+  @@index([eventType])
+  @@index([userId, isConfirmedViolation])
+}
+
+model UserExamSuspension {
+  id             String    @id @default(uuid())
+  userId         String    @unique
+  user           User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  suspendedAt    DateTime  @default(now())
+  suspendedUntil DateTime
+  reason         String
+  violationCount Int       @default(2)
+  sessionId      String?
+  sessionType    String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+
+  @@index([userId, suspendedUntil])
+}
+

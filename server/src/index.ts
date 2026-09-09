@@ -26,6 +26,7 @@ import collaborationsRoutes from './routes/collaborations.js';
 import talentAssessmentsRoutes from './routes/talentAssessments.js';
 import interviewsRoutes from './routes/interviews.js';
 import intelligenceRoutes from './routes/intelligence.js';
+import integrityRoutes from './routes/integrity.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -104,6 +105,7 @@ app.use('/api/collaborations', collaborationsRoutes);
 app.use('/api/talent-assessments', talentAssessmentsRoutes);
 app.use('/api/interviews', interviewsRoutes);
 app.use('/api/intelligence', intelligenceRoutes);
+app.use('/api/integrity', integrityRoutes);
 
 // Root API info & status endpoint
 app.get(['/api', '/api/'], (_req: Request, res: Response) => {

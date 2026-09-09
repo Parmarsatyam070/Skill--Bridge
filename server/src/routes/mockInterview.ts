@@ -1,6 +1,7 @@
 import { Router, Response } from 'express';
 import { prisma } from '../config/prisma.js';
 import { authenticate, requireRole, AuthRequest } from '../middleware/auth.js';
+import { requireExamAccess } from '../middleware/examIntegrityMiddleware.js';
 import {
   generateMockInterviewQuestions,
   evaluateMockInterviewTranscript,
@@ -20,7 +21,7 @@ const DAILY_MOCK_INTERVIEW_CAP = 3;
  * Starts a 30-minute AI mock interview session with Sash.
  * Enforces daily session cap (3/day) and computes retakeNumber = priorCompletedCount + 1.
  */
-router.post('/start', authenticate, requireRole(['STUDENT']), async (req: AuthRequest, res: Response) => {
+router.post('/start', authenticate, requireRole(['STUDENT']), requireExamAccess, async (req: AuthRequest, res: Response) => {
   const studentProfileId = req.user?.studentProfileId;
   if (!studentProfileId) {
     return res.status(400).json({ error: { code: 'NO_PROFILE', message: 'Student profile required.' } });
@@ -112,7 +113,7 @@ router.post('/start', authenticate, requireRole(['STUDENT']), async (req: AuthRe
  * POST /api/mock-interview/:id/submit-answer
  * Saves intermediate question response to prevent progress loss.
  */
-router.post('/:id/submit-answer', authenticate, requireRole(['STUDENT']), async (req: AuthRequest, res: Response) => {
+router.post('/:id/submit-answer', authenticate, requireRole(['STUDENT']), requireExamAccess, async (req: AuthRequest, res: Response) => {
   const sessionId = req.params.id;
   const { questionIndex, questionText, category, skillTag, studentAnswer, timeTakenSeconds } = req.body;
 
@@ -160,7 +161,7 @@ router.post('/:id/submit-answer', authenticate, requireRole(['STUDENT']), async 
  * Concludes mock interview (either by user completion or 30-min timeout),
  * runs the LLM analysis pass, generates scored feedback, and stores results.
  */
-router.post('/:id/finish', authenticate, requireRole(['STUDENT']), async (req: AuthRequest, res: Response) => {
+router.post('/:id/finish', authenticate, requireRole(['STUDENT']), requireExamAccess, async (req: AuthRequest, res: Response) => {
   const sessionId = req.params.id;
   const { answers, durationSeconds, isTimedOut } = req.body;
 

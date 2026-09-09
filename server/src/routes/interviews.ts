@@ -1,6 +1,7 @@
 import { Router, Response } from 'express';
 import { authenticate, AuthRequest } from '../middleware/auth.js';
 import { requireStudentProfile } from '../middleware/authorization.js';
+import { requireExamAccess } from '../middleware/examIntegrityMiddleware.js';
 import { aiRateLimiter, aiHeavyGenerationLimiter, validateAiInput } from '../middleware/aiRateLimit.js';
 import {
   StartInterviewSchema,
@@ -19,6 +20,7 @@ router.post(
   '/',
   authenticate,
   requireStudentProfile,
+  requireExamAccess,
   aiHeavyGenerationLimiter,
   validateAiInput(1000),
   async (req: AuthRequest, res: Response) => {
@@ -139,6 +141,7 @@ router.post(
   '/:id/answer',
   authenticate,
   requireStudentProfile,
+  requireExamAccess,
   aiRateLimiter,
   validateAiInput(3000),
   async (req: AuthRequest, res: Response) => {
@@ -202,6 +205,7 @@ router.post(
   '/:id/complete',
   authenticate,
   requireStudentProfile,
+  requireExamAccess,
   aiHeavyGenerationLimiter,
   async (req: AuthRequest, res: Response) => {
     try {

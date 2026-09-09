@@ -1,5 +1,6 @@
 import { Router, Response } from 'express';
 import { authenticate, AuthRequest } from '../middleware/auth.js';
+import { requireExamAccess } from '../middleware/examIntegrityMiddleware.js';
 import {
   getAllPracticeSets,
   getPracticeSetDetail,
@@ -37,7 +38,7 @@ router.get('/sets', authenticate, async (req: AuthRequest, res: Response) => {
  * Dynamically samples non-repeating questions, rotates listening passages,
  * shuffles MCQ options, and creates a trackable AssessmentAttempt session.
  */
-router.post('/sets/:setId/start', authenticate, async (req: AuthRequest, res: Response) => {
+router.post('/sets/:setId/start', authenticate, requireExamAccess, async (req: AuthRequest, res: Response) => {
   const studentProfileId = req.user?.studentProfileId;
   const { setId } = req.params;
 
@@ -95,7 +96,7 @@ router.get('/daily-status', authenticate, async (req: AuthRequest, res: Response
  * POST /api/assessments/run-code
  * Runs code in the sandbox environment against provided test cases for immediate feedback
  */
-router.post('/run-code', authenticate, async (req: AuthRequest, res: Response) => {
+router.post('/run-code', authenticate, requireExamAccess, async (req: AuthRequest, res: Response) => {
   const { code, language, entryFunctionName, testCases } = req.body;
 
   try {
@@ -119,7 +120,7 @@ router.post('/run-code', authenticate, async (req: AuthRequest, res: Response) =
  * Evaluates MCQs, runs AI rubric grading on written questions, judges coding problems,
  * computes pass/fail, and updates two-directional rolling Skill Radar vectors.
  */
-router.post('/sets/:setId/submit', authenticate, async (req: AuthRequest, res: Response) => {
+router.post('/sets/:setId/submit', authenticate, requireExamAccess, async (req: AuthRequest, res: Response) => {
   const studentProfileId = req.user?.studentProfileId;
   if (!studentProfileId) {
     return res.status(403).json({ error: { code: 'FORBIDDEN', message: 'Only students can submit assessments.' } });
@@ -211,7 +212,7 @@ router.get('/daily-mixed', authenticate, async (req: AuthRequest, res: Response)
  * POST /api/assessments/daily-mixed/submit
  * Evaluates submitted daily mixed practice set across Aptitude, Domain, and DSA.
  */
-router.post('/daily-mixed/submit', authenticate, async (req: AuthRequest, res: Response) => {
+router.post('/daily-mixed/submit', authenticate, requireExamAccess, async (req: AuthRequest, res: Response) => {
   const studentProfileId = req.user?.studentProfileId;
   if (!studentProfileId) {
     return res.status(403).json({ error: { code: 'FORBIDDEN', message: 'Only students can submit daily practice.' } });

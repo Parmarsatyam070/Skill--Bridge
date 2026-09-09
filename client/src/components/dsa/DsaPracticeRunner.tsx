@@ -33,6 +33,7 @@ import {
   SupportedLanguage,
   ExecutionStatus,
 } from '@shared/types';
+import { ExamIntegrityGuard } from '../integrity/ExamIntegrityGuard';
 
 export const SUPPORTED_LANGUAGES: {
   id: SupportedLanguage;
@@ -454,9 +455,13 @@ export const DsaPracticeRunner: React.FC<DsaPracticeRunnerProps> = ({
   if (!currentQ) return null;
 
   return (
-    <div className="w-full flex-1 min-h-0 flex flex-col space-y-3 sm:space-y-4 font-sans animate-fade-in">
-      {/* Top Nav Bar (In-Flow Pinned Card, No Sticky Jitter) */}
-      <div className="p-3.5 sm:p-4 rounded-2xl bg-panel border border-border shadow-xl flex flex-wrap items-center justify-between gap-3 shrink-0">
+    <ExamIntegrityGuard
+      sessionId={currentQ.id || 'dsa-runner'}
+      sessionType="DSA"
+    >
+      <div className="w-full flex-1 min-h-0 flex flex-col space-y-3 sm:space-y-4 font-sans animate-fade-in">
+        {/* Top Nav Bar (In-Flow Pinned Card, No Sticky Jitter) */}
+        <div className="p-3.5 sm:p-4 rounded-2xl bg-panel border border-border shadow-xl flex flex-wrap items-center justify-between gap-3 shrink-0">
         <div className="flex items-center gap-3">
           <div>
             <div className="flex items-center gap-2">
@@ -935,5 +940,8 @@ export const DsaPracticeRunner: React.FC<DsaPracticeRunnerProps> = ({
         </div>
       </div>
     </div>
-  );
+  </ExamIntegrityGuard>
+);
 };
+
+export default DsaPracticeRunner;

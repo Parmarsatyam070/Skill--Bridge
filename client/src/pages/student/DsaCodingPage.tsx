@@ -33,6 +33,7 @@ import {
 } from '@shared/types';
 import { api } from '../../lib/api';
 import { useAuth } from '../../context/AuthContext';
+import { ExamIntegrityGuard } from '../../components/integrity/ExamIntegrityGuard';
 
 const SUPPORTED_LANGUAGES: { id: SupportedLanguage; label: string; monacoLang: string; version: string }[] = [
   { id: 'cpp', label: 'C++', monacoLang: 'cpp', version: 'C++17' },
@@ -535,8 +536,15 @@ export const DsaCodingPage: React.FC = () => {
           </aside>
         )}
 
-        {/* Left Panel: Problem Statement & Context */}
-        <div className="w-1/2 border-r border-[#1e293b] flex flex-col bg-[#030712] overflow-y-auto">
+        {/* Main Coding Workspace wrapped in ExamIntegrityGuard */}
+        <ExamIntegrityGuard
+          sessionId={activeQuestion?.id || 'dsa-session'}
+          sessionType="DSA"
+          enabled={Boolean(activeQuestion)}
+          className="flex-1 flex overflow-hidden"
+        >
+          {/* Left Panel: Problem Statement & Context */}
+          <div className="w-1/2 border-r border-[#1e293b] flex flex-col bg-[#030712] overflow-y-auto">
           {loadingQuestion ? (
             <div className="p-8 flex flex-col items-center justify-center text-slate-500 gap-3 min-h-[400px]">
               <RefreshCw className="w-6 h-6 animate-spin text-blue-400" />
@@ -961,9 +969,10 @@ export const DsaCodingPage: React.FC = () => {
             </div>
           </div>
         </div>
-      </div>
+      </ExamIntegrityGuard>
     </div>
-  );
+  </div>
+);
 };
 
 export default DsaCodingPage;
