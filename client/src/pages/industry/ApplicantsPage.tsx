@@ -77,10 +77,47 @@ export const ApplicantsPage: React.FC = () => {
   const [offerStipend, setOfferStipend] = useState('₹45,000/month');
   const [hireNotes, setHireNotes] = useState('');
 
-  // Fetch ranked applicants
+  // Fetch ranked applicants (supporting live requisitions and demo dataset opportunities)
   const { data, isLoading } = useQuery({
     queryKey: ['jobApplicants', jobId],
-    queryFn: () => api.get<{ applicants: ApplicantRecord[] }>(`/internships/${jobId}/applicants`),
+    queryFn: async () => {
+      try {
+        return await api.get<{ applicants: ApplicantRecord[] }>(`/internships/${jobId}/applicants`);
+      } catch (err) {
+        // Fallback: Check if it's a demo opportunity from Industry Demo dataset
+        const demoRes = await api.get<{ success: boolean; data: { opportunity: any; applicants: any[] } }>(
+          `/industry/demo/opportunities/${jobId}/applicants`
+        );
+        const mapped: ApplicantRecord[] = (demoRes.data?.applicants || []).map((app: any) => ({
+          id: app.id,
+          studentId: app.candidateId,
+          studentName: app.studentName,
+          studentEmail: `${app.externalStudentId.toLowerCase()}@demo.skillbridge.internal`,
+          institution: app.university,
+          targetDomain: 'Technical',
+          cgpa: Math.round((app.averageScore / 10) * 10) / 10,
+          status: (app.stage?.toLowerCase() === 'interview_scheduled'
+            ? 'interview_scheduled'
+            : app.stage?.toLowerCase() === 'hired'
+            ? 'accepted'
+            : app.stage?.toLowerCase() === 'shortlisted'
+            ? 'shortlisted'
+            : 'applied') as ApplicationStatus,
+          matchScoreAtApply: app.matchScore,
+          currentMatchScore: app.matchScore,
+          matchTier: (app.matchScore >= 80 ? 'high' : app.matchScore >= 65 ? 'medium' : 'low') as 'high' | 'medium' | 'low',
+          appliedAt: app.appliedAt || new Date().toISOString(),
+          breakdown: {
+            totalScore: app.matchScore,
+            verifiedSkills: (app.knownSkills || []).map((k: any) => ({
+              skillName: k.skill,
+              score: k.skillScore,
+            })),
+          } as any,
+        }));
+        return { applicants: mapped };
+      }
+    },
     enabled: !!jobId,
   });
 

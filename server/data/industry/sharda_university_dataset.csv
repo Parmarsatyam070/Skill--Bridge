@@ -1,0 +1,81 @@
+Student Name,Student ID,Branch,Skill,Skill Category,Overall Skill Score
+Yash Patel,SU2024001,AI & ML,TypeScript,Technical - Programming Language,91
+Aditi Bhatia,SU2024002,AI & ML,System Design & Architecture,Technical - Architecture & Design,60
+Devansh Malhotra,SU2024003,Cloud Computing,System Design & Architecture,Technical - Architecture & Design,91
+Simran Reddy,SU2024004,AI & ML,System Design & Architecture,Technical - Architecture & Design,90
+Amit Agarwal,SU2024005,Information Technology,Technical Communication,Technical - Engineering Communication,94
+Saanvi Tiwari,SU2024006,Cybersecurity,Technical Communication,Technical - Engineering Communication,98
+Rohan Desai,SU2024007,Data Science,PostgreSQL,Technical - Database Management,48
+Priya Yadav,SU2024008,Cloud Computing,PostgreSQL,Technical - Database Management,52
+Ishaan Bhatia,SU2024009,Full-Stack Web Development,PostgreSQL,Technical - Database Management,66
+Priya Reddy,SU2024010,Full-Stack Web Development,PostgreSQL,Technical - Database Management,71
+Rahul Pillai,SU2024011,Data Science,PostgreSQL,Technical - Database Management,59
+Saanvi Verma,SU2024012,Data Science,React.js,Technical - Frontend Development,61
+Kabir Chopra,SU2024013,Cloud Computing,System Design & Architecture,Technical - Architecture & Design,52
+Amit Yadav,SU2024014,Data Science,TypeScript,Technical - Programming Language,74
+Neha Kumar,SU2024015,Data Science,Express.js,Technical - Backend Development,76
+Meera Yadav,SU2024016,Software Engineering,Express.js,Technical - Backend Development,69
+Simran Chopra,SU2024017,Full-Stack Web Development,Technical Communication,Technical - Engineering Communication,90
+Varun Patel,SU2024018,Software Engineering,Express.js,Technical - Backend Development,58
+Kavya Mishra,SU2024019,Information Technology,React.js,Technical - Frontend Development,98
+Diya Sharma,SU2024020,Software Engineering,PostgreSQL,Technical - Database Management,90
+Myra Malhotra,SU2024021,Data Science,React.js,Technical - Frontend Development,57
+Ira Nair,SU2024022,Cybersecurity,System Design & Architecture,Technical - Architecture & Design,61
+Yash Agarwal,SU2024023,Cloud Computing,Technical Communication,Technical - Engineering Communication,71
+Aadhya Gupta,SU2024024,AI & ML,Express.js,Technical - Backend Development,62
+Ishaan Pillai,SU2024025,AI & ML,System Design & Architecture,Technical - Architecture & Design,51
+Devansh Reddy,SU2024026,Data Science,PostgreSQL,Technical - Database Management,56
+Kabir Nair,SU2024027,Full-Stack Web Development,Express.js,Technical - Backend Development,93
+Aditya Pillai,SU2024028,Cloud Computing,Technical Communication,Technical - Engineering Communication,91
+Arjun Singh,SU2024029,Data Science,React.js,Technical - Frontend Development,78
+Ishaan Reddy,SU2024030,Information Technology,System Design & Architecture,Technical - Architecture & Design,56
+Myra Kapoor,SU2024031,Software Engineering,TypeScript,Technical - Programming Language,50
+Ishaan Chauhan,SU2024032,Information Technology,System Design & Architecture,Technical - Architecture & Design,80
+Meera Yadav,SU2024033,Computer Science,System Design & Architecture,Technical - Architecture & Design,51
+Tanvi Patel,SU2024034,Full-Stack Web Development,React.js,Technical - Frontend Development,52
+Navya Sharma,SU2024035,Software Engineering,React.js,Technical - Frontend Development,51
+Simran Mishra,SU2024036,Data Science,System Design & Architecture,Technical - Architecture & Design,58
+Aadhya Bansal,SU2024037,Software Engineering,PostgreSQL,Technical - Database Management,65
+Navya Saxena,SU2024038,Cybersecurity,Technical Communication,Technical - Engineering Communication,73
+Saanvi Joshi,SU2024039,Cybersecurity,PostgreSQL,Technical - Database Management,83
+Ishaan Reddy,SU2024040,Software Engineering,Express.js,Technical - Backend Development,70
+Aadhya Bhatia,SU2024041,Software Engineering,Express.js,Technical - Backend Development,74
+Aarav Singh,SU2024042,Full-Stack Web Development,Technical Communication,Technical - Engineering Communication,45
+Kiara Bhatia,SU2024043,Cloud Computing,Technical Communication,Technical - Engineering Communication,47
+Saanvi Chauhan,SU2024044,Cybersecurity,System Design & Architecture,Technical - Architecture & Design,76
+Tanvi Verma,SU2024045,Cloud Computing,Express.js,Technical - Backend Development,45
+Kabir Chopra,SU2024046,AI & ML,Technical Communication,Technical - Engineering Communication,91
+Ananya Nair,SU2024047,Information Technology,PostgreSQL,Technical - Database Management,49
+Ishaan Patel,SU2024048,Computer Science,Express.js,Technical - Backend Development,64
+Anika Kapoor,SU2024049,Software Engineering,Express.js,Technical - Backend Development,98
+Varun Rao,SU2024050,Cybersecurity,System Design & Architecture,Technical - Architecture & Design,65
+Ananya Verma,SU2024051,Information Technology,React.js,Technical - Frontend Development,68
+Manish Yadav,SU2024052,Software Engineering,System Design & Architecture,Technical - Architecture & Design,90
+Sai Verma,SU2024053,Cloud Computing,React.js,Technical - Frontend Development,96
+Navya Nair,SU2024054,Information Technology,Express.js,Technical - Backend Development,79
+Ishita Kumar,SU2024055,Data Science,System Design & Architecture,Technical - Architecture & Design,82
+Sai Rao,SU2024056,Information Technology,System Design & Architecture,Technical - Architecture & Design,90
+Navya Rao,SU2024057,Software Engineering,TypeScript,Technical - Programming Language,45
+Kabir Singh,SU2024058,Data Science,PostgreSQL,Technical - Database Management,79
+Ishita Rao,SU2024059,Cybersecurity,System Design & Architecture,Technical - Architecture & Design,95
+Diya Yadav,SU2024060,Data Science,System Design & Architecture,Technical - Architecture & Design,93
+Ira Iyer,SU2024061,Full-Stack Web Development,PostgreSQL,Technical - Database Management,85
+Krishna Joshi,SU2024062,Cloud Computing,Express.js,Technical - Backend Development,65
+Kabir Agarwal,SU2024063,Data Science,TypeScript,Technical - Programming Language,97
+Priya Nair,SU2024064,Cloud Computing,PostgreSQL,Technical - Database Management,81
+Riya Mehta,SU2024065,Data Science,PostgreSQL,Technical - Database Management,86
+Aryan Verma,SU2024066,AI & ML,PostgreSQL,Technical - Database Management,97
+Saanvi Iyer,SU2024067,Cloud Computing,System Design & Architecture,Technical - Architecture & Design,53
+Rahul Mehta,SU2024068,Software Engineering,React.js,Technical - Frontend Development,77
+Kiara Bansal,SU2024069,AI & ML,Express.js,Technical - Backend Development,60
+Shaurya Joshi,SU2024070,AI & ML,TypeScript,Technical - Programming Language,75
+Neha Sharma,SU2024071,Cloud Computing,Technical Communication,Technical - Engineering Communication,49
+Ishaan Singh,SU2024072,Cloud Computing,System Design & Architecture,Technical - Architecture & Design,65
+Aadhya Bhatia,SU2024073,Information Technology,System Design & Architecture,Technical - Architecture & Design,61
+Aditya Yadav,SU2024074,AI & ML,Technical Communication,Technical - Engineering Communication,99
+Shaurya Reddy,SU2024075,Cloud Computing,TypeScript,Technical - Programming Language,57
+Yash Iyer,SU2024076,Information Technology,PostgreSQL,Technical - Database Management,52
+Sai Pillai,SU2024077,AI & ML,TypeScript,Technical - Programming Language,92
+Karan Pillai,SU2024078,Information Technology,TypeScript,Technical - Programming Language,93
+Kavya Nair,SU2024079,Software Engineering,Express.js,Technical - Backend Development,86
+Ishaan Tiwari,SU2024080,Cloud Computing,Technical Communication,Technical - Engineering Communication,51

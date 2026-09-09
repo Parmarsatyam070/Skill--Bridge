@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import {
@@ -8,13 +8,17 @@ import {
   ArrowRight,
   Bot,
   Sparkles,
+  Database,
+  Layers,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
+import { IndustryDemoView } from '../../components/industry/IndustryDemoView';
 
 export const IndustryDashboard: React.FC = () => {
   const { user } = useAuth();
   const industryProfileId = user?.industryProfile?.id;
+  const [dashboardMode, setDashboardMode] = useState<'live' | 'demo'>('demo');
 
   const { data, isLoading } = useQuery({
     queryKey: ['industryJobs', industryProfileId],
@@ -68,106 +72,149 @@ export const IndustryDashboard: React.FC = () => {
         </div>
       </div>
 
-      {/* Metrics Row */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 font-mono">
-        <div className="p-5 rounded-xl bg-[#0b1329] border border-[#1e293b] space-y-1 shadow-sm">
-          <div className="flex items-center justify-between text-xs text-slate-400 font-sans">
-            <span className="small-caps-label text-[10px] text-slate-400">[• ACTIVE POSTINGS]</span>
-            <Briefcase className="w-4 h-4 text-[#E8A23C]" />
-          </div>
-          <div className="text-2xl sm:text-3xl font-bold text-white pt-1">{internships.length}</div>
-          <div className="text-[11px] text-[#4CC38A] font-sans">Open for applications</div>
-        </div>
-
-        <div className="p-5 rounded-xl bg-[#0b1329] border border-[#1e293b] space-y-1 shadow-sm">
-          <div className="flex items-center justify-between text-xs text-slate-400 font-sans">
-            <span className="small-caps-label text-[10px] text-slate-400">[• VERIFIED APPLICANTS]</span>
-            <Users className="w-4 h-4 text-blue-400" />
-          </div>
-          <div className="text-2xl sm:text-3xl font-bold text-blue-400 pt-1">{totalApplicants}</div>
-          <div className="text-[11px] text-slate-400 font-sans">100% Pre-assessed candidates</div>
-        </div>
-      </div>
-
-      {/* Active Internships & Candidate Pipeline Table */}
-      <div className="bg-[#0b1329] border border-[#1e293b] rounded-xl p-5 sm:p-6 shadow-sm space-y-4">
-        <div className="flex items-center justify-between pb-3 border-b border-[#1e293b]">
-          <div>
-            <span className="small-caps-label text-[10px] text-slate-400 block">
-              [• ACTIVE REQUISITIONS]
+      {/* Mode Switcher Tabs */}
+      <div className="flex items-center justify-between gap-4 p-2 rounded-xl bg-[#0b1329] border border-[#1e293b]">
+        <div className="flex rounded-lg bg-[#0f172a] p-1 border border-[#1e293b]">
+          <button
+            onClick={() => setDashboardMode('demo')}
+            className={`flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-md transition-all ${
+              dashboardMode === 'demo'
+                ? 'bg-blue-600 text-white shadow-md'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <Database className="w-3.5 h-3.5" />
+            <span>Demo Dataset Mode (410 Candidates)</span>
+            <span className="px-1.5 py-0.2 rounded text-[9.5px] bg-amber-500/20 text-amber-300 font-mono">
+              Evaluator Mode
             </span>
-            <h3 className="text-base sm:text-lg font-semibold text-white tracking-tight mt-0.5">
-              Internship Requisitions
-            </h3>
-          </div>
-          <span className="text-xs font-mono text-slate-400 bg-[#0f172a] px-2.5 py-1 rounded-md border border-[#1e293b]">
-            {internships.length} Active Positions
-          </span>
+          </button>
+          <button
+            onClick={() => setDashboardMode('live')}
+            className={`flex items-center gap-2 px-4 py-2 text-xs font-bold rounded-md transition-all ${
+              dashboardMode === 'live'
+                ? 'bg-blue-600 text-white shadow-md'
+                : 'text-slate-400 hover:text-white'
+            }`}
+          >
+            <Layers className="w-3.5 h-3.5" />
+            <span>Live Enterprise Requisitions</span>
+          </button>
         </div>
 
-        {isLoading ? (
-          <div className="h-40 flex items-center justify-center">
-            <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
-          </div>
-        ) : internships.length === 0 ? (
-          <div className="text-center py-10 space-y-3">
-            <Briefcase className="w-10 h-10 text-slate-500 mx-auto opacity-40" />
-            <div className="text-xs font-semibold text-white">No Active Job Postings</div>
-            <p className="text-xs text-slate-400">
-              Create your first internship posting with customized skill vector weights.
-            </p>
-            <Link
-              to="/industry/post-job"
-              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-mono font-bold text-xs shadow-md shadow-blue-600/30"
-            >
-              <Plus className="w-3.5 h-3.5" />
-              <span>Create Position</span>
-            </Link>
-          </div>
-        ) : (
-          <div className="divide-y divide-[#1e293b]/70">
-            {internships.map(job => (
-              <div
-                key={job.id}
-                className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 first:pt-1 last:pb-0"
-              >
-                <div className="space-y-1">
-                  <div className="flex items-center gap-2">
-                    <h4 className="text-sm sm:text-base font-semibold text-white">
-                      {job.title}
-                    </h4>
-                    <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-[#4CC38A]/10 text-[#4CC38A] border border-[#4CC38A]/20">
-                      {job.status}
-                    </span>
-                  </div>
-                  <div className="text-xs text-slate-400 font-mono flex flex-wrap items-center gap-3">
-                    <span>{job.location}</span>
-                    <span>•</span>
-                    <span>{job.workMode}</span>
-                    <span>•</span>
-                    <span>{job.stipend}</span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-3">
-                  <div className="text-right font-mono text-xs hidden sm:block">
-                    <div className="font-bold text-white">{job.applicantCount || 0} Applicants</div>
-                    <div className="text-[10.5px] text-blue-400">Ranked by Vector Match</div>
-                  </div>
-
-                  <Link
-                    to={`/industry/applicants/${job.id}`}
-                    className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#0f172a] hover:bg-[#1e293b] border border-[#1e293b] text-slate-200 hover:text-blue-400 text-xs font-semibold transition-colors cursor-pointer"
-                  >
-                    <span>View Ranked Candidates</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
-                </div>
-              </div>
-            ))}
-          </div>
-        )}
+        <div className="hidden sm:flex items-center gap-2 text-xs font-mono text-slate-400">
+          <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+          <span>PostgreSQL Active</span>
+        </div>
       </div>
+
+      {/* Render Mode */}
+      {dashboardMode === 'demo' ? (
+        <IndustryDemoView />
+      ) : (
+        <>
+          {/* Metrics Row */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-5 font-mono">
+            <div className="p-5 rounded-xl bg-[#0b1329] border border-[#1e293b] space-y-1 shadow-sm">
+              <div className="flex items-center justify-between text-xs text-slate-400 font-sans">
+                <span className="small-caps-label text-[10px] text-slate-400">[• ACTIVE POSTINGS]</span>
+                <Briefcase className="w-4 h-4 text-[#E8A23C]" />
+              </div>
+              <div className="text-2xl sm:text-3xl font-bold text-white pt-1">{internships.length}</div>
+              <div className="text-[11px] text-[#4CC38A] font-sans">Open for applications</div>
+            </div>
+
+            <div className="p-5 rounded-xl bg-[#0b1329] border border-[#1e293b] space-y-1 shadow-sm">
+              <div className="flex items-center justify-between text-xs text-slate-400 font-sans">
+                <span className="small-caps-label text-[10px] text-slate-400">[• VERIFIED APPLICANTS]</span>
+                <Users className="w-4 h-4 text-blue-400" />
+              </div>
+              <div className="text-2xl sm:text-3xl font-bold text-blue-400 pt-1">{totalApplicants}</div>
+              <div className="text-[11px] text-slate-400 font-sans">100% Pre-assessed candidates</div>
+            </div>
+          </div>
+
+          {/* Active Internships & Candidate Pipeline Table */}
+          <div className="bg-[#0b1329] border border-[#1e293b] rounded-xl p-5 sm:p-6 shadow-sm space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-[#1e293b]">
+              <div>
+                <span className="small-caps-label text-[10px] text-slate-400 block">
+                  [• ACTIVE REQUISITIONS]
+                </span>
+                <h3 className="text-base sm:text-lg font-semibold text-white tracking-tight mt-0.5">
+                  Internship Requisitions
+                </h3>
+              </div>
+              <span className="text-xs font-mono text-slate-400 bg-[#0f172a] px-2.5 py-1 rounded-md border border-[#1e293b]">
+                {internships.length} Active Positions
+              </span>
+            </div>
+
+            {isLoading ? (
+              <div className="h-40 flex items-center justify-center">
+                <div className="w-6 h-6 border-2 border-blue-500 border-t-transparent rounded-full animate-spin" />
+              </div>
+            ) : internships.length === 0 ? (
+              <div className="text-center py-10 space-y-3">
+                <Briefcase className="w-10 h-10 text-slate-500 mx-auto opacity-40" />
+                <div className="text-xs font-semibold text-white">No Active Job Postings</div>
+                <p className="text-xs text-slate-400">
+                  Create your first internship posting with customized skill vector weights.
+                </p>
+                <Link
+                  to="/industry/post-job"
+                  className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-500 text-white font-mono font-bold text-xs shadow-md shadow-blue-600/30"
+                >
+                  <Plus className="w-3.5 h-3.5" />
+                  <span>Create Position</span>
+                </Link>
+              </div>
+            ) : (
+              <div className="divide-y divide-[#1e293b]/70">
+                {internships.map((job) => (
+                  <div
+                    key={job.id}
+                    className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4 first:pt-1 last:pb-0"
+                  >
+                    <div className="space-y-1">
+                      <div className="flex items-center gap-2">
+                        <h4 className="text-sm sm:text-base font-semibold text-white">
+                          {job.title}
+                        </h4>
+                        <span className="px-2 py-0.5 rounded text-[10px] font-mono bg-[#4CC38A]/10 text-[#4CC38A] border border-[#4CC38A]/20">
+                          {job.status}
+                        </span>
+                      </div>
+                      <div className="text-xs text-slate-400 font-mono flex flex-wrap items-center gap-3">
+                        <span>{job.location}</span>
+                        <span>•</span>
+                        <span>{job.workMode}</span>
+                        <span>•</span>
+                        <span>{job.stipend}</span>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                      <div className="text-right font-mono text-xs hidden sm:block">
+                        <div className="font-bold text-white">{job.applicantCount || 0} Applicants</div>
+                        <div className="text-[10.5px] text-blue-400">Ranked by Vector Match</div>
+                      </div>
+
+                      <Link
+                        to={`/industry/applicants/${job.id}`}
+                        className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl bg-[#0f172a] hover:bg-[#1e293b] border border-[#1e293b] text-slate-200 hover:text-blue-400 text-xs font-semibold transition-colors cursor-pointer"
+                      >
+                        <span>View Ranked Candidates</span>
+                        <ArrowRight className="w-3.5 h-3.5" />
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        </>
+      )}
     </div>
   );
 };

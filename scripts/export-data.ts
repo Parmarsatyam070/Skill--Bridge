@@ -105,7 +105,6 @@ async function main() {
     internships: await exportTable('Internship', () => prisma.internship.findMany(), () => prisma.internship.count()),
     applications: await exportTable('Application', () => prisma.application.findMany(), () => prisma.application.count()),
     resumes: await exportTable('Resume', () => prisma.resume.findMany(), () => prisma.resume.count()),
-    academicOpportunities: await exportTable('AcademicOpportunity', () => prisma.academicOpportunity.findMany(), () => prisma.academicOpportunity.count()),
     externalIntegrations: await exportTable('ExternalIntegration', () => prisma.externalIntegration.findMany(), () => prisma.externalIntegration.count()),
     portfolioWebsites: await exportTable('PortfolioWebsite', () => prisma.portfolioWebsite.findMany(), () => prisma.portfolioWebsite.count()),
     portfolioMessages: await exportTable('PortfolioMessage', () => prisma.portfolioMessage.findMany(), () => prisma.portfolioMessage.count()),

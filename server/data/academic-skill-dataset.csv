@@ -1,0 +1,151 @@
+Student Name,Student ID,Domain,Branch,Skill,Skill Category,Overall Skill Score
+Ananya Chopra,STU1001,Technical,Computer Science,TypeScript,Technical - Programming Language,53
+Ananya Chopra,STU1001,Technical,Computer Science,React & Frontend,Technical - Web Development,87
+Ananya Chopra,STU1001,Technical,Computer Science,Node.js & Backend,Technical - Backend Development,91
+Ananya Chopra,STU1001,Technical,Computer Science,Database Management Systems,Technical - Database Systems,62
+Ananya Chopra,STU1001,Technical,Computer Science,Software Architecture & Design,Technical - System Design,80
+Ananya Chopra,STU1001,Technical,Computer Science,Operating Systems,Technical - Core Systems,74
+Rohan Sharma,STU1002,Technical,Computer Science,Data Structures,Technical - Algorithms & DSA,48
+Rohan Sharma,STU1002,Technical,Computer Science,Java Programming,Technical - Programming Language,65
+Rohan Sharma,STU1002,Technical,Computer Science,Database Management Systems,Technical - Database Systems,78
+Rohan Sharma,STU1002,Technical,Computer Science,Computer Networks,Technical - Networking & Security,82
+Rohan Sharma,STU1002,Technical,Computer Science,Web Technologies,Technical - Web Development,88
+Rohan Sharma,STU1002,Technical,Computer Science,Software Engineering,Technical - Software Engineering,79
+Priya Patel,STU1003,Data Science & Analytics,Information Technology,Python Programming,Technical - Programming Language,92
+Priya Patel,STU1003,Data Science & Analytics,Information Technology,Machine Learning,Technical - AI & Machine Learning,85
+Priya Patel,STU1003,Data Science & Analytics,Information Technology,Database Management Systems,Technical - Database Systems,54
+Priya Patel,STU1003,Data Science & Analytics,Information Technology,Data Structures,Technical - Algorithms & DSA,76
+Priya Patel,STU1003,Data Science & Analytics,Information Technology,Applied Statistics,Supporting - Mathematics,89
+Priya Patel,STU1003,Data Science & Analytics,Information Technology,Cloud Computing,Technical - Cloud Systems,70
+Aditya Verma,STU1004,Technical,Computer Science,Computer Networks,Technical - Networking & Security,42
+Aditya Verma,STU1004,Technical,Computer Science,Operating Systems,Technical - Core Systems,58
+Aditya Verma,STU1004,Technical,Computer Science,Data Structures,Technical - Algorithms & DSA,84
+Aditya Verma,STU1004,Technical,Computer Science,Design & Analysis of Algorithms,Technical - Algorithms & DSA,86
+Aditya Verma,STU1004,Technical,Computer Science,Object Oriented Programming,Technical - Programming Language,90
+Aditya Verma,STU1004,Technical,Computer Science,Database Management Systems,Technical - Database Systems,81
+Sneha Reddy,STU1005,Full-Stack Web Development,Information Technology,Frontend Web Technologies,Technical - Web Development,94
+Sneha Reddy,STU1005,Full-Stack Web Development,Information Technology,Backend API Development,Technical - Backend Development,88
+Sneha Reddy,STU1005,Full-Stack Web Development,Information Technology,Database Management Systems,Technical - Database Systems,49
+Sneha Reddy,STU1005,Full-Stack Web Development,Information Technology,Data Structures,Technical - Algorithms & DSA,67
+Sneha Reddy,STU1005,Full-Stack Web Development,Information Technology,Software Engineering,Technical - Software Engineering,82
+Sneha Reddy,STU1005,Full-Stack Web Development,Information Technology,Cloud Deployment,Technical - Cloud Systems,75
+Vikram Malhotra,STU1006,Embedded & IoT,Electronics & Communication,Microprocessors & Microcontrollers,Technical - Core Electronics,88
+Vikram Malhotra,STU1006,Embedded & IoT,Electronics & Communication,Digital Signal Processing,Technical - Core Electronics,82
+Vikram Malhotra,STU1006,Embedded & IoT,Electronics & Communication,Basic Electrical & Electronics,Technical - Core Electronics,91
+Vikram Malhotra,STU1006,Embedded & IoT,Electronics & Communication,Data Structures,Technical - Algorithms & DSA,51
+Vikram Malhotra,STU1006,Embedded & IoT,Electronics & Communication,Computer Networks,Technical - Networking & Security,72
+Vikram Malhotra,STU1006,Embedded & IoT,Electronics & Communication,Engineering Mathematics,Supporting - Mathematics,79
+Kavita Iyer,STU1007,Technical,Computer Science,Design & Analysis of Algorithms,Technical - Algorithms & DSA,55
+Kavita Iyer,STU1007,Technical,Computer Science,Operating Systems,Technical - Core Systems,82
+Kavita Iyer,STU1007,Technical,Computer Science,Database Management Systems,Technical - Database Systems,86
+Kavita Iyer,STU1007,Technical,Computer Science,Compiler Design,Technical - Core Systems,62
+Kavita Iyer,STU1007,Technical,Computer Science,Computer Networks,Technical - Networking & Security,78
+Kavita Iyer,STU1007,Technical,Computer Science,Software Engineering,Technical - Software Engineering,90
+Arjun Nair,STU1008,Core Engineering,Mechanical Engineering,Thermodynamics,Technical - Core Mechanical,89
+Arjun Nair,STU1008,Core Engineering,Mechanical Engineering,Fluid Mechanics,Technical - Core Mechanical,84
+Arjun Nair,STU1008,Core Engineering,Mechanical Engineering,Strength of Materials,Technical - Core Mechanical,46
+Arjun Nair,STU1008,Core Engineering,Mechanical Engineering,Theory of Machines,Technical - Core Mechanical,78
+Arjun Nair,STU1008,Core Engineering,Mechanical Engineering,Engineering Graphics & CAD,Technical - Core Mechanical,92
+Arjun Nair,STU1008,Core Engineering,Mechanical Engineering,Engineering Mathematics,Supporting - Mathematics,80
+Divya Joshi,STU1009,Cloud & DevOps,Computer Science,Cloud Computing,Technical - Cloud Systems,92
+Divya Joshi,STU1009,Cloud & DevOps,Computer Science,Cybersecurity & Cryptography,Technical - Networking & Security,88
+Divya Joshi,STU1009,Cloud & DevOps,Computer Science,Operating Systems,Technical - Core Systems,52
+Divya Joshi,STU1009,Cloud & DevOps,Computer Science,Computer Networks,Technical - Networking & Security,79
+Divya Joshi,STU1009,Cloud & DevOps,Computer Science,Database Management Systems,Technical - Database Systems,84
+Divya Joshi,STU1009,Cloud & DevOps,Computer Science,Data Structures,Technical - Algorithms & DSA,81
+Siddharth Rao,STU1010,Technical,Computer Science,Data Structures,Technical - Algorithms & DSA,90
+Siddharth Rao,STU1010,Technical,Computer Science,Database Management Systems,Technical - Database Systems,88
+Siddharth Rao,STU1010,Technical,Computer Science,Operating Systems,Technical - Core Systems,92
+Siddharth Rao,STU1010,Technical,Computer Science,Computer Networks,Technical - Networking & Security,85
+Siddharth Rao,STU1010,Technical,Computer Science,Software Engineering,Technical - Software Engineering,89
+Siddharth Rao,STU1010,Technical,Computer Science,Theory of Computation,Technical - Core Systems,82
+Meera Nambiar,STU1011,AI & Data Science,Computer Science,Machine Learning,Technical - AI & Machine Learning,90
+Meera Nambiar,STU1011,AI & Data Science,Computer Science,Artificial Intelligence,Technical - AI & Machine Learning,86
+Meera Nambiar,STU1011,AI & Data Science,Computer Science,Data Structures,Technical - Algorithms & DSA,58
+Meera Nambiar,STU1011,AI & Data Science,Computer Science,Database Management Systems,Technical - Database Systems,72
+Meera Nambiar,STU1011,AI & Data Science,Computer Science,Applied Mathematics,Supporting - Mathematics,94
+Meera Nambiar,STU1011,AI & Data Science,Computer Science,Python Programming,Technical - Programming Language,91
+Karan Kapoor,STU1012,Technical,Information Technology,Web Technologies,Technical - Web Development,84
+Karan Kapoor,STU1012,Technical,Information Technology,Object Oriented Programming,Technical - Programming Language,62
+Karan Kapoor,STU1012,Technical,Information Technology,Data Structures,Technical - Algorithms & DSA,50
+Karan Kapoor,STU1012,Technical,Information Technology,Database Management Systems,Technical - Database Systems,75
+Karan Kapoor,STU1012,Technical,Information Technology,Computer Networks,Technical - Networking & Security,81
+Karan Kapoor,STU1012,Technical,Information Technology,Operating Systems,Technical - Core Systems,77
+Pooja Hegde,STU1013,Cybersecurity,Computer Science,Cybersecurity & Cryptography,Technical - Networking & Security,95
+Pooja Hegde,STU1013,Cybersecurity,Computer Science,Computer Networks,Technical - Networking & Security,89
+Pooja Hegde,STU1013,Cybersecurity,Computer Science,Operating Systems,Technical - Core Systems,47
+Pooja Hegde,STU1013,Cybersecurity,Computer Science,Data Structures,Technical - Algorithms & DSA,73
+Pooja Hegde,STU1013,Cybersecurity,Computer Science,Discrete Mathematics,Supporting - Mathematics,80
+Pooja Hegde,STU1013,Cybersecurity,Computer Science,Software Engineering,Technical - Software Engineering,85
+Rahul Deshmukh,STU1014,Technical,Electronics & Communication,VLSI Design,Technical - Core Electronics,86
+Rahul Deshmukh,STU1014,Technical,Electronics & Communication,Digital Signal Processing,Technical - Core Electronics,78
+Rahul Deshmukh,STU1014,Technical,Electronics & Communication,Signals & Systems,Technical - Core Electronics,56
+Rahul Deshmukh,STU1014,Technical,Electronics & Communication,Microprocessors & Microcontrollers,Technical - Core Electronics,84
+Rahul Deshmukh,STU1014,Technical,Electronics & Communication,Basic Electrical & Electronics,Technical - Core Electronics,89
+Rahul Deshmukh,STU1014,Technical,Electronics & Communication,Engineering Mathematics,Supporting - Mathematics,72
+Ishaan Singhania,STU1015,Full-Stack Web Development,Computer Science,JavaScript & Frontend,Technical - Web Development,92
+Ishaan Singhania,STU1015,Full-Stack Web Development,Computer Science,Node.js & Backend,Technical - Backend Development,85
+Ishaan Singhania,STU1015,Full-Stack Web Development,Computer Science,Database Management Systems,Technical - Database Systems,57
+Ishaan Singhania,STU1015,Full-Stack Web Development,Computer Science,Data Structures,Technical - Algorithms & DSA,70
+Ishaan Singhania,STU1015,Full-Stack Web Development,Computer Science,Operating Systems,Technical - Core Systems,74
+Ishaan Singhania,STU1015,Full-Stack Web Development,Computer Science,Computer Networks,Technical - Networking & Security,80
+Tanvi Saxena,STU1016,Technical,Computer Science,Compiler Design,Technical - Core Systems,45
+Tanvi Saxena,STU1016,Technical,Computer Science,Theory of Computation,Technical - Core Systems,59
+Tanvi Saxena,STU1016,Technical,Computer Science,Data Structures,Technical - Algorithms & DSA,86
+Tanvi Saxena,STU1016,Technical,Computer Science,Design & Analysis of Algorithms,Technical - Algorithms & DSA,88
+Tanvi Saxena,STU1016,Technical,Computer Science,Object Oriented Programming,Technical - Programming Language,91
+Tanvi Saxena,STU1016,Technical,Computer Science,Database Management Systems,Technical - Database Systems,84
+Aman Gupta,STU1017,Technical,Information Technology,Data Structures,Technical - Algorithms & DSA,44
+Aman Gupta,STU1017,Technical,Information Technology,Database Management Systems,Technical - Database Systems,66
+Aman Gupta,STU1017,Technical,Information Technology,Operating Systems,Technical - Core Systems,71
+Aman Gupta,STU1017,Technical,Information Technology,Computer Networks,Technical - Networking & Security,78
+Aman Gupta,STU1017,Technical,Information Technology,Web Technologies,Technical - Web Development,85
+Aman Gupta,STU1017,Technical,Information Technology,Software Engineering,Technical - Software Engineering,80
+Shreya Sen,STU1018,AI & Data Science,Computer Science,Applied Statistics,Supporting - Mathematics,93
+Shreya Sen,STU1018,AI & Data Science,Computer Science,Machine Learning,Technical - AI & Machine Learning,89
+Shreya Sen,STU1018,AI & Data Science,Computer Science,Python Programming,Technical - Programming Language,94
+Shreya Sen,STU1018,AI & Data Science,Computer Science,Database Management Systems,Technical - Database Systems,51
+Shreya Sen,STU1018,AI & Data Science,Computer Science,Data Structures,Technical - Algorithms & DSA,75
+Shreya Sen,STU1018,AI & Data Science,Computer Science,Cloud Computing,Technical - Cloud Systems,78
+Nikhil Bhatt,STU1019,Core Engineering,Mechanical Engineering,Heat & Mass Transfer,Technical - Core Mechanical,88
+Nikhil Bhatt,STU1019,Core Engineering,Mechanical Engineering,Machine Design,Technical - Core Mechanical,82
+Nikhil Bhatt,STU1019,Core Engineering,Mechanical Engineering,Thermodynamics,Technical - Core Mechanical,53
+Nikhil Bhatt,STU1019,Core Engineering,Mechanical Engineering,Fluid Mechanics,Technical - Core Mechanical,76
+Nikhil Bhatt,STU1019,Core Engineering,Mechanical Engineering,Strength of Materials,Technical - Core Mechanical,80
+Nikhil Bhatt,STU1019,Core Engineering,Mechanical Engineering,Engineering Mathematics,Supporting - Mathematics,84
+Riya Mukherjee,STU1020,Technical,Computer Science,Computer Networks,Technical - Networking & Security,46
+Riya Mukherjee,STU1020,Technical,Computer Science,Database Management Systems,Technical - Database Systems,79
+Riya Mukherjee,STU1020,Technical,Computer Science,Data Structures,Technical - Algorithms & DSA,85
+Riya Mukherjee,STU1020,Technical,Computer Science,Operating Systems,Technical - Core Systems,82
+Riya Mukherjee,STU1020,Technical,Computer Science,Software Engineering,Technical - Software Engineering,88
+Riya Mukherjee,STU1020,Technical,Computer Science,Web Technologies,Technical - Web Development,91
+Varun Chawla,STU1021,Cloud Computing,Information Technology,Cloud Architecture,Technical - Cloud Systems,90
+Varun Chawla,STU1021,Cloud Computing,Information Technology,Distributed Systems,Technical - Cloud Systems,85
+Varun Chawla,STU1021,Cloud Computing,Information Technology,Operating Systems,Technical - Core Systems,55
+Varun Chawla,STU1021,Cloud Computing,Information Technology,Computer Networks,Technical - Networking & Security,83
+Varun Chawla,STU1021,Cloud Computing,Information Technology,Database Management Systems,Technical - Database Systems,80
+Varun Chawla,STU1021,Cloud Computing,Information Technology,Data Structures,Technical - Algorithms & DSA,74
+Bhavna Menon,STU1022,Technical,Computer Science,Database Management Systems,Technical - Database Systems,58
+Bhavna Menon,STU1022,Technical,Computer Science,Data Structures,Technical - Algorithms & DSA,82
+Bhavna Menon,STU1022,Technical,Computer Science,Design & Analysis of Algorithms,Technical - Algorithms & DSA,85
+Bhavna Menon,STU1022,Technical,Computer Science,Operating Systems,Technical - Core Systems,80
+Bhavna Menon,STU1022,Technical,Computer Science,Computer Networks,Technical - Networking & Security,76
+Bhavna Menon,STU1022,Technical,Computer Science,Software Engineering,Technical - Software Engineering,89
+Yash Vardhan,STU1023,Technical,Electronics & Communication,Analog Communication,Technical - Core Electronics,87
+Yash Vardhan,STU1023,Technical,Electronics & Communication,Digital Communication,Technical - Core Electronics,84
+Yash Vardhan,STU1023,Technical,Electronics & Communication,Electromagnetic Fields,Technical - Core Electronics,49
+Yash Vardhan,STU1023,Technical,Electronics & Communication,Microprocessors & Microcontrollers,Technical - Core Electronics,81
+Yash Vardhan,STU1023,Technical,Electronics & Communication,Basic Electrical & Electronics,Technical - Core Electronics,90
+Yash Vardhan,STU1023,Technical,Electronics & Communication,Engineering Mathematics,Supporting - Mathematics,75
+Ananya Roy,STU1024,Technical,Computer Science,Object Oriented Programming,Technical - Programming Language,93
+Ananya Roy,STU1024,Technical,Computer Science,Data Structures,Technical - Algorithms & DSA,89
+Ananya Roy,STU1024,Technical,Computer Science,Database Management Systems,Technical - Database Systems,91
+Ananya Roy,STU1024,Technical,Computer Science,Operating Systems,Technical - Core Systems,88
+Ananya Roy,STU1024,Technical,Computer Science,Computer Networks,Technical - Networking & Security,86
+Ananya Roy,STU1024,Technical,Computer Science,Software Engineering,Technical - Software Engineering,92
+Pranav Kaushik,STU1025,Technical,Computer Science,Operating Systems,Technical - Core Systems,43
+Pranav Kaushik,STU1025,Technical,Computer Science,Computer Networks,Technical - Networking & Security,60
+Pranav Kaushik,STU1025,Technical,Computer Science,Data Structures,Technical - Algorithms & DSA,78
+Pranav Kaushik,STU1025,Technical,Computer Science,Database Management Systems,Technical - Database Systems,84
+Pranav Kaushik,STU1025,Technical,Computer Science,Design & Analysis of Algorithms,Technical - Algorithms & DSA,75
+Pranav Kaushik,STU1025,Technical,Computer Science,Software Engineering,Technical - Software Engineering,82

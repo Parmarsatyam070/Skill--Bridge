@@ -97,10 +97,6 @@ async function main() {
     const parsed = parseDates(item, ['createdAt']);
     await prisma.learningResource.upsert({ where: { id: item.id }, update: parsed, create: parsed });
   }
-  for (const item of data.academicOpportunities) {
-    const parsed = parseDates(item, ['createdAt']);
-    await prisma.academicOpportunity.upsert({ where: { id: item.id }, update: parsed, create: parsed });
-  }
 
   // 2. Core Users (Including satyam kumar singh and demo users)
   console.log('  -> Importing Users...');

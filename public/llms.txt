@@ -22,7 +22,7 @@
 
 - [Student Dashboard](https://skillbridge.app/dashboard): Career profile, skill radar, assessment history, and matched opportunities.
 - [Industry Dashboard](https://skillbridge.app/industry/dashboard): Recruitment hub with ranked candidate pools and skill vector matching.
-- [Academician Dashboard](https://skillbridge.app/academician/dashboard): Faculty development programs, joint research grants, and curriculum insights.
+- [Academician Dashboard](https://skillbridge.app/academician/dashboard): Course curriculum insights, cohort benchmarking, and industry alignment.
 - [Institution Dashboard](https://skillbridge.app/institution/dashboard): Batch skill heatmaps, placement readiness indices, and syllabus gap analysis.
 
 ## Content Partners

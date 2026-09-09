@@ -72,6 +72,9 @@ model StudentProfile {
   targetInternship     Internship?          @relation("StudentTargetInternship", fields: [targetInternshipId], references: [id], onDelete: SetNull)
   mockInterviewSessions MockInterviewSession[]
   sashMemories         SashMemory[]
+  marksheets           UploadedMarksheet[]
+  academicAnalysis     AcademicAnalysis?
+  academicPracticeAttempts AcademicPracticeAttempt[]
 }
 
 model Domain {
@@ -311,17 +314,6 @@ model Resume {
   updatedAt    DateTime       @updatedAt
 
   applications Application[]
-}
-
-model AcademicOpportunity {
-  id          String   @id @default(uuid())
-  type        String   // fdp | research | industrial_training
-  title       String
-  description String
-  postedBy    String
-  deadline    String?
-  status      String   @default("OPEN")
-  createdAt   DateTime @default(now())
 }
 
 model ExternalIntegration {
@@ -617,4 +609,191 @@ model UserExamSuspension {
 
   @@index([userId, suspendedUntil])
 }
+
+model UploadedMarksheet {
+  id               String             @id @default(uuid())
+  studentProfileId String
+  student          StudentProfile     @relation(fields: [studentProfileId], references: [id], onDelete: Cascade)
+  semester         Int                // 1 to 12
+  academicYear     String             // e.g. "2023-2024"
+  fileName         String
+  filePath         String
+  fileType         String             // application/pdf, image/jpeg, image/png, etc.
+  fileSize         Int
+  status           String             @default("DRAFT") // DRAFT, VERIFIED, ANALYZED, ERROR
+  sgpa             Float?
+  totalCredits     Float?
+  extractionNotes  String?
+  subjects         MarksheetSubject[]
+  createdAt        DateTime           @default(now())
+  updatedAt        DateTime           @updatedAt
+
+  @@unique([studentProfileId, semester])
+  @@index([studentProfileId])
+  @@index([studentProfileId, semester])
+}
+
+model MarksheetSubject {
+  id                String            @id @default(uuid())
+  marksheetId       String
+  marksheet         UploadedMarksheet @relation(fields: [marksheetId], references: [id], onDelete: Cascade)
+  subjectCode       String?
+  subjectName       String
+  normalizedSubject String
+  marksObtained     Float?
+  maxMarks          Float?            @default(100)
+  percentage        Float             @default(0)
+  grade             String?
+  credits           Float?
+  classification    String            @default("GENERAL") // CORE, SUPPORTING, GENERAL, UNRELATED
+  isBacklog         Boolean           @default(false)
+  isPassed          Boolean           @default(true)
+  createdAt         DateTime          @default(now())
+
+  @@index([marksheetId])
+  @@index([normalizedSubject])
+  @@index([classification])
+}
+
+model AcademicAnalysis {
+  id                        String         @id @default(uuid())
+  studentProfileId          String         @unique
+  student                   StudentProfile @relation(fields: [studentProfileId], references: [id], onDelete: Cascade)
+  overallPercentage         Float          @default(0)
+  domainPercentage          Float          @default(0)
+  semestersAnalyzed         Int            @default(0)
+  totalSubjects             Int            @default(0)
+  radarDataJson             String?        // JSON array of domain pillars
+  trendsJson                String?        // JSON array of subject trend lines
+  weakSubjectsJson          String?        // JSON array of prioritized weak subjects
+  roadmapJson               String?        // JSON object of 6-stage personalized learning roadmap
+  bookRecommendationsJson   String?        // JSON array of verified book recommendations
+  courseRecommendationsJson String?        // JSON array of verified course recommendations
+  hasCriticalWeakness       Boolean        @default(false)
+  academicStatus            String         @default("Needs Improvement") // Strong, Good, Needs Improvement, Attention Required
+  createdAt                 DateTime       @default(now())
+  updatedAt                 DateTime       @updatedAt
+
+  @@index([studentProfileId])
+}
+
+model AcademicPracticeAttempt {
+  id               String         @id @default(uuid())
+  studentProfileId String
+  student          StudentProfile @relation(fields: [studentProfileId], references: [id], onDelete: Cascade)
+  subject          String
+  topic            String
+  score            Int
+  totalQuestions   Int
+  percentage       Float
+  weakTopicsJson   String?        // JSON array of weak subtopics identified
+  answersJson      String?        // JSON array of submitted question details and answers
+  createdAt        DateTime       @default(now())
+
+  @@index([studentProfileId])
+  @@index([subject])
+}
+
+model AcademicSkillDataset {
+  id                 String   @id @default(uuid())
+  studentProfileId   String?
+  studentName        String
+  externalStudentId  String
+  domain             String
+  branch             String
+  skill              String
+  skillCategory      String
+  overallSkillScore  Float
+  source             String   @default("DEMO_DATASET")
+  createdAt          DateTime @default(now())
+  updatedAt          DateTime @updatedAt
+
+  @@unique([externalStudentId, skill])
+  @@index([externalStudentId])
+  @@index([studentName])
+  @@index([branch])
+  @@index([domain])
+  @@index([skillCategory])
+  @@index([source])
+}
+
+model IndustryDemoCandidate {
+  id                 String                       @id @default(uuid())
+  externalStudentId  String                       @unique
+  studentName        String
+  university         String
+  branch             String
+  sourceDomain       String?
+  derivedDomain      String
+  averageScore       Float
+  sourceDataset      String
+  source             String                       @default("DEMO_DATASET")
+  skills             IndustryDemoCandidateSkill[]
+  applications       IndustryDemoApplication[]
+  createdAt          DateTime                     @default(now())
+  updatedAt          DateTime                     @updatedAt
+
+  @@index([externalStudentId])
+  @@index([studentName])
+  @@index([university])
+  @@index([branch])
+  @@index([source])
+}
+
+model IndustryDemoCandidateSkill {
+  id                 String                @id @default(uuid())
+  candidateId        String
+  candidate          IndustryDemoCandidate @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  skill              String
+  skillCategory      String
+  skillScore         Float
+  createdAt          DateTime              @default(now())
+
+  @@unique([candidateId, skill])
+  @@index([candidateId])
+  @@index([skill])
+  @@index([skillCategory])
+}
+
+model IndustryDemoOpportunity {
+  id                 String                    @id @default(uuid())
+  title              String
+  companyName        String                    @default("SkillBridge Enterprise Partner")
+  roleType           String
+  location           String                    @default("Remote / Hybrid")
+  department         String
+  requiredSkillsJson String
+  description        String
+  minScoreThreshold  Float                     @default(60.0)
+  source             String                    @default("DEMO_DATASET")
+  applications       IndustryDemoApplication[]
+  createdAt          DateTime                  @default(now())
+  updatedAt          DateTime                  @updatedAt
+
+  @@index([title])
+  @@index([source])
+}
+
+model IndustryDemoApplication {
+  id                 String                  @id @default(uuid())
+  opportunityId      String
+  opportunity        IndustryDemoOpportunity @relation(fields: [opportunityId], references: [id], onDelete: Cascade)
+  candidateId        String
+  candidate          IndustryDemoCandidate   @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  matchScore         Float
+  skillCoverageRatio String
+  knownSkillsJson    String
+  missingSkillsJson  String
+  stage              String                  @default("APPLIED")
+  source             String                  @default("DEMO_DATASET")
+  appliedAt          DateTime                @default(now())
+  updatedAt          DateTime                @updatedAt
+
+  @@unique([opportunityId, candidateId])
+  @@index([opportunityId])
+  @@index([candidateId])
+  @@index([stage])
+  @@index([source])
+}
+
 

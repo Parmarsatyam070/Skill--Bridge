@@ -467,21 +467,21 @@ export const LandingPage: React.FC = () => {
           </div>
         </section>
 
-        {/* ── FOUR STAKEHOLDER PERSONA PILLARS ── */}
+        {/* ── STAKEHOLDER PERSONA PILLARS ── */}
         <section id="features" className="py-16 sm:py-24 px-6 max-w-[1280px] mx-auto space-y-12">
           <div className="space-y-3 max-w-xl">
             <div className="inline-flex items-center px-3 py-1 rounded-full text-xs font-mono tracking-wider uppercase bg-white/5 border border-white/10 text-cyan-400">
               UNIFIED ECOSYSTEM
             </div>
             <h2 className="text-2xl sm:text-4xl font-bold tracking-tight text-white font-sans">
-              Four stakeholders. One connected platform.
+              Specialized workflows. One connected platform.
             </h2>
             <p className="text-white/70 text-sm sm:text-base font-sans">
               Specialized dashboards and workflows for every participant in the career development lifecycle.
             </p>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {[
               {
                 icon: Radar,
@@ -496,13 +496,6 @@ export const LandingPage: React.FC = () => {
                 body: 'Post internships with custom skill weights, review verified applicant rankings with zero resume fraud, and discover pre-assessed talent.',
                 cta: 'Post Requirements',
                 color: '#f59e0b',
-              },
-              {
-                icon: GraduationCap,
-                title: 'For Academicians',
-                body: 'Discover AICTE-HCL faculty development programs, apply for joint research grants, and update university curricula with industry data.',
-                cta: 'Explore FDPs & Grants',
-                color: '#2dd4bf',
               },
               {
                 icon: Building2,

@@ -39,7 +39,6 @@ async function main() {
     internships: await prisma.internship.count(),
     applications: await prisma.application.count(),
     resumes: await prisma.resume.count(),
-    academicOpportunities: await prisma.academicOpportunity.count(),
     externalIntegrations: await prisma.externalIntegration.count(),
     portfolioWebsites: await prisma.portfolioWebsite.count(),
     portfolioMessages: await prisma.portfolioMessage.count(),

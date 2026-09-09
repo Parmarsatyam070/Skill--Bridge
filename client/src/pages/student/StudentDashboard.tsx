@@ -13,6 +13,7 @@ import {
   FileText,
   Flame,
   Zap,
+  GraduationCap,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
@@ -279,6 +280,34 @@ export const StudentDashboard: React.FC = () => {
             className="h-full"
           />
         </div>
+      </div>
+
+      {/* Academic Performance & Improvement Feature Banner */}
+      <div className="bg-[#0b1329] border border-[#1e293b] rounded-2xl p-6 relative overflow-hidden backdrop-blur-md shadow-xl flex flex-col sm:flex-row items-center justify-between gap-6">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-2xl bg-blue-600/20 border border-blue-500/30 flex items-center justify-center text-blue-400 shrink-0">
+            <GraduationCap className="w-6 h-6" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="text-base font-semibold text-white">Academic Performance & Improvement</h3>
+              <span className="bg-blue-500/10 text-blue-400 border border-blue-500/20 text-[10px] font-semibold px-2.5 py-0.5 rounded-full">
+                Semester Marksheets
+              </span>
+            </div>
+            <p className="text-xs text-slate-400 mt-1 max-w-xl leading-relaxed">
+              Upload previous semester transcripts, extract academic records, identify domain-weighted weak subjects, and view personalized 6-stage learning roadmaps.
+            </p>
+          </div>
+        </div>
+
+        <Link
+          to="/academic-performance"
+          className="px-5 py-2.5 bg-blue-600 hover:bg-blue-500 text-white text-xs font-semibold rounded-xl shadow-lg shadow-blue-600/30 transition-all flex items-center gap-2 whitespace-nowrap shrink-0"
+        >
+          <span>Open Academic Hub</span>
+          <ArrowRight className="w-3.5 h-3.5" />
+        </Link>
       </div>
 
       {/* Applications Tracker in VerifiedActivityCard Language */}

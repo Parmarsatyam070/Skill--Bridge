@@ -140,7 +140,7 @@ export const RecruiterCopilotDrawer: React.FC<RecruiterCopilotDrawerProps> = ({
     }
   }, [isOpen, messages, activeTab]);
 
-  // Fetch recruiter's opportunities for selection context
+  // Fetch recruiter's live opportunities and demo opportunities
   const isIndustry = user?.role === 'INDUSTRY';
   const { data: listingsData } = useQuery({
     queryKey: ['recruiterOpportunitiesListings'],
@@ -151,7 +151,30 @@ export const RecruiterCopilotDrawer: React.FC<RecruiterCopilotDrawerProps> = ({
     enabled: isIndustry && isOpen,
   });
 
-  const opportunities = listingsData?.opportunities || [];
+  const { data: demoOpportunitiesData } = useQuery({
+    queryKey: ['industryDemoOpportunitiesForCopilot'],
+    queryFn: () =>
+      api.get<{ success: boolean; data: Array<{ id: string; title: string; department: string }> }>(
+        '/industry/demo/opportunities'
+      ),
+    enabled: isOpen,
+  });
+
+  const liveOpportunities = (listingsData?.opportunities || []).map(o => ({
+    id: o.id,
+    title: o.title,
+    type: o.type || 'Job',
+    isDemo: false,
+  }));
+
+  const demoOpportunities = (demoOpportunitiesData?.data || []).map(o => ({
+    id: o.id,
+    title: `[DEMO] ${o.title}`,
+    type: o.department || 'Demo Requisition',
+    isDemo: true,
+  }));
+
+  const opportunities = [...liveOpportunities, ...demoOpportunities];
 
   // If no opportunity selected yet, select the first one available
   useEffect(() => {
@@ -160,11 +183,37 @@ export const RecruiterCopilotDrawer: React.FC<RecruiterCopilotDrawerProps> = ({
     }
   }, [opportunities, selectedOpportunityId]);
 
+  const isSelectedOpportunityDemo = demoOpportunities.some(d => d.id === selectedOpportunityId);
+
   // Fetch applicants for the selected opportunity for comparison picker
   const { data: applicantsData, isLoading: isLoadingApplicants } = useQuery({
-    queryKey: ['opportunityApplicantsForCopilot', selectedOpportunityId],
-    queryFn: () =>
-      api.get<{
+    queryKey: ['opportunityApplicantsForCopilot', selectedOpportunityId, isSelectedOpportunityDemo],
+    queryFn: async () => {
+      if (isSelectedOpportunityDemo) {
+        const res = await api.get<{ success: boolean; data: { opportunity: any; applicants: any[] } }>(
+          `/industry/demo/opportunities/${selectedOpportunityId}/applicants`
+        );
+        const mapped = (res.data?.applicants || []).map(app => ({
+          applicationId: app.id,
+          candidate: {
+            studentProfileId: app.candidateId,
+            fullName: app.studentName,
+            institutionName: app.university,
+            degree: app.branch,
+            skills: app.knownSkills.map((ks: any) => ({
+              name: ks.skill,
+              score: ks.skillScore,
+              verificationLevel: 'BENCHMARK',
+            })),
+          } as any,
+          liveMatchScore: app.matchScore,
+          eligibility: true,
+          ineligibilityReason: null,
+        }));
+        return { applicants: mapped };
+      }
+
+      return api.get<{
         applicants: Array<{
           applicationId: string;
           candidate: SafeCandidateDto;
@@ -172,8 +221,9 @@ export const RecruiterCopilotDrawer: React.FC<RecruiterCopilotDrawerProps> = ({
           eligibility: boolean;
           ineligibilityReason: string | null;
         }>;
-      }>(`/opportunities/${selectedOpportunityId}/applicants`),
-    enabled: isIndustry && isOpen && !!selectedOpportunityId && activeTab === 'compare',
+      }>(`/opportunities/${selectedOpportunityId}/applicants`);
+    },
+    enabled: isOpen && !!selectedOpportunityId && activeTab === 'compare',
   });
 
   const availableApplicants = applicantsData?.applicants || [];
@@ -184,7 +234,7 @@ export const RecruiterCopilotDrawer: React.FC<RecruiterCopilotDrawerProps> = ({
       setRateLimitMessage(null);
       return api.post<{ copilotResponse: CopilotQueryResult }>('/recruiter-copilot/query', {
         query: text,
-        opportunityId: selectedOpportunityId || undefined,
+        opportunityId: isSelectedOpportunityDemo ? undefined : (selectedOpportunityId || undefined),
       });
     },
     onSuccess: (res) => {
@@ -230,7 +280,7 @@ export const RecruiterCopilotDrawer: React.FC<RecruiterCopilotDrawerProps> = ({
     },
   });
 
-  // Compare Mutation (POST /api/recruiter-copilot/compare)
+  // Compare Mutation (POST /api/recruiter-copilot/compare or /api/industry/demo/compare)
   const compareMutation = useMutation({
     mutationFn: async ({
       candidateIds,
@@ -240,6 +290,14 @@ export const RecruiterCopilotDrawer: React.FC<RecruiterCopilotDrawerProps> = ({
       opportunityId: string;
     }) => {
       setRateLimitMessage(null);
+      if (isSelectedOpportunityDemo) {
+        const res = await api.post<{ success: boolean; data: any }>('/industry/demo/compare', {
+          candidateIds,
+          opportunityId,
+        });
+        return { comparison: res.data };
+      }
+
       return api.post<{ comparison: CopilotComparisonResult }>('/recruiter-copilot/compare', {
         candidateIds,
         opportunityId,

@@ -11,7 +11,6 @@ import coursesRoutes from './routes/courses.js';
 import internshipsRoutes from './routes/internships.js';
 import applicationsRoutes from './routes/applications.js';
 import resumesRoutes from './routes/resumes.js';
-import academicRoutes from './routes/academic.js';
 import institutionsRoutes from './routes/institutions.js';
 import aiRoutes from './routes/ai.js';
 import portfoliosRoutes from './routes/portfolios.js';
@@ -27,6 +26,8 @@ import talentAssessmentsRoutes from './routes/talentAssessments.js';
 import interviewsRoutes from './routes/interviews.js';
 import intelligenceRoutes from './routes/intelligence.js';
 import integrityRoutes from './routes/integrity.js';
+import academicPerformanceRoutes from './routes/academicPerformance.js';
+import { industryDemoRouter } from './routes/industryDemo.js';
 
 const app = express();
 const PORT = process.env.PORT || 5000;
@@ -89,7 +90,6 @@ app.use('/api/courses', coursesRoutes);
 app.use('/api/internships', internshipsRoutes);
 app.use('/api/applications', applicationsRoutes);
 app.use('/api/resumes', resumesRoutes);
-app.use('/api/academic-opportunities', academicRoutes);
 app.use('/api/institutions', institutionsRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/portfolios', portfoliosRoutes);
@@ -106,6 +106,8 @@ app.use('/api/talent-assessments', talentAssessmentsRoutes);
 app.use('/api/interviews', interviewsRoutes);
 app.use('/api/intelligence', intelligenceRoutes);
 app.use('/api/integrity', integrityRoutes);
+app.use('/api/academic-performance', academicPerformanceRoutes);
+app.use('/api/industry/demo', industryDemoRouter);
 
 // Root API info & status endpoint
 app.get(['/api', '/api/'], (_req: Request, res: Response) => {

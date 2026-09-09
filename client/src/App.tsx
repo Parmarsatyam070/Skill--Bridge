@@ -45,6 +45,7 @@ const ReportCardPage = React.lazy(() => import('./pages/student/ReportCardPage')
 const InternshipsPage = React.lazy(() => import('./pages/student/InternshipsPage').then(m => ({ default: m.InternshipsPage })));
 const CoursesPage = React.lazy(() => import('./pages/student/CoursesPage').then(m => ({ default: m.CoursesPage })));
 const LearningResourcesPage = React.lazy(() => import('./pages/student/LearningResourcesPage').then(m => ({ default: m.LearningResourcesPage })));
+const AcademicPerformancePage = React.lazy(() => import('./pages/student/AcademicPerformancePage').then(m => ({ default: m.AcademicPerformancePage })));
 const StudentPortfolioEdit = React.lazy(() => import('./pages/student/StudentPortfolioEdit').then(m => ({ default: m.StudentPortfolioEdit })));
 
 // Code-split Industry Console Pages
@@ -54,7 +55,6 @@ const ApplicantsPage = React.lazy(() => import('./pages/industry/ApplicantsPage'
 
 // Code-split Academician Console Pages
 const AcademicianDashboard = React.lazy(() => import('./pages/academician/AcademicianDashboard').then(m => ({ default: m.AcademicianDashboard })));
-const AcademicOpportunitiesPage = React.lazy(() => import('./pages/academician/AcademicOpportunitiesPage').then(m => ({ default: m.AcademicOpportunitiesPage })));
 
 // Code-split Institution Console Pages
 const InstitutionDashboard = React.lazy(() => import('./pages/institution/InstitutionDashboard').then(m => ({ default: m.InstitutionDashboard })));
@@ -123,6 +123,7 @@ export const App: React.FC = () => {
             <Route path="/dsa" element={<DsaCodingPage />} />
             <Route path="/dsa/:slug" element={<DsaCodingPage />} />
             <Route path="/report-card" element={<ReportCardPage />} />
+            <Route path="/academic-performance" element={<AcademicPerformancePage />} />
             <Route path="/internships" element={<InternshipsPage />} />
             <Route path="/courses" element={<CoursesPage />} />
             <Route path="/learn" element={<LearningResourcesPage />} />
@@ -142,11 +143,10 @@ export const App: React.FC = () => {
           {/* Authenticated Academician Routes */}
           <Route element={<AuthenticatedConsoleLayout allowedRoles={['ACADEMICIAN']} />}>
             <Route path="/academician/dashboard" element={<AcademicianDashboard />} />
-            <Route path="/academician/opportunities" element={<AcademicOpportunitiesPage />} />
           </Route>
 
-          {/* Authenticated Institution Admin Routes */}
-          <Route element={<AuthenticatedConsoleLayout allowedRoles={['INSTITUTION_ADMIN']} />}>
+          {/* Authenticated Institution & Faculty Analytics Routes */}
+          <Route element={<AuthenticatedConsoleLayout allowedRoles={['INSTITUTION_ADMIN', 'ACADEMICIAN']} />}>
             <Route path="/institution/dashboard" element={<InstitutionDashboard />} />
             <Route path="/institution/intelligence" element={<InstitutionIntelligencePage />} />
           </Route>

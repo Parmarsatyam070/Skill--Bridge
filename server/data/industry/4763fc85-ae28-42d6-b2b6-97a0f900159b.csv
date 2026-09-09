@@ -1,0 +1,151 @@
+Student Name,Student ID,Domain,Branch,Skill,Skill Category,Overall Skill Score
+Vivaan Iyer,STU6024001,Technical,Information Technology,PostgreSQL,Technical - Database Management,62
+Vihaan Verma,STU6024002,Technical,Cloud Computing,System Design & Architecture,Technical - Architecture & Design,80
+Ananya Chopra,STU6024003,Technical,Computer Science,TypeScript,Technical - Programming Language,53
+Ananya Desai,STU6024004,Technical,Full-Stack Web Development,Technical Communication,Technical - Engineering Communication,60
+Reyansh Sharma,STU6024005,Technical,Cloud Computing,React.js,Technical - Frontend Development,83
+Aadhya Gupta,STU6024006,Technical,Computer Science,Express.js,Technical - Backend Development,91
+Kiara Singh,STU6024007,Technical,Computer Science,React.js,Technical - Frontend Development,87
+Arjun Kumar,STU6024008,Technical,Computer Science,Express.js,Technical - Backend Development,72
+Ira Kapoor,STU6024009,Technical,AI & ML,PostgreSQL,Technical - Database Management,98
+Vivaan Mehta,STU6024010,Technical,Full-Stack Web Development,System Design & Architecture,Technical - Architecture & Design,96
+Myra Reddy,STU6024011,Technical,Full-Stack Web Development,React.js,Technical - Frontend Development,70
+Pooja Agarwal,STU6024012,Technical,Cloud Computing,Technical Communication,Technical - Engineering Communication,79
+Rahul Chauhan,STU6024013,Technical,Cybersecurity,System Design & Architecture,Technical - Architecture & Design,87
+Saanvi Malhotra,STU6024014,Technical,Computer Science,Technical Communication,Technical - Engineering Communication,56
+Neha Gupta,STU6024015,Technical,Cybersecurity,Technical Communication,Technical - Engineering Communication,61
+Reyansh Chopra,STU6024016,Technical,Full-Stack Web Development,System Design & Architecture,Technical - Architecture & Design,70
+Pooja Gupta,STU6024017,Technical,Cybersecurity,PostgreSQL,Technical - Database Management,81
+Karan Chopra,STU6024018,Technical,Computer Science,TypeScript,Technical - Programming Language,82
+Aditya Malhotra,STU6024019,Technical,Computer Science,Express.js,Technical - Backend Development,59
+Aadhya Desai,STU6024020,Technical,Computer Science,Technical Communication,Technical - Engineering Communication,63
+Myra Nair,STU6024021,Technical,Cybersecurity,TypeScript,Technical - Programming Language,54
+Navya Bansal,STU6024022,Technical,Cloud Computing,PostgreSQL,Technical - Database Management,47
+Aarav Kumar,STU6024023,Technical,Cybersecurity,TypeScript,Technical - Programming Language,46
+Ishaan Malhotra,STU6024024,Technical,AI & ML,PostgreSQL,Technical - Database Management,85
+Saanvi Sharma,STU6024025,Technical,Information Technology,System Design & Architecture,Technical - Architecture & Design,49
+Anika Malhotra,STU6024026,Technical,Information Technology,React.js,Technical - Frontend Development,72
+Pooja Sharma,STU6024027,Technical,Cloud Computing,React.js,Technical - Frontend Development,79
+Priya Joshi,STU6024028,Technical,Computer Science,Express.js,Technical - Backend Development,61
+Myra Verma,STU6024029,Technical,Full-Stack Web Development,PostgreSQL,Technical - Database Management,67
+Aarav Patel,STU6024030,Technical,Cloud Computing,React.js,Technical - Frontend Development,90
+Manish Kumar,STU6024031,Technical,Full-Stack Web Development,Technical Communication,Technical - Engineering Communication,60
+Neha Gupta,STU6024032,Technical,Computer Science,System Design & Architecture,Technical - Architecture & Design,69
+Navya Mehta,STU6024033,Technical,Software Engineering,Technical Communication,Technical - Engineering Communication,94
+Varun Mehta,STU6024034,Technical,Cloud Computing,Express.js,Technical - Backend Development,53
+Navya Chopra,STU6024035,Technical,Information Technology,Technical Communication,Technical - Engineering Communication,55
+Sneha Pillai,STU6024036,Technical,Cloud Computing,PostgreSQL,Technical - Database Management,48
+Neha Kumar,STU6024037,Technical,Cybersecurity,Technical Communication,Technical - Engineering Communication,46
+Diya Bansal,STU6024038,Technical,Cybersecurity,Express.js,Technical - Backend Development,72
+Sneha Sharma,STU6024039,Technical,Software Engineering,System Design & Architecture,Technical - Architecture & Design,65
+Manish Agarwal,STU6024040,Technical,Software Engineering,Express.js,Technical - Backend Development,77
+Vihaan Desai,STU6024041,Technical,Full-Stack Web Development,TypeScript,Technical - Programming Language,81
+Ananya Gupta,STU6024042,Technical,AI & ML,System Design & Architecture,Technical - Architecture & Design,60
+Sai Chopra,STU6024043,Technical,AI & ML,PostgreSQL,Technical - Database Management,47
+Anika Gupta,STU6024044,Technical,Data Science,System Design & Architecture,Technical - Architecture & Design,57
+Karan Sharma,STU6024045,Technical,Data Science,Express.js,Technical - Backend Development,81
+Krishna Gupta,STU6024046,Technical,Full-Stack Web Development,React.js,Technical - Frontend Development,66
+Navya Desai,STU6024047,Technical,Software Engineering,System Design & Architecture,Technical - Architecture & Design,53
+Sneha Kapoor,STU6024048,Technical,Cybersecurity,Technical Communication,Technical - Engineering Communication,70
+Karan Sharma,STU6024049,Technical,AI & ML,Technical Communication,Technical - Engineering Communication,98
+Aditi Pillai,STU6024050,Technical,Cybersecurity,Express.js,Technical - Backend Development,70
+Varun Nair,STU6024051,Technical,Software Engineering,System Design & Architecture,Technical - Architecture & Design,85
+Aarav Chauhan,STU6024052,Technical,Cybersecurity,Express.js,Technical - Backend Development,89
+Ira Singh,STU6024053,Technical,Computer Science,Express.js,Technical - Backend Development,74
+Diya Rao,STU6024054,Technical,Full-Stack Web Development,Express.js,Technical - Backend Development,58
+Karan Bansal,STU6024055,Technical,Full-Stack Web Development,TypeScript,Technical - Programming Language,97
+Reyansh Joshi,STU6024056,Technical,Computer Science,PostgreSQL,Technical - Database Management,69
+Anika Iyer,STU6024057,Technical,Software Engineering,System Design & Architecture,Technical - Architecture & Design,69
+Diya Gupta,STU6024058,Technical,AI & ML,React.js,Technical - Frontend Development,61
+Anika Chauhan,STU6024059,Technical,Full-Stack Web Development,React.js,Technical - Frontend Development,69
+Vivaan Pillai,STU6024060,Technical,Cloud Computing,Express.js,Technical - Backend Development,51
+Kiara Pillai,STU6024061,Technical,Full-Stack Web Development,TypeScript,Technical - Programming Language,86
+Kiara Iyer,STU6024062,Technical,Cybersecurity,System Design & Architecture,Technical - Architecture & Design,81
+Diya Nair,STU6024063,Technical,Cybersecurity,System Design & Architecture,Technical - Architecture & Design,81
+Pooja Iyer,STU6024064,Technical,Full-Stack Web Development,React.js,Technical - Frontend Development,56
+Vihaan Sharma,STU6024065,Technical,Cloud Computing,Technical Communication,Technical - Engineering Communication,76
+Neha Kumar,STU6024066,Technical,Cybersecurity,System Design & Architecture,Technical - Architecture & Design,47
+Myra Desai,STU6024067,Technical,Software Engineering,Express.js,Technical - Backend Development,68
+Pooja Nair,STU6024068,Technical,Computer Science,PostgreSQL,Technical - Database Management,77
+Pooja Chauhan,STU6024069,Technical,AI & ML,Technical Communication,Technical - Engineering Communication,82
+Pooja Sharma,STU6024070,Technical,Full-Stack Web Development,Technical Communication,Technical - Engineering Communication,69
+Krishna Gupta,STU6024071,Technical,AI & ML,Express.js,Technical - Backend Development,55
+Saanvi Malhotra,STU6024072,Technical,Cloud Computing,React.js,Technical - Frontend Development,83
+Aarav Kapoor,STU6024073,Technical,Software Engineering,TypeScript,Technical - Programming Language,47
+Ishaan Agarwal,STU6024074,Technical,Software Engineering,Technical Communication,Technical - Engineering Communication,78
+Aditi Reddy,STU6024075,Technical,AI & ML,PostgreSQL,Technical - Database Management,74
+Krishna Mehta,STU6024076,Technical,Information Technology,React.js,Technical - Frontend Development,73
+Riya Desai,STU6024077,Technical,AI & ML,TypeScript,Technical - Programming Language,78
+Varun Gupta,STU6024078,Technical,Cloud Computing,PostgreSQL,Technical - Database Management,96
+Sneha Bansal,STU6024079,Technical,Information Technology,React.js,Technical - Frontend Development,81
+Saanvi Rao,STU6024080,Technical,Full-Stack Web Development,TypeScript,Technical - Programming Language,76
+Arjun Reddy,STU6024081,Technical,Data Science,TypeScript,Technical - Programming Language,47
+Krishna Reddy,STU6024082,Technical,Information Technology,PostgreSQL,Technical - Database Management,46
+Aarav Rao,STU6024083,Technical,Full-Stack Web Development,System Design & Architecture,Technical - Architecture & Design,46
+Vivaan Nair,STU6024084,Technical,Cloud Computing,Technical Communication,Technical - Engineering Communication,63
+Varun Patel,STU6024085,Technical,AI & ML,React.js,Technical - Frontend Development,63
+Amit Chopra,STU6024086,Technical,Data Science,System Design & Architecture,Technical - Architecture & Design,46
+Neha Malhotra,STU6024087,Technical,Software Engineering,PostgreSQL,Technical - Database Management,59
+Saanvi Nair,STU6024088,Technical,Cloud Computing,PostgreSQL,Technical - Database Management,80
+Sai Joshi,STU6024089,Technical,Information Technology,PostgreSQL,Technical - Database Management,47
+Rohan Kumar,STU6024090,Technical,Cybersecurity,Technical Communication,Technical - Engineering Communication,91
+Varun Singh,STU6024091,Technical,Software Engineering,React.js,Technical - Frontend Development,74
+Varun Malhotra,STU6024092,Technical,Computer Science,PostgreSQL,Technical - Database Management,78
+Diya Mehta,STU6024093,Technical,Full-Stack Web Development,TypeScript,Technical - Programming Language,69
+Varun Verma,STU6024094,Technical,Information Technology,System Design & Architecture,Technical - Architecture & Design,98
+Pooja Singh,STU6024095,Technical,Full-Stack Web Development,Technical Communication,Technical - Engineering Communication,50
+Karan Reddy,STU6024096,Technical,Cloud Computing,TypeScript,Technical - Programming Language,71
+Arjun Kapoor,STU6024097,Technical,Software Engineering,React.js,Technical - Frontend Development,55
+Sneha Gupta,STU6024098,Technical,Full-Stack Web Development,React.js,Technical - Frontend Development,51
+Arjun Nair,STU6024099,Technical,Cybersecurity,PostgreSQL,Technical - Database Management,57
+Amit Joshi,STU6024100,Technical,Computer Science,React.js,Technical - Frontend Development,54
+Vihaan Bansal,STU6024101,Technical,Information Technology,TypeScript,Technical - Programming Language,87
+Vivaan Malhotra,STU6024102,Technical,Cybersecurity,TypeScript,Technical - Programming Language,97
+Krishna Nair,STU6024103,Technical,Cloud Computing,Express.js,Technical - Backend Development,87
+Arjun Gupta,STU6024104,Technical,Computer Science,Express.js,Technical - Backend Development,65
+Amit Joshi,STU6024105,Technical,Full-Stack Web Development,TypeScript,Technical - Programming Language,97
+Vivaan Verma,STU6024106,Technical,Information Technology,React.js,Technical - Frontend Development,60
+Rohan Nair,STU6024107,Technical,Software Engineering,System Design & Architecture,Technical - Architecture & Design,95
+Aarav Chauhan,STU6024108,Technical,AI & ML,PostgreSQL,Technical - Database Management,80
+Diya Malhotra,STU6024109,Technical,Software Engineering,PostgreSQL,Technical - Database Management,47
+Riya Mehta,STU6024110,Technical,Full-Stack Web Development,Express.js,Technical - Backend Development,89
+Aditi Sharma,STU6024111,Technical,Full-Stack Web Development,System Design & Architecture,Technical - Architecture & Design,93
+Aarav Mehta,STU6024112,Technical,Information Technology,PostgreSQL,Technical - Database Management,91
+Reyansh Chauhan,STU6024113,Technical,Full-Stack Web Development,PostgreSQL,Technical - Database Management,51
+Neha Chauhan,STU6024114,Technical,Data Science,PostgreSQL,Technical - Database Management,85
+Amit Gupta,STU6024115,Technical,Data Science,TypeScript,Technical - Programming Language,91
+Diya Rao,STU6024116,Technical,Cybersecurity,Express.js,Technical - Backend Development,86
+Pooja Desai,STU6024117,Technical,Software Engineering,PostgreSQL,Technical - Database Management,46
+Ishaan Sharma,STU6024118,Technical,Software Engineering,TypeScript,Technical - Programming Language,68
+Reyansh Singh,STU6024119,Technical,Software Engineering,Technical Communication,Technical - Engineering Communication,83
+Vihaan Iyer,STU6024120,Technical,Information Technology,React.js,Technical - Frontend Development,68
+Vivaan Iyer,STU6024121,Technical,Full-Stack Web Development,TypeScript,Technical - Programming Language,61
+Saanvi Gupta,STU6024122,Technical,AI & ML,System Design & Architecture,Technical - Architecture & Design,95
+Navya Singh,STU6024123,Technical,Information Technology,Express.js,Technical - Backend Development,63
+Sneha Mehta,STU6024124,Technical,Cybersecurity,TypeScript,Technical - Programming Language,45
+Aditya Singh,STU6024125,Technical,Information Technology,PostgreSQL,Technical - Database Management,98
+Aadhya Malhotra,STU6024126,Technical,Software Engineering,TypeScript,Technical - Programming Language,69
+Aarav Rao,STU6024127,Technical,Data Science,TypeScript,Technical - Programming Language,45
+Sneha Rao,STU6024128,Technical,Software Engineering,React.js,Technical - Frontend Development,56
+Navya Iyer,STU6024129,Technical,Cloud Computing,TypeScript,Technical - Programming Language,94
+Pooja Joshi,STU6024130,Technical,AI & ML,React.js,Technical - Frontend Development,46
+Vihaan Pillai,STU6024131,Technical,Cloud Computing,Express.js,Technical - Backend Development,81
+Vivaan Desai,STU6024132,Technical,Data Science,Express.js,Technical - Backend Development,64
+Riya Desai,STU6024133,Technical,Full-Stack Web Development,React.js,Technical - Frontend Development,87
+Arjun Mehta,STU6024134,Technical,AI & ML,TypeScript,Technical - Programming Language,72
+Sai Kapoor,STU6024135,Technical,Computer Science,PostgreSQL,Technical - Database Management,49
+Manish Kumar,STU6024136,Technical,Software Engineering,Technical Communication,Technical - Engineering Communication,48
+Navya Nair,STU6024137,Technical,Information Technology,PostgreSQL,Technical - Database Management,82
+Sai Joshi,STU6024138,Technical,Cloud Computing,Technical Communication,Technical - Engineering Communication,79
+Diya Gupta,STU6024139,Technical,Data Science,React.js,Technical - Frontend Development,73
+Vivaan Desai,STU6024140,Technical,AI & ML,Technical Communication,Technical - Engineering Communication,46
+Sai Verma,STU6024141,Technical,Software Engineering,Technical Communication,Technical - Engineering Communication,78
+Vihaan Verma,STU6024142,Technical,Cloud Computing,Technical Communication,Technical - Engineering Communication,75
+Riya Joshi,STU6024143,Technical,Full-Stack Web Development,Technical Communication,Technical - Engineering Communication,56
+Rahul Joshi,STU6024144,Technical,Cloud Computing,Technical Communication,Technical - Engineering Communication,88
+Vihaan Gupta,STU6024145,Technical,Computer Science,TypeScript,Technical - Programming Language,54
+Amit Kumar,STU6024146,Technical,AI & ML,Express.js,Technical - Backend Development,77
+Saanvi Iyer,STU6024147,Technical,AI & ML,PostgreSQL,Technical - Database Management,99
+Reyansh Desai,STU6024148,Technical,Information Technology,React.js,Technical - Frontend Development,82
+Riya Kumar,STU6024149,Technical,Information Technology,PostgreSQL,Technical - Database Management,86
+Krishna Desai,STU6024150,Technical,Cybersecurity,React.js,Technical - Frontend Development,68

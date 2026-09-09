@@ -38,10 +38,10 @@ Built as a **Smart India Hackathon (SIH)** project.
 ### 👨‍🏫 Academician Workspace
 
 * Academician dashboard
-* Academic-industry opportunities
-* Faculty development programs
-* Research opportunities
-* Industry collaboration support
+* Curriculum alignment & syllabus intelligence
+* Cohort placement readiness analytics
+* Industry skill benchmark tracking
+* Department competency vectors
 
 ### 🏫 Institution Admin Workspace
 

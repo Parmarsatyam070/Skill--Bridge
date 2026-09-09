@@ -1,0 +1,61 @@
+Student Name,Student ID,Branch,Skill,Skill Category,Overall Skill Score
+Reyansh Nair,BU2024001,Computer Science,React.js,Technical - Frontend Development,97
+Ananya Yadav,BU2024002,Cybersecurity,TypeScript,Technical - Programming Language,89
+Aadhya Nair,BU2024003,Cybersecurity,PostgreSQL,Technical - Database Management,84
+Kavya Gupta,BU2024004,Cloud Computing,System Design & Architecture,Technical - Architecture & Design,93
+Karan Agarwal,BU2024005,AI & ML,Technical Communication,Technical - Engineering Communication,90
+Rohan Nair,BU2024006,Full-Stack Web Development,Technical Communication,Technical - Engineering Communication,57
+Rohan Kapoor,BU2024007,Computer Science,Technical Communication,Technical - Engineering Communication,91
+Ishaan Iyer,BU2024008,Cloud Computing,Technical Communication,Technical - Engineering Communication,98
+Myra Mishra,BU2024009,Cloud Computing,PostgreSQL,Technical - Database Management,98
+Ananya Joshi,BU2024010,Cloud Computing,PostgreSQL,Technical - Database Management,81
+Krishna Saxena,BU2024011,AI & ML,System Design & Architecture,Technical - Architecture & Design,61
+Simran Kumar,BU2024012,Full-Stack Web Development,React.js,Technical - Frontend Development,85
+Neha Gupta,BU2024013,Full-Stack Web Development,PostgreSQL,Technical - Database Management,52
+Kavya Reddy,BU2024014,Software Engineering,System Design & Architecture,Technical - Architecture & Design,53
+Varun Singh,BU2024015,Cloud Computing,PostgreSQL,Technical - Database Management,91
+Ishita Pillai,BU2024016,Cloud Computing,Technical Communication,Technical - Engineering Communication,73
+Devansh Chopra,BU2024017,Full-Stack Web Development,System Design & Architecture,Technical - Architecture & Design,78
+Myra Patel,BU2024018,Data Science,System Design & Architecture,Technical - Architecture & Design,95
+Aditi Sharma,BU2024019,Cybersecurity,Technical Communication,Technical - Engineering Communication,77
+Neha Verma,BU2024020,AI & ML,Technical Communication,Technical - Engineering Communication,55
+Ishita Iyer,BU2024021,Data Science,TypeScript,Technical - Programming Language,81
+Ishita Rao,BU2024022,Cybersecurity,Express.js,Technical - Backend Development,78
+Reyansh Bansal,BU2024023,AI & ML,Express.js,Technical - Backend Development,46
+Simran Reddy,BU2024024,Cybersecurity,TypeScript,Technical - Programming Language,86
+Ira Bansal,BU2024025,Cloud Computing,System Design & Architecture,Technical - Architecture & Design,50
+Rohan Kapoor,BU2024026,Cloud Computing,Express.js,Technical - Backend Development,62
+Kabir Saxena,BU2024027,Full-Stack Web Development,React.js,Technical - Frontend Development,54
+Aadhya Gupta,BU2024028,Computer Science,System Design & Architecture,Technical - Architecture & Design,88
+Devansh Mishra,BU2024029,Data Science,Technical Communication,Technical - Engineering Communication,92
+Ananya Patel,BU2024030,Information Technology,Express.js,Technical - Backend Development,70
+Rohan Bhatia,BU2024031,Full-Stack Web Development,Express.js,Technical - Backend Development,95
+Rahul Mishra,BU2024032,Full-Stack Web Development,PostgreSQL,Technical - Database Management,56
+Pooja Nair,BU2024033,Cloud Computing,PostgreSQL,Technical - Database Management,50
+Kabir Saxena,BU2024034,Computer Science,React.js,Technical - Frontend Development,71
+Ira Patel,BU2024035,Data Science,React.js,Technical - Frontend Development,98
+Sai Pillai,BU2024036,Software Engineering,Technical Communication,Technical - Engineering Communication,58
+Reyansh Patel,BU2024037,Information Technology,React.js,Technical - Frontend Development,66
+Vivaan Saxena,BU2024038,Information Technology,System Design & Architecture,Technical - Architecture & Design,59
+Meera Chauhan,BU2024039,Cybersecurity,TypeScript,Technical - Programming Language,75
+Aadhya Sharma,BU2024040,AI & ML,Technical Communication,Technical - Engineering Communication,98
+Priya Joshi,BU2024041,AI & ML,React.js,Technical - Frontend Development,49
+Shaurya Tiwari,BU2024042,Cybersecurity,Express.js,Technical - Backend Development,65
+Aditi Desai,BU2024043,Data Science,PostgreSQL,Technical - Database Management,54
+Reyansh Mehta,BU2024044,Information Technology,TypeScript,Technical - Programming Language,88
+Kiara Chauhan,BU2024045,Full-Stack Web Development,System Design & Architecture,Technical - Architecture & Design,99
+Myra Joshi,BU2024046,Software Engineering,Express.js,Technical - Backend Development,93
+Saanvi Kumar,BU2024047,Cloud Computing,Technical Communication,Technical - Engineering Communication,90
+Arjun Patel,BU2024048,Data Science,React.js,Technical - Frontend Development,64
+Krishna Tiwari,BU2024049,Data Science,PostgreSQL,Technical - Database Management,66
+Aditi Reddy,BU2024050,Computer Science,Technical Communication,Technical - Engineering Communication,48
+Navya Reddy,BU2024051,Full-Stack Web Development,PostgreSQL,Technical - Database Management,84
+Saanvi Yadav,BU2024052,Computer Science,System Design & Architecture,Technical - Architecture & Design,59
+Reyansh Desai,BU2024053,Data Science,PostgreSQL,Technical - Database Management,61
+Yash Agarwal,BU2024054,Software Engineering,Technical Communication,Technical - Engineering Communication,78
+Neha Verma,BU2024055,Computer Science,PostgreSQL,Technical - Database Management,86
+Aditi Chopra,BU2024056,Cloud Computing,PostgreSQL,Technical - Database Management,49
+Reyansh Patel,BU2024057,Full-Stack Web Development,Technical Communication,Technical - Engineering Communication,90
+Ishita Iyer,BU2024058,Software Engineering,Technical Communication,Technical - Engineering Communication,93
+Meera Tiwari,BU2024059,Information Technology,System Design & Architecture,Technical - Architecture & Design,82
+Neha Kapoor,BU2024060,Data Science,React.js,Technical - Frontend Development,69

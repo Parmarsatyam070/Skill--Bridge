@@ -140,13 +140,13 @@ export const RegisterPage: React.FC = () => {
     {
       id: 'ACADEMICIAN' as Role,
       title: 'Academician',
-      desc: 'Join FDPs, collaborate on research grants, and align course curricula.',
+      desc: 'Align course curricula with industry benchmarks and monitor cohort skill readiness.',
       icon: GraduationCap,
       portalTitle: 'faculty portal',
-      portalSub: 'Register to align curricula & collaborate on research grants',
+      portalSub: 'Register to align curricula & monitor cohort skill benchmarks',
       trustPrimary: 'Curriculum Alignment',
-      trustSecondary: 'Research Grants',
-      altText: 'Academician teaching and research illustration',
+      trustSecondary: 'Cohort Benchmarks',
+      altText: 'Academician curriculum benchmarking and teaching illustration',
     },
     {
       id: 'INSTITUTION_ADMIN' as Role,
@@ -985,7 +985,7 @@ const IndustryRecruiterIllustration: React.FC = () => (
 
 /**
  * 3. ACADEMICIAN REGISTRATION ILLUSTRATION
- * Theme: Faculty, curriculum engineering, teaching, scholarly research grants.
+ * Theme: Faculty, curriculum engineering, teaching, cohort benchmarking.
  */
 const AcademicianIllustration: React.FC = () => (
   <svg
@@ -1029,9 +1029,9 @@ const AcademicianIllustration: React.FC = () => (
       <rect x="346" y="198" width="45" height="22" rx="5" fill="#f8fafc" stroke="#080e1a" strokeWidth="1.5" />
       <text x="352" y="212" fill="#080e1a" fontSize="7.5" fontWeight="bold" fontFamily="sans-serif">Capstone</text>
 
-      {/* Research Grant & Publications Ledger */}
+      {/* Curriculum Benchmarks & Cohort Review */}
       <line x1="195" y1="235" x2="380" y2="235" stroke="#e2e8f0" strokeWidth="1.5" />
-      <text x="195" y="252" fill="#080e1a" fontSize="8" fontWeight="bold" fontFamily="monospace" letterSpacing="0.05em">RESEARCH &amp; PEER REVIEW</text>
+      <text x="195" y="252" fill="#080e1a" fontSize="8" fontWeight="bold" fontFamily="monospace" letterSpacing="0.05em">BENCHMARKING &amp; REVIEW</text>
 
       {/* Formula / Outcome Line */}
       <path d="M195 272 Q240 255 285 275 T375 260" stroke="#0a4fd6" strokeWidth="2.5" strokeLinecap="round" fill="none" />
@@ -1044,8 +1044,8 @@ const AcademicianIllustration: React.FC = () => (
       <text x="202" y="314" fill="#080e1a" fontSize="9" fontWeight="extrabold">96.4% ALIGNED</text>
 
       <rect x="295" y="292" width="85" height="26" rx="6" fill="#f1f5f9" stroke="#080e1a" strokeWidth="1.5" />
-      <text x="302" y="303" fill="#64748b" fontSize="6.5" fontWeight="bold">ACTIVE GRANTS</text>
-      <text x="302" y="314" fill="#0a4fd6" fontSize="9" fontWeight="extrabold">12 CO-PROJECTS</text>
+      <text x="302" y="303" fill="#64748b" fontSize="6.5" fontWeight="bold">BENCHMARK LABS</text>
+      <text x="302" y="314" fill="#0a4fd6" fontSize="9" fontWeight="extrabold">12 LAB MODULES</text>
     </g>
 
     {/* Graduation Cap perched on Whiteboard corner */}

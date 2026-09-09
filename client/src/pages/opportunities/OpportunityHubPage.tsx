@@ -29,6 +29,7 @@ import { OpportunityApplyModal } from '../../components/opportunities/Opportunit
 
 const OPPORTUNITY_TYPES = [
   { value: 'ALL', label: 'All Openings' },
+  { value: 'DEMO', label: 'Demo Dataset Requisitions (6)' },
   { value: 'JOB', label: 'Full-Time Jobs' },
   { value: 'INTERNSHIP', label: 'Internships' },
   { value: 'PROJECT', label: 'Live Projects' },
@@ -193,8 +194,53 @@ export const OpportunityHubPage: React.FC = () => {
     setCurrentPage(1);
   };
 
+  // 1b. Fetch Demo Opportunities from Industry Demo dataset
+  const { data: demoOppsData } = useQuery({
+    queryKey: ['industryDemoOpportunitiesForHub'],
+    queryFn: () => api.get<{ success: boolean; data: any[] }>('/industry/demo/opportunities'),
+    staleTime: 60000,
+  });
+
+  const mappedDemoOpps: OpportunitySummary[] = useMemo(() => {
+    return (demoOppsData?.data || []).map((opp: any) => ({
+      id: opp.id,
+      title: `[DEMO] ${opp.title}`,
+      description: opp.description,
+      type: 'DEMO' as any,
+      industry: opp.department || 'Technology',
+      location: opp.location,
+      remote: opp.location.toLowerCase().includes('remote'),
+      workMode: 'REMOTE',
+      experienceLevel: 'ENTRY',
+      status: 'OPEN',
+      createdAt: new Date().toISOString(),
+      company: {
+        id: 'demo-enterprise',
+        name: 'SkillBridge Demo Enterprise',
+        industry: opp.department,
+      },
+      requiredSkills: (opp.requiredSkills || []).map((s: string) => ({
+        skillId: s,
+        skillName: s,
+        isMandatory: true,
+        minScore: opp.minScoreThreshold || 70,
+      })),
+      applicantCount: opp.applicantCount,
+    }));
+  }, [demoOppsData]);
+
   // Filter items in memory if student uses client-side match pills (HIGH, ELIGIBLE, SAVED)
-  const rawOpportunities = oppsData?.opportunities || [];
+  const rawOpportunities = useMemo(() => {
+    const live = oppsData?.opportunities || [];
+    if (selectedType === 'DEMO') {
+      return mappedDemoOpps;
+    }
+    if (selectedType === 'ALL') {
+      return [...live, ...mappedDemoOpps];
+    }
+    return live;
+  }, [oppsData, mappedDemoOpps, selectedType]);
+
   const filteredOpportunities = useMemo(() => {
     if (matchFilter === 'ALL') return rawOpportunities;
 

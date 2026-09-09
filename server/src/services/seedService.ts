@@ -23,7 +23,6 @@ export async function seedCatalog(prisma: PrismaClient) {
   await prisma.skillBenchmark.deleteMany({});
   await prisma.domain.deleteMany({});
   await prisma.skill.deleteMany({});
-  await prisma.academicOpportunity.deleteMany({});
 
   // 2. Seed Skills across all 5 domains
   const skillsData = [
@@ -592,33 +591,7 @@ export async function seedCatalog(prisma: PrismaClient) {
   // 7. Seed Questions (390 authentic questions across all 18 domain/aptitude sets + reading & listening)
   await prisma.question.createMany({ data: practiceQuestionCatalog });
 
-  // 8. Seed Academic Opportunities
-  const academicOps = [
-    {
-      id: 'opp-1',
-      type: 'fdp',
-      title: 'AICTE-HCL Faculty Development Program: Applied GenAI & LLM Architecture',
-      description: 'A 5-day national immersion workshop for academicians to bridge industry LLM practices with university curricula.',
-      postedBy: 'HCLTech Innovation Labs & AICTE',
-      deadline: '2026-09-30',
-      status: 'OPEN',
-    },
-    {
-      id: 'opp-2',
-      type: 'research',
-      title: 'Joint Industry-Academia Research: High-Throughput Edge AI for Autonomous Systems',
-      description: 'Collaborative grant offering ₹15 Lakhs funding and compute credits for university researchers partnering with TechCorp Labs on edge inference acceleration.',
-      postedBy: 'TechCorp Labs',
-      deadline: '2026-10-15',
-      status: 'OPEN',
-    },
-  ];
-
-  for (const op of academicOps) {
-    await prisma.academicOpportunity.create({ data: op });
-  }
-
-  // 9. Seed Curated Learning Resources Catalog & DSA Questions
+  // 8. Seed Curated Learning Resources Catalog & DSA Questions
   await seedDefaultLearningResources();
   await seedSmartLearningResources();
   await seedDSAQuestionsIfEmpty();

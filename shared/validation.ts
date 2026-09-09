@@ -129,13 +129,6 @@ export const UpdateProfileSchema = z.object({
   linkedinUrl: z.string().optional(),
 });
 
-export const PostAcademicOpportunitySchema = z.object({
-  type: z.enum(['fdp', 'research', 'industrial_training']),
-  title: z.string().min(5, 'Title is required'),
-  description: z.string().min(20, 'Description is required'),
-  deadline: z.string().optional(),
-});
-
 export const AddStudentDomainSchema = z.object({
   domainId: z.string().min(1, 'Domain ID or name is required'),
   initialSkillRatings: z.array(
@@ -339,5 +332,45 @@ export const IntelligenceAiInsightSchema = z.object({
   keyObservations: z.array(z.string()).min(1),
   recommendations: z.array(z.string()).min(1),
   disclaimer: z.string().min(1),
+});
+
+// ============================================================
+// ACADEMIC PERFORMANCE & IMPROVEMENT VALIDATION SCHEMAS
+// ============================================================
+
+export const SubjectClassificationEnum = z.enum(['CORE', 'SUPPORTING', 'GENERAL', 'UNRELATED']);
+
+export const UpdateMarksheetSubjectItemSchema = z.object({
+  id: z.string().optional(),
+  subjectCode: z.string().nullable().optional(),
+  subjectName: z.string().min(1, 'Subject name is required'),
+  normalizedSubject: z.string().min(1, 'Normalized subject name is required'),
+  marksObtained: z.number().nullable().optional(),
+  maxMarks: z.number().nullable().optional().default(100),
+  percentage: z.number().min(0).max(100),
+  grade: z.string().nullable().optional(),
+  credits: z.number().nullable().optional(),
+  classification: SubjectClassificationEnum.default('GENERAL'),
+  isBacklog: z.boolean().optional().default(false),
+  isPassed: z.boolean().optional().default(true),
+});
+
+export const UpdateMarksheetSubjectsSchema = z.object({
+  semester: z.number().int().min(1).max(12).optional(),
+  academicYear: z.string().optional(),
+  sgpa: z.number().min(0).max(10).nullable().optional(),
+  totalCredits: z.number().min(0).max(50).nullable().optional(),
+  subjects: z.array(UpdateMarksheetSubjectItemSchema).min(1, 'At least one subject is required'),
+});
+
+export const SubmitPracticeAnswersSchema = z.object({
+  subject: z.string().min(1, 'Subject is required'),
+  topic: z.string().min(1, 'Topic is required'),
+  answers: z.array(
+    z.object({
+      questionId: z.string().min(1, 'Question ID is required'),
+      selectedAnswer: z.union([z.string(), z.number()]),
+    })
+  ).min(1, 'At least one answer must be submitted'),
 });
 

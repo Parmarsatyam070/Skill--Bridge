@@ -67,7 +67,7 @@ export const PublicFooter: React.FC = () => {
             <span>Enterprise & Faculty</span>
           </div>
           <ul className="space-y-2.5 text-xs">
-            {['Post Requirements', 'Ranked Candidate Pool', 'Faculty Dev (FDPs)', 'Joint Research Grants'].map(l => (
+            {['Post Requirements', 'Ranked Candidate Pool', 'Curriculum Benchmarking', 'Batch Skill Heatmaps'].map(l => (
               <li key={l}>
                 <Link
                   to="/register"

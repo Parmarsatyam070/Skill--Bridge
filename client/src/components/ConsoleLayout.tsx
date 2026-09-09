@@ -91,6 +91,7 @@ export const ConsoleLayout: React.FC<{ children: React.ReactNode }> = ({ childre
           { label: 'Opportunity Hub',     path: '/opportunities',  icon: Compass,        badge: '7-Factor'   },
           { label: 'Matched Internships', path: '/internships',    icon: Briefcase,      badge: 'Live %'     },
           { label: 'Report Card',         path: '/report-card',    icon: Award,          badge: 'History'    },
+          { label: 'Academic Performance', path: '/academic-performance', icon: GraduationCap, badge: 'Marksheets' },
         ],
       },
       {
@@ -153,13 +154,14 @@ export const ConsoleLayout: React.FC<{ children: React.ReactNode }> = ({ childre
       {
         title: 'ACADEMIA',
         items: [
-          { label: 'Academia Hub',        path: '/academician/dashboard',     icon: GraduationCap },
+          { label: 'Curriculum Hub',      path: '/academician/dashboard',     icon: GraduationCap },
         ],
       },
       {
-        title: 'COLLABORATION',
+        title: 'BENCHMARKING',
         items: [
-          { label: 'FDP & Collaborations',path: '/academician/opportunities', icon: BookOpen },
+          { label: 'Cohort Analytics',    path: '/institution/dashboard',    icon: BarChart3 },
+          { label: 'Skill Intelligence',  path: '/institution/intelligence', icon: Radar, badge: 'Curriculum' },
         ],
       },
     ];

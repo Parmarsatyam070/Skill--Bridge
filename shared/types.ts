@@ -4,7 +4,6 @@ export type WorkMode = 'REMOTE' | 'HYBRID' | 'ON_SITE';
 export type JobStatus = 'OPEN' | 'CLOSED' | 'DRAFT';
 export type ApplicationStatus = 'applied' | 'under_review' | 'shortlisted' | 'interview' | 'hired' | 'rejected';
 export type EnrollmentStatus = 'enrolled' | 'completed';
-export type AcademicOpportunityType = 'fdp' | 'research' | 'industrial_training';
 export type SkillCategory = 'technical' | 'soft' | 'core';
 
 export interface UserSession {
@@ -2090,5 +2089,326 @@ export interface ExamIntegrityStatusDto {
   remainingSeconds: number;
   activeSessionViolations: Record<string, number>;
 }
+
+// ─── Academic Performance & Improvement Types ──────────────────────────────────
+export type SubjectClassification = 'CORE' | 'SUPPORTING' | 'GENERAL' | 'UNRELATED';
+export type SubjectTrend = 'IMPROVING' | 'DECLINING' | 'CONSISTENTLY_WEAK' | 'ONE_TIME_DIP' | 'STRONG';
+export type MarksheetStatus = 'DRAFT' | 'VERIFIED' | 'ANALYZED' | 'ERROR';
+export type AcademicPerformanceCategory = 'Strong' | 'Moderate' | 'Needs Improvement' | 'Attention Required';
+
+export interface MarksheetSubjectDto {
+  id?: string;
+  marksheetId?: string;
+  subjectCode?: string | null;
+  subjectName: string;
+  normalizedSubject: string;
+  marksObtained?: number | null;
+  maxMarks?: number | null;
+  percentage: number;
+  grade?: string | null;
+  credits?: number | null;
+  classification: SubjectClassification;
+  isBacklog?: boolean;
+  isPassed?: boolean;
+}
+
+export interface UploadedMarksheetDto {
+  id: string;
+  studentProfileId: string;
+  semester: number;
+  academicYear: string;
+  fileName: string;
+  fileType: string;
+  fileSize: number;
+  status: MarksheetStatus;
+  sgpa?: number | null;
+  totalCredits?: number | null;
+  extractionNotes?: string | null;
+  subjects: MarksheetSubjectDto[];
+  createdAt: string;
+  updatedAt: string;
+}
+
+export interface AcademicRadarSkillDto {
+  pillar: string;
+  skill: string;
+  performance: number; // 0 - 100
+  benchmark: number; // Target score e.g. 75
+  category: AcademicPerformanceCategory;
+  relevance: SubjectClassification;
+  subjectCount: number;
+}
+
+export interface CrossSemesterTrendDto {
+  subjectName: string;
+  normalizedSubject: string;
+  classification: SubjectClassification;
+  trend: SubjectTrend;
+  trendScoreDelta: number; // e.g. +16% or -21%
+  semesterScores: { semester: number; percentage: number; grade?: string | null }[];
+  summary: string;
+}
+
+export interface WeakSubjectDto {
+  subjectName: string;
+  normalizedSubject: string;
+  classification: SubjectClassification;
+  performancePercentage: number;
+  grade?: string | null;
+  priorityScore: number; // e.g. 126
+  trend: SubjectTrend;
+  status: AcademicPerformanceCategory;
+  reasonForSelection: string;
+  isBacklog?: boolean;
+}
+
+export interface RoadmapStageItem {
+  id: string;
+  title: string;
+  description: string;
+  estimatedHours: number;
+  topics: string[];
+  actionableTasks: string[];
+  completed?: boolean;
+}
+
+export interface PersonalizedRoadmapDto {
+  subject: string;
+  normalizedSubject: string;
+  priorityRank: number;
+  currentPerformance: number;
+  targetPerformance: number;
+  stages: {
+    foundation: RoadmapStageItem;
+    conceptBuilding: RoadmapStageItem;
+    guidedPractice: RoadmapStageItem;
+    advancedPractice: RoadmapStageItem;
+    assessment: RoadmapStageItem;
+    mastery: RoadmapStageItem;
+  };
+}
+
+export interface BookRecommendationDto {
+  subject: string;
+  title: string;
+  author: string;
+  edition?: string;
+  difficulty: 'Beginner' | 'Standard Academic' | 'Advanced Reference';
+  topicsCovered: string[];
+  whyRecommended: string;
+  publisher?: string;
+}
+
+export interface CourseRecommendationDto {
+  subject: string;
+  courseName: string;
+  provider: 'NPTEL' | 'Coursera' | 'edX' | 'MIT OpenCourseWare' | 'freeCodeCamp' | 'Stanford Online' | 'SkillBridge Partner';
+  url: string;
+  difficulty: 'Beginner' | 'Intermediate' | 'Advanced' | 'All Levels';
+  topics: string[];
+  whyRecommended: string;
+  isFree: boolean;
+  rating: number;
+  duration?: string;
+}
+
+export interface AcademicAnalysisDto {
+  id?: string;
+  studentProfileId: string;
+  overallPercentage: number;
+  domainPercentage: number;
+  coreDomainPercentage: number;
+  semestersAnalyzed: number;
+  totalSubjects: number;
+  academicStatus: string;
+  hasCriticalWeakness: boolean;
+  radarData: AcademicRadarSkillDto[];
+  trends: CrossSemesterTrendDto[];
+  weakSubjects: WeakSubjectDto[];
+  roadmaps: PersonalizedRoadmapDto[];
+  bookRecommendations: BookRecommendationDto[];
+  courseRecommendations: CourseRecommendationDto[];
+  advancedMasteryTracks?: {
+    trackName: string;
+    description: string;
+    challenges: string[];
+    certifications: string[];
+  }[];
+  unrelatedSubjectsIgnored?: {
+    subjectName: string;
+    percentage: number;
+    reason: string;
+  }[];
+  isDemo?: boolean;
+  source?: 'REAL_MARKSHEET' | 'DEMO_DATASET' | string;
+  demoStudentName?: string;
+  externalStudentId?: string;
+  demoBranch?: string;
+  demoDomain?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface DemoDatasetStatsDto {
+  totalRecords: number;
+  uniqueStudents: number;
+  uniqueBranches: number;
+  uniqueDomains: number;
+  uniqueSkills: number;
+  uniqueSkillCategories?: number;
+  averageScore: number;
+  highestScore: number;
+  lowestScore: number;
+}
+
+export interface DemoStudentSkillDto {
+  skill: string;
+  skillCategory: string;
+  score: number;
+}
+
+export interface DemoStudentDto {
+  externalStudentId: string;
+  studentName: string;
+  domain: string;
+  branch: string;
+  skills: DemoStudentSkillDto[];
+  averageScore: number;
+  lowestSkill: { skill: string; score: number };
+  highestSkill: { skill: string; score: number };
+}
+
+export interface PracticeQuestionItemDto {
+  id: string;
+  subject: string;
+  topic: string;
+  type: 'MCQ' | 'CONCEPTUAL' | 'PROBLEM_SOLVING' | 'CODING';
+  difficulty: 'EASY' | 'MEDIUM' | 'HARD';
+  question: string;
+  options?: string[];
+  correctAnswer: string | number; // index or text
+  explanation: string;
+  codeSnippet?: string;
+  hint?: string;
+}
+
+export interface PracticeSubmissionDto {
+  subject: string;
+  topic: string;
+  answers: {
+    questionId: string;
+    selectedAnswer: string | number;
+  }[];
+}
+
+export interface PracticeResultDto {
+  subject: string;
+  topic: string;
+  score: number;
+  totalQuestions: number;
+  percentage: number;
+  passed: boolean;
+  questionResults: {
+    questionId: string;
+    question: string;
+    selectedAnswer: string | number;
+    correctAnswer: string | number;
+    isCorrect: boolean;
+    explanation: string;
+  }[];
+  weakTopics: string[];
+  recommendedNextStudy: string[];
+}
+
+/* ─── INDUSTRY DEMO DATASET DTOs ─────────────────────────────────────────── */
+
+export interface IndustryDemoStatsDto {
+  totalRecords: number;
+  uniqueCandidates: number;
+  dataSourcesCount: number;
+  universitiesCount: number;
+  branchesCount: number;
+  skillsCount: number;
+  skillCategoriesCount: number;
+  sourceDomainsCount: number;
+  averageScore: number;
+  highestScore: number;
+  lowestScore: number;
+  universities: string[];
+  dataSources: string[];
+  branches: string[];
+  skills: string[];
+}
+
+export interface IndustryDemoCandidateSkillDto {
+  skill: string;
+  skillCategory: string;
+  skillScore: number;
+}
+
+export interface IndustryDemoCandidateDto {
+  id: string;
+  externalStudentId: string;
+  studentName: string;
+  university: string;
+  branch: string;
+  sourceDomain?: string | null;
+  derivedDomain: string;
+  averageScore: number;
+  sourceDataset: string;
+  skills: IndustryDemoCandidateSkillDto[];
+  matchScore?: number;
+  skillCoverageRatio?: string;
+  stage?: string;
+  knownSkills?: Array<{ skill: string; score: number }>;
+  missingSkills?: string[];
+}
+
+export interface IndustryDemoOpportunityDto {
+  id: string;
+  title: string;
+  companyName: string;
+  roleType: string;
+  location: string;
+  department: string;
+  requiredSkills: string[];
+  description: string;
+  minScoreThreshold: number;
+  applicantCount: number;
+}
+
+export interface IndustryDemoComparisonResultDto {
+  advisoryRanking: Array<{
+    candidateId: string;
+    candidateName: string;
+    externalStudentId: string;
+    university: string;
+    branch: string;
+    matchScore: number;
+    skillCoverageRatio: string;
+    knownSkillScore: number;
+    advisoryReason: string;
+  }>;
+  advisorySummary: string;
+  topStrengths: Record<string, string[]>;
+  topGaps: Record<string, string[]>;
+  disclaimer: string;
+}
+
+export interface IndustryDemoAnalyticsDto {
+  totalCandidates: number;
+  totalOpportunities: number;
+  totalApplications: number;
+  shortlistedCount: number;
+  assessmentCount: number;
+  interviewCount: number;
+  hiredCount: number;
+  averageSkillScore: number;
+  universityDistribution: Array<{ university: string; count: number; averageScore: number }>;
+  branchDistribution: Array<{ branch: string; count: number; averageScore: number }>;
+  skillSupply: Array<{ skill: string; candidateCount: number; averageScore: number; category: string }>;
+  funnelStages: Array<{ stage: string; count: number; conversionRate: number }>;
+}
+
 
 

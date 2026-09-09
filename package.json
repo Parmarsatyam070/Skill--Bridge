@@ -18,6 +18,8 @@
     "db:export": "tsx scripts/export-data.ts",
     "db:import": "tsx scripts/import-data.ts",
     "db:verify": "tsx scripts/verify-imported-data.ts",
+    "seed:academic-data": "tsx server/src/scripts/seedAcademicDataset.ts",
+    "seed:industry-demo": "tsx server/src/scripts/seedIndustryDemo.ts",
     "test:llm": "tsx scripts/test-llm.ts",
     "test": "vitest run",
     "start": "node dist/server/src/index.js"

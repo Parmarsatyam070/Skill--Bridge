@@ -1,0 +1,71 @@
+Student Name,Student ID,Branch,Skill,Skill Category,Overall Skill Score
+Diya Mishra,GBU2024001,Cloud Computing,Express.js,Technical - Backend Development,53
+Vihaan Joshi,GBU2024002,Software Engineering,Technical Communication,Technical - Engineering Communication,68
+Meera Gupta,GBU2024003,Data Science,TypeScript,Technical - Programming Language,87
+Navya Kumar,GBU2024004,AI & ML,Technical Communication,Technical - Engineering Communication,45
+Yash Malhotra,GBU2024005,Cloud Computing,PostgreSQL,Technical - Database Management,67
+Simran Verma,GBU2024006,Computer Science,Express.js,Technical - Backend Development,47
+Devansh Verma,GBU2024007,Data Science,System Design & Architecture,Technical - Architecture & Design,57
+Simran Nair,GBU2024008,Cybersecurity,TypeScript,Technical - Programming Language,82
+Kabir Sharma,GBU2024009,Information Technology,React.js,Technical - Frontend Development,46
+Krishna Kapoor,GBU2024010,Computer Science,System Design & Architecture,Technical - Architecture & Design,64
+Ira Joshi,GBU2024011,Computer Science,System Design & Architecture,Technical - Architecture & Design,47
+Aryan Singh,GBU2024012,Data Science,System Design & Architecture,Technical - Architecture & Design,91
+Aditi Gupta,GBU2024013,Computer Science,React.js,Technical - Frontend Development,66
+Reyansh Singh,GBU2024014,Computer Science,PostgreSQL,Technical - Database Management,61
+Reyansh Mishra,GBU2024015,Information Technology,System Design & Architecture,Technical - Architecture & Design,97
+Manish Agarwal,GBU2024016,Computer Science,PostgreSQL,Technical - Database Management,75
+Varun Singh,GBU2024017,Cloud Computing,PostgreSQL,Technical - Database Management,78
+Rohan Reddy,GBU2024018,Cloud Computing,TypeScript,Technical - Programming Language,76
+Ishita Kumar,GBU2024019,Data Science,TypeScript,Technical - Programming Language,48
+Ira Agarwal,GBU2024020,AI & ML,PostgreSQL,Technical - Database Management,91
+Vivaan Bansal,GBU2024021,Full-Stack Web Development,Technical Communication,Technical - Engineering Communication,46
+Ishita Chauhan,GBU2024022,Cybersecurity,React.js,Technical - Frontend Development,99
+Aarav Mehta,GBU2024023,Full-Stack Web Development,TypeScript,Technical - Programming Language,68
+Saanvi Bansal,GBU2024024,Computer Science,TypeScript,Technical - Programming Language,64
+Shaurya Reddy,GBU2024025,Cloud Computing,Express.js,Technical - Backend Development,58
+Pooja Reddy,GBU2024026,Data Science,PostgreSQL,Technical - Database Management,92
+Aditya Bhatia,GBU2024027,Computer Science,React.js,Technical - Frontend Development,70
+Meera Tiwari,GBU2024028,Computer Science,Technical Communication,Technical - Engineering Communication,45
+Manish Nair,GBU2024029,Software Engineering,Express.js,Technical - Backend Development,72
+Meera Kapoor,GBU2024030,Cloud Computing,Express.js,Technical - Backend Development,48
+Pooja Verma,GBU2024031,Software Engineering,System Design & Architecture,Technical - Architecture & Design,81
+Meera Bansal,GBU2024032,Full-Stack Web Development,System Design & Architecture,Technical - Architecture & Design,51
+Devansh Rao,GBU2024033,Data Science,TypeScript,Technical - Programming Language,47
+Sneha Chopra,GBU2024034,Information Technology,Express.js,Technical - Backend Development,90
+Tanvi Chopra,GBU2024035,Cloud Computing,Technical Communication,Technical - Engineering Communication,63
+Sneha Yadav,GBU2024036,Information Technology,Express.js,Technical - Backend Development,75
+Arjun Malhotra,GBU2024037,Cloud Computing,PostgreSQL,Technical - Database Management,50
+Ira Bhatia,GBU2024038,Cybersecurity,Express.js,Technical - Backend Development,70
+Vihaan Gupta,GBU2024039,Computer Science,PostgreSQL,Technical - Database Management,93
+Simran Malhotra,GBU2024040,Cybersecurity,TypeScript,Technical - Programming Language,45
+Arjun Gupta,GBU2024041,Information Technology,React.js,Technical - Frontend Development,67
+Amit Agarwal,GBU2024042,Data Science,React.js,Technical - Frontend Development,47
+Aarav Gupta,GBU2024043,Information Technology,React.js,Technical - Frontend Development,94
+Neha Sharma,GBU2024044,Computer Science,TypeScript,Technical - Programming Language,82
+Navya Iyer,GBU2024045,Computer Science,Technical Communication,Technical - Engineering Communication,72
+Yash Singh,GBU2024046,Cloud Computing,PostgreSQL,Technical - Database Management,65
+Neha Nair,GBU2024047,Cybersecurity,PostgreSQL,Technical - Database Management,88
+Sai Bansal,GBU2024048,Information Technology,Technical Communication,Technical - Engineering Communication,48
+Yash Singh,GBU2024049,Cybersecurity,React.js,Technical - Frontend Development,55
+Diya Mishra,GBU2024050,Software Engineering,TypeScript,Technical - Programming Language,57
+Reyansh Malhotra,GBU2024051,Computer Science,TypeScript,Technical - Programming Language,92
+Karan Sharma,GBU2024052,Information Technology,PostgreSQL,Technical - Database Management,93
+Vivaan Joshi,GBU2024053,Computer Science,Express.js,Technical - Backend Development,68
+Aditi Iyer,GBU2024054,Full-Stack Web Development,Technical Communication,Technical - Engineering Communication,58
+Devansh Yadav,GBU2024055,Cloud Computing,Technical Communication,Technical - Engineering Communication,54
+Aarav Saxena,GBU2024056,Software Engineering,System Design & Architecture,Technical - Architecture & Design,64
+Shaurya Iyer,GBU2024057,Full-Stack Web Development,PostgreSQL,Technical - Database Management,90
+Shaurya Rao,GBU2024058,AI & ML,TypeScript,Technical - Programming Language,87
+Ananya Gupta,GBU2024059,Cloud Computing,React.js,Technical - Frontend Development,63
+Shaurya Joshi,GBU2024060,Information Technology,React.js,Technical - Frontend Development,64
+Varun Verma,GBU2024061,Cloud Computing,System Design & Architecture,Technical - Architecture & Design,84
+Karan Chopra,GBU2024062,Software Engineering,React.js,Technical - Frontend Development,64
+Sai Nair,GBU2024063,Cybersecurity,React.js,Technical - Frontend Development,66
+Tanvi Desai,GBU2024064,Full-Stack Web Development,PostgreSQL,Technical - Database Management,72
+Rohan Malhotra,GBU2024065,Cloud Computing,System Design & Architecture,Technical - Architecture & Design,69
+Karan Bansal,GBU2024066,Full-Stack Web Development,React.js,Technical - Frontend Development,91
+Manish Reddy,GBU2024067,Full-Stack Web Development,TypeScript,Technical - Programming Language,87
+Kiara Chopra,GBU2024068,Full-Stack Web Development,TypeScript,Technical - Programming Language,54
+Kavya Patel,GBU2024069,Cybersecurity,Technical Communication,Technical - Engineering Communication,59
+Priya Malhotra,GBU2024070,Software Engineering,Technical Communication,Technical - Engineering Communication,92
