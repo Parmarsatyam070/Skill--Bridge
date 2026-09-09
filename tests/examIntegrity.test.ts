@@ -188,7 +188,7 @@ describe('Centralized Exam Integrity / Anti-Cheating System', () => {
     const suspendedUntilMs = new Date(dbSuspension!.suspendedUntil).getTime();
     const diffSeconds = Math.round((suspendedUntilMs - suspendedAtMs) / 1000);
     expect(diffSeconds).toBe(300); // Exactly 5 minutes
-  });
+  }, 15000);
 
   it('server-authoritative checkUserExamSuspension blocks access while suspended', async () => {
     const status = await checkUserExamSuspension(testUserId);

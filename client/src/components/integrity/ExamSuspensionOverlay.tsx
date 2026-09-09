@@ -16,9 +16,21 @@ export const ExamSuspensionOverlay: React.FC<ExamSuspensionOverlayProps> = ({
 }) => {
   if (!isSuspended) return null;
 
-  const minutes = Math.floor(remainingSeconds / 60);
+  const days = Math.floor(remainingSeconds / 86400);
+  const hours = Math.floor((remainingSeconds % 86400) / 3600);
+  const minutes = Math.floor((remainingSeconds % 3600) / 60);
   const seconds = remainingSeconds % 60;
-  const formattedTime = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+  const formattedTime = days > 0
+    ? `${days}d ${String(hours).padStart(2, '0')}h ${String(minutes).padStart(2, '0')}m ${String(seconds).padStart(2, '0')}s`
+    : hours > 0
+    ? `${hours}h ${String(minutes).padStart(2, '0')}m ${String(seconds).padStart(2, '0')}s`
+    : `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+
+  const isMultiDay = days > 0 || hours > 5;
+  const durationLabel = isMultiDay
+    ? `Duration: 3 Days (${Math.ceil(remainingSeconds / 3600)}h Remaining)`
+    : `Duration: exactly 5 minutes (300 seconds)`;
 
   return (
     <div
@@ -42,10 +54,10 @@ export const ExamSuspensionOverlay: React.FC<ExamSuspensionOverlayProps> = ({
             <Lock className="w-3.5 h-3.5" /> Access Locked
           </div>
           <h2 id="suspension-title" className="text-2xl font-bold text-[#F4F5F7]">
-            Assessment Temporarily Suspended
+            {isMultiDay ? '3-Day Integrity Suspension' : 'Assessment Temporarily Suspended'}
           </h2>
           <p className="text-sm text-[#E5637C] font-medium">
-            {reason || 'A second integrity violation was detected.'}
+            {reason || 'Multiple integrity violations detected.'}
           </p>
         </div>
 
@@ -55,21 +67,23 @@ export const ExamSuspensionOverlay: React.FC<ExamSuspensionOverlayProps> = ({
             <Clock className="w-4 h-4 text-[#E5637C]" />
             Time Remaining in Suspension
           </div>
-          <div className="text-5xl font-mono font-extrabold text-[#F4F5F7] tracking-wider tabular-nums">
+          <div className={`font-mono font-extrabold text-[#F4F5F7] tracking-wider tabular-nums ${days > 0 ? 'text-3xl sm:text-4xl' : 'text-5xl'}`}>
             {formattedTime}
           </div>
           <p className="text-xs text-[#8B90A0]">
-            Duration: exactly 5 minutes (300 seconds)
+            {durationLabel}
           </p>
         </div>
 
         {/* Explanatory policy note */}
-        <div className="text-xs text-[#8B90A0] leading-relaxed space-y-1">
-          <p>
-            Your protected assessment access has been temporarily suspended for 5 minutes.
+        <div className="text-xs text-[#8B90A0] leading-relaxed space-y-2">
+          <p className="text-white/90 font-medium">
+            {isMultiDay
+              ? 'Your access to AI Mock Interviews and DSA Questions is locked for 3 days due to repeated proctoring violations (eye movement deviation or background noise).'
+              : 'Your protected assessment access has been temporarily suspended.'}
           </p>
           <p>
-            You can continue after the suspension expires. Any attempt to refresh, switch tabs, or create new sessions will remain locked until the server timer concludes.
+            You can continue after the suspension timer concludes. Any attempt to refresh, switch tabs, or create new sessions will remain locked until the server timer expires.
           </p>
         </div>
 

@@ -2,6 +2,7 @@ import { Router, Response } from 'express';
 import { prisma } from '../config/prisma.js';
 import { authenticate, optionalAuthenticate, AuthRequest } from '../middleware/auth.js';
 import { requireExamAccess } from '../middleware/examIntegrityMiddleware.js';
+import { checkUserSuspension } from '../services/examIntegrityService.js';
 import {
   seedDSAQuestionsIfEmpty,
   selectRotatedQuestions,
@@ -434,6 +435,22 @@ router.get('/problems/:id', optionalAuthenticate, handleGetQuestionDetail);
  */
 router.post('/run', optionalAuthenticate, async (req: AuthRequest, res: Response) => {
   try {
+    if (req.user?.id) {
+      const suspension = await checkUserSuspension(req.user.id);
+      if (suspension.isSuspended) {
+        return res.status(403).json({
+          error: {
+            code: 'EXAM_ACCESS_SUSPENDED',
+            message: 'Access to DSA code execution is suspended due to integrity violations.',
+            suspendedUntil: suspension.suspendedUntil,
+            remainingSeconds: suspension.remainingSeconds,
+            reason: suspension.reason,
+            violationCount: suspension.violationCount,
+          },
+        });
+      }
+    }
+
     const { code, language = 'javascript', questionId, entryFunctionName, testCases } = req.body;
 
     let casesToRun = testCases;
@@ -475,6 +492,22 @@ router.post('/run', optionalAuthenticate, async (req: AuthRequest, res: Response
  */
 router.post('/submit', optionalAuthenticate, async (req: AuthRequest, res: Response) => {
   try {
+    if (req.user?.id) {
+      const suspension = await checkUserSuspension(req.user.id);
+      if (suspension.isSuspended) {
+        return res.status(403).json({
+          error: {
+            code: 'EXAM_ACCESS_SUSPENDED',
+            message: 'Access to DSA question submission is suspended due to integrity violations.',
+            suspendedUntil: suspension.suspendedUntil,
+            remainingSeconds: suspension.remainingSeconds,
+            reason: suspension.reason,
+            violationCount: suspension.violationCount,
+          },
+        });
+      }
+    }
+
     const studentId = req.user?.studentProfileId;
     const { code, language = 'javascript', questionId, timeSpentSeconds = 60 } = req.body;
     if (!questionId) {

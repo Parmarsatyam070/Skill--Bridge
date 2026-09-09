@@ -18,6 +18,8 @@ export const CONFIRMED_VIOLATIONS: ReadonlySet<ExamIntegrityEventType> = new Set
   'DRAG_DROP_ATTEMPT',
   'PRINT_SCREEN_ATTEMPT',
   'SCREENSHOT_ATTEMPT',
+  'EYE_GAZE_VIOLATION',
+  'NOISE_VIOLATION',
 ]);
 
 // Observational events logged for audit trail only
@@ -68,6 +70,10 @@ export function humanReadableEventName(eventType: ExamIntegrityEventType): strin
       return 'Visibility Change';
     case 'FULLSCREEN_EXIT':
       return 'Fullscreen Exit';
+    case 'EYE_GAZE_VIOLATION':
+      return 'Eye Movement / Looking Away from Screen';
+    case 'NOISE_VIOLATION':
+      return 'External Background Noise / Speech Detected';
     default:
       return eventType;
   }
@@ -329,6 +335,7 @@ export async function getActiveSuspensionState(userId: string): Promise<ExamInte
     isSuspended: suspension.isSuspended,
     suspendedUntil: suspension.suspendedUntil,
     remainingSeconds: suspension.remainingSeconds,
+    reason: suspension.reason,
     activeSessionViolations,
   };
 }
@@ -377,4 +384,68 @@ export async function clearSuspensionForTesting(userId: string): Promise<void> {
   await prisma.examIntegrityEvent.deleteMany({
     where: { userId },
   });
+}
+
+/**
+ * Trigger a 3-day (72-hour) suspension from Mock Interviews and DSA Questions
+ * due to repeated proctoring violations (>3 strikes of eye gaze or background noise).
+ */
+export async function triggerThreeDayBan(
+  userId: string,
+  reason: string,
+  sessionId?: string,
+  sessionType: string = 'MOCK_INTERVIEW'
+): Promise<ExamSuspensionState> {
+  const now = new Date();
+  const BAN_DURATION_MS = 3 * 24 * 60 * 60 * 1000; // 3 days = 72 hours
+  const suspendedUntil = new Date(now.getTime() + BAN_DURATION_MS);
+  const remainingSeconds = 3 * 24 * 60 * 60; // 259,200 seconds
+
+  await prisma.userExamSuspension.upsert({
+    where: { userId },
+    create: {
+      userId,
+      suspendedAt: now,
+      suspendedUntil,
+      reason,
+      violationCount: 4,
+      sessionId,
+      sessionType,
+    },
+    update: {
+      suspendedAt: now,
+      suspendedUntil,
+      reason,
+      violationCount: 4,
+      sessionId,
+      sessionType,
+    },
+  });
+
+  try {
+    await prisma.examIntegrityEvent.create({
+      data: {
+        userId,
+        sessionId: sessionId || 'mock-interview',
+        sessionType,
+        eventType: reason.toLowerCase().includes('noise') ? 'NOISE_VIOLATION' : 'EYE_GAZE_VIOLATION',
+        severity: 'VIOLATION',
+        isConfirmedViolation: true,
+        warningIssued: false,
+        suspensionTriggered: true,
+        occurredAt: now,
+        metadataJson: JSON.stringify({ reason, banDurationHours: 72 }),
+      },
+    });
+  } catch (err) {
+    console.error('Failed to log 3-day ban integrity event:', err);
+  }
+
+  return {
+    isSuspended: true,
+    suspendedUntil: suspendedUntil.toISOString(),
+    remainingSeconds,
+    reason,
+    violationCount: 4,
+  };
 }

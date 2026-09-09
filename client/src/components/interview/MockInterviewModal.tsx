@@ -26,8 +26,9 @@ import {
   MockInterviewAnswerItem,
   MockInterviewEvaluation,
 } from '@shared/types';
-import { Link } from 'react-router-dom';
 import { ExamIntegrityGuard } from '../integrity/ExamIntegrityGuard';
+import { ExamSuspensionOverlay } from '../integrity/ExamSuspensionOverlay';
+import { MockInterviewCamera } from './MockInterviewCamera';
 
 interface MockInterviewModalProps {
   internshipId: string;
@@ -56,6 +57,12 @@ export const MockInterviewModal: React.FC<MockInterviewModalProps> = ({
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [evaluation, setEvaluation] = useState<MockInterviewEvaluation | null>(null);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+  const [suspensionData, setSuspensionData] = useState<{
+    isSuspended: boolean;
+    remainingSeconds: number;
+    reason?: string;
+    suspendedUntil?: string;
+  } | null>(null);
 
   // 30-Minute Timer (1800 seconds total)
   const [totalSecondsLeft, setTotalSecondsLeft] = useState<number>(30 * 60);
@@ -73,6 +80,7 @@ export const MockInterviewModal: React.FC<MockInterviewModalProps> = ({
     try {
       setIsInitializing(true);
       setErrorMsg(null);
+      setSuspensionData(null);
       setEvaluation(null);
       setCurrentIndex(0);
       setAnswers({});
@@ -96,7 +104,16 @@ export const MockInterviewModal: React.FC<MockInterviewModalProps> = ({
         speakText(res.sashGreeting);
       }
     } catch (err: any) {
-      const msg = err?.response?.data?.error?.message || err?.message || 'Could not start mock interview session.';
+      const errData = err?.response?.data?.error;
+      if (errData?.code === 'EXAM_ACCESS_SUSPENDED') {
+        setSuspensionData({
+          isSuspended: true,
+          remainingSeconds: errData.remainingSeconds || 259200,
+          reason: errData.reason || 'Integrity violations detected.',
+          suspendedUntil: errData.suspendedUntil,
+        });
+      }
+      const msg = errData?.message || err?.message || 'Could not start mock interview session.';
       setErrorMsg(msg);
     } finally {
       setIsInitializing(false);
@@ -353,7 +370,7 @@ export const MockInterviewModal: React.FC<MockInterviewModalProps> = ({
       aria-modal="true"
     >
       <div
-        className="bg-console-panel border border-console-border rounded-2xl max-w-3xl w-full max-h-[92vh] flex flex-col shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9)] relative overflow-hidden text-xs text-console-text"
+        className="bg-console-panel border border-console-border rounded-2xl max-w-5xl w-full max-h-[92vh] flex flex-col shadow-[0_25px_60px_-15px_rgba(0,0,0,0.9)] relative overflow-hidden text-xs text-console-text"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Modal Top Header */}
@@ -684,95 +701,133 @@ export const MockInterviewModal: React.FC<MockInterviewModalProps> = ({
                 />
               </div>
 
-              {/* Sash Question Card */}
-              <div className="p-4 sm:p-5 rounded-2xl bg-console-panel-raised border border-console-border space-y-3 relative">
-                <div className="flex items-center justify-between gap-3">
-                  <div className="flex items-center gap-2">
-                    <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-bridge-teal/15 text-bridge-teal border border-bridge-teal/30">
-                      Sash Asks:
-                    </span>
-                    {isSpeakingQuestion && (
-                      <span className="flex items-center gap-1 text-[10px] text-bridge-teal font-mono animate-pulse">
-                        <Volume2 className="w-3 h-3" />
-                        <span>Speaking...</span>
-                      </span>
+              {/* Main 2-Column Responsive Layout: Left (Questions & Answers), Right (Live Camera Proctor) */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-start">
+                {/* Left: Questions & Response (8 cols on lg) */}
+                <div className="lg:col-span-8 space-y-4">
+                  {/* Sash Question Card */}
+                  <div className="p-4 sm:p-5 rounded-2xl bg-console-panel-raised border border-console-border space-y-3 relative">
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="flex items-center gap-2">
+                        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-bridge-teal/15 text-bridge-teal border border-bridge-teal/30">
+                          Sash Asks:
+                        </span>
+                        {isSpeakingQuestion && (
+                          <span className="flex items-center gap-1 text-[10px] text-bridge-teal font-mono animate-pulse">
+                            <Volume2 className="w-3 h-3" />
+                            <span>Speaking...</span>
+                          </span>
+                        )}
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (isSpeakingQuestion) {
+                            window.speechSynthesis.cancel();
+                            setIsSpeakingQuestion(false);
+                          } else {
+                            speakText(currentQ.questionText);
+                          }
+                        }}
+                        title="Toggle voice readout"
+                        className="p-1.5 rounded-lg bg-console-bg border border-console-border text-console-text-muted hover:text-console-text"
+                      >
+                        {isSpeakingQuestion ? <VolumeX className="w-4 h-4 text-status-red" /> : <Volume2 className="w-4 h-4" />}
+                      </button>
+                    </div>
+
+                    <h3 className="font-serif text-sm sm:text-base font-bold text-console-text leading-relaxed">
+                      {currentQ.questionText}
+                    </h3>
+
+                    {/* Behavioral STAR Guidance Tip */}
+                    {currentQ.category === 'behavioral' && (
+                      <div className="p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/25 text-[11px] text-purple-200 flex items-start gap-2">
+                        <Sparkles className="w-3.5 h-3.5 text-purple-300 flex-shrink-0 mt-0.5" />
+                        <div>
+                          <span className="font-bold">STAR Method Strategy: </span>
+                          Structure your response into <b>Situation</b> (the context), <b>Task</b> (your role), <b>Action</b> (steps you executed), and <b>Result</b> (quantified business or tech impact).
+                        </div>
+                      </div>
                     )}
                   </div>
 
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (isSpeakingQuestion) {
-                        window.speechSynthesis.cancel();
-                        setIsSpeakingQuestion(false);
-                      } else {
-                        speakText(currentQ.questionText);
+                  {/* Candidate Response Editor with Speech-to-Text */}
+                  <div className="space-y-2">
+                    <div className="flex items-center justify-between">
+                      <label className="font-mono text-[11px] uppercase tracking-wider text-console-text font-bold flex items-center gap-2">
+                        <span>Your Answer (Speak or Type):</span>
+                      </label>
+
+                      {/* Speech Recognition Toggle */}
+                      <button
+                        type="button"
+                        onClick={toggleVoiceRecognition}
+                        className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-semibold transition-all border ${
+                          isListeningVoice
+                            ? 'bg-status-red text-white border-status-red animate-pulse shadow-md shadow-status-red/30'
+                            : 'bg-console-bg text-bridge-teal border-bridge-teal/40 hover:bg-bridge-teal/15'
+                        }`}
+                      >
+                        {isListeningVoice ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
+                        <span>{isListeningVoice ? 'Listening (Click to Stop)' : 'Voice Input (Web Speech)'}</span>
+                      </button>
+                    </div>
+
+                    <textarea
+                      rows={6}
+                      value={answers[currentIndex + 1] || ''}
+                      onChange={(e) => setAnswers({ ...answers, [currentIndex + 1]: e.target.value })}
+                      placeholder={
+                        isListeningVoice
+                          ? 'Listening to your microphone... Your transcribed speech will appear here.'
+                          : 'Type your answer, or click "Voice Input" to speak your answer aloud via your browser microphone...'
                       }
-                    }}
-                    title="Toggle voice readout"
-                    className="p-1.5 rounded-lg bg-console-bg border border-console-border text-console-text-muted hover:text-console-text"
-                  >
-                    {isSpeakingQuestion ? <VolumeX className="w-4 h-4 text-status-red" /> : <Volume2 className="w-4 h-4" />}
-                  </button>
-                </div>
+                      className="w-full bg-console-bg border border-console-border rounded-xl p-3.5 text-xs text-console-text placeholder:text-console-text-muted focus:outline-none focus:border-bridge-teal leading-relaxed font-sans"
+                    />
 
-                <h3 className="font-serif text-sm sm:text-base font-bold text-console-text leading-relaxed">
-                  {currentQ.questionText}
-                </h3>
-
-                {/* Behavioral STAR Guidance Tip */}
-                {currentQ.category === 'behavioral' && (
-                  <div className="p-2.5 rounded-xl bg-purple-500/10 border border-purple-500/25 text-[11px] text-purple-200 flex items-start gap-2">
-                    <Sparkles className="w-3.5 h-3.5 text-purple-300 flex-shrink-0 mt-0.5" />
-                    <div>
-                      <span className="font-bold">STAR Method Strategy: </span>
-                      Structure your response into <b>Situation</b> (the context), <b>Task</b> (your role), <b>Action</b> (steps you executed), and <b>Result</b> (quantified business or tech impact).
+                    <div className="flex items-center justify-between text-[10px] font-mono text-console-text-muted">
+                      <span>
+                        Word count: {(answers[currentIndex + 1] || '').split(/\s+/).filter(Boolean).length} words
+                      </span>
+                      <span>
+                        Time on this question: {formatTimer(questionTimers[currentIndex + 1] || 0)}
+                      </span>
                     </div>
                   </div>
-                )}
-              </div>
-
-              {/* Candidate Response Editor with Speech-to-Text */}
-              <div className="space-y-2">
-                <div className="flex items-center justify-between">
-                  <label className="font-mono text-[11px] uppercase tracking-wider text-console-text font-bold flex items-center gap-2">
-                    <span>Your Answer (Speak or Type):</span>
-                  </label>
-
-                  {/* Speech Recognition Toggle */}
-                  <button
-                    type="button"
-                    onClick={toggleVoiceRecognition}
-                    className={`flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-mono font-semibold transition-all border ${
-                      isListeningVoice
-                        ? 'bg-status-red text-white border-status-red animate-pulse shadow-md shadow-status-red/30'
-                        : 'bg-console-bg text-bridge-teal border-bridge-teal/40 hover:bg-bridge-teal/15'
-                    }`}
-                  >
-                    {isListeningVoice ? <MicOff className="w-3.5 h-3.5" /> : <Mic className="w-3.5 h-3.5" />}
-                    <span>{isListeningVoice ? 'Listening (Click to Stop)' : 'Voice Input (Web Speech)'}</span>
-                  </button>
                 </div>
 
-                <textarea
-                  rows={5}
-                  value={answers[currentIndex + 1] || ''}
-                  onChange={(e) => setAnswers({ ...answers, [currentIndex + 1]: e.target.value })}
-                  placeholder={
-                    isListeningVoice
-                      ? 'Listening to your microphone... Your transcribed speech will appear here.'
-                      : 'Type your answer, or click "Voice Input" to speak your answer aloud via your browser microphone...'
-                  }
-                  className="w-full bg-console-bg border border-console-border rounded-xl p-3.5 text-xs text-console-text placeholder:text-console-text-muted focus:outline-none focus:border-bridge-teal leading-relaxed font-sans"
-                />
+                {/* Right: Live Camera & AI Proctoring Module (4 cols on lg) */}
+                <div className="lg:col-span-4 space-y-3">
+                  <MockInterviewCamera
+                    sessionId={session?.id}
+                    isInterviewActive={isOpen && !evaluation && !isInitializing && !isSubmitting && !suspensionData?.isSuspended}
+                    onSuspended={(suspension) => {
+                      setSuspensionData({
+                        isSuspended: true,
+                        remainingSeconds: suspension.remainingSeconds || 259200,
+                        reason: suspension.reason || 'Multiple integrity violations detected.',
+                        suspendedUntil: suspension.suspendedUntil,
+                      });
+                      setErrorMsg(suspension?.reason || '3-day suspension triggered due to repeated proctoring violations.');
+                    }}
+                  />
 
-                <div className="flex items-center justify-between text-[10px] font-mono text-console-text-muted">
-                  <span>
-                    Word count: {(answers[currentIndex + 1] || '').split(/\s+/).filter(Boolean).length} words
-                  </span>
-                  <span>
-                    Time on this question: {formatTimer(questionTimers[currentIndex + 1] || 0)}
-                  </span>
+                  {/* Proctoring HUD Guidelines Card */}
+                  <div className="p-3 rounded-xl bg-console-bg border border-console-border space-y-2">
+                    <div className="flex items-center gap-1.5 text-[10px] font-mono text-bridge-teal font-bold uppercase tracking-wider">
+                      <Sparkles className="w-3 h-3" />
+                      <span>AI Proctor HUD</span>
+                    </div>
+                    <p className="text-[10px] text-console-text-muted leading-relaxed">
+                      Maintains eye contact verification, attention scoring, and environment integrity during your answers.
+                    </p>
+                    <div className="pt-1 flex items-center justify-between text-[9px] font-mono text-console-text-muted border-t border-console-border/60">
+                      <span>Total Time Left:</span>
+                      <span className="text-bridge-teal font-bold">{formatTimer(totalSecondsLeft)}</span>
+                    </div>
+                  </div>
                 </div>
               </div>
 
@@ -915,6 +970,19 @@ export const MockInterviewModal: React.FC<MockInterviewModalProps> = ({
               </div>
             </div>
           </div>
+        )}
+
+        {/* Active 3-Day Suspension Overlay Modal */}
+        {suspensionData?.isSuspended && (
+          <ExamSuspensionOverlay
+            isSuspended={true}
+            remainingSeconds={suspensionData.remainingSeconds}
+            reason={suspensionData.reason}
+            onRefreshStatus={() => {
+              setSuspensionData(null);
+              onClose();
+            }}
+          />
         )}
       </div>
     </div>

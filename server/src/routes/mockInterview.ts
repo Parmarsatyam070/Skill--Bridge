@@ -2,6 +2,7 @@ import { Router, Response } from 'express';
 import { prisma } from '../config/prisma.js';
 import { authenticate, requireRole, AuthRequest } from '../middleware/auth.js';
 import { requireExamAccess } from '../middleware/examIntegrityMiddleware.js';
+import { triggerThreeDayBan, checkUserSuspension } from '../services/examIntegrityService.js';
 import {
   generateMockInterviewQuestions,
   evaluateMockInterviewTranscript,
@@ -392,6 +393,158 @@ router.get('/:id', authenticate, requireRole(['STUDENT']), async (req: AuthReque
       identifiedGaps,
     },
   });
+});
+
+/**
+ * POST /api/mock-interview/attention-event
+ * Dedicated endpoint: records eye/face and noise attention events.
+ * Enforces progressive 3-warning policy:
+ * - Strikes 1, 2, 3: Warning returned with remaining strikes.
+ * - Strike 4 (>3 times): Immediate 3-day (72h) ban from Mock Interviews and DSA Questions.
+ */
+router.post('/attention-event', authenticate, async (req: AuthRequest, res: Response) => {
+  const userId = req.user?.id;
+  const { sessionId, eventType, strikeCount, details, timestamp } = req.body;
+  if (!sessionId) {
+    return res.status(400).json({ error: { code: 'BAD_REQUEST', message: 'sessionId is required.' } });
+  }
+
+  try {
+    const session = await prisma.mockInterviewSession.findUnique({
+      where: { id: sessionId },
+    });
+
+    if (session) {
+      let transcript: any[] = [];
+      try {
+        transcript = JSON.parse(session.transcriptJson || '[]');
+      } catch {}
+
+      transcript.push({
+        type: 'ATTENTION_EVENT',
+        eventType: eventType || 'WARNING',
+        strikeCount: strikeCount || 1,
+        timestamp: timestamp || Date.now(),
+        details: details || {},
+      });
+
+      await prisma.mockInterviewSession.update({
+        where: { id: sessionId },
+        data: { transcriptJson: JSON.stringify(transcript) },
+      });
+    }
+
+    const currentStrike = typeof strikeCount === 'number' ? strikeCount : 1;
+
+    // Check if 4th strike triggered (>3 warnings)
+    if (currentStrike > 3 && userId) {
+      const isNoise = String(eventType).toUpperCase().includes('NOISE');
+      const banReason = isNoise
+        ? 'Repeated external background noise and chatter detected (>3 violations). Access to Mock Interviews and DSA Questions is suspended for 3 days.'
+        : 'Repeated eye movement and gaze deviation detected (>3 violations). Access to Mock Interviews and DSA Questions is suspended for 3 days.';
+
+      const suspension = await triggerThreeDayBan(
+        userId,
+        banReason,
+        sessionId,
+        'MOCK_INTERVIEW'
+      );
+
+      // Terminate the active session
+      if (session && session.status === 'IN_PROGRESS') {
+        await prisma.mockInterviewSession.update({
+          where: { id: sessionId },
+          data: {
+            status: 'TERMINATED',
+            completedAt: new Date(),
+          },
+        });
+      }
+
+      return res.status(403).json({
+        success: false,
+        isSuspended: true,
+        suspendedUntil: suspension.suspendedUntil,
+        remainingSeconds: suspension.remainingSeconds,
+        reason: suspension.reason,
+        violationCount: currentStrike,
+        message: banReason,
+      });
+    }
+
+    const isNoise = String(eventType).toUpperCase().includes('NOISE');
+    const warningMessage = currentStrike === 3
+      ? `FINAL WARNING (${currentStrike}/3): ${isNoise ? 'External background noise detected.' : 'Eyes removed from screen.'} One more violation will immediately ban your account for 3 days from Mock Interviews and DSA Questions.`
+      : `Warning ${currentStrike}/3: ${isNoise ? 'Background noise or external voices detected. Please ensure a quiet environment.' : 'Eye movement deviation detected. Please keep your eyes centered on the screen.'}`;
+
+    return res.json({
+      success: true,
+      isSuspended: false,
+      strikeCount: currentStrike,
+      maxStrikes: 3,
+      message: warningMessage,
+    });
+  } catch (err: any) {
+    return res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Could not record event.' } });
+  }
+});
+
+/**
+ * POST /api/mock-interview/terminate
+ * Dedicated endpoint: marks session terminated due to prolonged attention violations or manual quit.
+ */
+router.post('/terminate', authenticate, async (req: AuthRequest, res: Response) => {
+  const userId = req.user?.id;
+  const { sessionId, reason, triggerBan } = req.body;
+  if (!sessionId) {
+    return res.status(400).json({ error: { code: 'BAD_REQUEST', message: 'sessionId is required.' } });
+  }
+
+  try {
+    const session = await prisma.mockInterviewSession.findUnique({
+      where: { id: sessionId },
+    });
+
+    if (session) {
+      let transcript: any[] = [];
+      try {
+        transcript = JSON.parse(session.transcriptJson || '[]');
+      } catch {}
+
+      transcript.push({
+        type: 'TERMINATION_EVENT',
+        reason: reason || 'Prolonged attention violations detected.',
+        timestamp: Date.now(),
+      });
+
+      await prisma.mockInterviewSession.update({
+        where: { id: sessionId },
+        data: {
+          status: 'TERMINATED',
+          completedAt: new Date(),
+          transcriptJson: JSON.stringify(transcript),
+        },
+      });
+    }
+
+    let suspensionState = null;
+    if (triggerBan && userId) {
+      suspensionState = await triggerThreeDayBan(
+        userId,
+        reason || 'Suspended for 3 days due to multiple proctoring violations.',
+        sessionId,
+        'MOCK_INTERVIEW'
+      );
+    }
+
+    return res.json({
+      success: true,
+      terminated: true,
+      suspension: suspensionState,
+    });
+  } catch (err: any) {
+    return res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Could not terminate session.' } });
+  }
 });
 
 export default router;

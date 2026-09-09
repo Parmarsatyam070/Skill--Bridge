@@ -2037,7 +2037,9 @@ export type ExamIntegrityEventType =
   | 'TAB_SWITCH'
   | 'WINDOW_BLUR'
   | 'VISIBILITY_CHANGE'
-  | 'FULLSCREEN_EXIT';
+  | 'FULLSCREEN_EXIT'
+  | 'EYE_GAZE_VIOLATION'
+  | 'NOISE_VIOLATION';
 
 export type ExamIntegritySessionType =
   | 'TALENT_ASSESSMENT'
@@ -2087,6 +2089,7 @@ export interface ExamIntegrityStatusDto {
   isSuspended: boolean;
   suspendedUntil: string | null;
   remainingSeconds: number;
+  reason?: string;
   activeSessionViolations: Record<string, number>;
 }
 
