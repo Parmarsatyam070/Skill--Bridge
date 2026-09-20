@@ -29,7 +29,7 @@ export const ExternalApplyButton: React.FC<ExternalApplyButtonProps> = ({
       name: 'Internshala',
       url: `https://internshala.com/internships/keywords-${encodeURIComponent(query.toLowerCase().replace(/\s+/g, '-'))}`,
       badge: 'External Portal',
-      note: 'Deep links to Internshala domain search (Phase 2 MoU Track)',
+      note: 'Deep links to Internshala domain search (MoU Track)',
       color: 'hover:border-[#008BDC] hover:text-[#008BDC]',
       Icon: Globe,
     },

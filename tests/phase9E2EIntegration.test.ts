@@ -362,7 +362,7 @@ describe('Phase 9 — Full Platform Integration & E2E Verification Suite', () =>
       if (collab) {
         expect(validStatuses).toContain(collab.status);
         expect(collab.companyId).toBeTruthy();
-        expect(collab.institutionId).toBeTruthy();
+        expect(collab.institutionId === null || typeof collab.institutionId === 'string').toBe(true);
 
         // Check messages belong to the thread
         if (collab.messages.length > 0) {

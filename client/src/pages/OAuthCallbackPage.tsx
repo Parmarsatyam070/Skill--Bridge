@@ -114,7 +114,6 @@ export const OAuthCallbackPage: React.FC = () => {
   const roleCards = [
     { id: 'STUDENT' as Role, title: 'Student', icon: User, desc: 'Assess skills, discover internships, build AI resume' },
     { id: 'INDUSTRY' as Role, title: 'Recruiter', icon: Briefcase, desc: 'Post openings, review verified candidates' },
-    { id: 'ACADEMICIAN' as Role, title: 'Academician', icon: GraduationCap, desc: 'Map curriculum, monitor cohort gaps' },
     { id: 'INSTITUTION_ADMIN' as Role, title: 'Administrator', icon: Building2, desc: 'Institutional accreditation & metrics' },
   ];
 
@@ -275,32 +274,6 @@ export const OAuthCallbackPage: React.FC = () => {
                   placeholder="e.g. Cloud & Enterprise Software"
                   value={roleData.industrySector}
                   onChange={e => setRoleData({ ...roleData, industrySector: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#0b1329] border border-[#1e293b] text-white placeholder-slate-500 text-xs focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                />
-              </div>
-            </div>
-          )}
-
-          {selectedRole === 'ACADEMICIAN' && (
-            <div className="space-y-3 p-4 rounded-xl bg-[#0f172a] border border-[#1e293b]">
-              <div>
-                <label className="text-[11px] font-semibold text-white block mb-1">Institution & Department</label>
-                <input
-                  type="text"
-                  required
-                  placeholder="e.g. Dept of CS, National Institute of Technology"
-                  value={roleData.institution}
-                  onChange={e => setRoleData({ ...roleData, institution: e.target.value })}
-                  className="w-full px-3.5 py-2.5 rounded-xl bg-[#0b1329] border border-[#1e293b] text-white placeholder-slate-500 text-xs focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
-                />
-              </div>
-              <div>
-                <label className="text-[11px] font-semibold text-white block mb-1">Faculty Designation</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Associate Professor / Department Chair"
-                  value={roleData.designation}
-                  onChange={e => setRoleData({ ...roleData, designation: e.target.value })}
                   className="w-full px-3.5 py-2.5 rounded-xl bg-[#0b1329] border border-[#1e293b] text-white placeholder-slate-500 text-xs focus:outline-none focus:border-blue-500 focus:ring-1 focus:ring-blue-500"
                 />
               </div>

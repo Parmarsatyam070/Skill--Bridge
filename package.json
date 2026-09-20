@@ -20,6 +20,8 @@
     "db:verify": "tsx scripts/verify-imported-data.ts",
     "seed:academic-data": "tsx server/src/scripts/seedAcademicDataset.ts",
     "seed:industry-demo": "tsx server/src/scripts/seedIndustryDemo.ts",
+    "seed:demo": "tsx server/src/scripts/seedDemoDataset.ts",
+    "seed:demo:clean": "tsx server/src/scripts/cleanDemoDataset.ts",
     "test:llm": "tsx scripts/test-llm.ts",
     "test": "vitest run",
     "start": "node dist/server/src/index.js"

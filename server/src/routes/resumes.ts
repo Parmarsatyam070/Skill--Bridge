@@ -75,6 +75,94 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
 });
 
 /**
+ * GET /api/resumes/:id
+ * Securely fetches a single resume with multi-role authorization:
+ * - Student can access own resume
+ * - Recruiter can access resume if candidate applied to their opportunity
+ * - Institution Admin can access resume if student is enrolled in their institution
+ */
+router.get('/:id', authenticate, async (req: AuthRequest, res: Response) => {
+  const resumeId = req.params.id;
+  const user = req.user;
+
+  if (!user) {
+    return res.status(401).json({ error: { code: 'UNAUTHORIZED', message: 'Authentication required.' } });
+  }
+
+  const resume = await prisma.resume.findUnique({
+    where: { id: resumeId },
+    include: {
+      student: {
+        include: {
+          user: { select: { name: true, email: true } },
+          applications: {
+            where: { resumeId },
+            include: { opportunity: true, internship: true },
+          },
+        },
+      },
+    },
+  });
+
+  if (!resume) {
+    return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Resume not found.' } });
+  }
+
+  let authorized = false;
+
+  if (user.role === 'ADMIN') {
+    authorized = true;
+  } else if (user.role === 'STUDENT' && user.studentProfileId === resume.studentId) {
+    authorized = true;
+  } else if (user.role === 'INDUSTRY' && user.industryProfileId) {
+    // Recruiter authorized if candidate applied to their listing
+    const hasApplication = resume.student.applications.some(
+      a =>
+        a.opportunity?.companyId === user.industryProfileId ||
+        a.internship?.industryId === user.industryProfileId
+    );
+    if (hasApplication) authorized = true;
+  } else if (user.role === 'INSTITUTION_ADMIN' && user.institutionProfileId) {
+    // Institution Admin authorized if student is affiliated
+    const inst = await prisma.institutionProfile.findUnique({ where: { id: user.institutionProfileId } });
+    if (
+      inst &&
+      (resume.student.institutionProfileId === inst.id ||
+        (!resume.student.institutionProfileId &&
+          resume.student.institution.toLowerCase() === inst.institutionName.toLowerCase()))
+    ) {
+      authorized = true;
+    }
+  }
+
+  if (!authorized) {
+    return res.status(403).json({ error: { code: 'FORBIDDEN', message: 'You are not authorized to access this document.' } });
+  }
+
+  let content = null;
+  try {
+    if (resume.contentJson) content = JSON.parse(resume.contentJson);
+  } catch {}
+
+  return res.json({
+    resume: {
+      id: resume.id,
+      studentId: resume.studentId,
+      studentName: resume.student.user.name,
+      type: resume.type,
+      title: resume.title,
+      templateId: resume.templateId || 'modern_clean',
+      fileUrl: resume.fileUrl,
+      fileSize: resume.fileSize || '210 KB',
+      isPrimary: resume.isPrimary,
+      content,
+      createdAt: resume.createdAt,
+      updatedAt: resume.updatedAt,
+    },
+  });
+});
+
+/**
  * POST /api/resumes/generate-content
  * Generates initial structured resume data from student profile
  */

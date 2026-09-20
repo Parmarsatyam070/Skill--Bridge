@@ -12,8 +12,6 @@ export const PublicNavbar: React.FC = () => {
       ? '/dashboard'
       : user.role === 'INDUSTRY'
       ? '/industry/dashboard'
-      : user.role === 'ACADEMICIAN'
-      ? '/academician/dashboard'
       : '/institution/dashboard'
     : '/login';
 

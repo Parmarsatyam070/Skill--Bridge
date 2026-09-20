@@ -25,6 +25,9 @@ import {
   Handshake,
   Menu,
   X,
+  Send,
+  Users,
+  TrendingUp,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { SashWidget } from './SashWidget';
@@ -88,6 +91,7 @@ export const ConsoleLayout: React.FC<{ children: React.ReactNode }> = ({ childre
         items: [
           { label: 'Career Profile',      path: '/profile',        icon: UserCheck,      badge: 'Profile'    },
           { label: 'Overview',            path: '/dashboard',      icon: LayoutDashboard                      },
+          { label: 'My Applications',     path: '/student/applications', icon: Send,            badge: 'Live'       },
           { label: 'Opportunity Hub',     path: '/opportunities',  icon: Compass,        badge: '7-Factor'   },
           { label: 'Matched Internships', path: '/internships',    icon: Briefcase,      badge: 'Live %'     },
           { label: 'Report Card',         path: '/report-card',    icon: Award,          badge: 'History'    },
@@ -145,44 +149,38 @@ export const ConsoleLayout: React.FC<{ children: React.ReactNode }> = ({ childre
       {
         title: 'PARTNERSHIP',
         items: [
-          { label: 'Collaborations',      path: '/collaborations',     icon: Handshake,      badge: 'Partner' },
-        ],
-      },
-    ];
-  } else if (user.role === 'ACADEMICIAN') {
-    navGroups = [
-      {
-        title: 'ACADEMIA',
-        items: [
-          { label: 'Curriculum Hub',      path: '/academician/dashboard',     icon: GraduationCap },
-        ],
-      },
-      {
-        title: 'BENCHMARKING',
-        items: [
-          { label: 'Cohort Analytics',    path: '/institution/dashboard',    icon: BarChart3 },
-          { label: 'Skill Intelligence',  path: '/institution/intelligence', icon: Radar, badge: 'Curriculum' },
+          { label: 'Collaborations',      path: '/collaborations',     icon: Handshake },
         ],
       },
     ];
   } else {
     navGroups = [
       {
+        title: 'RECRUITMENT',
+        items: [
+          { label: 'Applications',          path: '/institution/applications',        icon: Briefcase },
+          { label: 'Candidate Explorer',    path: '/institution/candidates',          icon: Users },
+        ],
+      },
+      {
         title: 'ANALYTICS',
         items: [
-          { label: 'Institutional Analytics', path: '/institution/dashboard',    icon: BarChart3 },
+          { label: 'Institutional Analytics', path: '/institution/dashboard',              icon: BarChart3 },
+          { label: 'Recruitment Metrics',     path: '/institution/recruitment-metrics',    icon: TrendingUp },
+          { label: 'Skill Demand Analysis',   path: '/institution/skill-demand',           icon: Radar },
+          { label: 'Compliance Reports',      path: '/institution/reports',                icon: FileText },
         ],
       },
       {
         title: 'CURRICULUM',
         items: [
-          { label: 'Skill Intelligence',      path: '/institution/intelligence',icon: Radar, badge: 'Curriculum' },
+          { label: 'Skill Intelligence',      path: '/institution/intelligence',        icon: Radar },
         ],
       },
       {
         title: 'PARTNERSHIP',
         items: [
-          { label: 'Collaborations',          path: '/collaborations',           icon: Handshake, badge: 'Industry' },
+          { label: 'Collaborations',          path: '/collaborations',                  icon: Handshake },
         ],
       },
     ];
@@ -195,8 +193,6 @@ export const ConsoleLayout: React.FC<{ children: React.ReactNode }> = ({ childre
         return 'Search opportunities, skills, courses...';
       case 'INDUSTRY':
         return 'Search candidates, skills, opportunities...';
-      case 'ACADEMICIAN':
-        return 'Search students, skills, courses...';
       case 'INSTITUTION_ADMIN':
         return 'Search students, skills, departments...';
       default:
@@ -208,7 +204,6 @@ export const ConsoleLayout: React.FC<{ children: React.ReactNode }> = ({ childre
   const roleLabels: Record<Role, { title: string; badgeColor: string }> = {
     STUDENT:          { title: 'Student',          badgeColor: C.primary  },
     INDUSTRY:         { title: 'Industry',         badgeColor: C.amber    },
-    ACADEMICIAN:      { title: 'Academician',      badgeColor: '#5B9BD9'  },
     INSTITUTION_ADMIN:{ title: 'Institution',      badgeColor: C.success  },
   };
   const roleInfo = roleLabels[user.role as Role] || roleLabels.STUDENT;

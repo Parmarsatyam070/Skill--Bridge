@@ -90,7 +90,7 @@ app.use('/api/courses', coursesRoutes);
 app.use('/api/internships', internshipsRoutes);
 app.use('/api/applications', applicationsRoutes);
 app.use('/api/resumes', resumesRoutes);
-app.use('/api/institutions', institutionsRoutes);
+app.use(['/api/institutions', '/api/institution'], institutionsRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/portfolios', portfoliosRoutes);
 app.use('/api/assessments', assessmentsRoutes);

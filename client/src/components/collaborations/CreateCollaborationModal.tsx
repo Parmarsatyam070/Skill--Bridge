@@ -17,6 +17,7 @@ interface Props {
   onClose: () => void;
   currentUserRole?: string;
   onCreated?: (collab: CollaborationDetailDto) => void;
+  initialPartnerId?: string;
 }
 
 const COLLAB_TYPES: Array<{ id: CollaborationType; label: string; desc: string }> = [
@@ -33,15 +34,22 @@ export const CreateCollaborationModal: React.FC<Props> = ({
   onClose,
   currentUserRole,
   onCreated,
+  initialPartnerId,
 }) => {
   const [type, setType] = useState<CollaborationType>('WORKSHOP');
-  const [partnerId, setPartnerId] = useState('');
+  const [partnerId, setPartnerId] = useState(initialPartnerId || '');
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [targetDepartment, setTargetDepartment] = useState('');
   const [proposedDate, setProposedDate] = useState('');
   const [skillsInput, setSkillsInput] = useState('');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (initialPartnerId) {
+      setPartnerId(initialPartnerId);
+    }
+  }, [initialPartnerId]);
 
   const { data: partners, isLoading: isLoadingPartners } = useCollaborationPartners();
   const createMutation = useCreateCollaboration();

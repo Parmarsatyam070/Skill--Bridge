@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   signInWithEmailAndPassword,
@@ -34,6 +34,21 @@ interface AuthContextType {
   isLoading: boolean;
   login: (identifier: string, password: string) => Promise<UserSession>;
   register: (data: any) => Promise<UserSession>;
+  /**
+   * Session-safe student provisioning for Institution Admins.
+   * Creates a student account via the backend (Firebase Admin SDK server-side)
+   * WITHOUT replacing the current authenticated user's session, token, or localStorage.
+   */
+  provisionStudent: (data: {
+    email: string;
+    password: string;
+    name: string;
+    institution: string;
+    targetDomain?: string;
+    phone?: string;
+    cgpa?: number;
+    bio?: string;
+  }) => Promise<UserSession>;
   signInWithGoogle: () => Promise<UserSession>;
   signInWithProvider: (provider: 'google' | 'github' | 'microsoft') => Promise<UserSession>;
   initiateOAuth: (provider: 'google' | 'github' | 'microsoft') => Promise<void>;
@@ -52,8 +67,6 @@ export function getRoleRedirect(role: Role): string {
       return '/dashboard';
     case 'INDUSTRY':
       return '/industry/dashboard';
-    case 'ACADEMICIAN':
-      return '/academician/dashboard';
     case 'INSTITUTION_ADMIN':
       return '/institution/dashboard';
     default:
@@ -61,11 +74,83 @@ export function getRoleRedirect(role: Role): string {
   }
 }
 
+/**
+ * Allow-list of explicit backend rejection error codes where registration rollback (deleting
+ * the freshly created Firebase user) is explicitly intended.
+ * 
+ * NEVER include:
+ * - HTTP 500 / PROVISIONING_FAILED / INTERNAL_ERROR / SERVER_ERROR
+ * - Database connection failures / DATABASE_ERROR
+ * - Request timeouts / REQUEST_TIMEOUT
+ * - Network failures / TypeError / Failed to fetch
+ * - Unexpected exceptions or unknown error codes
+ */
+export const REGISTRATION_ROLLBACK_ALLOWED_CODES = new Set([
+  'ACCOUNT_EXISTS',
+  'EMAIL_EXISTS',
+  'PHONE_EXISTS',
+  'VALIDATION_ERROR',
+]);
+
+export function shouldRollbackFirebaseRegistration(err: any): boolean {
+  if (!err) return false;
+  const errorCode = err.code || err.error?.code || err.details?.code;
+  if (typeof errorCode === 'string' && REGISTRATION_ROLLBACK_ALLOWED_CODES.has(errorCode)) {
+    return true;
+  }
+  return false;
+}
+
+export async function executeRegistrationRollbackIfPermitted(
+  createdUser: any,
+  currentAuthUser: any,
+  err: any,
+  onClearToken?: () => void
+): Promise<boolean> {
+  // Requirement 1: This browser registration flow definitely created that Firebase user
+  if (!createdUser) {
+    return false;
+  }
+  // Requirement 2: Backend explicitly returned a known registration-rejection condition
+  if (!shouldRollbackFirebaseRegistration(err)) {
+    return false;
+  }
+  // Session Safety: Ensure cleanup does NOT replace or affect an existing authenticated Firebase session
+  if (!currentAuthUser || currentAuthUser.uid !== createdUser.uid) {
+    return false;
+  }
+
+  try {
+    await createdUser.delete();
+  } catch (deleteErr) {
+    console.warn('[AUTH] Non-critical: Failed to delete rolled-back Firebase user:', deleteErr);
+  }
+
+  if (onClearToken) {
+    onClearToken();
+  }
+
+  return true;
+}
+
+interface RegistrationFlowState {
+  active: boolean;
+  firebaseUid: string | null;
+  provisioningComplete: boolean;
+}
+
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<UserSession | null>(null);
   const [token, setToken] = useState<string | null>(() => localStorage.getItem('skillbridge_token'));
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const navigate = useNavigate();
+
+  // Lifecycle-aware registration state guard
+  const registrationStateRef = useRef<RegistrationFlowState>({
+    active: false,
+    firebaseUid: null,
+    provisioningComplete: false,
+  });
 
   // Synchronize Firebase user with PostgreSQL backend
   const syncWithBackend = async (fbUser: FirebaseUser): Promise<UserSession | null> => {
@@ -83,23 +168,58 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  // Firebase auth state observer: automatically restores persistent session across page reloads and browser restarts
+  // Firebase auth state observer: automatically restores persistent session across page reloads and browser restarts (Rule 10)
   useEffect(() => {
+    let isMounted = true;
+
     const unsubscribe = onAuthStateChanged(auth, async (fbUser) => {
+      const regState = registrationStateRef.current;
+      if (regState.active) {
+        // Explicit registration flow is actively managing provisioning. Suppress automatic provisioning.
+        return;
+      }
+      if (fbUser && regState.firebaseUid === fbUser.uid) {
+        // Event belongs to the active registration UID. Suppress automatic provisioning.
+        return;
+      }
+
       if (fbUser) {
         await syncWithBackend(fbUser);
       } else {
-        // Only clear if no legacy token exists or if explicitly signed out
-        const legacyToken = localStorage.getItem('skillbridge_token');
-        if (!legacyToken) {
+        // If Firebase user is unavailable, check if a SkillBridge access token exists in localStorage
+        const storedToken = localStorage.getItem('skillbridge_token');
+        if (storedToken) {
+          try {
+            const meRes = await api.get<{ user: UserSession }>('/auth/me');
+            if (isMounted && meRes?.user) {
+              setUser(meRes.user);
+              setToken(storedToken);
+            } else if (isMounted) {
+              localStorage.removeItem('skillbridge_token');
+              setUser(null);
+              setToken(null);
+            }
+          } catch {
+            if (isMounted) {
+              localStorage.removeItem('skillbridge_token');
+              setUser(null);
+              setToken(null);
+            }
+          }
+        } else if (isMounted) {
           setUser(null);
           setToken(null);
         }
       }
-      setIsLoading(false);
+      if (isMounted) {
+        setIsLoading(false);
+      }
     });
 
-    return () => unsubscribe();
+    return () => {
+      isMounted = false;
+      unsubscribe();
+    };
   }, []);
 
   const login = async (identifier: string, password: string): Promise<UserSession> => {
@@ -122,7 +242,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
       if (isNotFoundOrInvalid) {
         try {
-          const fallbackRes = await api.post<{ customToken: string; user: UserSession }>(
+          const fallbackRes = await api.post<{ customToken: string; user: UserSession; accessToken?: string }>(
             '/auth/firebase-login-fallback',
             { identifier, password }
           );
@@ -131,7 +251,13 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             const userCred = await signInWithCustomToken(auth, fallbackRes.customToken);
             const syncedUser = await syncWithBackend(userCred.user);
             setIsLoading(false);
-            return syncedUser || fallbackRes.user;
+            const finalUser = syncedUser || fallbackRes.user;
+            if (fallbackRes.accessToken) {
+              localStorage.setItem('skillbridge_token', fallbackRes.accessToken);
+              setToken(fallbackRes.accessToken);
+            }
+            setUser(finalUser);
+            return finalUser;
           }
         } catch (fallbackErr: any) {
           setIsLoading(false);
@@ -149,30 +275,107 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
   const register = async (data: any): Promise<UserSession> => {
     setIsLoading(true);
+    let createdUser: any = null;
+
+    // 1. Enter explicit registration state BEFORE createUserWithEmailAndPassword
+    registrationStateRef.current = {
+      active: true,
+      firebaseUid: null,
+      provisioningComplete: false,
+    };
+
     try {
       const userCredential = await createUserWithEmailAndPassword(auth, data.email.trim(), data.password);
-      if (data.name) {
-        await updateProfile(userCredential.user, { displayName: data.name });
+      createdUser = userCredential.user;
+      // Immediately capture newly created Firebase UID so any auth listener callback is suppressed
+      registrationStateRef.current.firebaseUid = userCredential.user.uid;
+
+      const displayName = (data.name || data.institutionName || data.companyName || '').trim();
+      if (displayName) {
+        await updateProfile(userCredential.user, { displayName });
       }
 
       const idToken = await userCredential.user.getIdToken();
-      localStorage.setItem('skillbridge_token', idToken);
-      setToken(idToken);
 
-      const res = await api.post<{ user: UserSession }>('/auth/sync', {
+      const res = await api.post<{ user: UserSession; accessToken?: string }>('/auth/sync', {
         idToken,
-        role: data.role || 'STUDENT',
-        name: data.name,
+        role: data.role,
+        name: displayName,
         roleData: data,
       });
 
+      // 2. Mark provisioning complete and establish application session
+      registrationStateRef.current.provisioningComplete = true;
+
+      const authToken = res.accessToken || idToken;
+      localStorage.setItem('skillbridge_token', authToken);
+      setToken(authToken);
       setUser(res.user);
       setIsLoading(false);
       return res.user;
     } catch (err: any) {
       setIsLoading(false);
+
+      // SAFETY CORRECTION:
+      // The newly created Firebase user may be deleted only when:
+      // 1. This browser registration flow definitely created that Firebase user, AND
+      // 2. The backend explicitly returned a known registration-rejection condition where rollback is intended (ACCOUNT_EXISTS, etc.), AND
+      // 3. PostgreSQL provisioning was NOT completed, AND
+      // 4. The cleanup operation strictly targets the createdUser and does not affect another authenticated session.
+      if (!registrationStateRef.current.provisioningComplete) {
+        await executeRegistrationRollbackIfPermitted(
+          createdUser,
+          auth.currentUser,
+          err,
+          () => {
+            localStorage.removeItem('skillbridge_token');
+            setToken(null);
+          }
+        );
+      }
+
+      if (err.code === 'auth/email-already-in-use') {
+        throw new Error('An account with this email address already exists. Please sign in instead.');
+      }
       throw new Error(err.message || 'Failed to create account.');
+    } finally {
+      // 3. Safely finish the registration transaction and clear registration-specific state
+      registrationStateRef.current = {
+        active: false,
+        firebaseUid: null,
+        provisioningComplete: false,
+      };
     }
+  };
+
+  /**
+   * provisionStudent — Institution Admin-only helper.
+   *
+   * Calls POST /api/auth/provision-student which uses Firebase Admin SDK server-side.
+   * The browser's Firebase Auth state and localStorage token are NEVER modified.
+   * The current admin's `user` and `token` state remain completely unchanged.
+   */
+  const provisionStudent = async (data: {
+    email: string;
+    password: string;
+    name: string;
+    institution: string;
+    targetDomain?: string;
+    phone?: string;
+    cgpa?: number;
+    bio?: string;
+  }): Promise<UserSession> => {
+    if (!user || user.role !== 'INSTITUTION_ADMIN') {
+      throw new Error('Only authenticated Institution Admins can provision student accounts.');
+    }
+    // Call the protected endpoint — the current admin token is sent automatically
+    // by the `api` client (which reads from localStorage). No session state is modified.
+    const res = await api.post<{ student: UserSession; message: string }>(
+      '/auth/provision-student',
+      data
+    );
+    // Deliberately do NOT call setUser, setToken, or localStorage here.
+    return res.student;
   };
 
   const signInWithGoogle = async (): Promise<UserSession> => {
@@ -310,6 +513,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       await api.post('/auth/logout');
     } catch {}
     localStorage.removeItem('skillbridge_token');
+    sessionStorage.clear();
     setToken(null);
     setUser(null);
     navigate('/login');
@@ -329,6 +533,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         isLoading,
         login,
         register,
+        provisionStudent,
         signInWithGoogle,
         signInWithProvider,
         initiateOAuth,

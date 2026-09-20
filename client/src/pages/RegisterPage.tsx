@@ -82,11 +82,9 @@ export const RegisterPage: React.FC = () => {
     if (selectedRole === 'STUDENT') {
       payload = { ...payload, name, institution, targetDomain };
     } else if (selectedRole === 'INDUSTRY') {
-      payload = { ...payload, companyName, companySize, industrySector };
-    } else if (selectedRole === 'ACADEMICIAN') {
-      payload = { ...payload, name, institution, department, designation };
+      payload = { ...payload, companyName, companySize, industrySector, name: companyName };
     } else if (selectedRole === 'INSTITUTION_ADMIN') {
-      payload = { ...payload, institutionName, adminDesignation };
+      payload = { ...payload, institutionName, adminDesignation, name: institutionName };
     }
 
     try {
@@ -136,17 +134,6 @@ export const RegisterPage: React.FC = () => {
       trustPrimary: 'Pre-Assessed Candidates',
       trustSecondary: 'Skill Matching',
       altText: 'Industry recruiter talent discovery illustration',
-    },
-    {
-      id: 'ACADEMICIAN' as Role,
-      title: 'Academician',
-      desc: 'Align course curricula with industry benchmarks and monitor cohort skill readiness.',
-      icon: GraduationCap,
-      portalTitle: 'faculty portal',
-      portalSub: 'Register to align curricula & monitor cohort skill benchmarks',
-      trustPrimary: 'Curriculum Alignment',
-      trustSecondary: 'Cohort Benchmarks',
-      altText: 'Academician curriculum benchmarking and teaching illustration',
     },
     {
       id: 'INSTITUTION_ADMIN' as Role,
@@ -199,7 +186,7 @@ export const RegisterPage: React.FC = () => {
         </div>
 
         {/* 1. Account Type Selector Cards (Restyled with dark surfaces & blue active state) */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5 mb-8">
+        <div className="grid grid-cols-1 sm:grid-cols-3 lg:grid-cols-3 gap-3.5 mb-8">
           {roleCards.map(rc => {
             const Icon = rc.icon;
             const isSelected = selectedRole === rc.id;
@@ -208,7 +195,7 @@ export const RegisterPage: React.FC = () => {
               <button
                 key={rc.id}
                 type="button"
-                onClick={() => setSelectedRole(rc.id)}
+                onClick={() => { setSelectedRole(rc.id); setError(null); }}
                 className={`p-4 sm:p-5 rounded-2xl border text-left transition-all duration-200 relative group flex flex-col justify-between ${
                   isSelected
                     ? 'bg-[#0e1628] border-blue-500/80 shadow-lg shadow-blue-950/60 ring-1 ring-blue-500/40 text-white'
@@ -339,7 +326,16 @@ export const RegisterPage: React.FC = () => {
                   role="alert"
                 >
                   <AlertCircle className="w-4 h-4 flex-shrink-0 mt-0.5 text-red-400" />
-                  <span className="leading-relaxed">{error}</span>
+                  <div className="leading-relaxed flex-1">
+                    <span>{error}</span>
+                    {(error.toLowerCase().includes('already exists') || error.toLowerCase().includes('sign in')) && (
+                      <div className="mt-1.5">
+                        <Link to="/login" className="underline font-semibold text-blue-400 hover:text-blue-300">
+                          Click here to sign in to your existing account
+                        </Link>
+                      </div>
+                    )}
+                  </div>
                 </div>
               )}
 
@@ -444,68 +440,7 @@ export const RegisterPage: React.FC = () => {
                   </>
                 )}
 
-                {/* 3. Academician Fields */}
-                {selectedRole === 'ACADEMICIAN' && (
-                  <>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                      <div>
-                        <label className="block font-semibold text-slate-300 mb-1.5">
-                          Full Name &amp; Title
-                        </label>
-                        <input
-                          type="text"
-                          value={name}
-                          onChange={e => setName(e.target.value)}
-                          placeholder="e.g. Dr. Rajeshwar Sharma"
-                          required
-                          className="w-full bg-[#0f172a] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 outline-none transition-all"
-                        />
-                      </div>
-                      <div>
-                        <label className="block font-semibold text-slate-300 mb-1.5">
-                          Designation
-                        </label>
-                        <input
-                          type="text"
-                          value={designation}
-                          onChange={e => setDesignation(e.target.value)}
-                          placeholder="e.g. Professor & HOD"
-                          required
-                          className="w-full bg-[#0f172a] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 outline-none transition-all"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-                      <div>
-                        <label className="block font-semibold text-slate-300 mb-1.5">
-                          Institution Name
-                        </label>
-                        <UniversityAutocomplete
-                          value={institution}
-                          onChange={setInstitution}
-                          placeholder="e.g. NIT Trichy"
-                          required
-                        />
-                      </div>
-                      <div>
-                        <label className="block font-semibold text-slate-300 mb-1.5">
-                          Department
-                        </label>
-                        <input
-                          type="text"
-                          value={department}
-                          onChange={e => setDepartment(e.target.value)}
-                          placeholder="e.g. Computer Science"
-                          required
-                          className="w-full bg-[#0f172a] border border-slate-800 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder:text-slate-500 focus:border-blue-500 focus:ring-1 focus:ring-blue-500/50 outline-none transition-all"
-                        />
-                      </div>
-                    </div>
-                  </>
-                )}
-
-                {/* 4. Institution Admin Fields */}
+                {/* 3. Institution Admin Fields */}
                 {selectedRole === 'INSTITUTION_ADMIN' && (
                   <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                     <div>

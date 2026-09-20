@@ -2,8 +2,34 @@ export type Role = 'STUDENT' | 'INDUSTRY' | 'ACADEMICIAN' | 'INSTITUTION_ADMIN';
 
 export type WorkMode = 'REMOTE' | 'HYBRID' | 'ON_SITE';
 export type JobStatus = 'OPEN' | 'CLOSED' | 'DRAFT';
-export type ApplicationStatus = 'applied' | 'under_review' | 'shortlisted' | 'interview' | 'hired' | 'rejected';
 export type EnrollmentStatus = 'enrolled' | 'completed';
+export type ApplicationStatus =
+  // Legacy lowercase statuses (preserved for 100% backward compatibility)
+  | 'applied'
+  | 'under_review'
+  | 'shortlisted'
+  | 'assessment'
+  | 'interview'
+  | 'interview_scheduled'
+  | 'interview_completed'
+  | 'offered'
+  | 'accepted'
+  | 'hired'
+  | 'rejected'
+  | 'withdrawn'
+  | 'on_hold'
+  // Canonical uppercase lifecycle statuses
+  | 'APPLIED'
+  | 'UNDER_REVIEW'
+  | 'SHORTLISTED'
+  | 'ASSESSMENT'
+  | 'INTERVIEW_SCHEDULED'
+  | 'INTERVIEW_COMPLETED'
+  | 'OFFERED'
+  | 'ACCEPTED'
+  | 'REJECTED'
+  | 'WITHDRAWN'
+  | 'ON_HOLD';
 export type SkillCategory = 'technical' | 'soft' | 'core';
 
 export interface UserSession {
@@ -207,6 +233,89 @@ export interface Application {
   resumeId?: string;
   resumeUrl?: string;
   appliedAt: string;
+}
+
+export const DEFAULT_STAGE_DELAY_THRESHOLD_DAYS = 14;
+
+export interface ApplicationHistoryEntryDto {
+  id: string;
+  applicationId: string;
+  fromStatus: string;
+  toStatus: string;
+  changedByUserId: string;
+  changedByRole: string;
+  changedByName?: string;
+  notes?: string | null;
+  metadata?: any | null;
+  createdAt: string;
+}
+
+export interface ApplicationTimelineEventDto {
+  status: ApplicationStatus;
+  canonicalStatus: string;
+  label: string;
+  timestamp: string;
+  actor: string;
+  actorRole: string;
+  notes?: string | null;
+  metadata?: any | null;
+  durationInPreviousStageDays?: number;
+}
+
+export interface InstitutionApplicationItemDto {
+  id: string;
+  studentId: string;
+  studentName: string;
+  studentEmail: string;
+  avatarUrl?: string | null;
+  department: string;
+  gradYear?: number | null;
+  cgpa?: number | null;
+  companyId?: string | null;
+  companyName: string;
+  companyLogo?: string | null;
+  opportunityId?: string | null;
+  opportunityTitle: string;
+  opportunityType: string;
+  status: ApplicationStatus;
+  canonicalStatus: string;
+  matchScoreAtApply: number;
+  currentMatchScore?: number;
+  matchTier?: 'high' | 'medium' | 'low';
+  appliedAt: string;
+  updatedAt: string;
+  daysInCurrentStage: number;
+  isStageDelayed: boolean;
+  delayThresholdDays: number;
+  resumeId?: string | null;
+  resumeFileName?: string | null;
+  interviewDetails?: any | null;
+  hiredDetails?: any | null;
+  latestNote?: string | null;
+}
+
+export interface InstitutionApplicationKpisDto {
+  totalApplications: number;
+  activeApplications: number;
+  shortlistedCount: number;
+  interviewCount: number;
+  offeredCount: number;
+  acceptedCount: number;
+  rejectedCount: number;
+  withdrawnCount: number;
+  stageDelayedCount: number;
+}
+
+export interface InstitutionApplicationsResponseDto {
+  applications: InstitutionApplicationItemDto[];
+  kpis: InstitutionApplicationKpisDto;
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+  companies: string[];
+  departments: string[];
+  batches: number[];
 }
 
 export interface SkillMatchPillar {
@@ -1749,7 +1858,7 @@ export interface CollaborationMessageDto {
 
 export interface CollaborationSummaryDto {
   id: string;
-  institutionId: string;
+  institutionId?: string | null;
   companyId: string;
   type: CollaborationType;
   title: string;
@@ -1763,7 +1872,7 @@ export interface CollaborationSummaryDto {
   initiatedByRole: string;
   createdAt: string;
   updatedAt: string;
-  institution: CollaborationInstitutionParticipant;
+  institution?: CollaborationInstitutionParticipant | null;
   company: CollaborationCompanyParticipant;
   _count?: {
     messages: number;
@@ -1772,7 +1881,7 @@ export interface CollaborationSummaryDto {
 
 export interface CollaborationDetailDto {
   id: string;
-  institutionId: string;
+  institutionId?: string | null;
   companyId: string;
   type: CollaborationType;
   title: string;
@@ -1786,7 +1895,7 @@ export interface CollaborationDetailDto {
   initiatedByRole: string;
   createdAt: string;
   updatedAt: string;
-  institution: CollaborationInstitutionParticipant;
+  institution?: CollaborationInstitutionParticipant | null;
   company: CollaborationCompanyParticipant;
   messages: CollaborationMessageDto[];
 }
@@ -1816,6 +1925,39 @@ export interface CollaborationPartnersResponse {
   institutions: Array<{ id: string; institutionName: string; adminDesignation?: string | null }>;
   companies: Array<{ id: string; companyName: string; website?: string | null; industrySector?: string | null }>;
 }
+
+export interface CollaborationPartnerDto {
+  industryProfileId: string;
+  companyName: string;
+  website?: string | null;
+  industrySector?: string | null;
+}
+
+export interface StatusBreakdownDto {
+  REQUESTED: number;
+  DISCUSSION: number;
+  APPROVED: number;
+  ACTIVE: number;
+  COMPLETED: number;
+  REJECTED: number;
+  CANCELLED: number;
+}
+
+export interface InstitutionCollaborationMetricsDto {
+  totalCollaborations: number;
+  activeCollaborations: number;
+  upcomingCollaborations: number;
+  completedCollaborations: number;
+  statusBreakdown: StatusBreakdownDto;
+  typeBreakdown: Record<string, number>;
+}
+
+export interface CollaborationFilterParams {
+  search?: string;
+  status?: string;
+  type?: string;
+}
+
 
 // ========================================================
 // PHASE 8: INTELLIGENCE DASHBOARD DTOs
@@ -2411,7 +2553,263 @@ export interface IndustryDemoAnalyticsDto {
   branchDistribution: Array<{ branch: string; count: number; averageScore: number }>;
   skillSupply: Array<{ skill: string; candidateCount: number; averageScore: number; category: string }>;
   funnelStages: Array<{ stage: string; count: number; conversionRate: number }>;
+}// ========================================================
+// PHASE 4: SKILL DEMAND VS CURRICULUM ALIGNMENT DTOS
+// ========================================================
+
+export type CurriculumClassification = 'Covered' | 'Partially Covered' | 'Not Mapped';
+
+export type CurriculumMappingSource =
+  | 'CORE academic curriculum'
+  | 'SUPPORTING academic curriculum'
+  | 'Platform Course'
+  | 'Not Mapped';
+
+export type GapStatus =
+  | 'Higher demand than supply'
+  | 'Balanced'
+  | 'Higher supply than demand';
+
+export interface SkillDemandOverviewDto {
+  /** Total opportunities matching status IN ('OPEN', 'CLOSED', 'PAUSED') and time filter */
+  relevantOpportunities: number;
+  /** Status breakdown */
+  activeOpportunities: number; // OPEN
+  closedOpportunities: number; // CLOSED
+  pausedOpportunities: number; // PAUSED
+  /** Unique skills demanded across relevant opportunities */
+  demandedSkillsCount: number;
+  /** Unique companies posting relevant opportunities with skill demands */
+  companiesWithDemandCount: number;
+  /** Total unique StudentProfiles in this institution */
+  totalStudents: number;
+  /** Unique StudentProfiles having at least one verified skill score */
+  studentsWithVerifiedSkills: number;
+  /** Percentage of unique students having verified skills */
+  verifiedStudentsPct: number;
+  /** Curriculum coverage percentage: (Covered + Partially Covered) / Total Demanded * 100 */
+  curriculumCoveragePct: number;
 }
 
+export interface SkillDemandItemDto {
+  skillId: string;
+  skillName: string;
+  category: string;
+  /** Count of relevant opportunities requiring this skill */
+  opportunityCount: number;
+  /** Count of unique companies demanding this skill */
+  companyCount: number;
+  /** (opportunityCount / relevantOpportunities) * 100 */
+  demandPct: number;
+  /** Unique students in institution with score > 0 */
+  studentCount: number;
+  /** Unique students in institution with score > 0 and verificationLevel !== 'SELF-REPORTED' */
+  verifiedStudentCount: number;
+  /** (studentCount / totalStudents) * 100 */
+  supplyPct: number;
+  /** (verifiedStudentCount / totalStudents) * 100 */
+  verifiedSupplyPct: number;
+  /** Average score among students who have the skill */
+  avgScore: number;
+  /** demandPct - supplyPct (in percentage points) */
+  gapPp: number;
+  gapStatus: GapStatus;
+  curriculumStatus: CurriculumClassification;
+  mappingSource: CurriculumMappingSource;
+  /** Optional mapped course/subject names */
+  mappedCurriculumDetails?: string[];
+}
 
+export interface CurriculumBreakdownDto {
+  coveredCount: number;
+  partiallyCoveredCount: number;
+  notMappedCount: number;
+  coveragePct: number;
+  sourceBreakdown: {
+    coreAcademic: number;
+    supportingAcademic: number;
+    platformCourse: number;
+    notMapped: number;
+  };
+}
+
+export interface MonthlySkillTrendDto {
+  month: string; // YYYY-MM
+  totalOpportunities: number;
+  activeOpportunities: number;
+  closedOpportunities: number;
+  pausedOpportunities: number;
+  topSkills: Array<{
+    skillId: string;
+    skillName: string;
+    demandCount: number;
+  }>;
+}
+
+export interface SkillDemandAlignmentResponseDto {
+  overview: SkillDemandOverviewDto;
+  skills: SkillDemandItemDto[];
+  curriculumBreakdown: CurriculumBreakdownDto;
+  monthlyTrends: MonthlySkillTrendDto[];
+  observations: string[];
+  metadata: {
+    institutionName: string;
+    timeRange: string;
+    opportunityType: string;
+    generatedAt: string;
+  };
+}
+
+// ========================================================
+// PHASE 5: POLICY-READY COMPLIANCE REPORTS DTOS
+// ========================================================
+
+export type ComplianceReportType =
+  | 'recruitment_activity'
+  | 'candidate_skills'
+  | 'curriculum_alignment'
+  | 'institutional_compliance_summary';
+
+export type ComplianceTimePeriod =
+  | '30d'
+  | '90d'
+  | '6m'
+  | '12m'
+  | 'all'
+  | 'custom';
+
+export interface ComplianceReportMetadata {
+  reportType: ComplianceReportType;
+  reportTitle: string;
+  institutionName: string;
+  reportingPeriod: string;
+  startDate: string | null;
+  endDate: string | null;
+  generatedAt: string;
+  dataScope: string;
+  methodologyNote: string;
+}
+
+export interface RecruitmentActivityReportDto {
+  metadata: ComplianceReportMetadata;
+  overview: {
+    totalStudents: number;
+    totalApplications: number;
+    uniqueStudentsPlaced: number;
+    overallPlacementRate: number;
+    activeApplications: number;
+    avgMatchScoreAtApply: number;
+  };
+  funnel: Array<{
+    stage: string;
+    label: string;
+    count: number;
+    pct: number;
+  }>;
+  employersByVolume: Array<{
+    companyId: string;
+    companyName: string;
+    industrySector: string;
+    totalApplications: number;
+    hired: number;
+    advancedApplications: number;
+    conversionRate: number;
+  }>;
+  domainPerformance: Array<{
+    domain: string;
+    studentCount: number;
+    applicationCount: number;
+    hiredCount: number;
+    placementRate: number;
+    avgMatchScoreAtApply: number;
+  }>;
+  statusDistribution: Array<{
+    status: string;
+    label: string;
+    count: number;
+    pct: number;
+  }>;
+}
+
+export interface CandidateSkillsReportDto {
+  metadata: ComplianceReportMetadata;
+  summary: {
+    totalStudents: number;
+    studentsWithVerifiedSkills: number;
+    verifiedStudentsPct: number;
+    averageRecordedSkillScore: number;
+    demandedSkillsCount: number;
+  };
+  domainDistribution: Array<{
+    domain: string;
+    studentCount: number;
+    applicationCount: number;
+    hiredCount: number;
+    placementRate: number;
+    avgMatchScoreAtApply: number;
+  }>;
+  skills: SkillDemandItemDto[];
+}
+
+export interface CurriculumAlignmentReportDto {
+  metadata: ComplianceReportMetadata;
+  summary: {
+    totalDemandedSkills: number;
+    curriculumCoveragePct: number;
+    coveredCount: number;
+    partiallyCoveredCount: number;
+    notMappedCount: number;
+    sourceBreakdown: {
+      coreAcademic: number;
+      supportingAcademic: number;
+      platformCourse: number;
+      notMapped: number;
+    };
+  };
+  demandedSkills: SkillDemandItemDto[];
+}
+
+export interface InstitutionalComplianceSummaryDto {
+  metadata: ComplianceReportMetadata;
+  scorecard: {
+    totalStudents: number;
+    overallPlacementRate: number;
+    totalApplications: number;
+    activeApplications: number;
+    avgMatchScoreAtApply: number;
+    studentsWithVerifiedSkills: number;
+    verifiedStudentsPct: number;
+    averageRecordedSkillScore: number;
+    totalDemandedSkills: number;
+    curriculumCoveragePct: number;
+    employersWithActivityCount: number;
+  };
+  funnelSummary: Array<{
+    stage: string;
+    label: string;
+    count: number;
+    pct: number;
+  }>;
+  skillGapSummary: {
+    higherDemandCount: number;
+    balancedCount: number;
+    higherSupplyCount: number;
+    unmappedCount: number;
+  };
+  domainSummary: Array<{
+    domain: string;
+    studentCount: number;
+    applicationCount: number;
+    hiredCount: number;
+    placementRate: number;
+    avgMatchScoreAtApply: number;
+  }>;
+  topDemandedSkills: SkillDemandItemDto[];
+}
+
+export type ComplianceReportPayload =
+  | { reportType: 'recruitment_activity'; data: RecruitmentActivityReportDto }
+  | { reportType: 'candidate_skills'; data: CandidateSkillsReportDto }
+  | { reportType: 'curriculum_alignment'; data: CurriculumAlignmentReportDto }
+  | { reportType: 'institutional_compliance_summary'; data: InstitutionalComplianceSummaryDto };
 

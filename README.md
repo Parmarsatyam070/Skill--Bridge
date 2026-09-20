@@ -35,22 +35,15 @@ Built as a **Smart India Hackathon (SIH)** project.
 * Applicant management workflow
 * View candidate skill profiles
 
-### 👨‍🏫 Academician Workspace
-
-* Academician dashboard
-* Curriculum alignment & syllabus intelligence
-* Cohort placement readiness analytics
-* Industry skill benchmark tracking
-* Department competency vectors
-
 ### 🏫 Institution Admin Workspace
 
-* Institution dashboard
-* Student skill analytics
-* Batch skill heatmaps
-* Placement readiness insights
-* Curriculum gap identification
-* Skill-demand analysis
+* Institution analytics dashboard
+* Cohort placement readiness analytics & skill heatmaps
+* Candidate Explorer with multi-attribute filtering & verified skill verification
+* Recruitment metrics, offer conversion rates, and domain performance
+* Skill demand & curriculum alignment gap analysis
+* Automated compliance & accreditation audit report generation (NIRF, NAAC, NBA)
+* Recruiter Collaboration Hub: bilateral partnerships, technical workshops, hackathons, and messaging
 
 ---
 

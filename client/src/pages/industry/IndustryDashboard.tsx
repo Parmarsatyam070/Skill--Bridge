@@ -85,9 +85,6 @@ export const IndustryDashboard: React.FC = () => {
           >
             <Database className="w-3.5 h-3.5" />
             <span>Demo Dataset Mode (410 Candidates)</span>
-            <span className="px-1.5 py-0.2 rounded text-[9.5px] bg-amber-500/20 text-amber-300 font-mono">
-              Evaluator Mode
-            </span>
           </button>
           <button
             onClick={() => setDashboardMode('live')}

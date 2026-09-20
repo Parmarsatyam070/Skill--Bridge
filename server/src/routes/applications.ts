@@ -4,21 +4,15 @@ import { authenticate, AuthRequest } from '../middleware/auth.js';
 import { ApplyInternshipSchema } from '../../../shared/validation.js';
 import { calculateSingleMatch } from '../services/matchingEngine.js';
 import { ApplicationStatus } from '../../../shared/types.js';
+import {
+  transitionApplicationStatus,
+  getApplicationTimeline,
+  calculateStageDuration,
+  normalizeStatus,
+} from '../services/applicationLifecycleService.js';
 
 const router = Router();
 
-const VALID_STATUSES: ApplicationStatus[] = [
-  'applied',
-  'under_review',
-  'shortlisted',
-  'interview',
-  'hired',
-  'rejected',
-];
-
-/**
- * Helper to safely parse JSON strings
- */
 function parseJsonSafe<T>(jsonStr: string | null | undefined): T | null {
   if (!jsonStr) return null;
   try {
@@ -30,7 +24,7 @@ function parseJsonSafe<T>(jsonStr: string | null | undefined): T | null {
 
 /**
  * POST /api/applications/apply
- * Applies to an internship with resume selection and snapshotting matchScoreAtApply
+ * Applies to an internship with resume selection, match score snapshot, and initial history record.
  */
 router.post('/apply', authenticate, async (req: AuthRequest, res: Response) => {
   const parseResult = ApplyInternshipSchema.safeParse(req.body);
@@ -60,20 +54,36 @@ router.post('/apply', authenticate, async (req: AuthRequest, res: Response) => {
   const matchBreakdown = await calculateSingleMatch(studentProfileId, internshipId);
   const matchScoreAtApply = matchBreakdown ? matchBreakdown.overallScore : 65;
 
-  const application = await prisma.application.create({
-    data: {
-      studentId: studentProfileId,
-      internshipId,
-      resumeId: resumeId || null,
-      coverNote: coverNote || '',
-      matchScoreAtApply,
-      status: 'applied',
-    },
-    include: {
-      internship: {
-        include: { industry: true },
+  const application = await prisma.$transaction(async tx => {
+    const app = await tx.application.create({
+      data: {
+        studentId: studentProfileId,
+        internshipId,
+        resumeId: resumeId || null,
+        coverNote: coverNote || '',
+        matchScoreAtApply,
+        status: 'applied',
       },
-    },
+      include: {
+        internship: {
+          include: { industry: true },
+        },
+      },
+    });
+
+    // Create initial history record
+    await tx.applicationHistory.create({
+      data: {
+        applicationId: app.id,
+        fromStatus: 'INITIAL',
+        toStatus: 'APPLIED',
+        changedByUserId: req.user!.id,
+        changedByRole: req.user!.role,
+        notes: coverNote ? `Cover Note: ${coverNote}` : 'Application submitted.',
+      },
+    });
+
+    return app;
   });
 
   return res.status(201).json({
@@ -91,42 +101,103 @@ router.post('/apply', authenticate, async (req: AuthRequest, res: Response) => {
 
 /**
  * GET /api/applications/student/:id
- * Fetches applications for a student with live 3-pillar match scores and interview/hired details
+ * Fetches applications for a student with both Opportunities & Internships,
+ * stage duration, neutral bottleneck delay flags, and timeline details.
+ * Security: Accessible only by the student themselves, their Institution Admin, or an Admin.
  */
 router.get('/student/:id', authenticate, async (req: AuthRequest, res: Response) => {
-  const studentId = req.params.id;
+  const targetStudentId = req.params.id;
+  const user = req.user;
+
+  if (!user) {
+    return res.status(401).json({ error: { code: 'UNAUTHORIZED', message: 'Authentication required.' } });
+  }
+
+  // Authorization check
+  let isAuthorized = false;
+  if (user.role === 'ADMIN') {
+    isAuthorized = true;
+  } else if (user.role === 'STUDENT' && user.studentProfileId === targetStudentId) {
+    isAuthorized = true;
+  } else if (user.role === 'INSTITUTION_ADMIN' && user.institutionProfileId) {
+    // Check if student belongs to this institution
+    const instProfile = await prisma.institutionProfile.findUnique({
+      where: { id: user.institutionProfileId },
+    });
+    if (instProfile) {
+      const student = await prisma.studentProfile.findUnique({
+        where: { id: targetStudentId },
+        select: { institution: true, institutionProfileId: true },
+      });
+      if (
+        student &&
+        (student.institutionProfileId === instProfile.id ||
+          (!student.institutionProfileId &&
+            student.institution.toLowerCase() === instProfile.institutionName.toLowerCase()))
+      ) {
+        isAuthorized = true;
+      }
+    }
+  }
+
+  if (!isAuthorized) {
+    return res.status(403).json({ error: { code: 'FORBIDDEN', message: 'Access denied to this student applications portfolio.' } });
+  }
 
   const applications = await prisma.application.findMany({
-    where: { studentId },
+    where: { studentId: targetStudentId },
     include: {
       internship: {
         include: { industry: true },
       },
+      opportunity: {
+        include: { company: true },
+      },
       resume: true,
+      history: {
+        orderBy: { createdAt: 'desc' },
+      },
     },
     orderBy: { appliedAt: 'desc' },
   });
 
   const formatted = await Promise.all(
     applications.map(async a => {
-      const currentMatch = a.internshipId ? await calculateSingleMatch(studentId, a.internshipId) : null;
+      const currentMatch = a.internshipId ? await calculateSingleMatch(targetStudentId, a.internshipId) : null;
+      const { daysInCurrentStage, isStageDelayed, delayThresholdDays } = calculateStageDuration(a);
+
+      const title = a.opportunity?.title || a.internship?.title || 'Application';
+      const companyName = a.opportunity?.company?.companyName || a.internship?.industry?.companyName || 'Company';
+      const location = a.opportunity?.location || a.internship?.location || 'Remote';
+      const workMode = a.opportunity?.workMode || a.internship?.workMode || 'REMOTE';
+      const stipend = a.opportunity?.stipend || a.internship?.stipend || 'Competitive';
+      const normStatus = normalizeStatus(a.status);
+
       return {
         id: a.id,
         internshipId: a.internshipId,
-        internshipTitle: a.internship?.title || 'Application',
-        companyName: a.internship?.industry?.companyName || 'Company',
-        location: a.internship?.location || 'Remote',
-        workMode: a.internship?.workMode || 'REMOTE',
-        stipend: a.internship?.stipend || 'N/A',
+        opportunityId: a.opportunityId,
+        internshipTitle: title,
+        opportunityTitle: title,
+        companyName,
+        location,
+        workMode,
+        stipend,
         status: a.status as ApplicationStatus,
+        canonicalStatus: normStatus,
         matchScoreAtApply: a.matchScoreAtApply,
         currentMatchScore: currentMatch ? currentMatch.overallScore : a.matchScoreAtApply,
-        matchTier: currentMatch ? currentMatch.tier : 'medium',
+        matchTier: currentMatch ? currentMatch.tier : a.matchScoreAtApply >= 80 ? 'high' : a.matchScoreAtApply >= 50 ? 'medium' : 'low',
         resumeTitle: a.resume?.title,
         coverNote: a.coverNote,
         interviewDetails: parseJsonSafe(a.interviewDetailsJson),
         hiredDetails: parseJsonSafe(a.hiredDetailsJson),
         appliedAt: a.appliedAt,
+        updatedAt: a.updatedAt,
+        daysInCurrentStage,
+        isStageDelayed,
+        delayThresholdDays,
+        historyCount: a.history.length,
       };
     })
   );
@@ -135,113 +206,184 @@ router.get('/student/:id', authenticate, async (req: AuthRequest, res: Response)
 });
 
 /**
- * Status update handler logic shared between PUT /:id/status and PATCH /:id
+ * GET /api/applications/:id
+ * Fetches full details and timeline of a single application.
+ * Authorized for the candidate, the hiring recruiter, or the affiliated institution admin.
  */
-async function handleStatusUpdate(req: AuthRequest, res: Response) {
-  const { status, interviewDetails, hiredDetails } = req.body;
+router.get('/:id', authenticate, async (req: AuthRequest, res: Response) => {
+  const applicationId = req.params.id;
+  const user = req.user;
 
-  if (!status || !VALID_STATUSES.includes(status)) {
-    return res.status(400).json({
-      error: {
-        code: 'BAD_REQUEST',
-        message: `Invalid application status. Allowed: ${VALID_STATUSES.join(', ')}`,
+  if (!user) {
+    return res.status(401).json({ error: { code: 'UNAUTHORIZED', message: 'Authentication required.' } });
+  }
+
+  const app = await prisma.application.findUnique({
+    where: { id: applicationId },
+    include: {
+      student: {
+        include: {
+          user: { select: { id: true, name: true, email: true, avatarUrl: true } },
+        },
       },
-    });
-  }
-
-  // Validate status-specific required data
-  if (status === 'interview') {
-    if (!interviewDetails) {
-      return res.status(400).json({
-        error: {
-          code: 'VALIDATION_ERROR',
-          message: 'Interview details must be provided when setting status to interview.',
+      opportunity: {
+        include: {
+          company: { select: { id: true, companyName: true, website: true, industrySector: true } },
+          skills: { include: { skill: { select: { name: true } } } },
         },
-      });
-    }
-    if (!interviewDetails.interviewDate || !interviewDetails.interviewTime) {
-      return res.status(400).json({
-        error: {
-          code: 'VALIDATION_ERROR',
-          message: 'interviewDate and interviewTime are required for interview scheduling.',
+      },
+      internship: {
+        include: {
+          industry: { select: { id: true, companyName: true, website: true, industrySector: true } },
         },
-      });
-    }
-  }
-
-  if (status === 'hired') {
-    if (!hiredDetails || !hiredDetails.offerDate) {
-      return res.status(400).json({
-        error: {
-          code: 'VALIDATION_ERROR',
-          message: 'Offer date (offerDate) is required when marking a candidate as hired.',
-        },
-      });
-    }
-  }
-
-  // Verify application exists
-  const existingApp = await prisma.application.findUnique({
-    where: { id: req.params.id },
-    include: {
-      student: { include: { user: true } },
-      internship: { include: { industry: true } },
-    },
-  });
-
-  if (!existingApp) {
-    return res.status(404).json({
-      error: { code: 'NOT_FOUND', message: 'Application not found.' },
-    });
-  }
-
-  // Prepare update payload
-  const updateData: any = { status };
-
-  if (status === 'interview' && interviewDetails) {
-    updateData.interviewDetailsJson = JSON.stringify({
-      ...interviewDetails,
-      scheduledAt: new Date().toISOString(),
-    });
-  }
-
-  if (status === 'hired' && hiredDetails) {
-    updateData.hiredDetailsJson = JSON.stringify({
-      ...hiredDetails,
-      hiredAt: new Date().toISOString(),
-    });
-  }
-
-  const updated = await prisma.application.update({
-    where: { id: req.params.id },
-    data: updateData,
-    include: {
-      internship: { include: { industry: true } },
+      },
       resume: true,
+      history: {
+        orderBy: { createdAt: 'asc' },
+      },
     },
   });
 
-  // Calculate live match for response
-  const liveMatch = updated.internshipId ? await calculateSingleMatch(updated.studentId, updated.internshipId) : null;
+  if (!app) {
+    return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Application not found.' } });
+  }
+
+  // Authorization check
+  let authorized = false;
+  if (user.role === 'ADMIN') {
+    authorized = true;
+  } else if (user.role === 'STUDENT' && user.studentProfileId === app.studentId) {
+    authorized = true;
+  } else if (user.role === 'INDUSTRY') {
+    const oppComp = app.opportunity?.companyId;
+    const internComp = app.internship?.industryId;
+    if (user.industryProfileId && (user.industryProfileId === oppComp || user.industryProfileId === internComp)) {
+      authorized = true;
+    }
+  } else if (user.role === 'INSTITUTION_ADMIN' && user.institutionProfileId) {
+    const inst = await prisma.institutionProfile.findUnique({ where: { id: user.institutionProfileId } });
+    if (inst) {
+      if (
+        app.student.institutionProfileId === inst.id ||
+        (!app.student.institutionProfileId &&
+          app.student.institution.toLowerCase() === inst.institutionName.toLowerCase())
+      ) {
+        authorized = true;
+      }
+    }
+  }
+
+  if (!authorized) {
+    return res.status(403).json({ error: { code: 'FORBIDDEN', message: 'You are not authorized to view this application.' } });
+  }
+
+  const timelineData = await getApplicationTimeline(applicationId);
+  const { daysInCurrentStage, isStageDelayed, delayThresholdDays } = calculateStageDuration(app);
+
+  const title = app.opportunity?.title || app.internship?.title || 'Application';
+  const comp = app.opportunity?.company || app.internship?.industry;
 
   return res.json({
-    message: `Application status updated to ${status}`,
     application: {
-      id: updated.id,
-      studentId: updated.studentId,
-      internshipId: updated.internshipId,
-      internshipTitle: updated.internship?.title || 'Application',
-      companyName: updated.internship?.industry?.companyName || 'Company',
-      status: updated.status as ApplicationStatus,
-      matchScoreAtApply: updated.matchScoreAtApply,
-      currentMatchScore: liveMatch ? liveMatch.overallScore : updated.matchScoreAtApply,
-      matchTier: liveMatch ? liveMatch.tier : 'medium',
-      coverNote: updated.coverNote,
-      interviewDetails: parseJsonSafe(updated.interviewDetailsJson),
-      hiredDetails: parseJsonSafe(updated.hiredDetailsJson),
-      appliedAt: updated.appliedAt,
+      id: app.id,
+      studentId: app.studentId,
+      studentName: app.student?.user?.name,
+      studentEmail: app.student?.user?.email,
+      avatarUrl: app.student?.user?.avatarUrl,
+      department: app.student?.targetDomain || 'General',
+      gradYear: app.student?.gradYear,
+      cgpa: app.student?.cgpa,
+      companyId: comp?.id,
+      companyName: comp?.companyName || 'Company',
+      companyWebsite: comp?.website,
+      opportunityId: app.opportunityId || app.internshipId,
+      opportunityTitle: title,
+      status: app.status,
+      canonicalStatus: normalizeStatus(app.status),
+      matchScoreAtApply: app.matchScoreAtApply,
+      coverNote: app.coverNote,
+      resume: app.resume
+        ? {
+            id: app.resume.id,
+            title: app.resume.title,
+            fileUrl: app.resume.fileUrl,
+          }
+        : null,
+      interviewDetails: parseJsonSafe(app.interviewDetailsJson),
+      hiredDetails: parseJsonSafe(app.hiredDetailsJson),
+      appliedAt: app.appliedAt,
+      updatedAt: app.updatedAt,
+      daysInCurrentStage,
+      isStageDelayed,
+      delayThresholdDays,
+      timeline: timelineData.timeline,
     },
   });
+});
+
+/**
+ * GET /api/applications/:id/timeline
+ * Fetches the event timeline for an application.
+ */
+router.get('/:id/timeline', authenticate, async (req: AuthRequest, res: Response) => {
+  try {
+    const timeline = await getApplicationTimeline(req.params.id);
+    return res.json(timeline);
+  } catch (err: any) {
+    return res.status(err.message === 'Application not found.' ? 404 : 500).json({
+      error: { code: 'TIMELINE_ERROR', message: err.message },
+    });
+  }
+});
+
+/**
+ * Status update handler shared between PUT /:id/status and PATCH /:id
+ * Validates backend state transition rules and server-side actor ownership.
+ */
+async function handleStatusUpdate(req: AuthRequest, res: Response) {
+  try {
+    const { status, notes, interviewDetails, hiredDetails } = req.body;
+
+    if (!status) {
+      return res.status(400).json({
+        error: { code: 'BAD_REQUEST', message: 'New status is required.' },
+      });
+    }
+
+    const user = req.user!;
+    const result = await transitionApplicationStatus({
+      applicationId: req.params.id,
+      toStatus: status,
+      user: {
+        id: user.id,
+        role: user.role,
+        name: (user as any).name || user.email,
+        studentProfileId: user.studentProfileId,
+        industryProfileId: user.industryProfileId,
+      },
+      notes,
+      interviewDetails,
+      hiredDetails,
+    });
+
+    const timeline = await getApplicationTimeline(req.params.id);
+
+    return res.json({
+      message: `Application stage transitioned to ${result.updatedApp.status}`,
+      application: {
+        id: result.updatedApp.id,
+        status: result.updatedApp.status,
+        canonicalStatus: normalizeStatus(result.updatedApp.status),
+        updatedAt: result.updatedApp.updatedAt,
+      },
+      timeline: timeline.timeline,
+    });
+  } catch (err: any) {
+    const statusCode = err.message.startsWith('Forbidden') ? 403 : err.message === 'Application not found.' ? 404 : 400;
+    return res.status(statusCode).json({
+      error: { code: 'STATUS_UPDATE_ERROR', message: err.message },
+    });
+  }
 }
 
 /**

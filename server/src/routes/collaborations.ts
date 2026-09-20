@@ -1,13 +1,8 @@
 import { Router, Response } from 'express';
-import { prisma } from '../config/prisma.js';
 import { authenticate, AuthRequest } from '../middleware/auth.js';
-import {
-  requireIndustryProfile,
-  requireInstitutionProfile,
-  requireCollaborationAccess,
-} from '../middleware/authorization.js';
-import { recordAuditLog } from '../services/auditLogService.js';
+import { requireCollaborationAccess } from '../middleware/authorization.js';
 import { z } from 'zod';
+import * as collaborationService from '../services/collaborationService.js';
 
 const router = Router();
 
@@ -38,7 +33,7 @@ const SendMessageSchema = z.object({
 
 /**
  * GET /api/collaborations
- * List collaborations relevant to the authenticated user's role.
+ * List collaborations relevant to the authenticated user's role with search/status/type filters.
  */
 router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
   try {
@@ -46,35 +41,43 @@ router.get('/', authenticate, async (req: AuthRequest, res: Response) => {
       return res.status(401).json({ error: { code: 'UNAUTHORIZED', message: 'Authentication required.' } });
     }
 
-    let where: any = {};
+    const { status, type, search } = req.query;
+    const filters = {
+      status: typeof status === 'string' ? status : undefined,
+      type: typeof type === 'string' ? type : undefined,
+      search: typeof search === 'string' ? search : undefined,
+    };
 
-    if (req.user.role === 'INDUSTRY' && req.user.industryProfileId) {
-      where.companyId = req.user.industryProfileId;
-    } else if (req.user.role === 'INSTITUTION_ADMIN' && req.user.institutionProfileId) {
-      where.institutionId = req.user.institutionProfileId;
-    } else if (req.user.role === 'ADMIN') {
-      // Admin sees all
-    } else {
-      return res.status(403).json({ error: { code: 'FORBIDDEN', message: 'Access denied.' } });
-    }
-
-    const { status } = req.query;
-    if (status) where.status = status;
-
-    const collaborations = await prisma.collaboration.findMany({
-      where,
-      include: {
-        institution: { select: { id: true, institutionName: true, adminDesignation: true } },
-        company: { select: { id: true, companyName: true, website: true, industrySector: true } },
-        _count: { select: { messages: true } },
-      },
-      orderBy: { updatedAt: 'desc' },
-    });
-
+    const collaborations = await collaborationService.getCollaborationsForUser(req.user, filters);
     return res.json({ collaborations });
   } catch (err: any) {
+    if (err.statusCode) {
+      return res.status(err.statusCode).json({ error: { code: err.code, message: err.message } });
+    }
     console.error('Error fetching collaborations:', err);
     return res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch collaborations.' } });
+  }
+});
+
+/**
+ * GET /api/collaborations/metrics
+ * Compute deterministic aggregate metrics for the authenticated Institution Admin.
+ */
+router.get('/metrics', authenticate, async (req: AuthRequest, res: Response) => {
+  try {
+    if (!req.user) {
+      return res.status(401).json({ error: { code: 'UNAUTHORIZED', message: 'Authentication required.' } });
+    }
+
+    if (req.user.role !== 'INSTITUTION_ADMIN' || !req.user.institutionProfileId) {
+      return res.status(403).json({ error: { code: 'FORBIDDEN', message: 'Institution Admin profile required for metrics.' } });
+    }
+
+    const metrics = await collaborationService.getInstitutionCollaborationMetrics(req.user.institutionProfileId);
+    return res.json({ metrics });
+  } catch (err: any) {
+    console.error('Error fetching collaboration metrics:', err);
+    return res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch metrics.' } });
   }
 });
 
@@ -88,33 +91,12 @@ router.get('/partners', authenticate, async (req: AuthRequest, res: Response) =>
       return res.status(401).json({ error: { code: 'UNAUTHORIZED', message: 'Authentication required.' } });
     }
 
-    if (req.user.role === 'INDUSTRY') {
-      const institutions = await prisma.institutionProfile.findMany({
-        select: { id: true, institutionName: true, adminDesignation: true },
-        orderBy: { institutionName: 'asc' },
-      });
-      return res.json({ institutions, companies: [] });
-    } else if (req.user.role === 'INSTITUTION_ADMIN') {
-      const companies = await prisma.industryProfile.findMany({
-        select: { id: true, companyName: true, website: true, industrySector: true },
-        orderBy: { companyName: 'asc' },
-      });
-      return res.json({ institutions: [], companies });
-    } else if (req.user.role === 'ADMIN') {
-      const [institutions, companies] = await Promise.all([
-        prisma.institutionProfile.findMany({
-          select: { id: true, institutionName: true },
-          orderBy: { institutionName: 'asc' },
-        }),
-        prisma.industryProfile.findMany({
-          select: { id: true, companyName: true },
-          orderBy: { companyName: 'asc' },
-        }),
-      ]);
-      return res.json({ institutions, companies });
-    } else {
+    if (req.user.role !== 'INDUSTRY' && req.user.role !== 'INSTITUTION_ADMIN' && req.user.role !== 'ADMIN') {
       return res.status(403).json({ error: { code: 'FORBIDDEN', message: 'Access denied.' } });
     }
+
+    const partners = await collaborationService.getPartnersForRole(req.user.role);
+    return res.json(partners);
   } catch (err: any) {
     console.error('Error fetching collaboration partners:', err);
     return res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch partners.' } });
@@ -123,23 +105,11 @@ router.get('/partners', authenticate, async (req: AuthRequest, res: Response) =>
 
 /**
  * GET /api/collaborations/:id
- * Get a single collaboration with messages.
+ * Get a single collaboration with messages, verifying participant authorization.
  */
 router.get('/:id', authenticate, requireCollaborationAccess, async (req: AuthRequest, res: Response) => {
   try {
-    const collaboration = await prisma.collaboration.findUnique({
-      where: { id: req.params.id },
-      include: {
-        institution: { select: { id: true, institutionName: true, adminDesignation: true } },
-        company: { select: { id: true, companyName: true, website: true } },
-        messages: {
-          include: {
-            senderUser: { select: { id: true, name: true, avatarUrl: true, role: true } },
-          },
-          orderBy: { createdAt: 'asc' },
-        },
-      },
-    });
+    const collaboration = await collaborationService.getCollaborationById(req.params.id);
 
     if (!collaboration) {
       return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Collaboration not found.' } });
@@ -163,10 +133,6 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response) => {
       return res.status(401).json({ error: { code: 'UNAUTHORIZED', message: 'Authentication required.' } });
     }
 
-    if (req.user.role !== 'INDUSTRY' && req.user.role !== 'INSTITUTION_ADMIN' && req.user.role !== 'ADMIN') {
-      return res.status(403).json({ error: { code: 'FORBIDDEN', message: 'Only Industry or Institution Admin users can initiate collaborations.' } });
-    }
-
     const parseResult = CreateCollaborationSchema.safeParse(req.body);
     if (!parseResult.success) {
       return res.status(400).json({
@@ -174,91 +140,14 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response) => {
       });
     }
 
-    const data = parseResult.data;
-
-    let institutionId: string;
-    let companyId: string;
-    let initiatedByRole: string;
-
-    if (req.user.role === 'INDUSTRY') {
-      if (!req.user.industryProfileId) {
-        return res.status(403).json({ error: { code: 'NO_INDUSTRY_PROFILE', message: 'Industry profile not found.' } });
-      }
-      if (!data.institutionId) {
-        return res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: 'institutionId is required when initiating from Industry.' } });
-      }
-      companyId = req.user.industryProfileId;
-      institutionId = data.institutionId;
-      initiatedByRole = 'INDUSTRY';
-    } else if (req.user.role === 'INSTITUTION_ADMIN') {
-      if (!req.user.institutionProfileId) {
-        return res.status(403).json({ error: { code: 'NO_INSTITUTION_PROFILE', message: 'Institution profile not found.' } });
-      }
-      if (!data.companyId) {
-        return res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: 'companyId is required when initiating from Institution.' } });
-      }
-      institutionId = req.user.institutionProfileId;
-      companyId = data.companyId;
-      initiatedByRole = 'INSTITUTION_ADMIN';
-    } else if (req.user.role === 'ADMIN') {
-      // Admin must explicitly specify both parties
-      if (!data.institutionId || !data.companyId) {
-        return res.status(400).json({ error: { code: 'VALIDATION_ERROR', message: 'Admin must provide both institutionId and companyId.' } });
-      }
-      institutionId = data.institutionId;
-      companyId = data.companyId;
-      initiatedByRole = 'ADMIN';
-    } else {
-      return res.status(403).json({ error: { code: 'FORBIDDEN', message: 'Role not permitted to initiate collaborations.' } });
-    }
-
-    // Verify both parties exist
-    const [institutionExists, companyExists] = await Promise.all([
-      prisma.institutionProfile.findUnique({ where: { id: institutionId }, select: { id: true } }),
-      prisma.industryProfile.findUnique({ where: { id: companyId }, select: { id: true } }),
-    ]);
-
-    if (!institutionExists) {
-      return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Institution not found.' } });
-    }
-    if (!companyExists) {
-      return res.status(404).json({ error: { code: 'NOT_FOUND', message: 'Company not found.' } });
-    }
-
-    const collaboration = await prisma.$transaction(async (tx) => {
-      const collab = await tx.collaboration.create({
-        data: {
-          institutionId,
-          companyId,
-          type: data.type,
-          title: data.title,
-          description: data.description,
-          skillsJson: data.skills ? JSON.stringify(data.skills) : null,
-          targetDepartment: data.targetDepartment,
-          proposedDate: data.proposedDate,
-          status: 'REQUESTED',
-          initiatedByRole,
-        },
-      });
-
-      await recordAuditLog({
-        userId: req.user!.id,
-        action: 'CREATE_COLLABORATION',
-        entity: 'Collaboration',
-        entityId: collab.id,
-        metadata: { type: data.type, title: data.title, initiatedByRole },
-        tx,
-      });
-
-      return collab;
-    });
-
-    const full = await prisma.collaboration.findUnique({
-      where: { id: collaboration.id },
-      include: {
-        institution: { select: { id: true, institutionName: true } },
-        company: { select: { id: true, companyName: true } },
+    const full = await collaborationService.createCollaboration({
+      initiator: {
+        userId: req.user.id,
+        role: req.user.role,
+        institutionProfileId: req.user.institutionProfileId,
+        industryProfileId: req.user.industryProfileId,
       },
+      data: parseResult.data,
     });
 
     return res.status(201).json({
@@ -266,6 +155,9 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response) => {
       collaboration: full,
     });
   } catch (err: any) {
+    if (err.statusCode) {
+      return res.status(err.statusCode).json({ error: { code: err.code, message: err.message } });
+    }
     console.error('Error creating collaboration:', err);
     return res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to create collaboration.' } });
   }
@@ -273,7 +165,7 @@ router.post('/', authenticate, async (req: AuthRequest, res: Response) => {
 
 /**
  * PATCH /api/collaborations/:id/status
- * Update collaboration status (both parties can update, e.g. accept, reject, complete).
+ * Update collaboration status (both authorized parties can update, e.g. accept, reject, complete).
  */
 router.patch('/:id/status', authenticate, requireCollaborationAccess, async (req: AuthRequest, res: Response) => {
   try {
@@ -284,33 +176,18 @@ router.patch('/:id/status', authenticate, requireCollaborationAccess, async (req
       });
     }
 
-    const { status, startDate, endDate } = parseResult.data;
-    const collaborationId = req.params.id;
-
-    const updateData: any = { status };
-    if (startDate) updateData.startDate = new Date(startDate);
-    if (endDate) updateData.endDate = new Date(endDate);
-
-    const updated = await prisma.$transaction(async (tx) => {
-      const collab = await tx.collaboration.update({
-        where: { id: collaborationId },
-        data: updateData,
-      });
-
-      await recordAuditLog({
-        userId: req.user!.id,
-        action: 'UPDATE_COLLABORATION_STATUS',
-        entity: 'Collaboration',
-        entityId: collaborationId,
-        metadata: { newStatus: status },
-        tx,
-      });
-
-      return collab;
+    const updated = await collaborationService.updateCollaborationStatus({
+      collaborationId: req.params.id,
+      userId: req.user!.id,
+      data: parseResult.data,
+      institutionProfileId: req.user?.role === 'INSTITUTION_ADMIN' ? req.user.institutionProfileId : undefined,
     });
 
     return res.json({ message: 'Collaboration status updated.', collaboration: updated });
   } catch (err: any) {
+    if (err.statusCode) {
+      return res.status(err.statusCode).json({ error: { code: err.code, message: err.message } });
+    }
     console.error('Error updating collaboration status:', err);
     return res.status(500).json({ error: { code: 'INTERNAL_ERROR', message: 'Failed to update status.' } });
   }
@@ -329,15 +206,10 @@ router.post('/:id/messages', authenticate, requireCollaborationAccess, async (re
       });
     }
 
-    const message = await prisma.collaborationMessage.create({
-      data: {
-        collaborationId: req.params.id,
-        senderUserId: req.user!.id,
-        message: parseResult.data.message,
-      },
-      include: {
-        senderUser: { select: { id: true, name: true, avatarUrl: true, role: true } },
-      },
+    const message = await collaborationService.addCollaborationMessage({
+      collaborationId: req.params.id,
+      senderUserId: req.user!.id,
+      message: parseResult.data.message,
     });
 
     return res.status(201).json({ message });

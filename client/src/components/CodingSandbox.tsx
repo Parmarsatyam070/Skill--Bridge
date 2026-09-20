@@ -261,9 +261,6 @@ export const CodingSandbox: React.FC<CodingSandboxProps> = ({
                 <Sparkles className="w-3.5 h-3.5 text-blue-400" />
                 Also practice on:
               </span>
-              <span className="text-[10px] font-medium text-amber-400/90 bg-amber-950/40 px-2 py-0.5 rounded border border-amber-800/40">
-                Phase 2 (requires partnership)
-              </span>
             </div>
 
             <div className="flex flex-wrap gap-2">

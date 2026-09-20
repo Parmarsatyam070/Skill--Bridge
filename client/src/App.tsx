@@ -25,13 +25,13 @@ const CareerResumeBuilder = React.lazy(() => import('./pages/resumes/CareerResum
 const OpportunityHubPage = React.lazy(() => import('./pages/opportunities/OpportunityHubPage').then(m => ({ default: m.OpportunityHubPage })));
 const OpportunityDetailPage = React.lazy(() => import('./pages/opportunities/OpportunityDetailPage').then(m => ({ default: m.OpportunityDetailPage })));
 
-// Code-split Talent Assessment Pages (Phase 5)
+// Code-split Talent Assessment Pages
 const TalentAssessmentsPage = React.lazy(() => import('./pages/assessments/TalentAssessmentsPage').then(m => ({ default: m.TalentAssessmentsPage })));
 const AssessmentDetailPage = React.lazy(() => import('./pages/assessments/AssessmentDetailPage').then(m => ({ default: m.AssessmentDetailPage })));
 const AssessmentTakingPage = React.lazy(() => import('./pages/assessments/AssessmentTakingPage').then(m => ({ default: m.AssessmentTakingPage })));
 const AssessmentResultPage = React.lazy(() => import('./pages/assessments/AssessmentResultPage').then(m => ({ default: m.AssessmentResultPage })));
 
-// Code-split AI Interview Pages (Phase 6)
+// Code-split AI Interview Pages
 const AIInterviewPage = React.lazy(() => import('./pages/interviews/AIInterviewPage').then(m => ({ default: m.AIInterviewPage })));
 const InterviewSessionPage = React.lazy(() => import('./pages/interviews/InterviewSessionPage').then(m => ({ default: m.InterviewSessionPage })));
 const InterviewResultPage = React.lazy(() => import('./pages/interviews/InterviewResultPage').then(m => ({ default: m.InterviewResultPage })));
@@ -47,17 +47,20 @@ const CoursesPage = React.lazy(() => import('./pages/student/CoursesPage').then(
 const LearningResourcesPage = React.lazy(() => import('./pages/student/LearningResourcesPage').then(m => ({ default: m.LearningResourcesPage })));
 const AcademicPerformancePage = React.lazy(() => import('./pages/student/AcademicPerformancePage').then(m => ({ default: m.AcademicPerformancePage })));
 const StudentPortfolioEdit = React.lazy(() => import('./pages/student/StudentPortfolioEdit').then(m => ({ default: m.StudentPortfolioEdit })));
+const StudentApplicationsPage = React.lazy(() => import('./pages/student/StudentApplicationsPage').then(m => ({ default: m.StudentApplicationsPage })));
 
 // Code-split Industry Console Pages
 const IndustryDashboard = React.lazy(() => import('./pages/industry/IndustryDashboard').then(m => ({ default: m.IndustryDashboard })));
 const PostJobPage = React.lazy(() => import('./pages/industry/PostJobPage').then(m => ({ default: m.PostJobPage })));
 const ApplicantsPage = React.lazy(() => import('./pages/industry/ApplicantsPage').then(m => ({ default: m.ApplicantsPage })));
 
-// Code-split Academician Console Pages
-const AcademicianDashboard = React.lazy(() => import('./pages/academician/AcademicianDashboard').then(m => ({ default: m.AcademicianDashboard })));
-
 // Code-split Institution Console Pages
 const InstitutionDashboard = React.lazy(() => import('./pages/institution/InstitutionDashboard').then(m => ({ default: m.InstitutionDashboard })));
+const InstitutionApplicationsPage = React.lazy(() => import('./pages/institution/InstitutionApplicationsPage').then(m => ({ default: m.InstitutionApplicationsPage })));
+const InstitutionCandidateExplorerPage = React.lazy(() => import('./pages/institution/InstitutionCandidateExplorerPage').then(m => ({ default: m.InstitutionCandidateExplorerPage })));
+const InstitutionRecruitmentMetricsPage = React.lazy(() => import('./pages/institution/InstitutionRecruitmentMetricsPage').then(m => ({ default: m.InstitutionRecruitmentMetricsPage })));
+const InstitutionSkillDemandPage = React.lazy(() => import('./pages/institution/InstitutionSkillDemandPage').then(m => ({ default: m.InstitutionSkillDemandPage })));
+const InstitutionComplianceReportsPage = React.lazy(() => import('./pages/institution/InstitutionComplianceReportsPage').then(m => ({ default: m.InstitutionComplianceReportsPage })));
 
 // Code-split Collaboration Management Pages
 const CollaborationsPage = React.lazy(() => import('./pages/collaborations/CollaborationsPage').then(m => ({ default: m.CollaborationsPage })));
@@ -95,7 +98,7 @@ export const App: React.FC = () => {
           <Route path="/portfolio/:studentId" element={<PublicPortfolioSite />} />
 
           {/* User Profile & Opportunities Hub in Unified Console Layout (all authenticated roles) */}
-          <Route element={<AuthenticatedConsoleLayout allowedRoles={['STUDENT', 'INDUSTRY', 'ACADEMICIAN', 'INSTITUTION_ADMIN']} />}>
+          <Route element={<AuthenticatedConsoleLayout allowedRoles={['STUDENT', 'INDUSTRY', 'INSTITUTION_ADMIN']} />}>
             <Route path="/profile" element={<CareerProfileDashboard />} />
             <Route path="/opportunities" element={<OpportunityHubPage />} />
             <Route path="/opportunities/:id" element={<OpportunityDetailPage />} />
@@ -124,6 +127,7 @@ export const App: React.FC = () => {
             <Route path="/dsa/:slug" element={<DsaCodingPage />} />
             <Route path="/report-card" element={<ReportCardPage />} />
             <Route path="/academic-performance" element={<AcademicPerformancePage />} />
+            <Route path="/student/applications" element={<StudentApplicationsPage />} />
             <Route path="/internships" element={<InternshipsPage />} />
             <Route path="/courses" element={<CoursesPage />} />
             <Route path="/learn" element={<LearningResourcesPage />} />
@@ -140,15 +144,19 @@ export const App: React.FC = () => {
             <Route path="/industry/applicants/:jobId" element={<ApplicantsPage />} />
           </Route>
 
-          {/* Authenticated Academician Routes */}
-          <Route element={<AuthenticatedConsoleLayout allowedRoles={['ACADEMICIAN']} />}>
-            <Route path="/academician/dashboard" element={<AcademicianDashboard />} />
+          {/* Authenticated Institution & Faculty Analytics Routes */}
+          <Route element={<AuthenticatedConsoleLayout allowedRoles={['INSTITUTION_ADMIN']} />}>
+            <Route path="/institution/dashboard" element={<InstitutionDashboard />} />
+            <Route path="/institution/applications" element={<InstitutionApplicationsPage />} />
+            <Route path="/institution/intelligence" element={<InstitutionIntelligencePage />} />
+            <Route path="/institution/candidates" element={<InstitutionCandidateExplorerPage />} />
           </Route>
 
-          {/* Authenticated Institution & Faculty Analytics Routes */}
-          <Route element={<AuthenticatedConsoleLayout allowedRoles={['INSTITUTION_ADMIN', 'ACADEMICIAN']} />}>
-            <Route path="/institution/dashboard" element={<InstitutionDashboard />} />
-            <Route path="/institution/intelligence" element={<InstitutionIntelligencePage />} />
+          {/* Recruitment Metrics, Skill Demand Analysis & Compliance Reports — INSTITUTION_ADMIN only */}
+          <Route element={<AuthenticatedConsoleLayout allowedRoles={['INSTITUTION_ADMIN']} />}>
+            <Route path="/institution/recruitment-metrics" element={<InstitutionRecruitmentMetricsPage />} />
+            <Route path="/institution/skill-demand" element={<InstitutionSkillDemandPage />} />
+            <Route path="/institution/reports" element={<InstitutionComplianceReportsPage />} />
           </Route>
 
           {/* Authenticated Collaboration Management Routes (INDUSTRY, INSTITUTION_ADMIN) */}

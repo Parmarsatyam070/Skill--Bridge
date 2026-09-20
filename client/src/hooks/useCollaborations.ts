@@ -8,6 +8,7 @@ import type {
   SendCollaborationMessageInput,
   CollaborationPartnersResponse,
   CollaborationMessageDto,
+  InstitutionCollaborationMetricsDto,
 } from '@shared/types';
 
 // Query keys
@@ -18,6 +19,7 @@ export const collaborationKeys = {
   details: () => [...collaborationKeys.all, 'detail'] as const,
   detail: (id: string) => [...collaborationKeys.details(), id] as const,
   partners: () => [...collaborationKeys.all, 'partners'] as const,
+  metrics: () => [...collaborationKeys.all, 'metrics'] as const,
 };
 
 /**
@@ -67,6 +69,20 @@ export function useCollaborationPartners() {
 }
 
 /**
+ * Fetch deterministic aggregate metrics for the authenticated Institution Admin.
+ */
+export function useCollaborationMetrics() {
+  return useQuery({
+    queryKey: collaborationKeys.metrics(),
+    queryFn: async () => {
+      const res = await api.get<{ metrics: InstitutionCollaborationMetricsDto }>('/collaborations/metrics');
+      return res.metrics;
+    },
+    staleTime: 30000,
+  });
+}
+
+/**
  * Create a new collaboration proposal.
  */
 export function useCreateCollaboration() {
@@ -79,6 +95,7 @@ export function useCreateCollaboration() {
     },
     onSuccess: (newCollab) => {
       queryClient.invalidateQueries({ queryKey: collaborationKeys.lists() });
+      queryClient.invalidateQueries({ queryKey: collaborationKeys.metrics() });
       if (newCollab?.id) {
         queryClient.setQueryData(collaborationKeys.detail(newCollab.id), newCollab);
       }
@@ -103,6 +120,7 @@ export function useUpdateCollaborationStatus(collaborationId: string) {
     onSuccess: (updatedCollab) => {
       queryClient.invalidateQueries({ queryKey: collaborationKeys.lists() });
       queryClient.invalidateQueries({ queryKey: collaborationKeys.detail(collaborationId) });
+      queryClient.invalidateQueries({ queryKey: collaborationKeys.metrics() });
       if (updatedCollab) {
         queryClient.setQueryData(collaborationKeys.detail(collaborationId), updatedCollab);
       }

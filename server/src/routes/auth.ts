@@ -15,7 +15,7 @@ import {
   generateRefreshToken,
   verifyRefreshToken,
 } from '../services/tokenService.js';
-import { authenticate, AuthRequest } from '../middleware/auth.js';
+import { authenticate, requireRole, AuthRequest } from '../middleware/auth.js';
 import { recordDailyActivity } from '../services/streakService.js';
 import { sendPasswordResetEmail, sendSmsOtp } from '../services/notificationService.js';
 import {
@@ -60,7 +60,7 @@ const resetRateLimiter = rateLimit({
 /**
  * Format full session object for client
  */
-async function buildUserSession(userId: string) {
+export async function buildUserSession(userId: string) {
   const user = await prisma.user.findUnique({
     where: { id: userId },
     include: {
@@ -95,7 +95,7 @@ async function buildUserSession(userId: string) {
  * Shared handler for Firebase ID token verification and PostgreSQL user session sync/provisioning.
  * Supports both POST /api/auth/sync and POST /api/auth/google/firebase.
  */
-async function handleFirebaseTokenAuth(req: Request, res: Response, sourceEndpoint: string) {
+export async function handleFirebaseTokenAuth(req: Request, res: Response, sourceEndpoint: string) {
   let token: string | undefined;
   const authHeader = req.headers.authorization;
   if (authHeader && authHeader.startsWith('Bearer ')) {
@@ -119,7 +119,23 @@ async function handleFirebaseTokenAuth(req: Request, res: Response, sourceEndpoi
     const cleanEmail = decodedToken.email?.toLowerCase().trim();
     const uid = decodedToken.uid;
     const isEmailVerified = Boolean(decodedToken.email_verified);
-    const authProvider = decodedToken.firebase?.sign_in_provider || 'google.com';
+    // Determine if token is from an explicit external identity provider or a controlled SkillBridge fallback token (Rule 2 & 3)
+    const provider = decodedToken.firebase?.sign_in_provider;
+    const isFederatedExternalProvider = Boolean(
+      provider && ['google.com', 'github.com', 'microsoft.com', 'apple.com'].includes(provider)
+    );
+    const isPasswordProvider = provider === 'password';
+    const isExplicitExternalProvider = Boolean(
+      provider && ['google.com', 'github.com', 'microsoft.com', 'apple.com', 'password', 'phone', 'anonymous'].includes(provider)
+    );
+    const isFallbackToken = !isExplicitExternalProvider && Boolean(
+      (decodedToken as any).isSkillBridgeFallback === true ||
+      provider === 'custom' ||
+      (!provider && (decodedToken as any).skillbridgeUserId) ||
+      (!provider && !decodedToken.firebase)
+    );
+    const fallbackUserId = (decodedToken as any).skillbridgeUserId;
+    const authProvider = provider || (isFallbackToken ? 'skillbridge-fallback' : 'unknown');
 
     console.log(`[AUTH ${sourceEndpoint}] Step 1 Success: UID=${uid} | Email=${cleanEmail || 'none'} | Verified=${isEmailVerified} | Provider=${authProvider}`);
 
@@ -130,36 +146,234 @@ async function handleFirebaseTokenAuth(req: Request, res: Response, sourceEndpoi
       });
     }
 
-    console.log(`[AUTH ${sourceEndpoint}] Step 2: Searching PostgreSQL for existing user (by UID or email: ${cleanEmail})...`);
+    console.log(`[AUTH ${sourceEndpoint}] Step 2: Looking up existing user by verified identity...`);
 
-    // 1. Check for existing user by firebaseUid OR case-insensitive email
-    let user: any = await prisma.user.findFirst({
-      where: {
-        OR: [
-          { firebaseUid: uid },
-          ...(cleanEmail ? [{ email: { equals: cleanEmail, mode: 'insensitive' as const } }] : []),
-        ],
-      },
-      include: {
-        studentProfile: true,
-        industryProfile: true,
-        academicianProfile: true,
-        institutionProfile: true,
-      },
-    });
+    let user: any = null;
+
+    if (isFallbackToken) {
+      console.log(`[AUTH ${sourceEndpoint}] Processing controlled SkillBridge fallback-token flow.`);
+      // Controlled SkillBridge Fallback Token Flow:
+      // PRIMARY: Lookup by SkillBridge User.id (using fallbackUserId or uid when formatted as UUID)
+      const targetUserId = fallbackUserId || uid;
+      const isUuid = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(targetUserId);
+      if (isUuid) {
+        user = await prisma.user.findUnique({
+          where: { id: targetUserId },
+          include: {
+            studentProfile: true,
+            industryProfile: true,
+            academicianProfile: true,
+            institutionProfile: true,
+          },
+        });
+      }
+
+      // SECONDARY: If not matched by User.id, check by verified token email (case-insensitive)
+      if (!user && cleanEmail) {
+        user = await prisma.user.findFirst({
+          where: {
+            email: { equals: cleanEmail, mode: 'insensitive' as const },
+          },
+          include: {
+            studentProfile: true,
+            industryProfile: true,
+            academicianProfile: true,
+            institutionProfile: true,
+          },
+        });
+      }
+
+      // TERTIARY: If user already had an existing real firebaseUid matching uid
+      if (!user && uid) {
+        user = await prisma.user.findFirst({
+          where: { firebaseUid: uid },
+          include: {
+            studentProfile: true,
+            industryProfile: true,
+            academicianProfile: true,
+            institutionProfile: true,
+          },
+        });
+      }
+    } else {
+      console.log(`[AUTH ${sourceEndpoint}] Processing genuine Firebase authentication token (Provider: ${authProvider}).`);
+      // Genuine Firebase Authentication Token (Google, Password, GitHub, etc.):
+      // PRIMARY: Check by verified firebaseUid = verified token UID
+      user = await prisma.user.findFirst({
+        where: { firebaseUid: uid },
+        include: {
+          studentProfile: true,
+          industryProfile: true,
+          academicianProfile: true,
+          institutionProfile: true,
+        },
+      });
+
+      // Security Check: If a user with this firebaseUid was found, verify it is the SAME user being authenticated
+      if (user && cleanEmail && user.email.toLowerCase().trim() !== cleanEmail) {
+        console.error(
+          `[AUTH ${sourceEndpoint}] Firebase UID ${uid} is already linked to user ${user.id} (${user.email}), which differs from token email (${cleanEmail}). Rejecting conflict.`
+        );
+        return res.status(409).json({
+          error: {
+            code: 'FIREBASE_UID_ALREADY_LINKED',
+            message: 'This Firebase account is already linked to another user.',
+          },
+        });
+      }
+
+      // Check role consistency if this is an explicit registration attempt for an existing user with this firebaseUid
+      const isRegistrationAttempt = Boolean(
+        sourceEndpoint === 'sync' || req.body?.role || req.body?.roleData
+      );
+      if (user && isRegistrationAttempt && req.body?.role && req.body.role !== user.role) {
+        console.warn(
+          `[AUTH ${sourceEndpoint}] Role conflict: existing user ${user.id} (${user.email}) has DB role ${user.role}, but registration requested ${req.body.role}.`
+        );
+        return res.status(409).json({
+          error: {
+            code: 'ROLE_CONFLICT',
+            message: `An account already exists with role ${user.role}. Cannot register as ${req.body.role}.`,
+          },
+        });
+      }
+
+      // SECONDARY: If not found by firebaseUid, look up existing account by cleanEmail:
+      if (!user && cleanEmail) {
+        const existingAccountByEmail = await prisma.user.findFirst({
+          where: {
+            email: { equals: cleanEmail, mode: 'insensitive' as const },
+          },
+          include: {
+            studentProfile: true,
+            industryProfile: true,
+            academicianProfile: true,
+            institutionProfile: true,
+          },
+        });
+
+        if (existingAccountByEmail) {
+          // An existing account with this email was found in PostgreSQL!
+          // CASE A & B: User already has the same Firebase UID linked
+          if (existingAccountByEmail.firebaseUid === uid) {
+            if (isRegistrationAttempt && req.body?.role && req.body.role !== existingAccountByEmail.role) {
+              console.warn(
+                `[AUTH ${sourceEndpoint}] Role conflict: existing user ${existingAccountByEmail.id} has DB role ${existingAccountByEmail.role}, but registration requested ${req.body.role}.`
+              );
+              return res.status(409).json({
+                error: {
+                  code: 'ROLE_CONFLICT',
+                  message: `An account already exists with role ${existingAccountByEmail.role}. Cannot register as ${req.body.role}.`,
+                },
+              });
+            }
+            console.log(`[AUTH ${sourceEndpoint}] Existing user ${existingAccountByEmail.id} matches verified Firebase UID ${uid}. Idempotent session recovery.`);
+            user = existingAccountByEmail;
+          } else if (isFederatedExternalProvider) {
+            // CASE 3: Genuine federated external provider (Google, GitHub, Microsoft, Apple)
+            if (!isEmailVerified) {
+              console.error(`[AUTH ${sourceEndpoint}] External provider (${provider}) email ${cleanEmail} is not verified. Rejecting account linking.`);
+              return res.status(403).json({
+                error: {
+                  code: 'EMAIL_NOT_VERIFIED',
+                  message: 'An account with this email exists, but your login provider email is not verified. Please verify your email before linking.',
+                },
+              });
+            }
+
+            // Requirement 1: Look up existing user by firebaseUid before linking
+            const existingUserByUid = uid
+              ? await prisma.user.findFirst({
+                  where: { firebaseUid: uid },
+                })
+              : null;
+
+            // Requirement 3: If UID belongs to a DIFFERENT User:
+            if (existingUserByUid && existingUserByUid.id !== existingAccountByEmail.id) {
+              console.error(
+                `[AUTH ${sourceEndpoint}] Firebase UID ${uid} is already linked to user ${existingUserByUid.id} (${existingUserByUid.email}). Rejecting account linking to ${existingAccountByEmail.id} (${existingAccountByEmail.email}).`
+              );
+              return res.status(409).json({
+                error: {
+                  code: 'FIREBASE_UID_ALREADY_LINKED',
+                  message: 'This Firebase account is already linked to another user.',
+                },
+              });
+            }
+
+            console.log(`[AUTH ${sourceEndpoint}] External provider (${provider}) verified email match for ${cleanEmail}. Linking account.`);
+            user = existingAccountByEmail;
+          } else if (isRegistrationAttempt) {
+            // Check if UID belongs to another user
+            const existingUserByUid = uid
+              ? await prisma.user.findFirst({
+                  where: { firebaseUid: uid },
+                })
+              : null;
+            if (existingUserByUid && existingUserByUid.id !== existingAccountByEmail.id) {
+              return res.status(409).json({
+                error: {
+                  code: 'FIREBASE_UID_ALREADY_LINKED',
+                  message: 'This Firebase account is already linked to another user.',
+                },
+              });
+            }
+            // CASE 2 & 4: Existing account created with email/password
+            // Registration attempted for an email that already exists.
+            // Do NOT treat it as external-provider linking.
+            // Do NOT require Firebase provider-email verification.
+            // Return a clear "account already exists / please sign in" response.
+            // Do not create a duplicate User.
+            // Do not alter the existing User.role.
+            console.warn(`[AUTH ${sourceEndpoint}] Registration attempted for existing email/password account ${cleanEmail} (Role: ${existingAccountByEmail.role}).`);
+            return res.status(409).json({
+              error: {
+                code: 'ACCOUNT_EXISTS',
+                message: 'An account with this email address already exists. Please sign in instead.',
+              },
+            });
+          } else {
+            // Existing email/password user logging in (e.g. firebaseUid was null in PostgreSQL)
+            console.log(`[AUTH ${sourceEndpoint}] Existing email/password user ${cleanEmail} authenticated via Firebase. Linking firebaseUid.`);
+            user = existingAccountByEmail;
+          }
+        }
+      }
+      // Note: Arbitrary Firebase tokens do NOT search by id: uid, ensuring UUID-shaped Firebase UIDs cannot collide with User.id
+    }
 
     if (user) {
       console.log(`[AUTH ${sourceEndpoint}] Step 2: Found existing user account in database (ID: ${user.id}, Role: ${user.role}, Existing UID: ${user.firebaseUid || 'null'}).`);
 
-      // Gracefully link/update Firebase UID and avatar if needed
-      if (user.firebaseUid !== uid || (!user.avatarUrl && decodedToken.picture)) {
-        console.log(`[AUTH ${sourceEndpoint}] Step 3: Linking Firebase UID ${uid} to user account ${user.id}...`);
+      // CRITICAL (Rule 3 & Rule 4): Database User.role is AUTHORITATIVE.
+      // Ignore any client-supplied role in req.body (e.g. role: 'STUDENT').
+      // Existing user role can NEVER be downgraded or modified during normal login/sync.
+      const authoritativeRole = user.role;
 
-        // If another database record holds this firebaseUid, unlink it first to prevent unique constraint failure
-        await prisma.user.updateMany({
-          where: { firebaseUid: uid, id: { not: user.id } },
-          data: { firebaseUid: null },
+      // Identity Linking Rule (Rule 4):
+      // Only link firebaseUid if this is a GENUINE Firebase token (!isFallbackToken) and the UID is not already linked.
+      // NEVER write User.id into firebaseUid column during fallback authentication.
+      if (!isFallbackToken && uid && user.firebaseUid !== uid) {
+        console.log(`[AUTH ${sourceEndpoint}] Step 3: Linking genuine Firebase UID ${uid} to user account ${user.id}...`);
+
+        // UID Collision Guard: check whether this Firebase UID is already assigned to a DIFFERENT user.
+        // If so, reject the linking to prevent UID reassignment/hijacking.
+        const uidOwner = await prisma.user.findFirst({
+          where: { firebaseUid: uid },
+          select: { id: true, email: true },
         });
+        if (uidOwner && uidOwner.id !== user.id) {
+          console.error(
+            `[AUTH ${sourceEndpoint}] Step 3: Firebase UID ${uid} is already linked to user ${uidOwner.id} (${uidOwner.email}). ` +
+            `Rejecting link attempt for user ${user.id} (${user.email}).`
+          );
+          return res.status(409).json({
+            error: {
+              code: 'FIREBASE_UID_ALREADY_LINKED',
+              message: 'This Firebase account is already linked to another user.',
+            },
+          });
+        }
 
         user = await prisma.user.update({
           where: { id: user.id },
@@ -174,12 +388,39 @@ async function handleFirebaseTokenAuth(req: Request, res: Response, sourceEndpoi
             institutionProfile: true,
           },
         });
-        console.log(`[AUTH ${sourceEndpoint}] Step 3: Successfully linked account with Firebase UID.`);
+        console.log(`[AUTH ${sourceEndpoint}] Step 3: Successfully linked account with genuine Firebase UID.`);
+      } else if (!user.avatarUrl && decodedToken.picture) {
+        user = await prisma.user.update({
+          where: { id: user.id },
+          data: {
+            avatarUrl: decodedToken.picture,
+          },
+          include: {
+            studentProfile: true,
+            industryProfile: true,
+            academicianProfile: true,
+            institutionProfile: true,
+          },
+        });
       }
 
-      // Ensure profile exists for the user's role
-      if (user.role === 'STUDENT' && !user.studentProfile) {
-        console.log(`[AUTH ${sourceEndpoint}] Auto-creating default student profile for existing user ${user.id}`);
+      // Ensure profile exists ONLY for the user's authoritative role (auto-heal)
+      if (authoritativeRole === 'INSTITUTION_ADMIN' && !user.institutionProfile) {
+        console.log(`[AUTH ${sourceEndpoint}] Auto-creating default institution profile for existing admin ${user.id}`);
+        user = await prisma.user.update({
+          where: { id: user.id },
+          data: {
+            institutionProfile: {
+              create: {
+                institutionName: 'Partner Institution',
+                adminDesignation: 'Administrator',
+              },
+            },
+          },
+          include: { studentProfile: true, industryProfile: true, academicianProfile: true, institutionProfile: true },
+        });
+      } else if (authoritativeRole === 'STUDENT' && !user.studentProfile) {
+        console.log(`[AUTH ${sourceEndpoint}] Auto-creating default student profile for existing student ${user.id}`);
         user = await prisma.user.update({
           where: { id: user.id },
           data: {
@@ -187,6 +428,22 @@ async function handleFirebaseTokenAuth(req: Request, res: Response, sourceEndpoi
               create: {
                 institution: 'Unspecified University',
                 targetDomain: 'Full-Stack Web',
+              },
+            },
+          },
+          include: { studentProfile: true, industryProfile: true, academicianProfile: true, institutionProfile: true },
+        });
+      } else if (authoritativeRole === 'INDUSTRY' && !user.industryProfile) {
+        console.log(`[AUTH ${sourceEndpoint}] Auto-creating default industry profile for existing recruiter ${user.id}`);
+        user = await prisma.user.update({
+          where: { id: user.id },
+          data: {
+            industryProfile: {
+              create: {
+                companyName: user.name || 'Partner Company',
+                companySize: '50-200 employees',
+                industrySector: 'Technology',
+                verified: true,
               },
             },
           },
@@ -204,9 +461,11 @@ async function handleFirebaseTokenAuth(req: Request, res: Response, sourceEndpoi
       if (!session) {
         throw new Error(`Failed to build user session for user ${user.id}`);
       }
+      // Guarantee session role reflects authoritative database role
+      session.role = authoritativeRole;
 
-      // Generate SkillBridge JWT tokens
-      const tokenPayload = { userId: user.id, role: user.role, email: user.email };
+      // Generate SkillBridge JWT tokens using authoritative database role
+      const tokenPayload = { userId: user.id, role: authoritativeRole, email: user.email };
       const accessToken = generateAccessToken(tokenPayload);
       const refreshToken = generateRefreshToken(tokenPayload);
 
@@ -217,25 +476,40 @@ async function handleFirebaseTokenAuth(req: Request, res: Response, sourceEndpoi
         maxAge: 7 * 24 * 60 * 60 * 1000,
       });
 
-      console.log(`[AUTH ${sourceEndpoint}] === Authentication Successful for Existing User ${user.id} (${user.email}) ===`);
+      console.log(`[AUTH ${sourceEndpoint}] === Authentication Successful for Existing User ${user.id} (${user.email}) [Authoritative Role: ${authoritativeRole}] ===`);
       return res.json({ user: session, accessToken, isNewUser: false });
     }
 
     // 2. New user provisioning in PostgreSQL
+    // DEFENSE 2: Reject password-provider auto-provisioning on /api/auth/google/firebase when no DB User exists
+    if (sourceEndpoint === 'google/firebase' && isPasswordProvider) {
+      console.warn(
+        `[AUTH ${sourceEndpoint}] Rejected auto-provisioning for password-provider Firebase user ${uid} (${cleanEmail}). Explicit registration required.`
+      );
+      return res.status(400).json({
+        error: {
+          code: 'REGISTRATION_REQUIRED',
+          message: 'Password accounts must be registered with complete profile information.',
+        },
+      });
+    }
+
     const { role, name, roleData } = req.body || {};
-    const ALLOWED_SIGNUP_ROLES = ['STUDENT', 'INDUSTRY', 'ACADEMICIAN'];
+    const ALLOWED_SIGNUP_ROLES = ['STUDENT', 'INDUSTRY', 'INSTITUTION_ADMIN'];
     const assignedRole = (role && ALLOWED_SIGNUP_ROLES.includes(role)) ? role : 'STUDENT';
-    const displayName = (name || decodedToken.name || cleanEmail?.split('@')[0] || 'User').trim();
+    const displayName = (name || roleData?.name || roleData?.institutionName || roleData?.companyName || decodedToken.name || cleanEmail?.split('@')[0] || 'User').trim();
     const avatarUrl = decodedToken.picture || null;
 
     console.log(`[AUTH ${sourceEndpoint}] Step 4: Provisioning new user in database (Email: ${cleanEmail}, Role: ${assignedRole}, Name: ${displayName})...`);
 
     try {
+      const dbFirebaseUid = isFallbackToken ? null : uid;
+
       if (assignedRole === 'STUDENT') {
         user = await prisma.user.create({
           data: {
             email: cleanEmail || `${uid}@firebase.user`,
-            firebaseUid: uid,
+            firebaseUid: dbFirebaseUid,
             name: displayName,
             role: 'STUDENT',
             avatarUrl,
@@ -256,7 +530,7 @@ async function handleFirebaseTokenAuth(req: Request, res: Response, sourceEndpoi
         user = await prisma.user.create({
           data: {
             email: cleanEmail || `${uid}@firebase.user`,
-            firebaseUid: uid,
+            firebaseUid: dbFirebaseUid,
             name: roleData?.companyName?.trim() || displayName,
             role: 'INDUSTRY',
             avatarUrl,
@@ -274,62 +548,129 @@ async function handleFirebaseTokenAuth(req: Request, res: Response, sourceEndpoi
           },
           include: { industryProfile: true },
         });
-      } else if (assignedRole === 'ACADEMICIAN') {
+      } else if (assignedRole === 'INSTITUTION_ADMIN') {
+        const instName = roleData?.institutionName?.trim() || 'Partner Institution';
+        const adminDesig = roleData?.adminDesignation?.trim() || 'Administrator';
+        const personName = (roleData?.name || name || displayName || instName).trim();
         user = await prisma.user.create({
           data: {
             email: cleanEmail || `${uid}@firebase.user`,
-            firebaseUid: uid,
-            name: displayName,
-            role: 'ACADEMICIAN',
+            firebaseUid: dbFirebaseUid,
+            name: personName,
+            role: 'INSTITUTION_ADMIN',
             avatarUrl,
             currentStreak: 1,
             longestStreak: 1,
-            academicianProfile: {
+            institutionProfile: {
               create: {
-                institution: roleData?.institution?.trim() || 'Academic Institute',
-                department: roleData?.department?.trim() || 'Computer Science',
-                designation: roleData?.designation?.trim() || 'Faculty Member',
+                institutionName: instName,
+                adminDesignation: adminDesig,
               },
             },
           },
-          include: { academicianProfile: true },
+          include: { institutionProfile: true },
         });
       }
     } catch (createErr: any) {
-      // Graceful fallback for P2002 (Unique constraint failed on email)
-      if (createErr.code === 'P2002' && cleanEmail) {
-        console.warn(`[AUTH ${sourceEndpoint}] Email collision (P2002) detected for ${cleanEmail}. Resolving via account linking...`);
-        user = await prisma.user.findFirst({
-          where: { email: { equals: cleanEmail, mode: 'insensitive' } },
-          include: {
-            studentProfile: true,
-            industryProfile: true,
-            academicianProfile: true,
-            institutionProfile: true,
-          },
-        });
+      // Graceful fallback for P2002 concurrent collisions
+      if (createErr.code === 'P2002') {
+        const [collidingByUid, collidingByEmail] = await Promise.all([
+          uid
+            ? prisma.user.findFirst({
+                where: { firebaseUid: uid },
+                include: {
+                  studentProfile: true,
+                  industryProfile: true,
+                  academicianProfile: true,
+                  institutionProfile: true,
+                },
+              })
+            : null,
+          cleanEmail
+            ? prisma.user.findFirst({
+                where: { email: { equals: cleanEmail, mode: 'insensitive' as const } },
+                include: {
+                  studentProfile: true,
+                  industryProfile: true,
+                  academicianProfile: true,
+                  institutionProfile: true,
+                },
+              })
+            : null,
+        ]);
 
-        if (user) {
-          // Unlink conflicting record if any
-          await prisma.user.updateMany({
-            where: { firebaseUid: uid, id: { not: user.id } },
-            data: { firebaseUid: null },
-          });
+        const collidingUser = collidingByUid || collidingByEmail;
 
-          user = await prisma.user.update({
-            where: { id: user.id },
-            data: {
-              firebaseUid: uid,
-              avatarUrl: user.avatarUrl || avatarUrl,
-            },
-            include: {
-              studentProfile: true,
-              industryProfile: true,
-              academicianProfile: true,
-              institutionProfile: true,
-            },
-          });
-          console.log(`[AUTH ${sourceEndpoint}] Successfully linked conflicting email account ${user.id} to Firebase UID ${uid}.`);
+        if (collidingUser) {
+          // If the colliding user belongs to the SAME Firebase UID:
+          if (collidingUser.firebaseUid === uid) {
+            if (assignedRole && collidingUser.role !== assignedRole) {
+              console.warn(
+                `[AUTH ${sourceEndpoint}] P2002 collision: User ${collidingUser.id} has same Firebase UID ${uid} but role ${collidingUser.role} !== requested ${assignedRole}.`
+              );
+              return res.status(409).json({
+                error: {
+                  code: 'ROLE_CONFLICT',
+                  message: `An account already exists with role ${collidingUser.role}. Cannot register as ${assignedRole}.`,
+                },
+              });
+            }
+            console.log(
+              `[AUTH ${sourceEndpoint}] P2002 collision recovery: User ${collidingUser.id} has same Firebase UID and matching role (${collidingUser.role}). Idempotent success.`
+            );
+            user = collidingUser;
+          } else if (collidingByUid && collidingByUid.id !== collidingUser.id) {
+            console.error(
+              `[AUTH ${sourceEndpoint}] P2002 collision: Firebase UID ${uid} is already linked to user ${collidingByUid.id}. Rejecting.`
+            );
+            return res.status(409).json({
+              error: {
+                code: 'FIREBASE_UID_ALREADY_LINKED',
+                message: 'This Firebase account is already linked to another user.',
+              },
+            });
+          } else if (isFederatedExternalProvider) {
+            if (!isEmailVerified) {
+              console.error(`[AUTH ${sourceEndpoint}] Account with email ${cleanEmail} exists, but Firebase token email is not verified.`);
+              return res.status(403).json({
+                error: {
+                  code: 'EMAIL_NOT_VERIFIED',
+                  message: 'An account with this email exists, but your login provider email is not verified. Please verify your email before linking.',
+                },
+              });
+            }
+
+            if (uid && collidingUser.firebaseUid && collidingUser.firebaseUid !== uid) {
+              return res.status(409).json({
+                error: {
+                  code: 'FIREBASE_UID_ALREADY_LINKED',
+                  message: 'This Firebase account is already linked to another user.',
+                },
+              });
+            }
+
+            user = await prisma.user.update({
+              where: { id: collidingUser.id },
+              data: {
+                firebaseUid: uid,
+                avatarUrl: collidingUser.avatarUrl || avatarUrl,
+              },
+              include: {
+                studentProfile: true,
+                industryProfile: true,
+                academicianProfile: true,
+                institutionProfile: true,
+              },
+            });
+          } else {
+            console.warn(`[AUTH ${sourceEndpoint}] Password registration collision (P2002) for ${cleanEmail}. Returning ACCOUNT_EXISTS.`);
+            return res.status(409).json({
+              error: {
+                code: 'ACCOUNT_EXISTS',
+                message: 'An account with this email address already exists. Please sign in instead.',
+              },
+            });
+          }
         } else {
           throw createErr;
         }
@@ -460,13 +801,34 @@ router.post('/firebase-login-fallback', loginLimiter, async (req: Request, res: 
   }
 
   try {
-    // Generate custom token for this user so Firebase Client SDK can sign in and establish a persistent session
-    const customToken = await adminAuth.createCustomToken(user.firebaseUid || user.id);
+    // Generate custom token for this user so Firebase Client SDK can sign in and establish a persistent session.
+    // Explicitly use user.firebaseUid if known; otherwise use SkillBridge user.id as the fallback identifier.
+    const fallbackUid = user.firebaseUid || user.id;
+    // Pass email, role, and explicit SkillBridge fallback markers as developer claims
+    const customToken = await adminAuth.createCustomToken(fallbackUid, {
+      email: user.email,
+      role: user.role,
+      isSkillBridgeFallback: true,
+      skillbridgeUserId: user.id,
+    });
     await recordDailyActivity(user.id);
     const session = await buildUserSession(user.id);
 
+    // Issue SkillBridge access and refresh tokens using authoritative database role
+    const tokenPayload = { userId: user.id, role: user.role, email: user.email };
+    const accessToken = generateAccessToken(tokenPayload);
+    const refreshToken = generateRefreshToken(tokenPayload);
+
+    res.cookie('refreshToken', refreshToken, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
     return res.json({
       customToken,
+      accessToken,
       user: session,
       message: 'Authentication verified. Establishing Firebase persistent session.',
     });
@@ -646,6 +1008,116 @@ router.post('/register', async (req: Request, res: Response) => {
     console.error('Registration error:', error);
     return res.status(500).json({
       error: { code: 'SERVER_ERROR', message: 'Could not complete registration.' },
+    });
+  }
+});
+
+/**
+ * POST /api/auth/provision-student
+ *
+ * Institution Admin–only endpoint: creates a new Student account in Firebase Auth
+ * (server-side via Admin SDK, so the calling browser session is NEVER replaced)
+ * and provisions the matching PostgreSQL record.
+ *
+ * Returns the newly created user's public profile. It deliberately does NOT issue
+ * an accessToken or refreshToken for the new account, so the admin's session is
+ * completely unaffected.
+ */
+router.post('/provision-student', authenticate, requireRole(['INSTITUTION_ADMIN']), async (req: AuthRequest, res: Response) => {
+  const { email, password, name, institution, targetDomain, phone, cgpa, bio } = req.body || {};
+
+  if (!email || !password || !name || !institution) {
+    return res.status(400).json({
+      error: {
+        code: 'VALIDATION_ERROR',
+        message: 'email, password, name, and institution are required to provision a student account.',
+      },
+    });
+  }
+
+  const cleanEmail = String(email).toLowerCase().trim();
+  const cleanPassword = String(password);
+
+  if (cleanPassword.length < 6) {
+    return res.status(400).json({
+      error: { code: 'VALIDATION_ERROR', message: 'Password must be at least 6 characters.' },
+    });
+  }
+
+  // 1. Guard: email must not already exist in PostgreSQL
+  const existing = await prisma.user.findFirst({
+    where: { email: { equals: cleanEmail, mode: 'insensitive' } },
+  });
+  if (existing) {
+    return res.status(409).json({
+      error: { code: 'EMAIL_EXISTS', message: 'An account with this email already exists.' },
+    });
+  }
+
+  try {
+    // 2. Create Firebase Auth user via Admin SDK — does NOT affect any browser session
+    let firebaseUid: string | null = null;
+    try {
+      const fbUser = await adminAuth.createUser({
+        email: cleanEmail,
+        password: cleanPassword,
+        displayName: String(name).trim(),
+      });
+      firebaseUid = fbUser.uid;
+    } catch (fbErr: any) {
+      if (fbErr.code === 'auth/email-already-exists') {
+        // Firebase already has this email — look up the UID and proceed to DB provisioning
+        const existing = await adminAuth.getUserByEmail(cleanEmail);
+        firebaseUid = existing.uid;
+      } else {
+        throw fbErr;
+      }
+    }
+
+    // 3. Hash the password for PostgreSQL (legacy/fallback login support)
+    const passwordHash = await bcrypt.hash(cleanPassword, 10);
+
+    // 4. Provision Student record in PostgreSQL
+    const newUser = await prisma.user.create({
+      data: {
+        email: cleanEmail,
+        firebaseUid: firebaseUid ?? undefined,
+        passwordHash,
+        name: String(name).trim(),
+        role: 'STUDENT',
+        phone: phone?.trim() || null,
+        avatarUrl: null,
+        currentStreak: 1,
+        longestStreak: 1,
+        studentProfile: {
+          create: {
+            institution: String(institution).trim(),
+            targetDomain: targetDomain?.trim() || 'Full-Stack Web',
+            cgpa: cgpa ? Number(cgpa) : null,
+            bio: bio?.trim() || null,
+          },
+        },
+      },
+      include: { studentProfile: true },
+    });
+
+    await recordDailyActivity(newUser.id);
+
+    const session = await buildUserSession(newUser.id);
+
+    // 5. Return the provisioned student profile ONLY — no accessToken, no refreshToken,
+    //    no cookie — the calling admin's session is completely untouched.
+    return res.status(201).json({
+      message: 'Student account provisioned successfully.',
+      student: session,
+    });
+  } catch (err: any) {
+    console.error('[AUTH provision-student] Error:', err);
+    return res.status(500).json({
+      error: {
+        code: 'PROVISION_FAILED',
+        message: err.message || 'Failed to provision student account.',
+      },
     });
   }
 });
@@ -946,7 +1418,7 @@ router.post('/oauth/register', async (req: Request, res: Response) => {
     return res.status(400).json({ error: { message: 'Valid OAuth onboarding token is required.' } });
   }
 
-  if (!role || !['STUDENT', 'INDUSTRY', 'ACADEMICIAN', 'INSTITUTION_ADMIN'].includes(role)) {
+  if (!role || !['STUDENT', 'INDUSTRY', 'INSTITUTION_ADMIN'].includes(role)) {
     return res.status(400).json({ error: { message: 'Valid role is required.' } });
   }
 
@@ -970,7 +1442,7 @@ router.post('/oauth/register', async (req: Request, res: Response) => {
   const passwordHash = await bcrypt.hash(randomPassword, 10);
   const displayName = verifiedUser.name.trim();
 
-  let user;
+  let user: any;
   if (role === 'STUDENT') {
     user = await prisma.user.create({
       data: {
@@ -1013,40 +1485,23 @@ router.post('/oauth/register', async (req: Request, res: Response) => {
       },
       include: { industryProfile: true },
     });
-  } else if (role === 'ACADEMICIAN') {
+  } else if (role === 'INSTITUTION_ADMIN') {
+    const instName = roleData?.institutionName?.trim() || 'University Administration';
+    const adminDesig = roleData?.adminDesignation?.trim() || 'Dean';
+    const personName = (roleData?.name || displayName || instName).trim();
     user = await prisma.user.create({
       data: {
         email: cleanEmail,
         passwordHash,
-        name: displayName,
-        role: 'ACADEMICIAN',
-        avatarUrl: verifiedUser.avatarUrl || null,
-        currentStreak: 1,
-        longestStreak: 1,
-        academicianProfile: {
-          create: {
-            institution: roleData?.institution || 'Academic Institute',
-            department: roleData?.department || 'Computer Science',
-            designation: roleData?.designation || 'Faculty Member',
-          },
-        },
-      },
-      include: { academicianProfile: true },
-    });
-  } else {
-    user = await prisma.user.create({
-      data: {
-        email: cleanEmail,
-        passwordHash,
-        name: roleData?.institutionName || displayName,
+        name: personName,
         role: 'INSTITUTION_ADMIN',
         avatarUrl: verifiedUser.avatarUrl || null,
         currentStreak: 1,
         longestStreak: 1,
         institutionProfile: {
           create: {
-            institutionName: roleData?.institutionName || 'University Administration',
-            adminDesignation: roleData?.adminDesignation || 'Dean',
+            institutionName: instName,
+            adminDesignation: adminDesig,
           },
         },
       },

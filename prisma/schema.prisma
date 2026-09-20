@@ -82,6 +82,11 @@ model StudentProfile {
   marksheets           UploadedMarksheet[]
   academicAnalysis     AcademicAnalysis?
   academicPracticeAttempts AcademicPracticeAttempt[]
+  institutionProfileId String?
+  institutionProfile   InstitutionProfile?  @relation(fields: [institutionProfileId], references: [id], onDelete: SetNull)
+  candidateRecommendations CandidateRecommendation[]
+  candidateTags            CandidateTag[]
+  candidateNotes           CandidateNote[]
 }
 
 model Domain {
@@ -152,7 +157,12 @@ model InstitutionProfile {
   institutionName  String
   adminDesignation String
 
-  collaborations   Collaboration[]
+  collaborations        Collaboration[]
+  students              StudentProfile[]
+  recommendations       CandidateRecommendation[]
+  savedFilters          SavedCandidateFilter[]
+  candidateTags         CandidateTag[]
+  candidateNotes        CandidateNote[]
 }
 
 model PasswordResetToken {
@@ -321,10 +331,28 @@ model Application {
   appliedAt            DateTime        @default(now())
   updatedAt            DateTime        @default(now()) @updatedAt
 
+  history              ApplicationHistory[]
+
   @@index([studentId])
   @@index([internshipId])
   @@index([opportunityId])
   @@index([status])
+}
+
+model ApplicationHistory {
+  id              String      @id @default(uuid())
+  applicationId   String
+  application     Application @relation(fields: [applicationId], references: [id], onDelete: Cascade)
+  fromStatus      String
+  toStatus        String
+  changedByUserId String
+  changedByRole   String      // STUDENT | INDUSTRY | INSTITUTION_ADMIN | SYSTEM
+  notes           String?
+  metadataJson    String?
+  createdAt       DateTime    @default(now())
+
+  @@index([applicationId])
+  @@index([createdAt])
 }
 
 model Resume {
@@ -641,6 +669,7 @@ model Opportunity {
   assessments           Assessment[]
   savedByStudents       SavedOpportunity[]
   interviewSessions     InterviewSession[]
+  recommendations       CandidateRecommendation[]
 
   @@index([companyId])
   @@index([type])
@@ -792,8 +821,8 @@ model InterviewSession {
 
 model Collaboration {
   id               String               @id @default(uuid())
-  institutionId    String
-  institution      InstitutionProfile   @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+  institutionId    String?
+  institution      InstitutionProfile?  @relation(fields: [institutionId], references: [id], onDelete: SetNull)
   companyId        String
   company          IndustryProfile      @relation(fields: [companyId], references: [id], onDelete: Cascade)
   type             String               @default("WORKSHOP") // MENTORSHIP | GUEST_LECTURE | WORKSHOP | HACKATHON | LIVE_PROJECT | RESEARCH | APPRENTICESHIP | TRAINING | CURRICULUM_FEEDBACK | FACULTY_DEV | PLACEMENT_DRIVE
@@ -1107,4 +1136,81 @@ model IndustryDemoApplication {
   @@index([source])
 }
 
+// ========================================================
+// PHASE 2: CANDIDATE EXPLORER MODELS
+// ========================================================
 
+// CandidateRecommendation — Institutional endorsement of a student for a specific Opportunity.
+// Created by INSTITUTION_ADMIN. Does NOT auto-apply or modify the student's Application.
+// CandidateRecommendation — Institutional endorsement of a candidate for an Opportunity.
+// Retention Policy: Invariant N8 & Requirement 8 — Opportunities are soft-closed via status
+// rather than hard-deleted. onDelete: Restrict protects institutional audit and recommendation
+// history from accidental deletion cascades.
+model CandidateRecommendation {
+  id            String             @id @default(uuid())
+  institutionId String
+  institution   InstitutionProfile @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+  opportunityId String
+  opportunity   Opportunity        @relation(fields: [opportunityId], references: [id], onDelete: Restrict)
+  candidateId   String
+  candidate     StudentProfile     @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  recommendedBy String             // User.id of the admin who made the recommendation
+  notes         String?            // Optional endorsement note visible to recruiter
+  status        String             @default("RECOMMENDED") // RECOMMENDED | REVIEWED | CONTACTED | DECLINED
+  batchId       String?            // Group UUID if submitted as a bulk batch
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  @@unique([institutionId, opportunityId, candidateId])
+  @@index([institutionId])
+  @@index([opportunityId])
+  @@index([candidateId])
+  @@index([batchId])
+}
+
+// SavedCandidateFilter — Admin-saved filter preset for the Candidate Explorer.
+// Scoped by default to creator-private (Requirement 4 & 5).
+model SavedCandidateFilter {
+  id            String             @id @default(uuid())
+  institutionId String
+  institution   InstitutionProfile @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+  name          String             // Display name e.g. "Placement Ready CSE 2026"
+  filtersJson   String             // JSON of filter params
+  createdBy     String             // User.id of creator (ownership boundary)
+  visibility    String             @default("PRIVATE") // PRIVATE | INSTITUTION_SHARED
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+
+  @@index([institutionId])
+  @@index([createdBy])
+}
+
+// CandidateTag — Internal tag on a student, scoped to the institution.
+model CandidateTag {
+  id            String             @id @default(uuid())
+  institutionId String
+  institution   InstitutionProfile @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+  candidateId   String
+  candidate     StudentProfile     @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  tag           String             // e.g. "Placement Ready", "Needs SQL Upskilling"
+  createdAt     DateTime           @default(now())
+
+  @@unique([institutionId, candidateId, tag])
+  @@index([institutionId])
+  @@index([candidateId])
+}
+
+// CandidateNote — Internal note on a student, scoped to the institution.
+model CandidateNote {
+  id            String             @id @default(uuid())
+  institutionId String
+  institution   InstitutionProfile @relation(fields: [institutionId], references: [id], onDelete: Cascade)
+  candidateId   String
+  candidate     StudentProfile     @relation(fields: [candidateId], references: [id], onDelete: Cascade)
+  authorId      String             // User.id of the admin who wrote the note
+  note          String
+  createdAt     DateTime           @default(now())
+
+  @@index([institutionId])
+  @@index([candidateId])
+}

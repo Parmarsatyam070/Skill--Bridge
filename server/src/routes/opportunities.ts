@@ -654,6 +654,17 @@ router.post('/:id/apply', authenticate, requireStudentProfile, async (req: AuthR
         tx,
       });
 
+      await tx.applicationHistory.create({
+        data: {
+          applicationId: app.id,
+          fromStatus: 'INITIAL',
+          toStatus: 'APPLIED',
+          changedByUserId: req.user!.id,
+          changedByRole: req.user!.role,
+          notes: coverNote ? `Cover Note: ${coverNote}` : 'Application submitted.',
+        },
+      });
+
       return app;
     });
 
@@ -865,5 +876,53 @@ router.get('/my/matches', authenticate, requireStudentProfile, async (req: AuthR
     });
   }
 });
+
+/**
+ * GET /api/opportunities/:id/recommendations
+ * Recruiter views candidates recommended by institutions for their opportunity.
+ * Enforces ownership: only the recruiter owning this opportunity can view them.
+ */
+router.get(
+  '/:id/recommendations',
+  authenticate,
+  requireRole(['INDUSTRY']),
+  requireIndustryProfile,
+  requireOpportunityOwnership,
+  async (req: AuthRequest, res: Response) => {
+    try {
+      const opportunityId = req.params.id;
+      const recs = await prisma.candidateRecommendation.findMany({
+        where: { opportunityId },
+        include: {
+          institution: { select: { id: true, institutionName: true } },
+          candidate: {
+            select: {
+              id: true,
+              targetDomain: true,
+              cgpa: true,
+              gradYear: true,
+              user: { select: { id: true, name: true, avatarUrl: true } },
+              skillScores: {
+                select: {
+                  skill: { select: { name: true } },
+                  score: true,
+                  verificationLevel: true,
+                },
+                take: 5,
+              },
+            },
+          },
+        },
+        orderBy: { createdAt: 'desc' },
+      });
+      return res.json({ recommendations: recs });
+    } catch (err: any) {
+      console.error('Error fetching opportunity recommendations:', err);
+      return res.status(500).json({
+        error: { code: 'INTERNAL_ERROR', message: 'Failed to fetch recommendations.' },
+      });
+    }
+  }
+);
 
 export default router;
